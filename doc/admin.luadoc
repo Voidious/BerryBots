@@ -1,0 +1,129 @@
+--- Administrative operations for a stage control program.
+module "Admin"
+
+--- Destroys a ship.
+-- <br/><br/>
+-- @param ship The ship to destroy.
+function destroyShip(ship)
+
+--- Revives a ship.
+-- <br/><br/>
+-- @param ship The ship to revive. The ship's energy is set to full (100).
+function reviveShip(ship)
+
+--- Moves a ship. If the specified location overlaps any walls or other ships,
+-- it is shifted randomly until it doesn't.
+-- <br/><br/>
+-- @param ship The ship to move.
+-- @param x The x coordinate of the ship's new location.
+-- @param y The y coordinate of the ship's new location.
+function moveShip(ship, x, y)
+
+--- Sets a ship's speed. The ship will have the chance to fire its thruster
+-- once more before its position is next updated.
+-- <br/><br/>
+-- @param ship The ship to modify.
+-- @param speed The new speed of the ship.
+function setShipSpeed(ship, speed)
+
+--- Sets a ship's heading, in radians (0 is east, pi / 2 is north). The ship
+-- will have the chance to fire its thruster once more before its position is
+-- next updated.
+-- <br/><br/>
+-- @param ship The ship to modify.
+-- @param heading The new heading of the ship.
+function setShipHeading(ship, heading)
+
+--- Sets a ship's energy.
+-- <br/><br/>
+-- @param ship The ship to modify.
+-- @param energy The new energy of the ship.
+function setShipEnergy(ship, energy)
+
+--- Sets whether a ship's laser gun is enabled. (Default: <code>false</code>,
+-- or <code>true</code> if battle mode is enabled.)<br/><br/>
+-- @param ship The ship to modify.
+-- @param enabled <code>true</code> to enable the ship's laser gun,
+--     <code>false</code> otherwise.
+function setShipLaserEnabled(ship, enabled)
+
+--- Sets whether a ship's torpedo gun is enabled. (Default: <code>false</code>,
+-- or <code>true</code> if battle mode is enabled.)<br/><br/>
+-- @param ship The ship to modify.
+-- @param enabled <code>true</code> to enable the ship's torpedo gun,
+--     <code>false</code> otherwise.
+function setShipTorpedoEnabled(ship, enabled)
+
+--- Sets whether a ship's thruster is enabled.
+-- (Default: <code>true</code>.)<br/><br/>
+-- @param ship The ship to modify.
+-- @param enabled <code>true</code> to enable the ship's thruster,
+--     <code>false</code> otherwise.
+function setShipThrusterEnabled(ship, enabled)
+
+--- Sets whether a ship's energy can be modified. (Default: <code>false</code>,
+-- or <code>true</code> if battle mode is enabled.)<br/><br/>
+-- @param ship The ship to modify.
+-- @param enabled <code>true</code> to enable energy tracking for the ship,
+--     <code>false</code> otherwise.
+function setShipEnergyEnabled(ship, enabled)
+
+--- Sets whether a ship's name is drawn on screen. For stage ships, it's often
+-- preferable to hide the name. (Default: <code>true</code>.)<br/><br/>
+-- @param ship The ship to modify.
+-- @param showName <code>true</code> to show the ship's name, <code>false</code>
+--     otherwise.
+function setShipShowName(ship, showName)
+
+--- Sends a custom event to the target ship. This event can be any Lua value -
+-- nil, boolean, number, string, or a table containing any of these values,
+-- including nested tables.<br/><br/>
+-- @param ship The ship to send the event to.
+-- @param event The value to send as an event.
+function sendEvent(ship, event)
+
+--- Returns the number of enemy ships the given ship has killed.
+-- <br/><br/>
+-- @param ship The ship to query.
+function shipKills(ship)
+
+--- Returns the amount of damage the given ship has done to enemy ships. The
+-- amount of damage is divided by the total energy a ship starts with. If a ship
+-- inflicts full damage to a ship, that would be 1.0 damage.<br/><br/>
+-- @param ship The ship to query.
+function shipDamage(ship)
+
+--- Returns the number of friendly ships (self or teammates) the given ship has
+-- killed.<br/><br/>
+-- @param ship The ship to query.
+function shipFriendlyKills(ship)
+
+--- Returns the amount of damage the given ship has done to friendly ships
+-- (self or teammates). The amount of damage is divided by the total
+-- energy a ship starts with. If a ship inflicts full damage to a ship, that
+-- would be 1.0 damage.<br/><br/>
+-- @param ship The ship to query.
+function shipFriendlyDamage(ship)
+
+--- Sets the name of the ship or team that has won the match.
+-- <br/><br/>
+-- @param name The name of the winning team or ship.
+function setWinner(name)
+
+--- Ends a round. All torpedos and lasers are removed from the stage, all ships
+-- are revived and moved to new start locations by the same configuration as at
+-- the start of a match. The <code>roundOver</code> function is called on any
+-- ship control program that defines it.
+-- <br/><br/>
+function roundOver()
+
+--- Ends the match. The <code>gameOver</code> function is called on any ship
+-- control program that defines it.<br/><br/>
+function gameOver()
+
+--- Draws text on the screen.
+-- <br/><br/>
+-- @param x The x coordinate of the left side of the text.
+-- @param y The y coordinate of the bottom of the text.
+-- @param text The text to draw on the screen.
+function drawText(x, y, text)

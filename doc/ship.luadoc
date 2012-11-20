@@ -1,0 +1,149 @@
+--- A ship controlled by a user written program loaded at run time.
+module "Ship"
+
+--- Fires the ship's thruster, pushing it in the given direction and altering
+-- its speed and/or heading. This command only affects one tick - if you don't
+-- call it again the next tick, your ship will keep moving with the same speed
+-- and heading.<br/><br/>
+-- Note that momentum is cumulative. From a dead stop, your ship will move in
+-- the given direction, but if your ship is already moving, the thruster force
+-- is added to your current movement vector. If you want to keep things simple
+-- and always move in straight lines, you can stop moving in one direction
+-- before starting to move in another:
+-- <code>ship:fireThruster(ship:heading() + math.pi, ship:speed())</code>
+-- <br/><br/>
+-- @param angle The angle the thruster will push the ship in, in radians (0 is
+--     east, pi / 2 is north).
+-- @param force The force of the thruster push, 0 <= force <= 1. A force of 1
+--     alters the ship's speed by 1 along the axis of the thruster angle.
+-- @return <code>true</code> if the thruster was fired, <code>false</code>
+--     otherwise (if the thruster has been disabled by the stage).
+function fireThruster(angle, force)
+
+--- Fires a laser at the given angle. All lasers move at the same speed (25),
+-- do the same amount of damage (4), and cool at the same rate (5 ticks).
+-- <br/><br/>
+-- @param heading The angle at which to fire the laser, in radians (0 is east,
+--     pi / 2 is north).
+-- @return <code>true</code> if the laser was fired, <code>false</code>
+--     otherwise (if battle mode is disabled, if the laser gun was not cool, or
+--     if it was disabled by the stage).
+function fireLaser(heading)
+
+--- Fires a torpedo the given distance at the given angle. All torpedos move at
+-- the same speed (12), do the same amount of damage, and cool at the same rate
+-- (100 ticks). Torpedos move through walls and ships until they reach the
+-- specified distance. They inflict damage and knockback on all ships within the
+-- blast radius (100), doing the most damage and knockback to ships near the
+-- center of the blast.<br/><br/>
+-- The damage and knockback formulas are both:<br/>
+-- <code>30 / (1 - square(distance to blast center / blast radius))</code>
+-- <br/><br/>
+-- Ships near the center of the blast radius take nearly full damage, while
+-- ships at a distance of 50 take 25% damage and knockback.<br/><br/>
+-- @param heading The angle at which to fire the torpedo, in radians (0 is east,
+--     pi / 2 is north).
+-- @param distance The distance to fire the torpedo.
+-- @return <code>true</code> if the torpedo was fired, <code>false</code>
+--     otherwise (if battle mode is disabled, if the torpedo gun was not cool,
+--     or if it was disabled by the stage).
+function fireTorpedo(heading, distance)
+
+--- The x coordinate of the ship (higher is to the right).
+-- <br/><br/>
+-- @return The x coordinate of the ship.
+function x()
+
+--- The y coordinate of the ship (higher is to the top).
+-- <br/><br/>
+-- @return The y coordinate of the ship.
+function y()
+
+--- The ship's heading, in radians (0 is east, pi / 2 is north).
+-- <br/><br/>
+-- @return The ship's heading.
+function heading()
+
+--- The ship's speed.
+-- <br/><br/>
+-- @return The ship's speed.
+function speed()
+
+--- The ship's energy. A ship with energy <= 0 is destroyed.
+-- <br/><br/>
+-- @return The ship's energy
+function energy()
+
+--- The heat of the ship's laser gun. A heat of 0 means the gun can be fired,
+-- a heat of 3 means the gun can be fired 3 ticks from now.<br/><br/>
+-- @return The heat of the ship's laser gun.
+function laserGunHeat()
+
+--- The heat of the ship's torpedo gun. A heat of 0 means the gun can be fired,
+-- a heat of 50 means the gun can be fired 50 ticks from now.<br/><br/>
+-- @return The heat of the ship's torpedo gun.
+function torpedoGunHeat()
+
+--- Whether the ship hit a wall on the previous tick.
+-- <br/><br/>
+-- @return <code>true</code> if the ship hit a wall on the previous tick,
+--     <code>false</code> otherwise.
+function hitWall()
+
+--- Whether the ship hit another ship on the previous tick.
+-- <br/><br/>
+-- @return <code>true</code> if the ship hit another ship on the previous tick,
+--     <code>false</code> otherwise.
+function hitShip()
+
+--- Whether the ship is currently alive.
+-- <br/><br/>
+-- @return <code>true</code> if the ship is alive, <code>false</code> otherwise.
+function alive()
+
+--- Whether the ship was loaded by the stage.
+-- <br/><br/>
+-- @return <code>true</code> if the ship is part of the stage,
+--     <code>false</code> otherwise.
+function isStageShip()
+
+--- Sets the name of the ship. This function can only be called during
+-- <code>init</code>.<br/><br/>
+-- @param name The name of the ship.
+function setName(name)
+
+--- Sets the name of the ship's team. This function can only be called during
+-- <code>init</code>.<br/><br/>
+-- @param teamName The name of the team this ship is part of.
+function setTeamName(teamName)
+
+--- Sets the color of the ship's hull, in RGB (0-255).
+-- <br/><br/>
+-- @param r The amount of red, from 0 to 255.
+-- @param g The amount of green, from 0 to 255.
+-- @param b The amount of blue, from 0 to 255.
+function setShipColor(r, g, b)
+
+--- Sets the color of the ship's lasers, in RGB (0-255).
+-- <br/><br/>
+-- @param r The amount of red, from 0 to 255.
+-- @param g The amount of green, from 0 to 255.
+-- @param b The amount of blue, from 0 to 255.
+function setLaserColor(r, g, b)
+
+--- Sets the color of the ship's thruster, in RGB (0-255).
+-- <br/><br/>
+-- @param r The amount of red, from 0 to 255.
+-- @param g The amount of green, from 0 to 255.
+-- @param b The amount of blue, from 0 to 255.
+function setThrusterColor(r, g, b)
+
+--- The name of the ship.
+-- <br/><br/>
+-- @return The name of the ship.
+function name()
+
+--- The name of the team this ship is part of.
+-- <br/><br/>
+-- @return The name of the team this ship is part of.
+function teamName()

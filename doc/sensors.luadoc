@@ -1,0 +1,154 @@
+--- A ship's sensors, which provide information about events that occurred on
+-- the previous tick. In general, a ship or team is aware of any event that
+-- happens to a ship that it controls, or to any ship that is visible to a ship
+-- that it controls (i.e., no walls between the ships).
+module "Sensors"
+
+--- Details of a ship-ship collision.
+-- <br/>
+-- @class table
+-- @name HitByShipEvent
+-- @field time The time of the ship-ship collision.
+-- @field targetName The name of the ship (under this program's control) that
+--     was hit.
+-- @field targetX The x coordinate of the ship that was hit.
+-- @field targetY The y coordinate of the ship that was hit.
+-- @field hittingName The name of the hitting ship.
+-- @field hittingX The x coordinate of the hitting ship.
+-- @field hittingY The y coordinate of the hitting ship.
+-- @field inAngle The angle from the hitting ship to the target ship.
+-- @field inForce The magnitude of force that the hitting ship applied to the
+--     target ship, altering its momentum.
+-- @field outAngle The angle from the target ship to the hitting ship.
+-- @field outForce The magnitude of force that the target ship applied to the
+--     hitting ship, altering its momentum.
+
+--- Details of ship-ship collisions with ships under this program's control.
+-- <br/><br/>
+-- @see HitByShipEvent
+-- @return A table of all <code>HitByShipEvent</code>s from the previous tick.
+function hitByShipEvents()
+
+--- Details of a laser hitting a ship under this program's control.
+-- <br/>
+-- @class table
+-- @name HitByLaserEvent
+-- @field time The time of the laser-ship collision.
+-- @field targetName The name of the ship that was hit.
+-- @field laserX The x coordinate of the hitting laser.
+-- @field laserY The y coordinate of the hitting laser.
+-- @field laserHeading The angle at which the laser was traveling.
+
+--- Details of lasers hitting ships under this program's control.
+-- <br/><br/>
+-- @see HitByLaserEvent
+-- @return A table of all <code>HitByLaserEvent</code>s from the previous tick.
+function hitByLaserEvents()
+
+--- Details of a torpedo hitting a ship under this program's control.
+-- <br/>
+-- @class table
+-- @name HitByTorpedoEvent
+-- @field time The time of the torpedo-ship collision.
+-- @field targetName The name of the ship that was hit.
+-- @field hitAngle The angle from the blast center to the target ship.
+-- @field hitForce The magnitude of force that the torpedo blast applied to the
+--     target ship, altering its momentum.
+-- @field hitDamage The damage done by the torpedo blast to the target ship,
+--     decreasing its energy.
+
+--- Details of torpedos hitting ships under this program's control.
+-- <br/><br/>
+-- @see HitByTorpedoEvent
+-- @return A table of all <code>HitByTorpedoEvent</code>s from the previous
+--     tick.
+function hitByTorpedoEvents()
+
+--- Details of a ship under this program's control hitting the wall.
+-- <br/>
+-- @class table
+-- @name HitWallEvent
+-- @field time The time of the ship-wall collision.
+-- @field shipName The name of the ship that hit the wall.
+-- @field shipX The x coordinate of the ship when it hit the wall.
+-- @field shipY The y coordinate of the ship when it hit the wall.
+-- @field bounceAngle The angle at which the collision exerted force against the
+--     ship.
+-- @field bounceForce The mangnitude of force that the wall collision applied to
+--     the target ship, altering its momentum.
+
+--- Details of ship-wall collisions with ships under this program's control.
+-- <br/><br/>
+-- @see HitWallEvent
+-- @return A table of all <code>HitWallEvent</code>s from the previous tick.
+function hitWallEvents()
+
+--- Details of a ship being destroyed.
+-- <br/>
+-- @class table
+-- @name ShipDestroyedEvent
+-- @field time The time that the ship was destroyed.
+-- @field shipName The name of the ship that was destroyed.
+
+--- Details of all ships destroyed. Unlike most events, these are reported even
+-- to programs that didn't have vision of them.
+-- <br/><br/>
+-- @see ShipDestroyedEvent
+-- @return A table of all <code>ShipDestroyedEvent</code>s from the previous tick.
+function shipDestroyedEvents()
+
+--- Details of a visible enemy ship firing a laser.
+-- <br/>
+-- @class table
+-- @name ShipFiredLaserEvent
+-- @field time The time that the ship fired a laser.
+-- @field shipName The name of the ship that fired a laser.
+-- @field shipX The x coordinate of the ship when it fired a laser.
+-- @field shipY The y coordinate of the ship when it fired a laser.
+
+--- Details of lasers fired by visible enemy ships.
+-- <br/><br/>
+-- @see ShipFiredLaserevent
+-- @return A table of all visible <code>ShipFiredLaserEvent</code>s from the
+--     previous tick.
+function shipFiredLaserEvents()
+
+--- Details of a visible enemy ship firing a torpedo.
+-- <br/>
+-- @class table
+-- @name ShipFiredTorpedoEvent
+-- @field time The time that the ship fired a torpedo.
+-- @field shipName The name of the ship that fired a torpedo.
+-- @field shipX The x coordinate of the ship when it fired a torpedo.
+-- @field shipY The y coordinate of the ship when it fired a torpedo.
+
+--- Details of torpedos fired by visible enemy ships.
+-- <br/><br/>
+-- @see ShipFiredTorpedoevent
+-- @return A table of all visible <code>ShipFiredTorpedoEvent</code>s from the
+--     previous tick.
+function shipFiredTorpedoEvents()
+
+--- Details of a laser hitting a visible enemy ship.
+-- <br/>
+-- @class table
+-- @name LaserHitShipEvent
+-- @field time The time of the laser-ship collision.
+-- @field targetName The name of the ship that was hit.
+-- @field targetX The x coordinate of the ship when it was hit.
+-- @field targetY The y coordinate of the ship when it was hit.
+
+--- Details of lasers hitting visible enemy ships.
+-- <br/><br/>
+-- @see LaserHitShipEvent
+-- @return A table of all visible <code>LaserHitShipEvent</code>s from the
+--     previous tick.
+function laserHitShipEvents()
+
+--- All events sent from the stage to a ship under this program's control.
+-- These events can have any format - nil, number, string, boolean, or table
+-- with any combination of these types, including nested tables. So a ship needs
+-- to be designed to understand the specfiic event API of any stage that sends
+-- it stage events.<br/><br/>
+function stageEvents()
+    

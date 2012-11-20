@@ -1,0 +1,73 @@
+--- A builder used to configure the stage before the game starts.
+-- These functions do nothing after the stage's <code>configure</code> function
+-- finishes.
+module "StageBuilder"
+
+--- Sets the width and height of the stage.
+-- <br/><br/>
+-- @param width The width of the stage.
+-- @param height The height of the stage.
+function setSize(width, height)
+
+--- Sets whether battle mode is enabled.
+-- (Default: <code>false</code>.) When battle mode is disabled, laser guns,
+-- torpedo guns, and energy tracking are all disabled. Ships can only move
+-- around, and ships are only destroyed or revived directly by the stage
+-- program.<br/><br/>
+-- @param enabled <code>true</code> to enable battle mode, <code>false</code> to
+--     disable battle mode.
+function setBattleMode(enabled)
+
+--- Adds a wall to the stage.
+-- Lasers stop at walls, ships bounce off of walls, and ships cannot see ships
+-- or events through walls. Torpedos travel through walls.<br/><br/>
+-- @see Wall
+-- @param left The x coordinate of the left side of the wall.
+-- @param bottom The y coordinate of the bottom side of the wall.
+-- @param width The width of the wall.
+-- @param height The height of the wall.
+function addWall(left, bottom, width, height)
+
+--- Adds a start location to the stage.
+-- Start locations are given to ships in the same order that they are added,
+-- at the start of the game and each round. In the absence of a pre-defined
+-- start location, a ship is placed in a random location. In either case, if the
+-- ship's location intersects with a wall, the location is shifted randomly
+-- until it doesn't.<br/><br/>
+-- @param x The x coordinate of the start location.
+-- @param y The y coordinate of the start location.
+function addStart(x, y)
+
+--- Adds a zone to the stage.
+-- Zones are displayed on the screen and ships are told where all zones are at
+-- the start of the game. Zones have no pre-defined behavior; a stage can use a
+-- zone in any way it likes as part of its gameplay. For instance, touching a
+-- zone is the goal of a maze stage, while it destroys a ship on a joust stage.
+-- <br/><br/>
+-- @see Zone
+-- @param left The x coordinate of the left side of the zone.
+-- @param bottom The y coordinate of the bottom side of the zone.
+-- @param width The width of the zone.
+-- @param height The height of the zone.
+-- @param tag (optional) The tag string associated with this zone.
+function addZone(left, bottom, width, height, tag)
+
+--- Adds a ship to the stage.
+-- The ship's control program must be in or below the directory of the stage
+-- program. The <code>isStageShip</code> function (in <code>Ship</code>) or
+-- property (in <code>EnemyShip</code>) allow stages and ships to see which
+-- ships are part of the stage. Otherwise, they function exactly like all
+-- other ships. A stage loaded ship is generally designed to function as part of
+-- the gameplay of the stage.<br/><br/>
+-- @see ShipControl
+-- @param shipFilename The path/filename of the ship program, relative to the stage
+--     program.
+function addShip(shipFilename)
+
+--- Sets the team size.
+-- Each user loaded ship program is given this many ships. Stage ship programs
+-- are loaded with one ship, regardless of team size.<br/><br/>
+-- @see ShipControl
+-- @param teamSize The number of ships to assign to each user ship control
+--     program.
+function setTeamSize(teamSize)

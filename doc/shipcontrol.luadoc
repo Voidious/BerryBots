@@ -1,0 +1,57 @@
+--- The API to be implemented by a ship control program.
+-- Defines the behavior of a ship or a team of ships.
+module "ShipControl"
+
+--- Initializes a ship control program.
+-- Passes references to <code>ships</code> and <code>world</code> objects. These
+-- can be used to query information about the state of the game world,
+-- information about ships under this program's control, and to issue commands
+-- to those ships. Only called once at the start of the match. Some
+-- ship initialization functions, like <code>setName</code>, can only be called
+-- from init.<br/><br/>
+-- @see Ship, World
+-- @param ships A userdata object representing a ship, or if team size > 1, a
+--     table of ship userdata objects.
+-- @param world A userdata object used to query information about the game
+--     world, such as stage size, locations of walls and zones, and current
+--     time.
+function init(ships, world)
+
+--- Information about an enemy ship that's visible to the ships controlled by
+-- this program.<br/>
+-- @class table
+-- @name EnemyShip
+-- @field x The x coordinate (higher is to the right).
+-- @field y The y coordinate (higher is to the top).
+-- @field heading Angle the enemy ship is traveling, in radians (0 is east,
+--     pi / 2 is north).
+-- @field speed Speed at which the enemy ship is traveling.
+-- @field energy Amount of energy the enemy ship has.
+-- @field isStageShip Whether the ship was loaded by the stage.
+-- @field name Name of the enemy ship.
+-- @field teamName Name of the enemy ship's team.
+
+--- Executes ship control code each tick.
+-- Called once per tick to give the program a chance to process information
+-- about the game and issue commands to its ship(s). Only called if one or
+-- more of the ships controlled by this program are still alive.<br/><br/>
+-- @see EnemyShip, Sensors
+-- @param enemyShips A table with information about the enemy ships that are
+--     visible to the ships controlled by this program. Each entry is a table
+--     with information about an enemy ship.
+-- @param sensors A userdata object that can be queried for information on
+--     events that involved this program's ships on the previous tick.
+function run(enemyShips, sensors)
+
+--- (optional) Indicates a round has ended.
+-- Called by the stage each time a round ends. The meaning of this depends on
+-- the stage. In the sample battle stage library, it is called between a fixed
+-- number of rounds, but not after the last round when <code>gameOver</code> is
+-- called. Other game types could have a variable number of rounds.
+function roundOver()
+
+--- (optional) Indicates the game has ended.
+-- Called by the stage on the final tick of the game. No further action can be
+-- taken in the game world, but data can be printed about the match, or if file
+-- system access has been enabled, data could be written to disk.
+function gameOver()

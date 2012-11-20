@@ -1,0 +1,129 @@
+--- The stage's sensors, which provide information about all events that
+-- occurred this tick.
+module "StageSensors"
+
+--- Details of a ship-ship collision.
+-- <br/>
+-- @class table
+-- @name ShipHitShipEvent
+-- @field time The time of the ship-ship collision.
+-- @field targetName The name of the ship that was hit.
+-- @field targetX The x coordinate of the ship that was hit.
+-- @field targetY The y coordinate of the ship that was hit.
+-- @field hittingName The name of the hitting ship.
+-- @field hittingX The x coordinate of the hitting ship.
+-- @field hittingY The y coordinate of the hitting ship.
+-- @field inAngle The angle from the hitting ship to the target ship.
+-- @field inForce The magnitude of force that the hitting ship applied to the
+--     target ship, altering its momentum.
+-- @field outAngle The angle from the target ship to the hitting ship.
+-- @field outForce The magnitude of force that the target ship applied to the
+--     hitting ship, altering its momentum.
+
+--- Details of all ship-ship collisions. Two versions of each event
+-- are reported, with "hitting" and "target" information reversed.
+-- <br/><br/>
+-- @see ShipHitShipEvent
+-- @return A table of all <code>ShipHitShipEvent</code>s tick.
+function shipHitShipEvents()
+
+--- Details of a laser hitting a ship.
+-- <br/>
+-- @class table
+-- @name LaserHitShipEvent
+-- @field time The time of the laser-ship collision.
+-- @field srcName The name of the ship that fired the laser.
+-- @field targetName The name of the ship that was hit.
+-- @field laserX The x coordinate of the hitting laser.
+-- @field laserY The y coordinate of the hitting laser.
+-- @field laserHeading The angle at which the laser was traveling.
+
+--- Details of all lasers hitting ships.
+-- <br/><br/>
+-- @see LaserHitShipEvent
+-- @return A table of all <code>LaserHitShipEvent</code>s from this tick.
+function laserHitShipEvents()
+
+--- Details of a torpedo hitting a ship.
+-- <br/>
+-- @class table
+-- @name TorpedoHitShipEvent
+-- @field time The time of the torpedo-ship collision.
+-- @field srcName The name of the ship that fired the torpedo.
+-- @field targetName The name of the ship that was hit.
+-- @field hitAngle The angle from the blast center to the target ship.
+-- @field hitForce The magnitude of force that the torpedo blast applied to the
+--     target ship, altering its momentum.
+-- @field hitDamage The damage done by the torpedo blast to the target ship,
+--     decreasing its energy.
+
+--- Details of all torpedos hitting ships.
+-- <br/><br/>
+-- @see TorpedoHitShipEvent
+-- @return A table of all <code>TorpedoHitShipEvent</code>s from this tick.
+function torpedoHitShipEvents()
+
+--- Details of a ship hitting the wall.
+-- <br/>
+-- @class table
+-- @name ShipHitWallEvent
+-- @field time The time of the ship-wall collision.
+-- @field shipName The name of the ship that hit the wall.
+-- @field shipX The x coordinate of the ship where it hit the wall.
+-- @field shipY The y coordinate of the ship where it hit the wall.
+-- @field bounceAngle The angle at which the collision exerted force against the
+--     ship.
+-- @field bounceForce The mangnitude of force that the wall collision applied to
+--     the target ship, altering its momentum.
+
+--- Details of all ship-wall collisions.
+-- <br/><br/>
+-- @see ShipHitWallEvent
+-- @return A table of all <code>ShipHitWallEvent</code>s from this tick.
+function shipHitWallEvents()
+
+--- Details of a ship being destroyed.
+-- <br/>
+-- @class table
+-- @name ShipDestroyedEvent
+-- @field time The time that the ship was destroyed.
+-- @field shipName The name of the ship that was destroyed.
+
+--- Details of all ships destroyed.
+-- <br/><br/>
+-- @see ShipDestroyedEvent
+-- @return A table of all <code>ShipDestroyedEvent</code>s from this tick.
+function shipDestroyedEvents()
+
+--- Details of a ship firing a laser.
+-- <br/>
+-- @class table
+-- @name ShipFiredLaserEvent
+-- @field time The time that the ship fired a laser.
+-- @field shipName The name of the ship that fired a laser.
+-- @field shipX The x coordinate of the ship when it fired a laser.
+-- @field shipY The y coordinate of the ship when it fired a laser.
+-- @field laserHeading The angle at which the laser was fired.
+
+--- Details of all lasers fired.
+-- <br/><br/>
+-- @see ShipFiredLaserevent
+-- @return A table of all <code>ShipFiredLaserEvent</code>s from this tick.
+function shipFiredLaserEvents()
+
+--- Details of a ship firing a torpedo.
+-- <br/>
+-- @class table
+-- @name ShipFiredTorpedoEvent
+-- @field time The time that the ship fired a torpedo.
+-- @field shipName The name of the ship that fired a torpedo.
+-- @field shipX The x coordinate of the ship when it fired a torpedo.
+-- @field shipY The y coordinate of the ship when it fired a torpedo.
+-- @field torpedoHeading The angle at which the torpedo was fired.
+-- @field torpedoDistance The distance the torpedo was fired.
+
+--- Details of all torpedos fired.
+-- <br/><br/>
+-- @see ShipFiredTorpedoevent
+-- @return A table of all <code>ShipFiredTorpedoEvent</code>s from this tick.
+function shipFiredTorpedoEvents()

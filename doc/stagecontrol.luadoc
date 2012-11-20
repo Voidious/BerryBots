@@ -1,0 +1,33 @@
+--- The API to be implemented by a stage control program.
+-- Defines the settings and behavior of a stage.
+module "StageControl"
+
+--- Configures the stage settings.
+-- Passes a builder object used to define static configuration of the stage,
+-- such as dimensions, walls, zones, and starting points.<br/><br/>
+-- @see StageBuilder
+-- @param stageBuilder The builder used to configure the stage. Can only be used
+--     during execution of this function.
+function configure(stageBuilder)
+
+--- Initializes the stage.
+-- Passes references to all ships, the world, and an administrator object used
+-- to modify the state of the stage and ships.<br/><br/>
+-- @see Ship, World, Admin
+-- @param ships A table of all ships loaded for this game.
+-- @param world A userdata object used to query information about the game
+--     world, such as stage size, locations of walls and zones, and current
+--     time.
+-- @param admin A userdata object used to perform administrative operations only
+--     available to the stage program, such as modifying a ship's speed,
+--     location, or energy, destroying or reviving ships, ending a round or the
+--     game, and deciding on a winner.
+function init(ships, world, admin)
+
+--- Executes stage code each tick.
+-- Allows the stage to monitor the game, modify the stage and ships, and decide
+-- when the game ends and who wins.<br/><br/>
+-- @see StageSensors
+-- @param stageSensors A userdata object that can be queried for information on
+--     all events that took place this tick.
+function run(stageSensors)
