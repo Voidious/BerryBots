@@ -1,12 +1,7 @@
 -- A module that defines some common functions required by BerryBots battle
 -- stages.
 
-module(..., package.seeall);
-
--- When zero or one bots remain, the bot that has the highest score wins:
---   * 1 point per kill
---   * 1 / <default energy> points for each point of damage done
---   * negative score for damage/kills to self or team
+module("battlestage", package.seeall);
 
 local currentRound = 1
 local numRounds = 9
@@ -40,6 +35,9 @@ function teamsAlive(ships)
   return teamsAlive
 end
 
+-- In free-for-all (more than 2 teams), scoring is based on kills + damage.
+-- In 1v1 (or 2 teams), scoring is based on survival - the last team standing at
+-- the end of each round scores a point.
 function basicScoring(ships, admin)
   local numTeams = numTeams(ships)
 
@@ -50,6 +48,10 @@ function basicScoring(ships, admin)
   end
 end
 
+-- When zero or one teams remain, the ship/team that has the highest score wins:
+--   * 1 point per kill
+--   * 1 / <default energy> points for each point of damage done
+--   * negative score for damage/kills to self or team
 function ffaKillsPlusDamage(ships, admin)
   local teamsAlive = teamsAlive(ships)
   if (teamsAlive <= 1) then
@@ -93,6 +95,8 @@ function ffaKillsPlusDamage(ships, admin)
   end
 end
 
+-- Each round, the last team standing scores a point. The winning team is the
+-- one that won the most rounds.
 function duelSurvival(ships, admin)
   if (not next(teamScores)) then
     for i, ship in pairs(ships) do
