@@ -48,7 +48,30 @@ bool fileExists(const char *filename) {
         NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0]
             stringByAppendingPathComponent:@"BerryBots"];
     plistPath = [rootPath stringByAppendingPathComponent:@"config.plist"];
-    if (![[NSFileManager defaultManager] fileExistsAtPath:plistPath]) {
+    bool selectRoot = true;
+    if ([[NSFileManager defaultManager] fileExistsAtPath:plistPath]) {
+      NSData *plistXML =
+      [[NSFileManager defaultManager] contentsAtPath:plistPath];
+      NSDictionary *temp =
+      (NSDictionary *)[NSPropertyListSerialization
+                       propertyListFromData:plistXML
+                       mutabilityOption:
+                       NSPropertyListMutableContainersAndLeaves
+                       format:&format
+                       errorDescription:&errorDesc];
+      if (!temp) {
+        NSLog(@"Error reading plist: %@, format: %d", errorDesc, format);
+      }
+      self.stageDir = [temp objectForKey:@"Stage dir"];
+      self.botsDir = [temp objectForKey:@"Bots dir"];
+      self.cacheDir = [temp objectForKey:@"Cache dir"];
+      self.tmpDir = [temp objectForKey:@"Tmp dir"];
+      if ([[NSFileManager defaultManager] fileExistsAtPath:self.stageDir]
+          && [[NSFileManager defaultManager] fileExistsAtPath:self.botsDir]) {
+        selectRoot = false;
+      }
+    }
+    if (selectRoot) {
       NSOpenPanel* openDlg = [NSOpenPanel openPanel];
       [openDlg setCanChooseFiles:NO];
       [openDlg setCanChooseDirectories:YES];
@@ -74,23 +97,6 @@ bool fileExists(const char *filename) {
       } else {
         exit(1);
       }
-    } else {
-      NSData *plistXML =
-          [[NSFileManager defaultManager] contentsAtPath:plistPath];
-      NSDictionary *temp =
-          (NSDictionary *)[NSPropertyListSerialization
-                           propertyListFromData:plistXML
-                           mutabilityOption:
-                               NSPropertyListMutableContainersAndLeaves
-                           format:&format
-                           errorDescription:&errorDesc];
-      if (!temp) {
-        NSLog(@"Error reading plist: %@, format: %d", errorDesc, format);
-      }
-      self.stageDir = [temp objectForKey:@"Stage dir"];
-      self.botsDir = [temp objectForKey:@"Bots dir"];
-      self.cacheDir = [temp objectForKey:@"Cache dir"];
-      self.tmpDir = [temp objectForKey:@"Tmp dir"];
     }
   }
   return self;
