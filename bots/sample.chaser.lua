@@ -1,4 +1,4 @@
--- A simple, non-firing bot that moves directly at any bot it sees, or just
+-- A simple bot that moves directly at any bot it sees and fires at them. Just
 -- moves back and forth if it doesn't see anyone.
 
 ship = nil
@@ -17,10 +17,10 @@ function run(enemyShips)
   local targetx, targety = nil, nil
   if (# enemyShips == 0) then
     targetName = nil
-  elseif (targetName == nil) then
-    targetName = enemyShips[1].name
-  end
-  if (targetName ~= nil) then
+  else
+    if (targetName == nil or not seeTargetShip(enemyShips, targetName)) then
+      targetName = enemyShips[1].name
+    end
     for i, enemyShip in pairs(enemyShips) do
       if (targetName == enemyShip.name) then
         targetx = enemyShip.x
@@ -45,6 +45,15 @@ function run(enemyShips)
     ship:fireLaser(firingAngle)
     ship:fireTorpedo(firingAngle, targetDistance)
   end
+end
+
+function seeTargetShip(enemyShips, targetName)
+  for i, enemyShip in pairs(enemyShips) do
+    if (enemyShip.name == targetName) then
+      return true
+    end
+  end
+  return false
 end
 
 function shipGoto(x, y)

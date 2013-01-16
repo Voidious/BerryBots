@@ -1,5 +1,5 @@
 -- A sample maze with a few walls. Bot starts in bottom left corner
--- and needs to get to top left corner without hitting any walls.
+-- and needs to get to top left corner.
 
 function configure(stageBuilder)
   stageBuilder:setSize(1000, 700)
