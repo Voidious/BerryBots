@@ -24,6 +24,7 @@ using namespace std;
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "bbutil.h"
 #include "bbengine.h"
@@ -35,8 +36,6 @@ extern "C" {
   #include "lualib.h"
   #include "lauxlib.h"
 }
-
-extern char *getcwd(char *buf, size_t size);
 
 extern BerryBotsEngine *engine;
 extern Stage *stage;
