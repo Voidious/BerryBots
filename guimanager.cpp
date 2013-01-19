@@ -41,11 +41,11 @@ extern Stage *stage;
 extern PrintHandler *printHandler;
 
 GuiManager::GuiManager() {
-  newMatchDialog_ = new NewMatchDialog();
   window_ = new sf::RenderWindow(sf::VideoMode(800, 600), "BerryBots",
                                  sf::Style::Default,
                                  sf::ContextSettings(0, 0, 16, 2, 0));
   window_->setVisible(false);
+  newMatchDialog_ = new NewMatchDialog();
   stageConsole_ = 0;
   teamConsoles_ = 0;
   numTeams_ = 0;
