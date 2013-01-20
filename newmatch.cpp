@@ -86,8 +86,12 @@ void NewMatchDialog::addBot(char *bot) {
 }
 
 void NewMatchDialog::resetCursors() {
-  stageSelect->SetFirstItem(0);
-  botsSelect->SetFirstItem(0);
+  if (stageSelect->GetCount() > 0) {
+    stageSelect->SetFirstItem(0);
+  }
+  if (botsSelect->GetCount() > 0) {
+    botsSelect->SetFirstItem(0);
+  }
 }
 
 void NewMatchDialog::onAddBots(wxCommandEvent &event) {
@@ -123,23 +127,21 @@ void NewMatchDialog::onClearBots(wxCommandEvent &event) {
 void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
   if (listener_ != 0) {
     wxArrayInt loadedBots;
-    int numBots = loadedBotsSelect->GetCount();
     wxArrayInt selectedStageIndex;
     stageSelect->GetSelections(selectedStageIndex);
-    if (numBots != 0 && selectedStageIndex.Count() != 0) {
+    if (numLoadedBots_ != 0 && selectedStageIndex.Count() != 0) {
       const char** bots = new const char*[numLoadedBots_];
-      for (int x = 0; x < numBots; x++) {
-        const char *botName =
-            (const char *) loadedBotsSelect->GetString(x).c_str();
-        char *bot = new char[strlen(botName) + 1];
-        strcpy(bot, botName);
+      for (int x = 0; x < numLoadedBots_; x++) {
+        wxString loadedBot = loadedBotsSelect->GetString(x);
+        char *bot = new char[loadedBot.length() + 1];
+        strcpy(bot, loadedBot.fn_str());
         bots[x] = bot;
       }
 
-      const char *stageName = (const char *)
-          stageSelect->GetString(*(selectedStageIndex.begin())).c_str();
-      char *stage = new char[strlen(stageName) + 1];
-      strcpy(stage, stageName);
+      wxString selectedStage =
+          stageSelect->GetString(*(selectedStageIndex.begin()));
+      char *stage = new char[selectedStage.length() + 1];
+      strcpy(stage, selectedStage.fn_str());
 
       listener_->startMatch(stage, bots, numLoadedBots_);
     }
