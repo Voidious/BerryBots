@@ -25,9 +25,9 @@
 
 class PackageShipDialog : public wxFrame {
   
-public:
-  PackageShipDialog();
-  ~PackageShipDialog();
+  public:
+    PackageShipDialog();
+    ~PackageShipDialog();
 };
 
 #endif

@@ -31,15 +31,15 @@ class NewMatchListener {
 };
 
 class NewMatchDialog : public wxFrame {
-  wxStaticText *stageLabel;
-  wxListBox *stageSelect;
-  wxStaticText *botsLabel;
-  wxListBox *botsSelect;
-  wxButton *addArrow;
-  wxButton *removeArrow;
-  wxButton *clearButton;
-  wxListBox *loadedBotsSelect;
-  wxButton *startButton;
+  wxStaticText *stageLabel_;
+  wxListBox *stageSelect_;
+  wxStaticText *botsLabel_;
+  wxListBox *botsSelect_;
+  wxButton *addArrow_;
+  wxButton *removeArrow_;
+  wxButton *clearButton_;
+  wxListBox *loadedBotsSelect_;
+  wxButton *startButton_;
   int numStages_;
   int numBots_;
   int numLoadedBots_;

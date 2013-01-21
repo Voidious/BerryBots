@@ -24,10 +24,9 @@
 #include <wx/wx.h>
 
 class PackageStageDialog : public wxFrame {
-  
-public:
-  PackageStageDialog();
-  ~PackageStageDialog();
+  public:
+    PackageStageDialog();
+    ~PackageStageDialog();
 };
 
 #endif

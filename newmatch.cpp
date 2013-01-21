@@ -26,21 +26,21 @@ NewMatchDialog::NewMatchDialog()
     : wxFrame(NULL, NEW_MATCH_ID, "New Match...",
              wxPoint(50, 50), wxSize(500, 520),
              wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
-  stageLabel = new wxStaticText(this, -1, "Stage:", wxPoint(20, 10));
-  stageSelect = new wxListBox(this, -1, wxPoint(20, 30), wxSize(200, 200));
-  botsLabel = new wxStaticText(this, -1, "Bots:", wxPoint(20, 240));
-  botsSelect = new wxListBox(this, SELECT_BOTS_ID, wxPoint(20, 260),
-                             wxSize(200, 200), 0, NULL, wxLB_MULTIPLE);
-  addArrow = new wxButton(this, ADD_BUTTON_ID, ">>", wxPoint(224, 315),
-                          wxDefaultSize, wxBU_EXACTFIT);
-  removeArrow = new wxButton(this, REMOVE_BUTTON_ID, "<<", wxPoint(224, 345),
-                          wxDefaultSize, wxBU_EXACTFIT);
-  clearButton = new wxButton(this, CLEAR_BUTTON_ID, "Clear", wxPoint(217, 375),
-                             wxDefaultSize, wxBU_EXACTFIT);
-  loadedBotsSelect = new wxListBox(this, LOADED_BOTS_ID, wxPoint(280, 260),
-                                   wxSize(200, 200), 0, NULL, wxLB_MULTIPLE);
-  startButton = new wxButton(this, START_BUTTON_ID, "Start Match!",
-                             wxPoint(377, 460), wxDefaultSize, wxBU_EXACTFIT);
+  stageLabel_ = new wxStaticText(this, -1, "Stage:", wxPoint(20, 10));
+  stageSelect_ = new wxListBox(this, -1, wxPoint(20, 30), wxSize(200, 200));
+  botsLabel_ = new wxStaticText(this, -1, "Bots:", wxPoint(20, 240));
+  botsSelect_ = new wxListBox(this, SELECT_BOTS_ID, wxPoint(20, 260),
+                              wxSize(200, 200), 0, NULL, wxLB_MULTIPLE);
+  addArrow_ = new wxButton(this, ADD_BUTTON_ID, ">>", wxPoint(224, 315),
+                           wxDefaultSize, wxBU_EXACTFIT);
+  removeArrow_ = new wxButton(this, REMOVE_BUTTON_ID, "<<", wxPoint(224, 345),
+                              wxDefaultSize, wxBU_EXACTFIT);
+  clearButton_ = new wxButton(this, CLEAR_BUTTON_ID, "Clear", wxPoint(217, 375),
+                              wxDefaultSize, wxBU_EXACTFIT);
+  loadedBotsSelect_ = new wxListBox(this, LOADED_BOTS_ID, wxPoint(280, 260),
+                                    wxSize(200, 200), 0, NULL, wxLB_MULTIPLE);
+  startButton_ = new wxButton(this, START_BUTTON_ID, "Start Match!",
+                              wxPoint(377, 460), wxDefaultSize, wxBU_EXACTFIT);
   numStages_ = numBots_ = numLoadedBots_ = 0;
   listener_ = 0;
 
@@ -63,60 +63,60 @@ NewMatchDialog::NewMatchDialog()
 }
 
 NewMatchDialog::~NewMatchDialog() {
-  delete stageLabel;
-  delete stageSelect;
-  delete botsLabel;
-  delete botsSelect;
-  delete addArrow;
-  delete clearButton;
-  delete loadedBotsSelect;
-  delete startButton;
+  delete stageLabel_;
+  delete stageSelect_;
+  delete botsLabel_;
+  delete botsSelect_;
+  delete addArrow_;
+  delete clearButton_;
+  delete loadedBotsSelect_;
+  delete startButton_;
 }
 
 void NewMatchDialog::addStage(char *stage) {
-  stageSelect->Insert(wxString(stage), numStages_++);
+  stageSelect_->Insert(wxString(stage), numStages_++);
 }
 
 void NewMatchDialog::addBot(char *bot) {
-  botsSelect->Insert(wxString(bot), numBots_++);
+  botsSelect_->Insert(wxString(bot), numBots_++);
 }
 
 void NewMatchDialog::resetCursors() {
-  if (stageSelect->GetCount() > 0) {
-    stageSelect->SetFirstItem(0);
+  if (stageSelect_->GetCount() > 0) {
+    stageSelect_->SetFirstItem(0);
   }
-  if (botsSelect->GetCount() > 0) {
-    botsSelect->SetFirstItem(0);
+  if (botsSelect_->GetCount() > 0) {
+    botsSelect_->SetFirstItem(0);
   }
 }
 
 void NewMatchDialog::onAddBots(wxCommandEvent &event) {
   wxArrayInt selectedBots;
-  botsSelect->GetSelections(selectedBots);
+  botsSelect_->GetSelections(selectedBots);
   wxArrayInt::const_iterator first = selectedBots.begin();
   wxArrayInt::const_iterator last = selectedBots.end();
   while (first != last) {
     int botIndex = *first++;
-    loadedBotsSelect->Insert(botsSelect->GetString(botIndex),
-                             numLoadedBots_++);
+    loadedBotsSelect_->Insert(botsSelect_->GetString(botIndex),
+                              numLoadedBots_++);
   }
 }
 
 void NewMatchDialog::onRemoveBots(wxCommandEvent &event) {
   wxArrayInt selectedBots;
-  loadedBotsSelect->GetSelections(selectedBots);
+  loadedBotsSelect_->GetSelections(selectedBots);
   wxArrayInt::const_iterator first = selectedBots.begin();
   wxArrayInt::const_iterator last = selectedBots.end();
   int removed = 0;
   while (first != last) {
     int botIndex = *first++;
-    loadedBotsSelect->Delete(botIndex - (removed++));
+    loadedBotsSelect_->Delete(botIndex - (removed++));
     numLoadedBots_--;
   }
 }
 
 void NewMatchDialog::onClearBots(wxCommandEvent &event) {
-  loadedBotsSelect->Clear();
+  loadedBotsSelect_->Clear();
   numLoadedBots_ = 0;
 }
 
@@ -124,18 +124,18 @@ void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
   if (listener_ != 0) {
     wxArrayInt loadedBots;
     wxArrayInt selectedStageIndex;
-    stageSelect->GetSelections(selectedStageIndex);
+    stageSelect_->GetSelections(selectedStageIndex);
     if (numLoadedBots_ != 0 && selectedStageIndex.Count() != 0) {
       const char** bots = new const char*[numLoadedBots_];
       for (int x = 0; x < numLoadedBots_; x++) {
-        wxString loadedBot = loadedBotsSelect->GetString(x);
+        wxString loadedBot = loadedBotsSelect_->GetString(x);
         char *bot = new char[loadedBot.length() + 1];
         strcpy(bot, loadedBot.fn_str());
         bots[x] = bot;
       }
 
       wxString selectedStage =
-          stageSelect->GetString(*(selectedStageIndex.begin()));
+          stageSelect_->GetString(*(selectedStageIndex.begin()));
       char *stage = new char[selectedStage.length() + 1];
       strcpy(stage, selectedStage.fn_str());
 
