@@ -38,21 +38,27 @@ BerryBotsEngine *engine = 0;
 Stage *stage = 0;
 PrintHandler *printHandler = 0;
 
-class BerryBotsApp: public wxApp
-{
+class BerryBotsApp: public wxApp {
   GuiManager *guiManager;
   public:
     virtual bool OnInit();
+    virtual void OnQuit(wxCommandEvent &event);
 };
 
 wxIMPLEMENT_APP(BerryBotsApp);
 
-bool BerryBotsApp::OnInit()
-{
+bool BerryBotsApp::OnInit() {
   guiManager = new GuiManager();
   guiManager->loadStages(getStageDir().c_str());
   guiManager->loadBots(getBotsDir().c_str());
   guiManager->linkListener();
 
+  Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::OnQuit));
+
   return true;
+}
+
+void BerryBotsApp::OnQuit(wxCommandEvent &event) {
+  ExitMainLoop();
 }

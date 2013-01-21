@@ -21,13 +21,14 @@
 #include <wx/wx.h>
 #include "newmatch.h"
 
-#define NEW_MATCH_ID      1
-#define ADD_BUTTON_ID     2
-#define REMOVE_BUTTON_ID  3
-#define CLEAR_BUTTON_ID   4
-#define START_BUTTON_ID   5
-#define SELECT_BOTS_ID    6
-#define LOADED_BOTS_ID    7
+#define NEW_MATCH_ID       1
+#define ADD_BUTTON_ID      2
+#define REMOVE_BUTTON_ID   3
+#define CLEAR_BUTTON_ID    4
+#define START_BUTTON_ID    5
+#define SELECT_BOTS_ID     6
+#define LOADED_BOTS_ID     7
+#define NEW_MATCH_MENU_ID  8
 
 NewMatchDialog::NewMatchDialog() : wxFrame(NULL, NEW_MATCH_ID, "New Match...",
     wxPoint(50, 50), wxSize(500, 520),
@@ -64,6 +65,10 @@ NewMatchDialog::NewMatchDialog() : wxFrame(NULL, NEW_MATCH_ID, "New Match...",
           wxCommandEventHandler(NewMatchDialog::onAddBots));
   Connect(LOADED_BOTS_ID, wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
           wxCommandEventHandler(NewMatchDialog::onRemoveBots));
+  Connect(NEW_MATCH_ID, wxEVT_ACTIVATE,
+          wxCommandEventHandler(NewMatchDialog::onActivate));
+  Connect(NEW_MATCH_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(NewMatchDialog::onNewMatch));
 }
 
 NewMatchDialog::~NewMatchDialog() {
@@ -91,6 +96,12 @@ void NewMatchDialog::resetCursors() {
   }
   if (botsSelect->GetCount() > 0) {
     botsSelect->SetFirstItem(0);
+  }
+}
+
+void NewMatchDialog::onNewMatch(wxCommandEvent &event) {
+  if (listener_ != 0) {
+    listener_->newMatch();
   }
 }
 
@@ -152,6 +163,19 @@ void NewMatchDialog::onClose(wxCommandEvent &event) {
   listener_->cancel();
 }
 
+void NewMatchDialog::onActivate(wxCommandEvent &event) {
+  this->initMenus();
+}
+
 void NewMatchDialog::setListener(NewMatchListener *listener) {
   listener_ = listener;
+}
+
+void NewMatchDialog::initMenus() {
+  wxMenu *fileMenu = new wxMenu();
+  fileMenu->Insert(0, NEW_MATCH_MENU_ID, "New Match...", 0);
+  wxMenuBar *menuBar = new wxMenuBar();
+  menuBar->Insert(0, fileMenu, "File");
+
+  this->SetMenuBar(menuBar);
 }

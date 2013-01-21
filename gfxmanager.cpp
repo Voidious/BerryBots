@@ -26,7 +26,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "gfxmanager.h"
-  
+
 sf::CircleShape shipShape(SHIP_RADIUS);
 sf::CircleShape shipDotShape(SHIP_DOT_RADIUS);
 sf::Vector2f shipDotPoint(SHIP_DOT_POSITION, 0);

@@ -322,6 +322,10 @@ void MatchStarter::startMatch(const char *stageName, const char **teamNames,
   guiManager_->runMatch(stagePath, teamPaths, numTeams);
 }
 
+void MatchStarter::newMatch() {
+  guiManager_->showNewMatchDialog();
+}
+
 void MatchStarter::cancel() {
   guiManager_->resumeMatch();
 }

@@ -66,6 +66,7 @@ class MatchStarter : public NewMatchListener {
     ~MatchStarter();
     virtual void startMatch(const char *stageName, const char **teamNames,
                             int numTeams);
+    virtual void newMatch();
     virtual void cancel();
 };
 
