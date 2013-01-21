@@ -30,7 +30,7 @@ PackageStageDialog::PackageStageDialog()
   versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 163));
   versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 160),
                                 wxSize(70, 23));
-  packageButton_ = new wxButton(this, PACKAGE_BUTTON_ID, "Package!",
+  packageButton_ = new wxButton(this, PACKAGE_STAGE_BUTTON_ID, "Package!",
       wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
   numStages_ = 0;
   listener_ = 0;
@@ -39,6 +39,8 @@ PackageStageDialog::PackageStageDialog()
           wxCommandEventHandler(PackageStageDialog::onActivate));
   Connect(PACKAGE_STAGE_ID, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(PackageStageDialog::onClose));
+  Connect(PACKAGE_STAGE_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(PackageStageDialog::onPackage));
 }
 
 PackageStageDialog::~PackageStageDialog() {
@@ -64,4 +66,21 @@ void PackageStageDialog::onActivate(wxCommandEvent &event) {
 
 void PackageStageDialog::onClose(wxCommandEvent &event) {
   listener_->cancel();
+}
+
+void PackageStageDialog::onPackage(wxCommandEvent &event) {
+  wxArrayInt selectedStageIndex;
+  stageSelect_->GetSelections(selectedStageIndex);
+  wxString stageVersion = versionText_->GetValue();
+  if (selectedStageIndex.Count() != 0 && stageVersion.length() > 0) {
+    wxString selectedStage =
+        stageSelect_->GetString(*(selectedStageIndex.begin()));
+    char *stage = new char[selectedStage.length() + 1];
+    strcpy(stage, selectedStage.fn_str());
+
+    char *version = new char[stageVersion.length() + 1];
+    strcpy(version, stageVersion.fn_str());
+
+    listener_->package(stage, version, false);
+  }
 }

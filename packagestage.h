@@ -25,6 +25,8 @@
 
 class PackageStageListener {
 public:
+  virtual void package(const char *stageName, const char *version,
+                       bool nosrc) = 0;
   virtual void cancel() = 0;
 };
 
@@ -43,6 +45,7 @@ class PackageStageDialog : public wxFrame {
     void setListener(PackageStageListener *listener);
     void onActivate(wxCommandEvent &event);
     void onClose(wxCommandEvent &event);
+    void onPackage(wxCommandEvent &event);
 };
 
 #endif

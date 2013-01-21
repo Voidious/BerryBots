@@ -273,7 +273,7 @@ char* getAbsoluteFilename(char *dir, char *filename) {
   return absFilename;
 }
 
-void loadUserFile(char *srcFilename, char **userDir, char **userFilename,
+void loadUserFile(const char *srcFilename, char **userDir, char **userFilename,
     char **userCwd, const char *metaFilename, const char *cacheDir) {
   int srcFilenameLen = strlen(srcFilename);
   int zipLen = strlen(ZIP_EXTENSION);
@@ -325,13 +325,13 @@ void loadUserFile(char *srcFilename, char **userDir, char **userFilename,
   }
 }
 
-void loadStageFile(char *srcFilename, char **stageDir, char **stageFilename,
-    char **stageCwd, const char *cacheDir) {
+void loadStageFile(const char *srcFilename, char **stageDir,
+    char **stageFilename, char **stageCwd, const char *cacheDir) {
   loadUserFile(
       srcFilename, stageDir, stageFilename, stageCwd, STAGE_FILENAME, cacheDir);
 }
 
-void loadBotFile(char *srcFilename, char **botDir, char **botFilename,
+void loadBotFile(const char *srcFilename, char **botDir, char **botFilename,
     char **botCwd, const char *cacheDir) {
   loadUserFile(
       srcFilename, botDir, botFilename, botCwd, BOT_FILENAME, cacheDir);
@@ -369,7 +369,7 @@ void checkLuaFilename(const char *filename) {
 // anything fishy if they are indeed packaging someone else's code.
 // TODO: Make this non-hideous.
 void packageCommon(lua_State *userState, char *userDir, char *userFilename,
-    char *luaCwd, char *version, const char *metaFilename, int prevFiles,
+    char *luaCwd, const char *version, const char *metaFilename, int prevFiles,
     int numFiles, int prevCmdLen, char **packFilenames, const char *tmpDir,
     bool nosrc) {
   int x = prevFiles;
@@ -493,8 +493,8 @@ void packageCommon(lua_State *userState, char *userDir, char *userFilename,
   delete packCmd;
 }
 
-void packageStage(char *stageArg, char *version, const char *cacheDir,
-    const char *tmpDir, bool nosrc) {
+void packageStage(const char *stageArg, const char *version,
+                  const char *cacheDir, const char *tmpDir, bool nosrc) {
   lua_State *stageState;
   char *stageDir;
   char *stageFilename;

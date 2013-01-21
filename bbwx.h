@@ -21,18 +21,18 @@
 #ifndef BBWX_H
 #define BBWX_H
 
-#define NEW_MATCH_ID           1
-#define PACKAGE_SHIP_ID        2
-#define PACKAGE_STAGE_ID       3
-#define ADD_BUTTON_ID          4
-#define REMOVE_BUTTON_ID       5
-#define CLEAR_BUTTON_ID        6
-#define START_BUTTON_ID        7
-#define SELECT_BOTS_ID         8
-#define LOADED_BOTS_ID         9
-#define NEW_MATCH_MENU_ID      10
-#define PACKAGE_SHIP_MENU_ID   11
-#define PACKAGE_STAGE_MENU_ID  12
-#define PACKAGE_BUTTON_ID      13
+#define NEW_MATCH_ID             1
+#define PACKAGE_SHIP_ID          2
+#define PACKAGE_STAGE_ID         3
+#define ADD_BUTTON_ID            4
+#define REMOVE_BUTTON_ID         5
+#define CLEAR_BUTTON_ID          6
+#define START_BUTTON_ID          7
+#define SELECT_BOTS_ID           8
+#define LOADED_BOTS_ID           9
+#define NEW_MATCH_MENU_ID        10
+#define PACKAGE_SHIP_MENU_ID     11
+#define PACKAGE_STAGE_MENU_ID    12
+#define PACKAGE_STAGE_BUTTON_ID  13
 
 #endif

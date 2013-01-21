@@ -134,7 +134,8 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
 void GuiManager::linkListeners() {
   newMatchDialog_->setListener(
       new MatchStarter(this, stageBaseDir_, botsBaseDir_));
-  packageStageDialog_->setListener(new StagePackager(this));
+  packageStageDialog_->setListener(
+      new StagePackager(this, stageBaseDir_, botsBaseDir_));
 }
 
 void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
@@ -355,6 +356,12 @@ void MatchStarter::startMatch(const char *stageName, const char **teamNames,
     teamPaths[x] = teamPath;
   }
   guiManager_->runMatch(stagePath, teamPaths, numTeams);
+
+  delete stagePath;
+  for (int x = 0; x < numTeams; x++) {
+    delete teamPaths[x];
+  }
+  delete teamPaths;
 }
 
 void MatchStarter::cancel() {
@@ -362,8 +369,27 @@ void MatchStarter::cancel() {
   guiManager_->resumeMatch();
 }
 
-StagePackager::StagePackager(GuiManager *guiManager) {
+StagePackager::StagePackager(GuiManager *guiManager, char *stageDir,
+                             char *botsDir) {
   guiManager_ = guiManager;
+  stageDir_ = new char[strlen(stageDir) + 1];
+  strcpy(stageDir_, stageDir);
+  botsDir_ = new char[strlen(botsDir) + 1];
+  strcpy(botsDir_, botsDir);
+}
+
+StagePackager::~StagePackager() {
+  delete stageDir_;
+  delete botsDir_;
+}
+
+void StagePackager::package(const char *stageName, const char *version,
+                            bool nosrc) {
+  char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
+  sprintf(stagePath, "%s/%s", stageDir_, stageName);
+  packageStage(stagePath, version, getCacheDir().c_str(), getTmpDir().c_str(),
+               nosrc);
+  delete stagePath;
 }
 
 void StagePackager::cancel() {
