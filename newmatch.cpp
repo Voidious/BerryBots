@@ -20,11 +20,12 @@
 
 #include <wx/wx.h>
 #include "newmatch.h"
-#include "bbconst.h"
+#include "bbwx.h"
 
-NewMatchDialog::NewMatchDialog() : wxFrame(NULL, NEW_MATCH_ID, "New Match...",
-    wxPoint(50, 50), wxSize(500, 520),
-    wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
+NewMatchDialog::NewMatchDialog()
+    : wxFrame(NULL, NEW_MATCH_ID, "New Match...",
+             wxPoint(50, 50), wxSize(500, 520),
+             wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   stageLabel = new wxStaticText(this, -1, "Stage:", wxPoint(20, 10));
   stageSelect = new wxListBox(this, -1, wxPoint(20, 30), wxSize(200, 200));
   botsLabel = new wxStaticText(this, -1, "Bots:", wxPoint(20, 240));
@@ -158,6 +159,8 @@ void NewMatchDialog::setListener(NewMatchListener *listener) {
 void NewMatchDialog::initMenus() {
   wxMenu *fileMenu = new wxMenu();
   fileMenu->Insert(0, NEW_MATCH_MENU_ID, "New Match...", 0);
+  fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package ship...", 0);
+  fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package stage...", 0);
   wxMenuBar *menuBar = new wxMenuBar();
   menuBar->Insert(0, fileMenu, "File");
 

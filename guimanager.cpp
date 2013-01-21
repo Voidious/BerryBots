@@ -46,6 +46,8 @@ GuiManager::GuiManager() {
                                  sf::ContextSettings(0, 0, 16, 2, 0));
   window_->setVisible(false);
   newMatchDialog_ = new NewMatchDialog();
+  packageShipDialog_ = new PackageShipDialog();
+  packageStageDialog_ = new PackageStageDialog();
   stageConsole_ = 0;
   teamConsoles_ = 0;
   numTeams_ = 0;
@@ -64,6 +66,8 @@ GuiManager::GuiManager() {
 GuiManager::~GuiManager() {
   clearConsoles();
   delete newMatchDialog_;
+  delete packageShipDialog_;
+  delete packageStageDialog_;
   if (stageBaseDir_ != 0) {
     delete stageBaseDir_;
   }
@@ -258,6 +262,18 @@ void GuiManager::showNewMatchDialog() {
   paused_ = true;
   newMatchDialog_->Show();
   newMatchDialog_->Raise();
+}
+
+void GuiManager::showPackageShipDialog() {
+  paused_ = true;
+  packageShipDialog_->Show();
+  packageShipDialog_->Raise();
+}
+
+void GuiManager::showPackageStageDialog() {
+  paused_ = true;
+  packageStageDialog_->Show();
+  packageStageDialog_->Raise();
 }
 
 void GuiManager::resumeMatch() {

@@ -26,7 +26,7 @@
 #include <string.h>
 #include <math.h>
 
-#include "bbconst.h"
+#include "bbwx.h"
 #include "stage.h"
 #include "bbengine.h"
 #include "printhandler.h"
@@ -45,6 +45,8 @@ class BerryBotsApp: public wxApp {
     virtual bool OnInit();
     virtual void OnQuit(wxCommandEvent &event);
     virtual void OnNewMatch(wxCommandEvent &event);
+    virtual void OnPackageShip(wxCommandEvent &event);
+    virtual void OnPackageStage(wxCommandEvent &event);
 };
 
 wxIMPLEMENT_APP(BerryBotsApp);
@@ -59,6 +61,10 @@ bool BerryBotsApp::OnInit() {
           wxCommandEventHandler(BerryBotsApp::OnQuit));
   Connect(NEW_MATCH_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::OnNewMatch));
+  Connect(PACKAGE_SHIP_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::OnPackageShip));
+  Connect(PACKAGE_STAGE_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::OnPackageStage));
 
   return true;
 }
@@ -70,4 +76,12 @@ void BerryBotsApp::OnQuit(wxCommandEvent &event) {
 
 void BerryBotsApp::OnNewMatch(wxCommandEvent &event) {
   guiManager_->showNewMatchDialog();
+}
+
+void BerryBotsApp::OnPackageShip(wxCommandEvent &event) {
+  guiManager_->showPackageShipDialog();
+}
+
+void BerryBotsApp::OnPackageStage(wxCommandEvent &event) {
+  guiManager_->showPackageStageDialog();
 }

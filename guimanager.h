@@ -24,10 +24,14 @@
 #include <SFML/Graphics.hpp>
 #include "gfxmanager.h"
 #include "newmatch.h"
+#include "packageship.h"
+#include "packagestage.h"
 #include "outputconsole.h"
 
 class GuiManager {
   NewMatchDialog *newMatchDialog_;
+  PackageShipDialog *packageShipDialog_;
+  PackageStageDialog *packageStageDialog_;
   sf::RenderWindow *window_;
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
@@ -49,6 +53,8 @@ class GuiManager {
     void linkListener();
     void runMatch(char *stageName, char **teamNames, int numTeams);
     void showNewMatchDialog();
+    void showPackageShipDialog();
+    void showPackageStageDialog();
     void resumeMatch();
     void showStageConsole();
     void showTeamConsole(int teamIndex);
