@@ -52,6 +52,7 @@ class GuiManager {
     void resumeMatch();
     void showStageConsole();
     void showTeamConsole(int teamIndex);
+    void quit();
   private:
     unsigned int nextConsoleId();
     void clearConsoles();
@@ -66,7 +67,6 @@ class MatchStarter : public NewMatchListener {
     ~MatchStarter();
     virtual void startMatch(const char *stageName, const char **teamNames,
                             int numTeams);
-    virtual void newMatch();
     virtual void cancel();
 };
 

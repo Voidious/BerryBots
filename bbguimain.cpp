@@ -26,6 +26,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "bbconst.h"
 #include "stage.h"
 #include "bbengine.h"
 #include "printhandler.h"
@@ -39,26 +40,34 @@ Stage *stage = 0;
 PrintHandler *printHandler = 0;
 
 class BerryBotsApp: public wxApp {
-  GuiManager *guiManager;
+  GuiManager *guiManager_;
   public:
     virtual bool OnInit();
     virtual void OnQuit(wxCommandEvent &event);
+    virtual void OnNewMatch(wxCommandEvent &event);
 };
 
 wxIMPLEMENT_APP(BerryBotsApp);
 
 bool BerryBotsApp::OnInit() {
-  guiManager = new GuiManager();
-  guiManager->loadStages(getStageDir().c_str());
-  guiManager->loadBots(getBotsDir().c_str());
-  guiManager->linkListener();
+  guiManager_ = new GuiManager();
+  guiManager_->loadStages(getStageDir().c_str());
+  guiManager_->loadBots(getBotsDir().c_str());
+  guiManager_->linkListener();
 
   Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::OnQuit));
+  Connect(NEW_MATCH_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::OnNewMatch));
 
   return true;
 }
 
 void BerryBotsApp::OnQuit(wxCommandEvent &event) {
+  guiManager_->quit();
   ExitMainLoop();
+}
+
+void BerryBotsApp::OnNewMatch(wxCommandEvent &event) {
+  guiManager_->showNewMatchDialog();
 }

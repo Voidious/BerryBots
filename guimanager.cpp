@@ -295,6 +295,12 @@ void GuiManager::clearConsoles() {
   }
 }
 
+void GuiManager::quit() {
+  matchId_ = 0;
+  gfxManager_->destroyBbGfx();
+  delete gfxManager_;
+}
+
 MatchStarter::MatchStarter(GuiManager *guiManager, char *stageDir,
                            char *botsDir) {
   guiManager_ = guiManager;
@@ -320,10 +326,6 @@ void MatchStarter::startMatch(const char *stageName, const char **teamNames,
     teamPaths[x] = teamPath;
   }
   guiManager_->runMatch(stagePath, teamPaths, numTeams);
-}
-
-void MatchStarter::newMatch() {
-  guiManager_->showNewMatchDialog();
 }
 
 void MatchStarter::cancel() {

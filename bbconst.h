@@ -55,4 +55,14 @@
 #define MAX_NAME_LENGTH       128
 #define CPU_TIME_TICKS        1000
 
+// wxWidgets IDs
+#define NEW_MATCH_ID          1
+#define ADD_BUTTON_ID         2
+#define REMOVE_BUTTON_ID      3
+#define CLEAR_BUTTON_ID       4
+#define START_BUTTON_ID       5
+#define SELECT_BOTS_ID        6
+#define LOADED_BOTS_ID        7
+#define NEW_MATCH_MENU_ID     8
+
 #endif
