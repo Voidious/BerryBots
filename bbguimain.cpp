@@ -55,7 +55,7 @@ bool BerryBotsApp::OnInit() {
   guiManager_ = new GuiManager();
   guiManager_->loadStages(getStageDir().c_str());
   guiManager_->loadBots(getBotsDir().c_str());
-  guiManager_->linkListener();
+  guiManager_->linkListeners();
 
   Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::OnQuit));
@@ -75,13 +75,19 @@ void BerryBotsApp::OnQuit(wxCommandEvent &event) {
 }
 
 void BerryBotsApp::OnNewMatch(wxCommandEvent &event) {
+  guiManager_->hidePackageShipDialog();
+  guiManager_->hidePackageStageDialog();
   guiManager_->showNewMatchDialog();
 }
 
 void BerryBotsApp::OnPackageShip(wxCommandEvent &event) {
+  guiManager_->hideNewMatchDialog();
+  guiManager_->hidePackageStageDialog();
   guiManager_->showPackageShipDialog();
 }
 
 void BerryBotsApp::OnPackageStage(wxCommandEvent &event) {
+  guiManager_->hideNewMatchDialog();
+  guiManager_->hidePackageShipDialog();
   guiManager_->showPackageStageDialog();
 }

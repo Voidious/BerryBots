@@ -50,7 +50,7 @@ class GuiManager {
     bool isValidStageFile(const char *baseDir, char *stageFilename);
     void loadBots(const char *baseDir);
     bool isValidBotFile(const char *baseDir, char *stageFilename);
-    void linkListener();
+    void linkListeners();
     void runMatch(char *stageName, char **teamNames, int numTeams);
     void showNewMatchDialog();
     void showPackageShipDialog();
@@ -58,6 +58,9 @@ class GuiManager {
     void resumeMatch();
     void showStageConsole();
     void showTeamConsole(int teamIndex);
+    void hideNewMatchDialog();
+    void hidePackageShipDialog();
+    void hidePackageStageDialog();
     void quit();
   private:
     unsigned int nextConsoleId();
@@ -68,11 +71,20 @@ class MatchStarter : public NewMatchListener {
   GuiManager *guiManager_;
   char *stageDir_;
   char *botsDir_;
+
   public:
     MatchStarter(GuiManager *guiManager, char *stageDir, char *botsDir);
     ~MatchStarter();
     virtual void startMatch(const char *stageName, const char **teamNames,
                             int numTeams);
+    virtual void cancel();
+};
+
+class StagePackager : public PackageStageListener {
+  GuiManager *guiManager_;
+
+  public:
+    StagePackager(GuiManager *guiManager);
     virtual void cancel();
 };
 

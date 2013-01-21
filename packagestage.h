@@ -23,10 +23,26 @@
 
 #include <wx/wx.h>
 
+class PackageStageListener {
+public:
+  virtual void cancel() = 0;
+};
+
 class PackageStageDialog : public wxFrame {
+  wxListBox *stageSelect_;
+  wxStaticText *versionLabel_;
+  wxTextCtrl *versionText_;
+  wxButton *packageButton_;
+  unsigned int numStages_;
+  PackageStageListener *listener_;
+
   public:
-    PackageStageDialog();
-    ~PackageStageDialog();
+  PackageStageDialog();
+  ~PackageStageDialog();
+    void addStage(char *stage);
+    void setListener(PackageStageListener *listener);
+    void onActivate(wxCommandEvent &event);
+    void onClose(wxCommandEvent &event);
 };
 
 #endif

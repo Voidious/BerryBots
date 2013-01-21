@@ -33,5 +33,6 @@
 #define NEW_MATCH_MENU_ID      10
 #define PACKAGE_SHIP_MENU_ID   11
 #define PACKAGE_STAGE_MENU_ID  12
+#define PACKAGE_BUTTON_ID      13
 
 #endif

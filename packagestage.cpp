@@ -24,11 +24,44 @@
 
 PackageStageDialog::PackageStageDialog()
     : wxFrame(NULL, PACKAGE_STAGE_ID, "Package Stage...",
-              wxPoint(50, 50), wxSize(500, 520),
+              wxPoint(50, 50), wxSize(380, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
-  
+  stageSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
+  versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 163));
+  versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 160),
+                                wxSize(70, 23));
+  packageButton_ = new wxButton(this, PACKAGE_BUTTON_ID, "Package!",
+      wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
+  numStages_ = 0;
+  listener_ = 0;
+
+  Connect(PACKAGE_STAGE_ID, wxEVT_ACTIVATE,
+          wxCommandEventHandler(PackageStageDialog::onActivate));
+  Connect(PACKAGE_STAGE_ID, wxEVT_CLOSE_WINDOW,
+          wxCommandEventHandler(PackageStageDialog::onClose));
 }
 
 PackageStageDialog::~PackageStageDialog() {
+  delete stageSelect_;
+  delete versionLabel_;
+  delete versionText_;
+}
 
+void PackageStageDialog::addStage(char *stage) {
+  stageSelect_->Insert(wxString(stage), numStages_++);
+  if (stageSelect_->GetCount() > 0) {
+    stageSelect_->SetFirstItem(0);
+  }
+}
+
+void PackageStageDialog::setListener(PackageStageListener *listener) {
+  listener_ = listener;
+}
+
+void PackageStageDialog::onActivate(wxCommandEvent &event) {
+  stageSelect_->SetFocus();
+}
+
+void PackageStageDialog::onClose(wxCommandEvent &event) {
+  listener_->cancel();
 }

@@ -95,9 +95,9 @@ void GuiManager::loadStages(const char *baseDir) {
     char *filename = (char *) *file;
     if (isValidStageFile(baseDir, filename)) {
       newMatchDialog_->addStage(filename);
+      packageStageDialog_->addStage(filename);
     }
   }
-  newMatchDialog_->resetCursors();
 }
 
 bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
@@ -122,7 +122,6 @@ void GuiManager::loadBots(const char *baseDir) {
       newMatchDialog_->addBot(filename);
     }
   }
-  newMatchDialog_->resetCursors();
 }
 
 bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
@@ -130,9 +129,10 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
   return isLuaFilename(botFilename) || isZipFilename(botFilename);
 }
 
-void GuiManager::linkListener() {
+void GuiManager::linkListeners() {
   newMatchDialog_->setListener(
       new MatchStarter(this, stageBaseDir_, botsBaseDir_));
+  packageStageDialog_->setListener(new StagePackager(this));
 }
 
 void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
@@ -278,7 +278,6 @@ void GuiManager::showPackageStageDialog() {
 
 void GuiManager::resumeMatch() {
   paused_ = false;
-  newMatchDialog_->Hide();
 }
 
 void GuiManager::showStageConsole() {
@@ -309,6 +308,18 @@ void GuiManager::clearConsoles() {
     delete teamConsoles_;
     teamConsoles_ = 0;
   }
+}
+
+void GuiManager::hideNewMatchDialog() {
+  newMatchDialog_->Hide();
+}
+
+void GuiManager::hidePackageShipDialog() {
+  packageShipDialog_->Hide();
+}
+
+void GuiManager::hidePackageStageDialog() {
+  packageStageDialog_->Hide();
 }
 
 void GuiManager::quit() {
@@ -345,6 +356,16 @@ void MatchStarter::startMatch(const char *stageName, const char **teamNames,
 }
 
 void MatchStarter::cancel() {
+  guiManager_->hideNewMatchDialog();
+  guiManager_->resumeMatch();
+}
+
+StagePackager::StagePackager(GuiManager *guiManager) {
+  guiManager_ = guiManager;
+}
+
+void StagePackager::cancel() {
+  guiManager_->hidePackageStageDialog();
   guiManager_->resumeMatch();
 }
 

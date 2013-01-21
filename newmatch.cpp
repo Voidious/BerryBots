@@ -75,16 +75,13 @@ NewMatchDialog::~NewMatchDialog() {
 
 void NewMatchDialog::addStage(char *stage) {
   stageSelect_->Insert(wxString(stage), numStages_++);
+  if (stageSelect_->GetCount() > 0) {
+    stageSelect_->SetFirstItem(0);
+  }
 }
 
 void NewMatchDialog::addBot(char *bot) {
   botsSelect_->Insert(wxString(bot), numBots_++);
-}
-
-void NewMatchDialog::resetCursors() {
-  if (stageSelect_->GetCount() > 0) {
-    stageSelect_->SetFirstItem(0);
-  }
   if (botsSelect_->GetCount() > 0) {
     botsSelect_->SetFirstItem(0);
   }
@@ -159,8 +156,8 @@ void NewMatchDialog::setListener(NewMatchListener *listener) {
 void NewMatchDialog::initMenus() {
   wxMenu *fileMenu = new wxMenu();
   fileMenu->Insert(0, NEW_MATCH_MENU_ID, "New Match...", 0);
-  fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package ship...", 0);
-  fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package stage...", 0);
+  fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package Ship...", 0);
+  fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package Stage...", 0);
   wxMenuBar *menuBar = new wxMenuBar();
   menuBar->Insert(0, fileMenu, "File");
 

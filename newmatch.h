@@ -40,9 +40,9 @@ class NewMatchDialog : public wxFrame {
   wxButton *clearButton_;
   wxListBox *loadedBotsSelect_;
   wxButton *startButton_;
-  int numStages_;
-  int numBots_;
-  int numLoadedBots_;
+  unsigned int numStages_;
+  unsigned int numBots_;
+  unsigned int numLoadedBots_;
   NewMatchListener *listener_;
 
   public:
@@ -50,7 +50,6 @@ class NewMatchDialog : public wxFrame {
     ~NewMatchDialog();
     void addStage(char *stage);
     void addBot(char *bot);
-    void resetCursors();
     void onAddBots(wxCommandEvent &event);
     void onRemoveBots(wxCommandEvent &event);
     void onClearBots(wxCommandEvent &event);
