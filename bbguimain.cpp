@@ -75,19 +75,19 @@ void BerryBotsApp::OnQuit(wxCommandEvent &event) {
 }
 
 void BerryBotsApp::OnNewMatch(wxCommandEvent &event) {
+  guiManager_->showNewMatchDialog();
   guiManager_->hidePackageShipDialog();
   guiManager_->hidePackageStageDialog();
-  guiManager_->showNewMatchDialog();
 }
 
 void BerryBotsApp::OnPackageShip(wxCommandEvent &event) {
+  guiManager_->showPackageShipDialog();
   guiManager_->hideNewMatchDialog();
   guiManager_->hidePackageStageDialog();
-  guiManager_->showPackageShipDialog();
 }
 
 void BerryBotsApp::OnPackageStage(wxCommandEvent &event) {
+  guiManager_->showPackageStageDialog();
   guiManager_->hideNewMatchDialog();
   guiManager_->hidePackageShipDialog();
-  guiManager_->showPackageStageDialog();
 }

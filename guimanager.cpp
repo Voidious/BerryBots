@@ -95,7 +95,9 @@ void GuiManager::loadStages(const char *baseDir) {
     char *filename = (char *) *file;
     if (isValidStageFile(baseDir, filename)) {
       newMatchDialog_->addStage(filename);
-      packageStageDialog_->addStage(filename);
+      if (isLuaFilename(filename)) {
+        packageStageDialog_->addStage(filename);
+      }
     }
   }
 }
