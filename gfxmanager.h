@@ -79,7 +79,8 @@ class GfxManager {
                    Stage *stage, Team **teams, int numTeams, Ship **ships,
                    int numShips, std::string resourcePath);
     void drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
-                  int numShips, int time, GfxEventHandler *gfxHandler);
+                  int numShips, int time, GfxEventHandler *gfxHandler,
+                  bool gameOver);
     void updateView(sf::RenderWindow *window, unsigned int viewWidth,
                     unsigned int viewHeight);
     void destroyBbGfx();

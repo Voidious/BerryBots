@@ -177,7 +177,8 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
                          engine->getNumShips(), resourcePath());
   window_->setVisible(true);
   gfxManager_->drawGame(window_, stage, engine->getShips(),
-      engine->getNumShips(), engine->getGameTime(), gfxHandler);
+                        engine->getNumShips(), engine->getGameTime(),
+                        gfxHandler, false);
 
   stageConsole_ = new OutputConsole(this->nextConsoleId(), stage->getName());
   stageConsole_->Hide();
@@ -224,7 +225,8 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
     if (thisMatchId == matchId_) {
       window_->clear();
       gfxManager_->drawGame(window_, stage, engine->getShips(),
-          engine->getNumShips(), engine->getGameTime(), gfxHandler);
+          engine->getNumShips(), engine->getGameTime(), gfxHandler,
+          engine->isGameOver());
       window_->display();
       
       time(&realTime2);

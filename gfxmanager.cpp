@@ -441,7 +441,7 @@ void drawNames(sf::RenderWindow *window, Ship **ships, int numShips) {
   }
 }
 
-void drawStageTexts(sf::RenderWindow *window, Stage *stage) {
+void drawStageTexts(sf::RenderWindow *window, Stage *stage, bool gameOver) {
   int numTexts = stage->getTextCount();
   if (numTexts > 0) {
     StageText **stageTexts = stage->getTexts();
@@ -454,7 +454,9 @@ void drawStageTexts(sf::RenderWindow *window, Stage *stage) {
                        drawY(stageText->y + textRect.height));
       window->draw(text);
     }
-    stage->updateTextTimers();
+    if (!gameOver) {
+      stage->updateTextTimers();
+    }
   }
 }
 
@@ -498,7 +500,8 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage) {
 
 // TODO: move all these args to class level?
 void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
-                          int numShips, int time, GfxEventHandler *gfxHandler) {
+                          int numShips, int time, GfxEventHandler *gfxHandler,
+                          bool gameOver) {
   if (showDock_) {
     drawDock(window, stage);
     window->setView(stageView);
@@ -517,7 +520,7 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   drawNames(window, ships, numShips);
   drawLasers(window, stage);
   drawShips(window, ships, numShips, time);
-  drawStageTexts(window, stage);
+  drawStageTexts(window, stage, gameOver);
 }
 
 void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
