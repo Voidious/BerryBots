@@ -22,7 +22,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "bbutil.h"
 #include "stage.h"
 #include "sensorhandler.h"
 #include "bbengine.h"
@@ -1245,7 +1244,7 @@ int Admin_sendEvent(lua_State *L) {
     team->stageEventRef = luaL_ref(teamState, LUA_REGISTRYINDEX);
   }
   lua_rawgeti(teamState, LUA_REGISTRYINDEX, team->stageEventRef);
-  int newIndex = lua_objlen(L, -1) + 1;
+  int newIndex = (int) lua_objlen(L, -1) + 1;
 
   copyValue(L, teamState);
   lua_rawseti(teamState, -2, newIndex);
@@ -1385,31 +1384,6 @@ int registerStageGlobals(lua_State *L) {
   luaL_register(L, NULL, StageGlobals_methods);
   lua_pop(L, 1);
   return 1;
-}
-
-void crawlFiles(lua_State *L, const char *startFile) {
-  if (luaL_loadfile(L, startFile)
-      || lua_pcall(L, 0, 0, 0)) {
-    luaL_error(L, "failed to crawl file: %s", lua_tostring(L, -1));
-  }
-
-  lua_getfield(L, LUA_REGISTRYINDEX, "__FILES");
-  int numFiles = lua_objlen(L, -1);
-  int numFiles2 = 0;
-  do {
-    numFiles2 = numFiles;
-    lua_pushnil(L);
-    while (lua_next(L, -2) != 0) {
-      const char *loadedFilename = lua_tostring(L, -1);
-      checkLuaFilename(loadedFilename);
-      if (luaL_loadfile(L, loadedFilename) || lua_pcall(L, 0, 0, 0)) {
-        luaL_error(L, "failed to crawl file: %s", lua_tostring(L, -1));
-      }
-      lua_pop(L, 1);
-    }
-    numFiles = lua_objlen(L, -1);
-  } while (numFiles != numFiles2);
-  lua_pop(L, 1);
 }
 
 // adapted from luac.c

@@ -32,6 +32,7 @@
 #include "bbengine.h"
 #include "gfxeventhandler.h"
 #include "gfxmanager.h"
+#include "filemanager.h"
 #include "printhandler.h"
 #include "cliprinthandler.h"
 
@@ -53,13 +54,15 @@ void printUsage() {
 }
 
 int main(int argc, char *argv[]) {
+  FileManager *fileManager = new FileManager();
   char **stageInfo = parseFlag(argc, argv, "packstage", 2);
   if (stageInfo != 0) {
     if (argc < 4) {
       printUsage();
     }
     bool nosrc = flagExists(argc, argv, "nosrc");
-    packageStage(stageInfo[0], stageInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
+    fileManager->packageStage(stageInfo[0], stageInfo[1], CACHE_SUBDIR,
+                              TMP_SUBDIR, nosrc);
     delete stageInfo;
     return 0;
   }
@@ -70,7 +73,8 @@ int main(int argc, char *argv[]) {
       printUsage();
     }
     bool nosrc = flagExists(argc, argv, "nosrc");
-    packageBot(botInfo[0], botInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
+    fileManager->packageBot(botInfo[0], botInfo[1], CACHE_SUBDIR, TMP_SUBDIR,
+                            nosrc);
     delete botInfo;
     return 0;
   }
@@ -118,7 +122,7 @@ int main(int argc, char *argv[]) {
         engine->getNumTeams(), engine->getShips(), engine->getNumShips(),
         std::string("./"));
     gfxManager->drawGame(window, stage, engine->getShips(),
-        engine->getNumShips(), engine->getGameTime(), gfxHandler);
+        engine->getNumShips(), engine->getGameTime(), gfxHandler, false);
   }
   
   time_t realTime1;
@@ -148,7 +152,7 @@ int main(int argc, char *argv[]) {
   
       window->clear();
       gfxManager->drawGame(window, stage, engine->getShips(),
-          engine->getNumShips(), engine->getGameTime(), gfxHandler);
+          engine->getNumShips(), engine->getGameTime(), gfxHandler, false);
       window->display();
     }
 

@@ -51,6 +51,7 @@ BerryBotsEngine::BerryBotsEngine() {
   worlds_ = 0;
   teamVision_ = 0;
   sensorHandler_ = 0;
+  fileManager_ = new FileManager();
 }
 
 Stage* BerryBotsEngine::getStage() {
@@ -147,7 +148,8 @@ int BerryBotsEngine::getNumTeams() {
 
 void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir) {
   char *stageCwd;
-  loadStageFile(stagePath, &stageDir_, &stageFilename_, &stageCwd, cacheDir);
+  fileManager_->loadStageFile(stagePath, &stageDir_, &stageFilename_, &stageCwd,
+                              cacheDir);
   initStageState(&stageState_, stageCwd, stageFilename_);  
 
   if (luaL_loadfile(stageState_, stageFilename_)
@@ -199,7 +201,8 @@ void BerryBotsEngine::initShips(
     char *shipDir;
     char *shipFilename;
     char *shipCwd;
-    loadBotFile(filename, &shipDir, &shipFilename, &shipCwd, cacheDir);
+    fileManager_->loadBotFile(filename, &shipDir, &shipFilename, &shipCwd,
+                              cacheDir);
     initShipState(&teamState, shipCwd, shipFilename);  
 
     int numStateShips = (stageShip ? 1 : teamSize_);
@@ -240,8 +243,8 @@ void BerryBotsEngine::initShips(
     lua_pop(teamState, 2);
 
     char *extension = strrchr(shipFilename, '.');
-    int nameLength = min(MAX_NAME_LENGTH,
-        (extension == 0) ? strlen(shipFilename) : extension - shipFilename);
+    int nameLength = min(MAX_NAME_LENGTH, (int) ((extension == 0)
+        ? strlen(shipFilename) : extension - shipFilename));
     strncpy(team->name, shipFilename, nameLength);
     team->name[nameLength] = '\0';
     team->stageShip = stageShip;

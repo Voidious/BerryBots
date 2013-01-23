@@ -29,6 +29,7 @@ using platformstl::readdir_sequence;
 #include "bbengine.h"
 #include "gfxeventhandler.h"
 #include "gfxmanager.h"
+#include "filemanager.h"
 #include "newmatch.h"
 #include "outputconsole.h"
 #include "printhandler.h"
@@ -53,6 +54,7 @@ GuiManager::GuiManager() {
   numTeams_ = 0;
   gfxManager_ = new GfxManager(true);
   gfxManager_->setListener(new ViewListener(this));
+  fileManager_ = new FileManager();
   newMatchDialog_->Show();
   newMatchDialog_->wxWindow::SetFocus();
   stageBaseDir_ = 0;
@@ -95,7 +97,7 @@ void GuiManager::loadStages(const char *baseDir) {
     char *filename = (char *) *file;
     if (isValidStageFile(baseDir, filename)) {
       newMatchDialog_->addStage(filename);
-      if (isLuaFilename(filename)) {
+      if (fileManager_->isLuaFilename(filename)) {
         packageStageDialog_->addStage(filename);
       }
     }
@@ -104,7 +106,8 @@ void GuiManager::loadStages(const char *baseDir) {
 
 bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
   // TODO: load up stage file and try to determine if it really is valid
-  return isLuaFilename(stageFilename) || isZipFilename(stageFilename);
+  return fileManager_->isLuaFilename(stageFilename)
+      || fileManager_->isZipFilename(stageFilename);
 }
 
 void GuiManager::loadBots(const char *baseDir) {
@@ -128,14 +131,15 @@ void GuiManager::loadBots(const char *baseDir) {
 
 bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
   // TODO: load up bot file and try to determine if it really is valid
-  return isLuaFilename(botFilename) || isZipFilename(botFilename);
+  return fileManager_->isLuaFilename(botFilename)
+      || fileManager_->isZipFilename(botFilename);
 }
 
 void GuiManager::linkListeners() {
   newMatchDialog_->setListener(
       new MatchStarter(this, stageBaseDir_, botsBaseDir_));
   packageStageDialog_->setListener(
-      new StagePackager(this, stageBaseDir_, botsBaseDir_));
+      new StagePackager(this, fileManager_, stageBaseDir_, botsBaseDir_));
 }
 
 void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
@@ -371,9 +375,10 @@ void MatchStarter::cancel() {
   guiManager_->resumeMatch();
 }
 
-StagePackager::StagePackager(GuiManager *guiManager, char *stageDir,
-                             char *botsDir) {
+StagePackager::StagePackager(GuiManager *guiManager, FileManager *fileManager,
+                             char *stageDir, char *botsDir) {
   guiManager_ = guiManager;
+  fileManager_ = fileManager;
   stageDir_ = new char[strlen(stageDir) + 1];
   strcpy(stageDir_, stageDir);
   botsDir_ = new char[strlen(botsDir) + 1];
@@ -389,8 +394,8 @@ void StagePackager::package(const char *stageName, const char *version,
                             bool nosrc) {
   char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
   sprintf(stagePath, "%s/%s", stageDir_, stageName);
-  packageStage(stagePath, version, getCacheDir().c_str(), getTmpDir().c_str(),
-               nosrc);
+  fileManager_->packageStage(stagePath, version, getCacheDir().c_str(),
+                             getTmpDir().c_str(), nosrc);
   delete stagePath;
 }
 

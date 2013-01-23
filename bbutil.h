@@ -164,16 +164,5 @@ extern double toDegrees(double x);
 extern char** parseFlag(
     int argc, char *argv[], const char *flag, int numValues);
 extern bool flagExists(int argc, char *argv[], const char *flag);
-extern void loadStageFile(const char *filename, char **stageDir,
-    char **stageDirFilename, char **stageCwd, const char *cacheDir);
-extern void loadBotFile(const char *filename, char **botDir, char **botDirFilename,
-    char **botCwd, const char *cacheDir);
-extern bool isLuaFilename(const char *filename);
-extern bool isZipFilename(const char *filename);
-extern void checkLuaFilename(const char *filename);
-extern void packageStage(const char *stageArg, const char *version,
-                         const char *cacheDir, const char *tmpDir, bool nosrc);
-extern void packageBot(char *botArg, char *version, const char *cacheDir,
-    const char *tmpDir, bool nosrc);
 
 #endif

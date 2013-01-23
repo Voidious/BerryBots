@@ -24,6 +24,7 @@
 #include "bbconst.h"
 #include "bbutil.h"
 #include "stage.h"
+#include "filemanager.h"
 #include "sensorhandler.h"
 
 extern "C" {
@@ -34,6 +35,7 @@ extern "C" {
 
 class BerryBotsEngine {
   Stage *stage_;
+  FileManager *fileManager_;
   lua_State *stageState_;
   char *stageDir_;
   char *stageFilename_;

@@ -23,6 +23,7 @@
 
 #include <SFML/Graphics.hpp>
 #include "gfxmanager.h"
+#include "filemanager.h"
 #include "newmatch.h"
 #include "packageship.h"
 #include "packagestage.h"
@@ -37,6 +38,7 @@ class GuiManager {
   OutputConsole **teamConsoles_;
   int numTeams_;
   GfxManager *gfxManager_;
+  FileManager *fileManager_;
   char *stageBaseDir_;
   char *botsBaseDir_;
   bool paused_;
@@ -82,11 +84,13 @@ class MatchStarter : public NewMatchListener {
 
 class StagePackager : public PackageStageListener {
   GuiManager *guiManager_;
+  FileManager *fileManager_;
   char *stageDir_;
   char *botsDir_;
 
   public:
-    StagePackager(GuiManager *guiManager, char *stageDir, char *botsDir);
+    StagePackager(GuiManager *guiManager, FileManager *fileManager,
+                  char *stageDir, char *botsDir);
     ~StagePackager();
     virtual void package(const char *stageName, const char *version,
                          bool nosrc);
