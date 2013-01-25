@@ -54,7 +54,8 @@ char* FileManager::loadUserLuaFilename(char *userDirPath,
   
   FILE *userPropertiesFile = fopen(userPropertiesPath, "r");
   if (userPropertiesFile == 0) {
-    cout << "Failed to find " << userPropertiesPath << endl;
+    // TODO: throw exception with error message instead
+    cout << "ERROR: No properties file found: " << userPropertiesPath << endl;
     delete userPropertiesPath;
     return 0;
   }
@@ -133,7 +134,8 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
   if (srcFilenameLen > zipLen
       && strcmp(&(srcFilename[srcFilenameLen - zipLen]), ZIP_EXTENSION) == 0) {
     if (!fileExists(srcFilename)) {
-      cout << "ERROR: Couldn't find file: " << srcFilename << endl;
+      // TODO: throw exception with error message instead
+      cout << "ERROR: No source file found: " << srcFilename << endl;
       exit(0);
     }
     createDirIfNecessary(cacheDir);
@@ -146,6 +148,8 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     *userDir = userDirPath;
     
     if (!fileExists(userDirPath)) {
+      // TODO: this would be good to display in real time via a callback...
+      //       cout for Raspberry Pi, output console window in GUI
       cout << "Extracting " << srcFilename << " to " << userDirPath << " ... ";
       mkdir(userDirPath);
       int extractCmdLen = 20 + srcFilenameLen + 4 + userDirPathLen;
@@ -206,13 +210,6 @@ bool FileManager::isZipFilename(const char *filename) {
   return hasExtension(filename, ZIP_EXTENSION);
 }
 
-void FileManager::checkLuaFilename(const char *filename) {
-  if (!isLuaFilename(filename)) {
-    cout << "Invalid Lua filename: " << filename << endl;
-    exit(0);
-  }
-}
-
 // Package files loaded by stage or bot. Expects the list of files loaded by
 // the Lua state to be at the top of the stack (from "__FILES" table).
 //
@@ -232,7 +229,7 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
   int cmdLen = prevCmdLen;
   while (lua_next(userState, -2) != 0) {
     const char *loadedFilename = lua_tostring(userState, -1);
-    checkLuaFilename(loadedFilename);
+    // TODO: if not valid Lua filename, throw exception with error message
     int lenFilename = (int) strlen(loadedFilename);
     cmdLen += 3 + lenFilename;
     packFilenames[x] = new char[lenFilename + 1];
@@ -362,7 +359,8 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile) {
     lua_pushnil(L);
     while (lua_next(L, -2) != 0) {
       const char *loadedFilename = lua_tostring(L, -1);
-      checkLuaFilename(loadedFilename);
+      // TODO: if not valid Lua filename, throw exception with error message or
+      //       maybe just don't crawl it
       if (luaL_loadfile(L, loadedFilename) || lua_pcall(L, 0, 0, 0)) {
         luaL_error(L, "failed to crawl file: %s", lua_tostring(L, -1));
       }
@@ -380,7 +378,7 @@ void FileManager::packageStage(const char *stageArg, const char *version,
   char *stageFilename;
   char *stageCwd;
   loadStageFile(stageArg, &stageDir, &stageFilename, &stageCwd, cacheDir);
-  checkLuaFilename(stageFilename);
+  // TODO: if not valid Lua filename, throw exception with error message
   initStageState(&stageState, stageCwd, stageFilename);
   
   engine = new BerryBotsEngine();
@@ -414,7 +412,7 @@ void FileManager::packageStage(const char *stageArg, const char *version,
       }
     }
     if (!dup) {
-      checkLuaFilename(stageShipFilename);
+      // TODO: if not valid Lua filename, throw exception with error message
       int lenFilename = (int) strlen(stageShipFilename);
       cmdLen += lenFilename;
       packFilenames[x] = new char[lenFilename + 1];
@@ -440,7 +438,7 @@ void FileManager::packageBot(char *botArg, char *version, const char *cacheDir,
   char *shipFilename;
   char *shipCwd;
   loadBotFile(botArg, &shipDir, &shipFilename, &shipCwd, cacheDir);
-  checkLuaFilename(shipFilename);
+  // TODO: if not valid Lua filename, throw exception with error message
   initShipState(&shipState, shipCwd, shipFilename);
   crawlFiles(shipState, shipFilename);
   

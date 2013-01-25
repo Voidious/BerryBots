@@ -36,7 +36,6 @@ class FileManager {
                      char **botCwd, const char *cacheDir);
     bool isLuaFilename(const char *filename);
     bool isZipFilename(const char *filename);
-    void checkLuaFilename(const char *filename);
     void packageStage(const char *stageArg, const char *version,
                       const char *cacheDir, const char *tmpDir, bool nosrc);
     void packageBot(char *botArg, char *version, const char *cacheDir,
