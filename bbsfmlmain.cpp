@@ -120,7 +120,7 @@ int main(int argc, char *argv[]) {
     gfxManager->updateView(window, viewWidth, viewHeight);
     gfxManager->initBbGfx(window, viewHeight, stage, engine->getTeams(),
         engine->getNumTeams(), engine->getShips(), engine->getNumShips(),
-        std::string("./"));
+        std::string(".") + std::string(BB_DIRSEP));
     gfxManager->drawGame(window, stage, engine->getShips(),
         engine->getNumShips(), engine->getGameTime(), gfxHandler, false);
   }

@@ -354,11 +354,11 @@ MatchStarter::~MatchStarter() {
 void MatchStarter::startMatch(const char *stageName, const char **teamNames,
                               int numTeams) {
   char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
-  sprintf(stagePath, "%s/%s", stageDir_, stageName);
+  sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
   char **teamPaths = new char*[numTeams];
   for (int x = 0; x < numTeams; x++) {
     char *teamPath = new char[strlen(botsDir_) + strlen(teamNames[x]) + 2];
-    sprintf(teamPath, "%s/%s", botsDir_, teamNames[x]);
+    sprintf(teamPath, "%s%s%s", botsDir_, BB_DIRSEP, teamNames[x]);
     teamPaths[x] = teamPath;
   }
   guiManager_->runMatch(stagePath, teamPaths, numTeams);
@@ -393,7 +393,7 @@ StagePackager::~StagePackager() {
 void StagePackager::package(const char *stageName, const char *version,
                             bool nosrc) {
   char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
-  sprintf(stagePath, "%s/%s", stageDir_, stageName);
+  sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
   fileManager_->packageStage(stagePath, version, getCacheDir().c_str(),
                              getTmpDir().c_str(), nosrc);
   delete stagePath;

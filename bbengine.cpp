@@ -190,7 +190,7 @@ void BerryBotsEngine::initShips(
       if (stageDir_ != 0) {
         char *rawFilename = filename;
         filename = new char[strlen(stageDir_) + strlen(rawFilename) + 2];
-        sprintf(filename, "%s/%s", stageDir_, rawFilename);
+        sprintf(filename, "%s%s%s", stageDir_, BB_DIRSEP, rawFilename);
         deleteFilename = true;
       }
     } else {

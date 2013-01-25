@@ -50,7 +50,7 @@ char* FileManager::loadUserLuaFilename(char *userDirPath,
   int userPropertiesPathLen =
       (int) (strlen(userDirPath) + 1 + strlen(metaFilename));
   char *userPropertiesPath = new char[userPropertiesPathLen + 1];
-  sprintf(userPropertiesPath, "%s/%s", userDirPath, metaFilename);
+  sprintf(userPropertiesPath, "%s%s%s", userDirPath, BB_DIRSEP, metaFilename);
   
   FILE *userPropertiesFile = fopen(userPropertiesPath, "r");
   if (userPropertiesFile == 0) {
@@ -86,34 +86,46 @@ void FileManager::sliceString(char *filename, long start, long rest) {
 
 char* FileManager::getAbsoluteFilename(char *dir, char *filename) {
   char *absFilename;
-  if (filename[0] == '/' || dir == 0) {
+  // TODO: Can "C:/" also be absolute path on Windows?
+  if (dir == 0 || filename[0] == BB_DIRSEP_CHR
+      || (strlen(filename) > 1 && strncmp(&(filename[1]), ":\\", 2) == 0)) {
     absFilename = new char[strlen(filename) + 1];
     strcpy(absFilename, filename);
     return absFilename;
   }
   
   absFilename = new char[strlen(dir) + strlen(filename) + 2];
-  sprintf(absFilename, "%s/%s", dir, filename);
+  sprintf(absFilename, "%s%s%s", dir, BB_DIRSEP, filename);
   char *dots;
   int i = 0;
-  while ((dots = strstr(&(absFilename[i]), "./")) != NULL) {
+  char *dotSlash = new char[3];
+  sprintf(dotSlash, "%s%s", ".", BB_DIRSEP);
+  while ((dots = strstr(&(absFilename[i]), dotSlash)) != NULL) {
     int offset = (int) (dots - absFilename);
-    if (offset == 0 || absFilename[offset - 1] == '/') {
+    if (offset == 0 || absFilename[offset - 1] == BB_DIRSEP_CHR) {
       sliceString(absFilename, offset, offset + 2);
       i = offset;
     } else {
       i = offset + 2;
     }
   }
+  delete dotSlash;
+
   int filenameLen = (int) strlen(absFilename);
-  if (filenameLen >= 2 && strcmp(&(absFilename[filenameLen - 2]), "/.") == 0) {
+  char *slashDot = new char[3];
+  sprintf(slashDot, "%s%s", BB_DIRSEP, ".");
+  if (filenameLen >= 2
+      && strcmp(&(absFilename[filenameLen - 2]), slashDot) == 0) {
     absFilename[filenameLen - 2] = '\0';
   }
-  
-  while ((dots = strstr(absFilename, "/..")) != 0) {
+  delete slashDot;
+
+  char *slashDotDot = new char[4];
+  sprintf(slashDotDot, "%s%s", BB_DIRSEP, "..");
+  while ((dots = strstr(absFilename, slashDotDot)) != 0) {
     long prevSlash = -1;
     for (long x = dots - absFilename - 1; x > 0; x--) {
-      if (absFilename[x] == '/') {
+      if (absFilename[x] == BB_DIRSEP_CHR) {
         prevSlash = x;
         break;
       }
@@ -123,6 +135,8 @@ char* FileManager::getAbsoluteFilename(char *dir, char *filename) {
     }
     sliceString(absFilename, prevSlash, dots - absFilename + 3);
   }
+  delete slashDotDot;
+
   return absFilename;
 }
 
@@ -144,7 +158,7 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     int userDirPathLen = (int) (strlen(cacheDir) + 1 + strlen(userDirName));
     
     char *userDirPath = new char[userDirPathLen + 1];
-    sprintf(userDirPath, "%s/%s", cacheDir, userDirName);
+    sprintf(userDirPath, "%s%s%s", cacheDir, BB_DIRSEP, userDirName);
     *userDir = userDirPath;
     
     if (!fileExists(userDirPath)) {
@@ -173,7 +187,7 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     *userCwd = new char[strlen(cwd) + 1];
     strcpy(*userCwd, cwd);
   } else {
-    if ((*userDir)[0] == '/') {
+    if ((*userDir)[0] == BB_DIRSEP_CHR) {
       *userCwd = new char[strlen(*userDir) + 1];
       strcpy(*userCwd, *userDir);
     } else {
@@ -245,7 +259,7 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
       if (packFilenames[x] != 0) {
         char *outputFilename =
         new char[strlen(tmpDir) + 1 + strlen(packFilenames[x]) + 1];
-        sprintf(outputFilename, "%s/%s", tmpDir, packFilenames[x]);
+        sprintf(outputFilename, "%s%s%s", tmpDir, BB_DIRSEP, packFilenames[x]);
         
         char *outputDir = parseDir(outputFilename);
         if (outputDir != 0) {
@@ -472,7 +486,7 @@ void FileManager::mkdir(const char *filename) {
 }
 
 char* FileManager::parseFilename(const char *dirAndFilename) {
-  const char *fromFinalSlash = strrchr(dirAndFilename, '/');
+  const char *fromFinalSlash = strrchr(dirAndFilename, BB_DIRSEP_CHR);
   char *filename;
   if (fromFinalSlash == 0) {
     filename = new char[strlen(dirAndFilename) + 1];
@@ -485,7 +499,7 @@ char* FileManager::parseFilename(const char *dirAndFilename) {
 }
 
 char* FileManager::parseDir(const char *dirAndFilename) {
-  const char *fromFinalSlash = strrchr(dirAndFilename, '/');
+  const char *fromFinalSlash = strrchr(dirAndFilename, BB_DIRSEP_CHR);
   if (fromFinalSlash == 0) {
     return 0;
   } else {
@@ -499,7 +513,7 @@ char* FileManager::parseDir(const char *dirAndFilename) {
 
 void FileManager::createDirIfNecessary(const char *dir) {
   if (!fileExists(dir)) {
-    cout << "Creating " << dir << "/ directory ... ";
+    cout << "Creating " << dir << BB_DIRSEP << " directory ... ";
     mkdir(dir);
     cout << "done!" << endl;
   }

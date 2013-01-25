@@ -55,4 +55,12 @@
 #define MAX_NAME_LENGTH       128
 #define CPU_TIME_TICKS        1000
 
+#if defined(_WIN32)
+#define BB_DIRSEP      "\\"
+#define BB_DIRSEP_CHR  '\\'
+#else
+#define BB_DIRSEP      "/"
+#define BB_DIRSEP_CHR  '/'
+#endif
+
 #endif
