@@ -57,7 +57,7 @@ sf::Color* shipColors;
 int* shipDotOffsets;
 bool* shipDotDirections;
 sf::Color* shipDeathColors;
-sf::Color** laserColors;
+sf::Color* laserColors;
 sf::Color* thrusterColors;
 sf::Color sparkColor(40, 100, 255, 255);
 sf::Color torpedoColor(255, 89, 38, 255);
@@ -141,7 +141,7 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
 
   shipColors = new sf::Color[numShips];
   shipDeathColors = new sf::Color[numShips];
-  laserColors = new sf::Color*[numShips];
+  laserColors = new sf::Color[numShips];
   thrusterColors = new sf::Color[numShips];
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
@@ -151,14 +151,9 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
     shipDeathColors[x].r = ship->properties->shipR * 3 / 4;
     shipDeathColors[x].g = ship->properties->shipG * 3 / 4;
     shipDeathColors[x].b = ship->properties->shipB * 3 / 4;
-    laserColors[x] = new sf::Color[SHIP_DOT_FRAMES];
-    for (int y = 0; y < SHIP_DOT_FRAMES; y++) {
-      double brightness = 0.5 + (0.5 * y / (SHIP_DOT_FRAMES - 1));
-      laserColors[x][y].r = ship->properties->laserR * brightness;
-      laserColors[x][y].g = ship->properties->laserG * brightness;
-      laserColors[x][y].b = ship->properties->laserB * brightness;
-      laserColors[x][y].a = 255;
-    }
+    laserColors[x].r = ship->properties->laserR;
+    laserColors[x].g = ship->properties->laserG;
+    laserColors[x].b = ship->properties->laserB;
     thrusterColors[x].r = ship->properties->thrusterR;
     thrusterColors[x].g = ship->properties->thrusterG;
     thrusterColors[x].b = ship->properties->thrusterB;
@@ -328,7 +323,7 @@ void drawLasers(sf::RenderWindow *window, Stage *stage) {
     laserShape.setRotation(rotateAngle);
     laserShape.setPosition(drawX(laser->x - laser->dx),
                            drawY(laser->y - laser->dy));
-    laserShape.setFillColor(laserColors[laser->shipIndex][SHIP_DOT_FRAMES - 1]);
+    laserShape.setFillColor(laserColors[laser->shipIndex]);
     adjustLaserPosition(&laserShape, rotateAngle);
     window->draw(laserShape);
   }
@@ -350,8 +345,7 @@ void drawShips(sf::RenderWindow *window, Ship **ships, int numShips, int time) {
                             drawY(ship->y - SHIP_RADIUS, SHIP_SIZE));
       window->draw(shipShape);
 
-      shipDotShape.setFillColor(
-          laserColors[x][(time + shipDotOffsets[x]) % SHIP_DOT_FRAMES]);
+      shipDotShape.setFillColor(laserColors[x]);
       for (int y = 0; y < 3; y++) {
         shipDotShape.setPosition(drawX(ship->x - SHIP_DOT_RADIUS),
             drawY(ship->y - SHIP_DOT_RADIUS, SHIP_DOT_RADIUS * 2));
@@ -416,8 +410,7 @@ void drawLaserSparks(sf::RenderWindow *window, int time,
       LaserHitShipGraphic *laserHit = laserHits[x];
       Ship *ship = ships[laserHit->hitShipIndex];
       int sparkTime = (time - laserHit->time);
-      sparkShape.setFillColor(
-          laserColors[laserHit->srcShipIndex][SHIP_DOT_FRAMES - 1]);
+      sparkShape.setFillColor(laserColors[laserHit->srcShipIndex]);
       for (int x = 0; x < 4; x++) {
         sparkShape.setPosition(drawX(ship->x), drawY(ship->y));
         sparkShape.setRotation(laserHit->offsets[x]);
@@ -562,9 +555,6 @@ void GfxManager::destroyBbGfx() {
     delete shipDotOffsets;
     delete shipDotDirections;
     delete shipDeathColors;
-    for (int x = 0; x < numShips_; x++) {
-      delete laserColors[x];
-    } 
     delete laserColors;
     delete thrusterColors;
     initialized_ = false;
