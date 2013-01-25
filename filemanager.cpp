@@ -22,6 +22,7 @@
 #include <string.h>
 #include <iostream>
 using namespace std;
+#include <unistd.h>
 #include "bbconst.h"
 #include "filemanager.h"
 #include "bbengine.h"

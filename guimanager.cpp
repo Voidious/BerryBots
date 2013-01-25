@@ -18,6 +18,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <algorithm>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include "ResourcePath.hpp"
@@ -168,9 +169,9 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
   unsigned int viewHeight = stage->getHeight() + (STAGE_MARGIN * 2);
   unsigned int screenWidth = sf::VideoMode::getDesktopMode().width;
   unsigned int screenHeight = sf::VideoMode::getDesktopMode().height;
-  double windowScale = min(1.0,
-                           min(((double) screenWidth - DOCK_SIZE) / viewWidth,
-                               ((double) screenHeight) / viewHeight));
+  double windowScale =
+      std::min(1.0, std::min(((double) screenWidth - DOCK_SIZE) / viewWidth,
+                             ((double) screenHeight) / viewHeight));
   unsigned int targetWidth = floor(windowScale * viewWidth) + DOCK_SIZE;
   unsigned int targetHeight = floor(windowScale * viewHeight);
   

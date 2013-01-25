@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 
 #include "stage.h"
@@ -395,7 +396,7 @@ void Stage::moveAndCheckCollisions(
       double moveDistance =
           sqrt(square(ship->x - oldShip->x) + square(ship->y - oldShip->y));
       int moveIntervals = ceil(moveDistance / COLLISION_FRAME);
-      intervals = max(intervals, moveIntervals);
+      intervals = std::max(intervals, moveIntervals);
     }
   }
 

@@ -20,31 +20,11 @@
 
 #include <math.h>
 #include <string.h>
+#include <algorithm>
 #include "bbutil.h"
 
-int min(int p, int q) {
-  if (p < q) {
-    return p;
-  }
-  return q;
-}
-
-double min(double p, double q) {
-  if (p < q) {
-    return p;
-  }
-  return q;
-}
-
-double max(double p, double q) {
-  if (p > q) {
-    return p;
-  }
-  return q;
-}
-
 double limit(double p, double q, double r) {
-  return min(r, max(p, q));
+  return std::min(r, std::max(p, q));
 }
 
 int signum(double x) {

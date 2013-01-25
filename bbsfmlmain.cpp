@@ -26,6 +26,7 @@
 #include <time.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
 
 #include "bbutil.h"
 #include "stage.h"
@@ -108,9 +109,9 @@ int main(int argc, char *argv[]) {
 
     unsigned int screenWidth = sf::VideoMode::getDesktopMode().width;
     unsigned int screenHeight = sf::VideoMode::getDesktopMode().height;
-    double windowScale = min(1.0,
-        min(((double) screenWidth) / viewWidth,
-            ((double) screenHeight) / viewHeight));
+    double windowScale = std::min(1.0,
+        std::min(((double) screenWidth) / viewWidth,
+                 ((double) screenHeight) / viewHeight));
     unsigned int targetWidth = floor(windowScale * viewWidth);
     unsigned int targetHeight = floor(windowScale * viewHeight);
 

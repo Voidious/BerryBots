@@ -151,9 +151,6 @@ typedef struct {
   int shipFiredTorpedoRef;
 } StageSensors;
 
-extern int min(int p, int q);
-extern double min(double p, double q);
-extern double max(double p, double q);
 extern double limit(double p, double q, double r);
 extern int signum(double x);
 extern double square(double x);

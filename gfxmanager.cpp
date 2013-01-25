@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <algorithm>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>
@@ -384,7 +385,7 @@ void drawShipDeaths(sf::RenderWindow *window, int time,
       ShipDeathGraphic *shipDeath = shipDeaths[x];
       int deathTime = (time - shipDeath->time) / SHIP_DEATH_FRAME_LENGTH;
       destroyedShape.setOutlineColor(shipDeathColors[shipDeath->shipIndex]);
-      for (int y = max(0, deathTime - 3); y < deathTime; y++) {
+      for (int y = std::max(0, deathTime - 3); y < deathTime; y++) {
         double thisRadius = SHIP_DEATH_RADIUS * (1 + y);
         destroyedShape.setRadius(thisRadius);
         destroyedShape.setPosition(drawX(shipDeath->x - thisRadius),
@@ -531,7 +532,7 @@ void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
 
   double widthScale = ((double) windowWidth - dockSize) / viewWidth;
   double heightScale = ((double) windowHeight) / viewHeight;
-  double scale = min(widthScale, heightScale);
+  double scale = std::min(widthScale, heightScale);
   windowWidth = floor(scale * viewWidth) + dockSize;
   windowHeight = floor(scale * viewHeight);
   window->setSize(sf::Vector2u(windowWidth, windowHeight));

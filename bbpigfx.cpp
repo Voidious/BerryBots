@@ -20,6 +20,7 @@
 
 #include <math.h>
 #include <stdlib.h>
+#include <algorithm>
 #include "VG/vgu.h"
 #include "shapes.h"
 #include "bbconst.h"
@@ -80,8 +81,8 @@ void initVgGfx(int screenWidth, int screenHeight, Stage *stage, Ship **ships,
     int numShips) {
   int desiredWidth = stage->getWidth() + 50;
   int desiredHeight = stage->getHeight() + 50;
-  scale = min(1.0, min(((double) screenWidth) / desiredWidth,
-                       ((double) screenHeight) / desiredHeight));
+  scale = std::min(1.0, std::min(((double) screenWidth) / desiredWidth,
+                                 ((double) screenHeight) / desiredHeight));
   stageLeft = ((screenWidth / scale) / 2) - (stage->getWidth() / 2);
   stageBottom = ((screenHeight / scale) / 2) - (stage->getHeight() / 2);
 
@@ -337,7 +338,7 @@ void drawShipDeaths(int time, GfxEventHandler *gfxHandler) {
       vgScale(scale, scale);
       vgTranslate(stageLeft + shipDeath->x, stageBottom + shipDeath->y);
       int deathTime = (time - shipDeath->time) / SHIP_DEATH_FRAME_LENGTH;
-      for (int y = max(0, deathTime - 3); y < deathTime; y++) {
+      for (int y = std::max(0, deathTime - 3); y < deathTime; y++) {
         vgDrawPath(shipDeathPaths[y], VG_STROKE_PATH);
       }
     }

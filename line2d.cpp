@@ -20,6 +20,7 @@
 
 #include <math.h>
 #include <float.h>
+#include <algorithm>
 #include "bbutil.h"
 #include "line2d.h"
 
@@ -31,12 +32,12 @@ Line2D::Line2D(double x1, double y1, double x2, double y2) {
   } else {
     m_ = (y2 - y1) / (x2 - x1);
     b_ = y1 - (m_ * x1);
-    xMin_ = min(x1, x2);
-    xMax_ = max(x1, x2);
+    xMin_ = std::min(x1, x2);
+    xMax_ = std::max(x1, x2);
   }
-  yMin_ = min(y1, y2);
-  yMax_ = max(y1, y2);
-    
+  yMin_ = std::min(y1, y2);
+  yMax_ = std::max(y1, y2);
+
   x1_ = x1;
   y1_ = y1;
   x2_ = x2;

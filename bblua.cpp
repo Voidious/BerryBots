@@ -21,6 +21,7 @@
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
+#include <algorithm>
 
 #include "stage.h"
 #include "sensorhandler.h"
@@ -152,8 +153,9 @@ int Ship_fireLaser(lua_State *L) {
 
 int Ship_fireTorpedo(lua_State *L) {
   Ship *ship = checkShip(L, 1);
-  if (ship->alive && ship->torpedoEnabled && stage->fireTorpedo(ship, luaL_checknumber(L, 2),
-          max(0, luaL_checknumber(L, 3)), engine->getGameTime())) {
+  if (ship->alive && ship->torpedoEnabled
+      && stage->fireTorpedo(ship, luaL_checknumber(L, 2), std::max(
+          0.0, (double) luaL_checknumber(L, 3)), engine->getGameTime())) {
     ship->torpedoGunHeat = TORPEDO_HEAT;
     lua_pushboolean(L, true);
   } else {
@@ -1349,7 +1351,7 @@ int ShipGlobals_print(lua_State *L) {
   if (printHandler != 0) {
     printHandler->shipPrint(engine->getTeam(L)->index, str);
   }
-  return min(top, 1);
+  return std::min(top, 1);
 }
 
 const luaL_Reg ShipGlobals_methods[] = {
@@ -1371,7 +1373,7 @@ int StageGlobals_print(lua_State *L) {
   if (printHandler != 0) {
     printHandler->stagePrint(str);
   }
-  return min(top, 1);
+  return std::min(top, 1);
 }
 
 const luaL_Reg StageGlobals_methods[] = {

@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 #include <platformstl/performance/performance_counter.hpp>
 #include "bbconst.h"
 #include "bblua.h"
@@ -243,7 +244,7 @@ void BerryBotsEngine::initShips(
     lua_pop(teamState, 2);
 
     char *extension = strrchr(shipFilename, '.');
-    int nameLength = min(MAX_NAME_LENGTH, (int) ((extension == 0)
+    int nameLength = std::min(MAX_NAME_LENGTH, (int) ((extension == 0)
         ? strlen(shipFilename) : extension - shipFilename));
     strncpy(team->name, shipFilename, nameLength);
     team->name[nameLength] = '\0';
@@ -412,8 +413,8 @@ void BerryBotsEngine::processTick() {
         int shipIndex = y + team->firstShipIndex;
         Ship *ship = ships_[shipIndex];
         ship->thrusterForce = 0;
-        ship->laserGunHeat = max(0, ship->laserGunHeat - 1);
-        ship->torpedoGunHeat = max(0, ship->torpedoGunHeat - 1);
+        ship->laserGunHeat = std::max(0, ship->laserGunHeat - 1);
+        ship->torpedoGunHeat = std::max(0, ship->torpedoGunHeat - 1);
       }
 
       lua_getglobal(team->state, "run");
@@ -524,8 +525,9 @@ void BerryBotsEngine::uniqueShipNames(Ship** ships, int numShips) {
       Ship *ship2 = ships[y];
       if (strcmp(ship1->properties->name, ship2->properties->name) == 0) {
         sprintf(numStr, " %d", ++nameNum);
-        strncpy(&(ship1->properties->name[min(nameLen, MAX_NAME_LENGTH - 7)]),
-                numStr, 7);
+        strncpy(
+            &(ship1->properties->name[std::min(nameLen, MAX_NAME_LENGTH - 7)]),
+            numStr, 7);
         y = -1;
       }
     }
@@ -542,7 +544,8 @@ void BerryBotsEngine::uniqueTeamNames(Team** teams, int numTeams) {
       Team *team2 = teams[y];
       if (strcmp(team1->name, team2->name) == 0) {
         sprintf(numStr, " %d", ++nameNum);
-        strncpy(&(team1->name[min(nameLen, MAX_NAME_LENGTH - 7)]), numStr, 7);
+        strncpy(
+            &(team1->name[std::min(nameLen, MAX_NAME_LENGTH - 7)]), numStr, 7);
         y = -1;
       }
     }
