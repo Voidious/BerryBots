@@ -25,8 +25,8 @@
 #define TMP_SUBDIR            ".tmp"
 #define ZIP_EXTENSION         ".tar.gz"
 #define LUA_EXTENSION         ".lua"
-#define STAGE_FILENAME        "stage.filename"
-#define BOT_FILENAME          "bot.filename"
+#define STAGE_METAFILE        "stage.filename"
+#define BOT_METAFILE          "bot.filename"
 #define MAX_FILENAME_LENGTH   1024
 
 #define DEFAULT_STAGE_WIDTH   800

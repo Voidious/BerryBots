@@ -62,8 +62,13 @@ int main(int argc, char *argv[]) {
       printUsage();
     }
     bool nosrc = flagExists(argc, argv, "nosrc");
-    fileManager->packageStage(stageInfo[0], stageInfo[1], CACHE_SUBDIR,
-                              TMP_SUBDIR, nosrc);
+    try {
+      fileManager->packageStage(
+          stageInfo[0], stageInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
+    } catch (FileNotFoundException *e) {
+      cout << e->what() << endl;
+      exit(0);
+    }
     delete stageInfo;
     return 0;
   }
@@ -74,8 +79,13 @@ int main(int argc, char *argv[]) {
       printUsage();
     }
     bool nosrc = flagExists(argc, argv, "nosrc");
-    fileManager->packageBot(botInfo[0], botInfo[1], CACHE_SUBDIR, TMP_SUBDIR,
-                            nosrc);
+    try {
+      fileManager->packageBot(
+          botInfo[0], botInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
+    } catch (FileNotFoundException *e) {
+      cout << e->what() << endl;
+      exit(0);
+    }
     delete botInfo;
     return 0;
   }
@@ -88,14 +98,28 @@ int main(int argc, char *argv[]) {
   srand(time(NULL));
   engine = new BerryBotsEngine();
   stage = engine->getStage();
-  engine->initStage(argv[nodisplay ? 2 : 1], CACHE_SUBDIR);
+
+  try {
+    engine->initStage(argv[nodisplay ? 2 : 1], CACHE_SUBDIR);
+  } catch (EngineInitException *e) {
+    cout << e->what() << endl;
+    exit(0);
+  }
+
   int firstTeam = (nodisplay ? 3 : 2);
   int numTeams = argc - firstTeam;
   char **teams = new char*[numTeams];
   for (int x = 0; x < numTeams; x++) {
     teams[x] = argv[x + firstTeam];
   }
-  engine->initShips(teams, numTeams, CACHE_SUBDIR);
+
+  try {
+    engine->initShips(teams, numTeams, CACHE_SUBDIR);
+  } catch (EngineInitException *e) {
+    cout << e->what() << endl;
+    exit(0);
+  }
+
   printHandler = new CliPrintHandler(engine->getTeams(), numTeams);
 
   GfxManager *gfxManager;

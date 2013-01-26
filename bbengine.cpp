@@ -147,11 +147,18 @@ int BerryBotsEngine::getNumTeams() {
   return numTeams_;
 }
 
-void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir) {
+void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
+    throw (EngineInitException*) {
   char *stageCwd;
-  fileManager_->loadStageFile(stagePath, &stageDir_, &stageFilename_, &stageCwd,
-                              cacheDir);
-  initStageState(&stageState_, stageCwd, stageFilename_);  
+  try {
+    fileManager_->loadStageFile(
+        stagePath, &stageDir_, &stageFilename_, &stageCwd, cacheDir);
+  } catch (FileNotFoundException *fnfe) {
+    EngineInitException *eie = new EngineInitException(fnfe->what());
+    delete fnfe;
+    throw eie;
+  }
+  initStageState(&stageState_, stageCwd, stageFilename_);
 
   if (luaL_loadfile(stageState_, stageFilename_)
       || lua_pcall(stageState_, 0, 0, 0)) {
@@ -171,8 +178,8 @@ void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir) {
   delete stageCwd;
 }
 
-void BerryBotsEngine::initShips(
-    char **teamPaths, int numTeams, const char *cacheDir) {
+void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
+    const char *cacheDir) throw (EngineInitException*) {
   int userTeams = numTeams;
   int numStageShips = stage_->getStageShipCount();
   numShips_ = (userTeams * teamSize_) + numStageShips;
@@ -199,12 +206,28 @@ void BerryBotsEngine::initShips(
     }
 
     lua_State *teamState;
-    char *shipDir;
-    char *shipFilename;
+    char *shipDir = 0;
+    char *shipFilename = 0;
     char *shipCwd;
-    fileManager_->loadBotFile(filename, &shipDir, &shipFilename, &shipCwd,
-                              cacheDir);
-    initShipState(&teamState, shipCwd, shipFilename);  
+    try {
+      fileManager_->loadBotFile(filename, &shipDir, &shipFilename, &shipCwd,
+                                cacheDir);
+    } catch (FileNotFoundException *fnfe) {
+      if (deleteFilename) {
+        delete filename;
+      }
+      if (shipDir != 0) {
+        delete shipDir;
+      }
+      if (shipFilename != 0) {
+        delete shipFilename ;
+      }
+
+      EngineInitException *eie = new EngineInitException(fnfe->what());
+      delete fnfe;
+      throw eie;
+    }
+    initShipState(&teamState, shipCwd, shipFilename);
 
     int numStateShips = (stageShip ? 1 : teamSize_);
     Ship **stateShips = new Ship*[numStateShips];
@@ -596,4 +619,13 @@ BerryBotsEngine::~BerryBotsEngine() {
   }
   delete teamVision_;
   delete stage_;
+}
+
+EngineInitException::EngineInitException(const char *details) {
+  message_ = new char[strlen(details) + 41];
+  sprintf(message_, "BerryBots engine initialization failed: %s", details);
+}
+
+const char* EngineInitException::what() const throw() {
+  return message_;
 }

@@ -46,8 +46,8 @@ FileManager::~FileManager() {
 
 }
 
-char* FileManager::loadUserLuaFilename(char *userDirPath,
-                                       const char *metaFilename) {
+char* FileManager::loadUserLuaFilename(
+    char *userDirPath, const char *metaFilename) throw (FileNotFoundException*) {
   int userPropertiesPathLen =
       (int) (strlen(userDirPath) + 1 + strlen(metaFilename));
   char *userPropertiesPath = new char[userPropertiesPathLen + 1];
@@ -55,10 +55,9 @@ char* FileManager::loadUserLuaFilename(char *userDirPath,
   
   FILE *userPropertiesFile = fopen(userPropertiesPath, "r");
   if (userPropertiesFile == 0) {
-    // TODO: throw exception with error message instead
-    cout << "ERROR: No properties file found: " << userPropertiesPath << endl;
+    FileNotFoundException *e = new FileNotFoundException(userPropertiesPath);
     delete userPropertiesPath;
-    return 0;
+    throw e;
   }
   delete userPropertiesPath;
   
@@ -143,16 +142,14 @@ char* FileManager::getAbsoluteFilename(char *dir, char *filename) {
 
 void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     char **userFilename, char **userCwd, const char *metaFilename,
-    const char *cacheDir) {
+    const char *cacheDir) throw (FileNotFoundException*) {
   int srcFilenameLen = (int) strlen(srcFilename);
   int zipLen = strlen(ZIP_EXTENSION);
+  if (!fileExists(srcFilename)) {
+    throw new FileNotFoundException(srcFilename);
+  }
   if (srcFilenameLen > zipLen
       && strcmp(&(srcFilename[srcFilenameLen - zipLen]), ZIP_EXTENSION) == 0) {
-    if (!fileExists(srcFilename)) {
-      // TODO: throw exception with error message instead
-      cout << "ERROR: No source file found: " << srcFilename << endl;
-      exit(0);
-    }
     createDirIfNecessary(cacheDir);
     
     const char *userDirName = parseFilename(srcFilename);
@@ -198,17 +195,17 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
 }
 
 void FileManager::loadStageFile(const char *srcFilename, char **stageDir,
-                                char **stageFilename, char **stageCwd,
-                                const char *cacheDir) {
-  loadUserFile(srcFilename, stageDir, stageFilename, stageCwd, STAGE_FILENAME,
-               cacheDir);
+    char **stageFilename, char **stageCwd, const char *cacheDir)
+    throw (FileNotFoundException*) {
+  loadUserFile(
+      srcFilename, stageDir, stageFilename, stageCwd, STAGE_METAFILE, cacheDir);
 }
 
 void FileManager::loadBotFile(const char *srcFilename, char **botDir,
-                              char **botFilename, char **botCwd,
-                              const char *cacheDir) {
-  loadUserFile(srcFilename, botDir, botFilename, botCwd, BOT_FILENAME,
-               cacheDir);
+    char **botFilename, char **botCwd, const char *cacheDir)
+    throw (FileNotFoundException*) {
+  loadUserFile(
+      srcFilename, botDir, botFilename, botCwd, BOT_METAFILE, cacheDir);
 }
 
 bool FileManager::hasExtension(const char *filename, const char *extension) {
@@ -387,7 +384,8 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile) {
 }
 
 void FileManager::packageStage(const char *stageArg, const char *version,
-                  const char *cacheDir, const char *tmpDir, bool nosrc) {
+    const char *cacheDir, const char *tmpDir, bool nosrc)
+    throw (FileNotFoundException*) {
   lua_State *stageState;
   char *stageDir;
   char *stageFilename;
@@ -436,7 +434,7 @@ void FileManager::packageStage(const char *stageArg, const char *version,
   }
   
   packageCommon(stageState, stageDir, stageFilename, stageCwd, version,
-                STAGE_FILENAME, numStageShips, numFiles, cmdLen, packFilenames,
+                STAGE_METAFILE, numStageShips, numFiles, cmdLen, packFilenames,
                 tmpDir, nosrc);
   
   delete stage;
@@ -447,7 +445,7 @@ void FileManager::packageStage(const char *stageArg, const char *version,
 }
 
 void FileManager::packageBot(char *botArg, char *version, const char *cacheDir,
-                const char *tmpDir, bool nosrc) {
+    const char *tmpDir, bool nosrc) throw (FileNotFoundException*) {
   lua_State *shipState;
   char *shipDir;
   char *shipFilename;
@@ -462,7 +460,7 @@ void FileManager::packageBot(char *botArg, char *version, const char *cacheDir,
   char **packFilenames = new char*[numFiles];
   
   packageCommon(shipState, shipDir, shipFilename, shipCwd, version,
-                BOT_FILENAME, 0, numFiles, 0, packFilenames, tmpDir, nosrc);
+                BOT_METAFILE, 0, numFiles, 0, packFilenames, tmpDir, nosrc);
   
   for (int x = 0; x < numFiles; x++) {
     delete packFilenames[x];
@@ -529,4 +527,13 @@ void FileManager::mkdirIfNecessary(char *dir) {
   if (!fileExists(dir)) {
     mkdir(dir);
   }
+}
+
+FileNotFoundException::FileNotFoundException(const char *filename) {
+  message_ = new char[strlen(filename) + 17];
+  sprintf(message_, "File not found: %s", filename);
+}
+
+const char* FileNotFoundException::what() const throw() {
+  return message_;
 }

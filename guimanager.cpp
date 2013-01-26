@@ -160,8 +160,14 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
   engine = new BerryBotsEngine();
   stage = engine->getStage();
   const char *cacheDir = getCacheDir().c_str();
-  engine->initStage(stageName, cacheDir);
-  engine->initShips(teamNames, numTeams, cacheDir);
+  try {
+    engine->initStage(stageName, cacheDir);
+    engine->initShips(teamNames, numTeams, cacheDir);
+  } catch (EngineInitException *e) {
+    // TODO: display error message in GUI
+    delete engine;
+    return;
+  }
   GfxEventHandler *gfxHandler = new GfxEventHandler();
   stage->addEventHandler((EventHandler*) gfxHandler);
   
@@ -395,8 +401,12 @@ void StagePackager::package(const char *stageName, const char *version,
                             bool nosrc) {
   char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
   sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
-  fileManager_->packageStage(stagePath, version, getCacheDir().c_str(),
-                             getTmpDir().c_str(), nosrc);
+  try {
+    fileManager_->packageStage(stagePath, version, getCacheDir().c_str(),
+                               getTmpDir().c_str(), nosrc);
+  } catch (FileNotFoundException *e) {
+    // TODO: display error message in GUI, otherwise display success
+  }
   delete stagePath;
 }
 

@@ -21,6 +21,7 @@
 #ifndef BBENGINE_H
 #define BBENGINE_H
 
+#include <exception>
 #include "bbconst.h"
 #include "bbutil.h"
 #include "stage.h"
@@ -32,6 +33,14 @@ extern "C" {
   #include "lualib.h"
   #include "lauxlib.h"
 }
+
+class EngineInitException : public std::exception {
+  char *message_;
+  
+  public:
+    EngineInitException(const char *details);
+    virtual const char* what() const throw();
+};
 
 class BerryBotsEngine {
   Stage *stage_;
@@ -79,8 +88,10 @@ class BerryBotsEngine {
     void setWinnerName(const char* winnerName);
     char* getWinnerName();
 
-    void initStage(char *stagePath, const char *cacheDir);
-    void initShips(char **teamPaths, int numTeams, const char *cacheDir);
+    void initStage(char *stagePath, const char *cacheDir)
+        throw (EngineInitException*);
+    void initShips(char **teamPaths, int numTeams, const char *cacheDir)
+        throw (EngineInitException*);
     void processTick();
     void processRoundOver();
     void processGameOver();
