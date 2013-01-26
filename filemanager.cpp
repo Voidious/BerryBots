@@ -39,11 +39,15 @@ extern BerryBotsEngine *engine;
 extern Stage *stage;
 
 FileManager::FileManager() {
-
+  packagingListener_ = 0;
 }
 
 FileManager::~FileManager() {
 
+}
+
+void FileManager::setListener(PackagingListener *packagingListener) {
+  packagingListener_ = packagingListener;
 }
 
 char* FileManager::loadUserLuaFilename(
@@ -331,14 +335,10 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
   lua_close(userState);
   system(packCmd);
   
-  // TODO: use a callback to display information about source and destination
-  //       files that were packaged, remove printf/cout
-  for (int x = 0; x < numFiles; x++) {
-    if (packFilenames[x] != 0) {
-      printf("Added: %s\n", packFilenames[x]);
-    }
+  if (packagingListener_ != 0) {
+    packagingListener_->packagingComplete(packFilenames, numFiles,
+                                          outputFilename);
   }
-  cout << "Packaged " << userFilename << " => " << outputFilename << endl;
   
   if (nosrc) {
     delete destFilename;

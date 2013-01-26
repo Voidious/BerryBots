@@ -28,6 +28,9 @@ class OutputConsole : public wxFrame {
   public:
     OutputConsole(wxWindowID id, const char *title);
     void print(const char *text);
+    void println(const char *text);
+    void println();
+    void clear();
     void onClose(wxCommandEvent &event);
     ~OutputConsole();
 };

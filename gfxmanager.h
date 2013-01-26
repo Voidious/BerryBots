@@ -59,6 +59,7 @@ class GfxViewListener {
     virtual void onNewMatch() = 0;
     virtual void onStageClick() = 0;
     virtual void onTeamClick(int teamIndex) = 0;
+    virtual ~GfxViewListener() {};
 };
 
 class GfxManager {

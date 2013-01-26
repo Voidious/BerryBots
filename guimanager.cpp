@@ -50,18 +50,24 @@ GuiManager::GuiManager() {
   newMatchDialog_ = new NewMatchDialog();
   packageShipDialog_ = new PackageShipDialog();
   packageStageDialog_ = new PackageStageDialog();
+  consoleId_ = 1000;
   stageConsole_ = 0;
   teamConsoles_ = 0;
+  packagingConsole_ = new OutputConsole(this->nextConsoleId(),
+                                        "Packaging Details");
+  packagingConsole_->SetPosition(wxPoint(150, 100));
   numTeams_ = 0;
   gfxManager_ = new GfxManager(true);
-  gfxManager_->setListener(new ViewListener(this));
+  viewListener_ = new ViewListener(this);
+  gfxManager_->setListener(viewListener_);
   fileManager_ = new FileManager();
+  packageStageReporter_ = new PackageStageReporter(packagingConsole_);
+  fileManager_->setListener(packageStageReporter_);
   newMatchDialog_->Show();
   newMatchDialog_->wxWindow::SetFocus();
   stageBaseDir_ = 0;
   botsBaseDir_ = 0;
   paused_ = false;
-  consoleId_ = 100;
   matchId_ = 0;
   engine = 0;
 }
@@ -71,6 +77,7 @@ GuiManager::~GuiManager() {
   delete newMatchDialog_;
   delete packageShipDialog_;
   delete packageStageDialog_;
+  delete packagingConsole_;
   if (stageBaseDir_ != 0) {
     delete stageBaseDir_;
   }
@@ -81,6 +88,10 @@ GuiManager::~GuiManager() {
     delete engine;
   }
   delete window_;
+  delete gfxManager_;
+  delete viewListener_;
+  delete fileManager_;
+  delete packageStageReporter_;
 }
 
 void GuiManager::loadStages(const char *baseDir) {
@@ -413,6 +424,26 @@ void StagePackager::package(const char *stageName, const char *version,
 void StagePackager::cancel() {
   guiManager_->hidePackageStageDialog();
   guiManager_->resumeMatch();
+}
+
+PackageStageReporter::PackageStageReporter(OutputConsole *packagingConsole) {
+  packagingConsole_ = packagingConsole;
+}
+
+void PackageStageReporter::packagingComplete(char **sourceFiles, int numFiles,
+                                             const char *destinationFile) {
+  packagingConsole_->clear();
+  packagingConsole_->Show();
+  packagingConsole_->println("The following source files were packaged:");
+  for (int x = 0; x < numFiles; x++) {
+    if (sourceFiles[x] != 0) {
+      packagingConsole_->print("  ");
+      packagingConsole_->println(sourceFiles[x]);
+    }
+  }
+  packagingConsole_->println();
+  packagingConsole_->print("Saved to: ");
+  packagingConsole_->println(destinationFile);
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

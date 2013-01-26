@@ -23,7 +23,7 @@
 
 #include <wx/wx.h>
 
-class PackageStageListener {
+class PackageStageDialogListener {
 public:
   virtual void package(const char *stageName, const char *version,
                        bool nosrc) = 0;
@@ -36,13 +36,13 @@ class PackageStageDialog : public wxFrame {
   wxTextCtrl *versionText_;
   wxButton *packageButton_;
   unsigned int numStages_;
-  PackageStageListener *listener_;
+  PackageStageDialogListener *listener_;
 
   public:
   PackageStageDialog();
   ~PackageStageDialog();
     void addStage(char *stage);
-    void setListener(PackageStageListener *listener);
+    void setListener(PackageStageDialogListener *listener);
     void onActivate(wxCommandEvent &event);
     void onClose(wxCommandEvent &event);
     void onPackage(wxCommandEvent &event);

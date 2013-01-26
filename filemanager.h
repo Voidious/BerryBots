@@ -27,6 +27,13 @@ extern "C" {
   #include "lua.h"
 }
 
+class PackagingListener {
+  public:
+    virtual void packagingComplete(char **sourceFiles, int numFiles,
+                                   const char *destinationFile) = 0;
+    virtual ~PackagingListener() {};
+};
+
 class FileNotFoundException : public std::exception {
   char *message_;
   
@@ -46,9 +53,11 @@ class InvalidLuaFilenameException : public std::exception {
 };
 
 class FileManager {
+  PackagingListener *packagingListener_;
   public:
     FileManager();
     ~FileManager();
+    void setListener(PackagingListener *packagingListener);
     void loadStageFile(const char *filename, char **stageDir,
         char **stageDirFilename, char **stageCwd, const char *cacheDir)
         throw (FileNotFoundException*);

@@ -25,6 +25,7 @@ class PrintHandler {
   public:
     virtual void stagePrint(const char *text) = 0;
     virtual void shipPrint(int teamIndex, const char *text) = 0;
+    virtual ~PrintHandler() {};
 };
 
 #endif

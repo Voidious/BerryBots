@@ -33,7 +33,19 @@ OutputConsole::OutputConsole(wxWindowID id, const char *title)
 
 void OutputConsole::print(const char *text) {
   output_->WriteText(text);
+}
+
+void OutputConsole::println(const char *text) {
+  output_->WriteText(text);
   output_->WriteText("\n");
+}
+
+void OutputConsole::println() {
+  output_->WriteText("\n");
+}
+
+void OutputConsole::clear() {
+  output_->Clear();
 }
 
 void OutputConsole::onClose(wxCommandEvent &event) {

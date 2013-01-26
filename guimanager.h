@@ -36,9 +36,12 @@ class GuiManager {
   sf::RenderWindow *window_;
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
+  OutputConsole *packagingConsole_;
   int numTeams_;
   GfxManager *gfxManager_;
+  GfxViewListener *viewListener_;
   FileManager *fileManager_;
+  PackagingListener *packageStageReporter_;
   char *stageBaseDir_;
   char *botsBaseDir_;
   bool paused_;
@@ -82,7 +85,7 @@ class MatchStarter : public NewMatchListener {
     virtual void cancel();
 };
 
-class StagePackager : public PackageStageListener {
+class StagePackager : public PackageStageDialogListener {
   GuiManager *guiManager_;
   FileManager *fileManager_;
   char *stageDir_;
@@ -95,6 +98,15 @@ class StagePackager : public PackageStageListener {
     virtual void package(const char *stageName, const char *version,
                          bool nosrc);
     virtual void cancel();
+};
+
+class PackageStageReporter : public PackagingListener {
+  OutputConsole *packagingConsole_;
+
+  public:
+    PackageStageReporter(OutputConsole *packagingConsole);
+    virtual void packagingComplete(char **sourceFiles, int numFiles,
+                                   const char *destinationFile);
 };
 
 class ViewListener : public GfxViewListener {

@@ -56,7 +56,7 @@ void PackageStageDialog::addStage(char *stage) {
   }
 }
 
-void PackageStageDialog::setListener(PackageStageListener *listener) {
+void PackageStageDialog::setListener(PackageStageDialogListener *listener) {
   listener_ = listener;
 }
 
