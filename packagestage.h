@@ -28,7 +28,10 @@ public:
   virtual void package(const char *stageName, const char *version,
                        bool nosrc) = 0;
   virtual void cancel() = 0;
+  virtual ~PackageStageDialogListener() {};
 };
+
+// TODO: factor out common base class for this and PackageShipDialog
 
 class PackageStageDialog : public wxFrame {
   wxListBox *stageSelect_;

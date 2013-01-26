@@ -23,11 +23,32 @@
 
 #include <wx/wx.h>
 
+class PackageShipDialogListener {
+  public:
+    virtual void package(const char *botName, const char *version,
+                         bool nosrc) = 0;
+    virtual void cancel() = 0;
+    virtual ~PackageShipDialogListener() {};
+};
+
+// TODO: factor out common base class for this and PackageStageDialog
+
 class PackageShipDialog : public wxFrame {
+  wxListBox *botSelect_;
+  wxStaticText *versionLabel_;
+  wxTextCtrl *versionText_;
+  wxButton *packageButton_;
+  unsigned int numBots_;
+  PackageShipDialogListener *listener_;
   
   public:
     PackageShipDialog();
     ~PackageShipDialog();
+    void addBot(char *bot);
+    void setListener(PackageShipDialogListener *listener);
+    void onActivate(wxCommandEvent &event);
+    void onClose(wxCommandEvent &event);
+    void onPackage(wxCommandEvent &event);
 };
 
 #endif

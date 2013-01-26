@@ -69,7 +69,7 @@ class FileManager {
                       const char *cacheDir, const char *tmpDir, bool nosrc)
                       throw (FileNotFoundException*,
                              InvalidLuaFilenameException*);
-    void packageBot(char *botArg, char *version, const char *cacheDir,
+    void packageBot(char *botArg, const char *version, const char *cacheDir,
                     const char *tmpDir, bool nosrc)
                     throw (FileNotFoundException*,
                            InvalidLuaFilenameException*);

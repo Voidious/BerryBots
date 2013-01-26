@@ -61,6 +61,8 @@ GuiManager::GuiManager() {
   viewListener_ = new ViewListener(this);
   gfxManager_->setListener(viewListener_);
   fileManager_ = new FileManager();
+  shipPackager_ = 0;
+  stagePackager_ = 0;
   packageStageReporter_ = new PackageStageReporter(packagingConsole_);
   fileManager_->setListener(packageStageReporter_);
   newMatchDialog_->Show();
@@ -91,6 +93,12 @@ GuiManager::~GuiManager() {
   delete gfxManager_;
   delete viewListener_;
   delete fileManager_;
+  if (shipPackager_ != 0) {
+    delete shipPackager_;
+  }
+  if (stagePackager_ != 0) {
+    delete stagePackager_;
+  }
   delete packageStageReporter_;
 }
 
@@ -137,6 +145,9 @@ void GuiManager::loadBots(const char *baseDir) {
     char *filename = (char *) *file;
     if (isValidBotFile(baseDir, filename)) {
       newMatchDialog_->addBot(filename);
+      if (fileManager_->isLuaFilename(filename)) {
+        packageShipDialog_->addBot(filename);
+      }
     }
   }
 }
@@ -150,9 +161,12 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
 void GuiManager::linkListeners() {
   newMatchDialog_->setListener(
       new MatchStarter(this, stageBaseDir_, botsBaseDir_));
-  packageStageDialog_->setListener(
-      new StagePackager(this, fileManager_, packagingConsole_, stageBaseDir_,
-                        botsBaseDir_));
+  shipPackager_ = new ShipPackager(this, fileManager_, packagingConsole_,
+                                   botsBaseDir_);
+  stagePackager_ = new StagePackager(this, fileManager_, packagingConsole_,
+                                     stageBaseDir_, botsBaseDir_);
+  packageShipDialog_->setListener(shipPackager_);
+  packageStageDialog_->setListener(stagePackager_);
 }
 
 void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
@@ -429,6 +443,41 @@ void StagePackager::package(const char *stageName, const char *version,
 
 void StagePackager::cancel() {
   guiManager_->hidePackageStageDialog();
+  guiManager_->resumeMatch();
+}
+
+ShipPackager::ShipPackager(GuiManager *guiManager, FileManager *fileManager,
+    OutputConsole *packagingConsole, char *botsDir) {
+  packagingConsole_ = packagingConsole;
+  guiManager_ = guiManager;
+  fileManager_ = fileManager;
+  botsDir_ = new char[strlen(botsDir) + 1];
+  strcpy(botsDir_, botsDir);
+}
+
+ShipPackager::~ShipPackager() {
+  delete botsDir_;
+}
+
+void ShipPackager::package(const char *botName, const char *version,
+                           bool nosrc) {
+  char *botsPath = new char[strlen(botsDir_) + strlen(botName) + 2];
+  sprintf(botsPath, "%s%s%s", botsDir_, BB_DIRSEP, botName);
+  try {
+    fileManager_->packageBot(botsPath, version, getCacheDir().c_str(),
+                             getTmpDir().c_str(), nosrc);
+  } catch (FileNotFoundException *e) {
+    packagingConsole_->clear();
+    packagingConsole_->Show();
+    packagingConsole_->println("Packaging ship failed: ");
+    packagingConsole_->print("  ");
+    packagingConsole_->println(e->what());
+  }
+  delete botsPath;
+}
+
+void ShipPackager::cancel() {
+  guiManager_->hidePackageShipDialog();
   guiManager_->resumeMatch();
 }
 

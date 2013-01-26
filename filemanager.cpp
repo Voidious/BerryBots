@@ -457,8 +457,8 @@ void FileManager::packageStage(const char *stageArg, const char *version,
   delete packFilenames;
 }
 
-void FileManager::packageBot(char *botArg, char *version, const char *cacheDir,
-    const char *tmpDir, bool nosrc)
+void FileManager::packageBot(char *botArg, const char *version,
+    const char *cacheDir, const char *tmpDir, bool nosrc)
     throw (FileNotFoundException*, InvalidLuaFilenameException*) {
   lua_State *shipState;
   char *shipDir;

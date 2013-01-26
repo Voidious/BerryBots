@@ -41,6 +41,8 @@ class GuiManager {
   GfxManager *gfxManager_;
   GfxViewListener *viewListener_;
   FileManager *fileManager_;
+  PackageShipDialogListener *shipPackager_;
+  PackageStageDialogListener *stagePackager_;
   PackagingListener *packageStageReporter_;
   char *stageBaseDir_;
   char *botsBaseDir_;
@@ -82,6 +84,20 @@ class MatchStarter : public NewMatchListener {
     ~MatchStarter();
     virtual void startMatch(const char *stageName, const char **teamNames,
                             int numTeams);
+    virtual void cancel();
+};
+
+class ShipPackager : public PackageShipDialogListener {
+  GuiManager *guiManager_;
+  FileManager *fileManager_;
+  OutputConsole *packagingConsole_;
+  char *botsDir_;
+  
+  public:
+    ShipPackager(GuiManager *guiManager, FileManager *fileManager,
+                 OutputConsole *packagingConsole, char *botsDir);
+    ~ShipPackager();
+    virtual void package(const char *botName, const char *version, bool nosrc);
     virtual void cancel();
 };
 
