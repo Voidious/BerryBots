@@ -34,6 +34,7 @@
 #include "gfxeventhandler.h"
 #include "printhandler.h"
 #include "cliprinthandler.h"
+#include "clipackagereporter.h"
 
 using namespace std;
 
@@ -54,6 +55,9 @@ void printUsage() {
 
 int main(int argc, char *argv[]) {
   FileManager *fileManager = new FileManager();
+  CliPackageReporter *packageReporter = new CliPackageReporter();
+  fileManager->setListener(packageReporter);
+
   char **stageInfo = parseFlag(argc, argv, "packstage", 2);
   if (stageInfo != 0) {
     if (argc < 4) {
@@ -184,6 +188,13 @@ int main(int argc, char *argv[]) {
   }
 
   delete engine;
+  delete teams;
+  delete printHandler;
+  if (!nodisplay) {
+    delete gfxManager;
+  }
+  delete packageReporter;
+  delete fileManager;
 
   return 0;
 }
