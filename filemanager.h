@@ -32,6 +32,16 @@ class FileNotFoundException : public std::exception {
   
   public:
     FileNotFoundException(const char *filename);
+    ~FileNotFoundException() throw();
+    virtual const char* what() const throw();
+};
+
+class InvalidLuaFilenameException : public std::exception {
+  char *message_;
+  
+  public:
+    InvalidLuaFilenameException(const char *filename);
+    ~InvalidLuaFilenameException() throw();
     virtual const char* what() const throw();
 };
 
@@ -48,10 +58,12 @@ class FileManager {
     bool isZipFilename(const char *filename);
     void packageStage(const char *stageArg, const char *version,
                       const char *cacheDir, const char *tmpDir, bool nosrc)
-                      throw (FileNotFoundException*);
+                      throw (FileNotFoundException*,
+                             InvalidLuaFilenameException*);
     void packageBot(char *botArg, char *version, const char *cacheDir,
                     const char *tmpDir, bool nosrc)
-                    throw (FileNotFoundException*);
+                    throw (FileNotFoundException*,
+                           InvalidLuaFilenameException*);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);
@@ -66,14 +78,17 @@ class FileManager {
                        char *luaCwd, const char *version,
                        const char *metaFilename, int prevFiles, int numFiles,
                        int prevCmdLen, char **packFilenames, const char *tmpDir,
-                       bool nosrc);
-    void crawlFiles(lua_State *L, const char *startFile);
+                       bool nosrc) throw (InvalidLuaFilenameException*);
+    void crawlFiles(lua_State *L, const char *startFile)
+        throw (InvalidLuaFilenameException*);
     bool fileExists(const char *filename);
     void mkdir(const char *filename);
     char* parseFilename(const char *dirAndFilename);
     char* parseDir(const char *dirAndFilename);
     void createDirIfNecessary(const char *dir);
     void mkdirIfNecessary(char *dir);
+    void checkLuaFilename(const char *filename)
+        throw (InvalidLuaFilenameException*);
 };
 
 #endif

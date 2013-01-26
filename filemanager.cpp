@@ -160,9 +160,6 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     *userDir = userDirPath;
     
     if (!fileExists(userDirPath)) {
-      // TODO: this would be good to display in real time via a callback...
-      //       cout for Raspberry Pi, output console window in GUI
-      cout << "Extracting " << srcFilename << " to " << userDirPath << " ... ";
       mkdir(userDirPath);
       int extractCmdLen = 20 + srcFilenameLen + 4 + userDirPathLen;
       char *extractCmd = new char[extractCmdLen + 1];
@@ -170,7 +167,6 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
               userDirPath);
       system(extractCmd);
       delete extractCmd;
-      cout << "done!" << endl;
     }
     
     *userFilename = loadUserLuaFilename(userDirPath, metaFilename);
@@ -235,13 +231,14 @@ bool FileManager::isZipFilename(const char *filename) {
 void FileManager::packageCommon(lua_State *userState, char *userDir,
     char *userFilename, char *luaCwd, const char *version,
     const char *metaFilename, int prevFiles, int numFiles, int prevCmdLen,
-    char **packFilenames, const char *tmpDir, bool nosrc) {
+    char **packFilenames, const char *tmpDir, bool nosrc)
+    throw (InvalidLuaFilenameException*) {
   int x = prevFiles;
   lua_pushnil(userState);
   int cmdLen = prevCmdLen;
   while (lua_next(userState, -2) != 0) {
     const char *loadedFilename = lua_tostring(userState, -1);
-    // TODO: if not valid Lua filename, throw exception with error message
+    checkLuaFilename(loadedFilename);
     int lenFilename = (int) strlen(loadedFilename);
     cmdLen += 3 + lenFilename;
     packFilenames[x] = new char[lenFilename + 1];
@@ -264,7 +261,6 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
           mkdirIfNecessary(outputDir);
         }
         saveBytecode(packFilenames[x], outputFilename, userDir);
-        cout << "Compiled: " << packFilenames[x] << endl;
         
         delete outputFilename;
       }
@@ -335,6 +331,8 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
   lua_close(userState);
   system(packCmd);
   
+  // TODO: use a callback to display information about source and destination
+  //       files that were packaged, remove printf/cout
   for (int x = 0; x < numFiles; x++) {
     if (packFilenames[x] != 0) {
       printf("Added: %s\n", packFilenames[x]);
@@ -357,7 +355,8 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
   delete packCmd;
 }
 
-void FileManager::crawlFiles(lua_State *L, const char *startFile) {
+void FileManager::crawlFiles(lua_State *L, const char *startFile)
+    throw (InvalidLuaFilenameException*) {
   if (luaL_loadfile(L, startFile)
       || lua_pcall(L, 0, 0, 0)) {
     luaL_error(L, "failed to crawl file: %s", lua_tostring(L, -1));
@@ -371,8 +370,7 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile) {
     lua_pushnil(L);
     while (lua_next(L, -2) != 0) {
       const char *loadedFilename = lua_tostring(L, -1);
-      // TODO: if not valid Lua filename, throw exception with error message or
-      //       maybe just don't crawl it
+      checkLuaFilename(loadedFilename);
       if (luaL_loadfile(L, loadedFilename) || lua_pcall(L, 0, 0, 0)) {
         luaL_error(L, "failed to crawl file: %s", lua_tostring(L, -1));
       }
@@ -385,13 +383,13 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile) {
 
 void FileManager::packageStage(const char *stageArg, const char *version,
     const char *cacheDir, const char *tmpDir, bool nosrc)
-    throw (FileNotFoundException*) {
+    throw (FileNotFoundException*, InvalidLuaFilenameException*) {
   lua_State *stageState;
   char *stageDir;
   char *stageFilename;
   char *stageCwd;
   loadStageFile(stageArg, &stageDir, &stageFilename, &stageCwd, cacheDir);
-  // TODO: if not valid Lua filename, throw exception with error message
+  checkLuaFilename(stageFilename);
   initStageState(&stageState, stageCwd, stageFilename);
   
   engine = new BerryBotsEngine();
@@ -407,7 +405,13 @@ void FileManager::packageStage(const char *stageArg, const char *version,
     luaL_error(stageState, "error calling stage function: 'configure': %s",
                lua_tostring(stageState, -1));
   }
-  crawlFiles(stageState, stageFilename);
+
+  try {
+    crawlFiles(stageState, stageFilename);
+  } catch (InvalidLuaFilenameException *e) {
+    delete engine;
+    throw e;
+  }
   
   int numStageShips = stage->getStageShipCount();
   char **stageShipFilenames = stage->getStageShips();
@@ -425,17 +429,26 @@ void FileManager::packageStage(const char *stageArg, const char *version,
       }
     }
     if (!dup) {
-      // TODO: if not valid Lua filename, throw exception with error message
       int lenFilename = (int) strlen(stageShipFilename);
       cmdLen += lenFilename;
       packFilenames[x] = new char[lenFilename + 1];
       strcpy(packFilenames[x], stageShipFilename);
     }
   }
-  
-  packageCommon(stageState, stageDir, stageFilename, stageCwd, version,
-                STAGE_METAFILE, numStageShips, numFiles, cmdLen, packFilenames,
-                tmpDir, nosrc);
+
+  try {
+    packageCommon(stageState, stageDir, stageFilename, stageCwd, version,
+        STAGE_METAFILE, numStageShips, numFiles, cmdLen, packFilenames, tmpDir,
+        nosrc);
+  } catch (InvalidLuaFilenameException *e) {
+    delete stage;
+    for (int x = 0; x < numFiles; x++) {
+      delete packFilenames[x];
+    }
+    delete packFilenames;
+
+    throw e;
+  }
   
   delete stage;
   for (int x = 0; x < numFiles; x++) {
@@ -445,22 +458,32 @@ void FileManager::packageStage(const char *stageArg, const char *version,
 }
 
 void FileManager::packageBot(char *botArg, char *version, const char *cacheDir,
-    const char *tmpDir, bool nosrc) throw (FileNotFoundException*) {
+    const char *tmpDir, bool nosrc)
+    throw (FileNotFoundException*, InvalidLuaFilenameException*) {
   lua_State *shipState;
   char *shipDir;
   char *shipFilename;
   char *shipCwd;
   loadBotFile(botArg, &shipDir, &shipFilename, &shipCwd, cacheDir);
-  // TODO: if not valid Lua filename, throw exception with error message
+  checkLuaFilename(shipFilename);
   initShipState(&shipState, shipCwd, shipFilename);
   crawlFiles(shipState, shipFilename);
   
   lua_getfield(shipState, LUA_REGISTRYINDEX, "__FILES");
   int numFiles = (int) lua_objlen(shipState, -1);
   char **packFilenames = new char*[numFiles];
-  
-  packageCommon(shipState, shipDir, shipFilename, shipCwd, version,
-                BOT_METAFILE, 0, numFiles, 0, packFilenames, tmpDir, nosrc);
+
+  try {
+    packageCommon(shipState, shipDir, shipFilename, shipCwd, version,
+                  BOT_METAFILE, 0, numFiles, 0, packFilenames, tmpDir, nosrc);
+  } catch (InvalidLuaFilenameException *e) {
+    for (int x = 0; x < numFiles; x++) {
+      delete packFilenames[x];
+    }
+    delete packFilenames;
+
+    throw e;
+  }
   
   for (int x = 0; x < numFiles; x++) {
     delete packFilenames[x];
@@ -512,9 +535,7 @@ char* FileManager::parseDir(const char *dirAndFilename) {
 
 void FileManager::createDirIfNecessary(const char *dir) {
   if (!fileExists(dir)) {
-    cout << "Creating " << dir << BB_DIRSEP << " directory ... ";
     mkdir(dir);
-    cout << "done!" << endl;
   }
 }
 
@@ -529,11 +550,35 @@ void FileManager::mkdirIfNecessary(char *dir) {
   }
 }
 
+void FileManager::checkLuaFilename(const char *filename)
+    throw (InvalidLuaFilenameException*) {
+  if (!isLuaFilename(filename)) {
+    throw new InvalidLuaFilenameException(filename);
+  }
+}
+
 FileNotFoundException::FileNotFoundException(const char *filename) {
   message_ = new char[strlen(filename) + 17];
   sprintf(message_, "File not found: %s", filename);
 }
 
+FileNotFoundException::~FileNotFoundException() throw() {
+  delete message_;
+}
+
 const char* FileNotFoundException::what() const throw() {
+  return message_;
+}
+
+InvalidLuaFilenameException::InvalidLuaFilenameException(const char *filename) {
+  message_ = new char[strlen(filename) + 17];
+  sprintf(message_, "Invalid Lua filename: %s (must end with .lua)", filename);
+}
+
+InvalidLuaFilenameException::~InvalidLuaFilenameException() throw() {
+  delete message_;
+}
+
+const char* InvalidLuaFilenameException::what() const throw() {
   return message_;
 }

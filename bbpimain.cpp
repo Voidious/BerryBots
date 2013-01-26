@@ -19,6 +19,7 @@
 */
 
 #include <iostream>
+#include <exception>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
@@ -62,7 +63,7 @@ int main(int argc, char *argv[]) {
     try {
       fileManager->packageStage(
           stageInfo[0], stageInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
-    } catch (FileNotFoundException *e) {
+    } catch (exception *e) {
       cout << e->what() << endl;
       exit(0);
     }
@@ -79,7 +80,7 @@ int main(int argc, char *argv[]) {
     try {
       fileManager->packageBot(
           botInfo[0], botInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
-    } catch (FileNotFoundException *e) {
+    } catch (exception *e) {
       cout << e->what() << endl;
       exit(0);
     }
