@@ -23,7 +23,7 @@
 #include <wx/wx.h>
 
 OutputConsole::OutputConsole(wxWindowID id, const char *title)
-    : wxFrame(NULL, id, title, wxPoint(50, 50), wxSize(400, 400),
+    : wxFrame(NULL, id, title, wxPoint(50, 50), wxSize(600, 450),
               wxDEFAULT_FRAME_STYLE) {
   output_ = new wxTextCtrl(this, id + 1, "", wxPoint(0, 0), wxSize(400, 350),
                           wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator);

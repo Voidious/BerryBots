@@ -151,7 +151,8 @@ void GuiManager::linkListeners() {
   newMatchDialog_->setListener(
       new MatchStarter(this, stageBaseDir_, botsBaseDir_));
   packageStageDialog_->setListener(
-      new StagePackager(this, fileManager_, stageBaseDir_, botsBaseDir_));
+      new StagePackager(this, fileManager_, packagingConsole_, stageBaseDir_,
+                        botsBaseDir_));
 }
 
 void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
@@ -394,7 +395,8 @@ void MatchStarter::cancel() {
 }
 
 StagePackager::StagePackager(GuiManager *guiManager, FileManager *fileManager,
-                             char *stageDir, char *botsDir) {
+    OutputConsole *packagingConsole, char *stageDir, char *botsDir) {
+  packagingConsole_ = packagingConsole;
   guiManager_ = guiManager;
   fileManager_ = fileManager;
   stageDir_ = new char[strlen(stageDir) + 1];
@@ -416,7 +418,11 @@ void StagePackager::package(const char *stageName, const char *version,
     fileManager_->packageStage(stagePath, version, getCacheDir().c_str(),
                                getTmpDir().c_str(), nosrc);
   } catch (FileNotFoundException *e) {
-    // TODO: display error message in GUI, otherwise display success
+    packagingConsole_->clear();
+    packagingConsole_->Show();
+    packagingConsole_->println("Packaging stage failed: ");
+    packagingConsole_->print("  ");
+    packagingConsole_->println(e->what());
   }
   delete stagePath;
 }

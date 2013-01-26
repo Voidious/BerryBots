@@ -88,12 +88,13 @@ class MatchStarter : public NewMatchListener {
 class StagePackager : public PackageStageDialogListener {
   GuiManager *guiManager_;
   FileManager *fileManager_;
+  OutputConsole *packagingConsole_;
   char *stageDir_;
   char *botsDir_;
 
   public:
     StagePackager(GuiManager *guiManager, FileManager *fileManager,
-                  char *stageDir, char *botsDir);
+        OutputConsole *packagingConsole, char *stageDir, char *botsDir);
     ~StagePackager();
     virtual void package(const char *stageName, const char *version,
                          bool nosrc);
