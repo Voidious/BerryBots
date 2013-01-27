@@ -321,9 +321,18 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
                              ((double) screenHeight) / viewHeight));
   unsigned int targetWidth = floor(windowScale * viewWidth) + DOCK_SIZE;
   unsigned int targetHeight = floor(windowScale * viewHeight);
-  
   window_->setSize(sf::Vector2u(targetWidth, targetHeight));
   gfxManager_->updateView(window_, viewWidth, viewHeight);
+
+  // TODO: If/when SFML getPosition() works, adjust the window position to
+  //       keep the whole window on the screen (if necessary). Might be worth
+  //       platform-specific implementations using getSystemHandle() if that
+  //       doesn't happen in a reasonable timeframe.
+  //       We could just set it to (0, 0) or centered on screen every time, but
+  //       that seems potentially super annoying to a user - less annoying than
+  //       having to move the window occasionally if you switch to a bigger
+  //       stage that goes off-screen.
+
   gfxManager_->initBbGfx(window_, viewHeight, stage, engine->getTeams(),
                          engine->getNumTeams(), engine->getShips(),
                          engine->getNumShips(), resourcePath());
