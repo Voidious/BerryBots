@@ -149,6 +149,10 @@ int BerryBotsEngine::getNumTeams() {
 
 void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
     throw (EngineInitException*) {
+  if (stageDir_ != 0 || stageFilename_ != 0) {
+    throw new EngineInitException("Already initialized stage for this engine.");
+  }
+
   char *stageCwd;
   try {
     fileManager_->loadStageFile(

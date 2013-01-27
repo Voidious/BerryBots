@@ -25,6 +25,7 @@
 #include "ResourcePath.hpp"
 
 #include "bbutil.h"
+#include "bblua.h"
 #include "stage.h"
 #include "bbengine.h"
 #include "gfxeventhandler.h"
@@ -125,9 +126,67 @@ void GuiManager::loadStages(const char *baseDir) {
 }
 
 bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
-  // TODO: load up stage file and try to determine if it really is valid
-  return fileManager_->isLuaFilename(stageFilename)
-      || fileManager_->isZipFilename(stageFilename);
+  // TODO: Is this too slow? Should we keep this list in the cache so we don't
+  //       have to do this on every startup / refresh - at least for packaged
+  //       stages? In fact, just the presence in the cache could be considered
+  //       a sign of validity.
+  if (fileManager_->isLuaFilename(stageFilename)
+      || fileManager_->isZipFilename(stageFilename)) {
+    int stagePathLen =
+        (int) (strlen(baseDir) + strlen(BB_DIRSEP) + strlen(stageFilename));
+    char *stagePath = new char[stagePathLen + 1];
+    sprintf(stagePath, "%s%s%s", baseDir, BB_DIRSEP, stageFilename);
+    const char *cacheDir = getCacheDir().c_str();
+    char *stageDir = 0;
+    char *stageFilename = 0;
+    char *stageCwd = 0;
+    try {
+      fileManager_->loadStageFile(
+          stagePath, &stageDir, &stageFilename, &stageCwd, cacheDir);
+    } catch (FileNotFoundException *fnfe) {
+      // Only possible if user deletes file from disk after we find it on disk
+      // but before we validate it. Seems safe to fail silently.
+      delete stagePath;
+      if (stageDir != 0) {
+        delete stageDir;
+      }
+      if (stageFilename != 0) {
+        delete stageFilename;
+      }
+      if (stageCwd != 0) {
+        delete stageCwd;
+      }
+      return false;
+    }
+    delete stagePath;
+    lua_State *stageState;
+    initStageState(&stageState, stageCwd, stageFilename);
+    
+    if (luaL_loadfile(stageState, stageFilename)
+        || lua_pcall(stageState, 0, 0, 0)) {
+      lua_close(stageState);
+      delete stageDir;
+      delete stageFilename;
+      delete stageCwd;
+      return false;
+    }
+    
+    lua_getglobal(stageState, "configure");
+    if (lua_isnil(stageState, -1)) {
+      lua_close(stageState);
+      delete stageDir;
+      delete stageFilename;
+      delete stageCwd;
+      return false;
+    }
+
+    lua_close(stageState);
+    delete stageDir;
+    delete stageFilename;
+    delete stageCwd;
+    return true;
+  }
+  return false;
 }
 
 void GuiManager::loadBots(const char *baseDir) {
@@ -154,9 +213,68 @@ void GuiManager::loadBots(const char *baseDir) {
 }
 
 bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
-  // TODO: load up bot file and try to determine if it really is valid
-  return fileManager_->isLuaFilename(botFilename)
-      || fileManager_->isZipFilename(botFilename);
+  // TODO: Is this too slow? Should we keep this list in the cache so we don't
+  //       have to do this on every startup / refresh - at least for packaged
+  //       ships? In fact, just the presence in the cache could be considered
+  //       a sign of validity.
+  if (fileManager_->isLuaFilename(botFilename)
+      || fileManager_->isZipFilename(botFilename)) {
+    int botPathLen =
+        (int) (strlen(baseDir) + strlen(BB_DIRSEP) + strlen(botFilename));
+    char *botPath = new char[botPathLen + 1];
+    sprintf(botPath, "%s%s%s", baseDir, BB_DIRSEP, botFilename);
+    const char *cacheDir = getCacheDir().c_str();
+    char *botDir = 0;
+    char *botFilename = 0;
+    char *botCwd = 0;
+    try {
+      fileManager_->loadBotFile(
+                                  botPath, &botDir, &botFilename, &botCwd, cacheDir);
+    } catch (FileNotFoundException *fnfe) {
+      // Only possible if user deletes file from disk after we find it on disk
+      // but before we validate it. Seems safe to fail silently.
+      delete botPath;
+      if (botDir != 0) {
+        delete botDir;
+      }
+      if (botFilename != 0) {
+        delete botFilename;
+      }
+      if (botCwd != 0) {
+        delete botCwd;
+      }
+      return false;
+    }
+    delete botPath;
+    lua_State *shipState;
+    initShipState(&shipState, botCwd, botFilename);
+    
+    if (luaL_loadfile(shipState, botFilename)
+        || lua_pcall(shipState, 0, 0, 0)) {
+      lua_close(shipState);
+      delete botDir;
+      delete botFilename;
+      delete botCwd;
+      return false;
+    }
+
+    lua_getglobal(shipState, "configure");
+    lua_getglobal(shipState, "init");
+    if (lua_isnil(shipState, -1) || !lua_isnil(shipState, -2)) {
+      lua_close(shipState);
+      delete botDir;
+      delete botFilename;
+      delete botCwd;
+      return false;
+    }
+    
+    lua_close(shipState);
+    delete botDir;
+    delete botFilename;
+    delete botCwd;
+    return true;
+  }
+  return false;
 }
 
 void GuiManager::linkListeners() {
