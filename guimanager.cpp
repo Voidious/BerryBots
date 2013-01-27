@@ -70,7 +70,7 @@ GuiManager::GuiManager() {
   stageBaseDir_ = 0;
   botsBaseDir_ = 0;
   paused_ = false;
-  matchId_ = 0;
+  matchId_ = 1;
   engine = 0;
 }
 
@@ -130,6 +130,7 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
   //       have to do this on every startup / refresh - at least for packaged
   //       stages? In fact, just the presence in the cache could be considered
   //       a sign of validity.
+  // TODO: Move this out of the GUI code.
   if (fileManager_->isLuaFilename(stageFilename)
       || fileManager_->isZipFilename(stageFilename)) {
     int stagePathLen =
@@ -217,6 +218,7 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
   //       have to do this on every startup / refresh - at least for packaged
   //       ships? In fact, just the presence in the cache could be considered
   //       a sign of validity.
+  // TODO: Move this out of the GUI code.
   if (fileManager_->isLuaFilename(botFilename)
       || fileManager_->isZipFilename(botFilename)) {
     int botPathLen =
@@ -485,8 +487,6 @@ void GuiManager::hidePackageStageDialog() {
 
 void GuiManager::quit() {
   matchId_ = 0;
-  gfxManager_->destroyBbGfx();
-  delete gfxManager_;
 }
 
 MatchRunner::MatchRunner(GuiManager *guiManager, char *stageDir,
