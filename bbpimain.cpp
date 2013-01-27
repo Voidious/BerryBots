@@ -190,9 +190,6 @@ int main(int argc, char *argv[]) {
   delete engine;
   delete teams;
   delete printHandler;
-  if (!nodisplay) {
-    delete gfxManager;
-  }
   delete packageReporter;
   delete fileManager;
 

@@ -278,7 +278,7 @@ void drawWalls() {
 }
 
 void drawShips(Ship **ships, int numShips, int time) {
-  StrokeWidth(1.5);
+  StrokeWidth(SHIP_RADIUS * .25);
   vgSetPaint(blackPaint, VG_FILL_PATH);
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];

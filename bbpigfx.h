@@ -27,7 +27,7 @@
 #include "stage.h"
 #include "gfxeventhandler.h"
 
-#define SHIP_DOT_POSITION        SHIP_RADIUS * .45
+#define SHIP_DOT_POSITION        SHIP_RADIUS * .39
 #define SHIP_DOT_RADIUS          SHIP_RADIUS * .2
 #define SHIP_DOT_SIZE            SHIP_DOT_RADIUS * 2
 #define SHIP_DOT_FRAMES          240
