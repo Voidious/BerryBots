@@ -123,7 +123,7 @@ void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
     wxArrayInt selectedStageIndex;
     stageSelect_->GetSelections(selectedStageIndex);
     if (numLoadedBots_ != 0 && selectedStageIndex.Count() != 0) {
-      const char** bots = new const char*[numLoadedBots_];
+      char** bots = new char*[numLoadedBots_];
       for (int x = 0; x < numLoadedBots_; x++) {
         wxString loadedBot = loadedBotsSelect_->GetString(x);
         char *bot = new char[loadedBot.length() + 1];

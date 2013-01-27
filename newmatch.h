@@ -25,7 +25,7 @@
 
 class NewMatchListener {
   public:
-    virtual void startMatch(const char *stagePath, const char **teamPaths,
+    virtual void startMatch(const char *stagePath, char **teamPaths,
                             int numTeams) = 0;
     virtual void cancel() = 0;
 };

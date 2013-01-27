@@ -562,7 +562,5 @@ void GfxManager::destroyBbGfx() {
 }
 
 GfxManager::~GfxManager() {
-  if (listener_ != 0) {
-    delete listener_;
-  }
+
 }

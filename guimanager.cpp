@@ -21,9 +21,8 @@
 #include <algorithm>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
-#include "ResourcePath.hpp"
 #include <platformstl/filesystem/readdir_sequence.hpp>
-using platformstl::readdir_sequence;
+#include "ResourcePath.hpp"
 
 #include "bbutil.h"
 #include "stage.h"
@@ -75,7 +74,7 @@ GuiManager::GuiManager() {
 }
 
 GuiManager::~GuiManager() {
-  clearConsoles();
+  deleteMatchConsoles();
   delete newMatchDialog_;
   delete packageShipDialog_;
   delete packageStageDialog_;
@@ -109,11 +108,12 @@ void GuiManager::loadStages(const char *baseDir) {
   stageBaseDir_ = new char[strlen(baseDir) + 1];
   strcpy(stageBaseDir_, baseDir);
 
-  readdir_sequence dir(baseDir, readdir_sequence::files);
-  readdir_sequence::const_iterator first = dir.begin();
-  readdir_sequence::const_iterator last = dir.end();
+  platformstl::readdir_sequence dir(baseDir,
+                                    platformstl::readdir_sequence::files);
+  platformstl::readdir_sequence::const_iterator first = dir.begin();
+  platformstl::readdir_sequence::const_iterator last = dir.end();
   while (first != last) {
-    readdir_sequence::const_iterator file = first++;
+    platformstl::readdir_sequence::const_iterator file = first++;
     char *filename = (char *) *file;
     if (isValidStageFile(baseDir, filename)) {
       newMatchDialog_->addStage(filename);
@@ -137,11 +137,12 @@ void GuiManager::loadBots(const char *baseDir) {
   botsBaseDir_ = new char[strlen(baseDir) + 1];
   strcpy(botsBaseDir_, baseDir);
 
-  readdir_sequence dir(baseDir, readdir_sequence::files);
-  readdir_sequence::const_iterator first = dir.begin();
-  readdir_sequence::const_iterator last = dir.end();
+  platformstl::readdir_sequence dir(baseDir,
+                                    platformstl::readdir_sequence::files);
+  platformstl::readdir_sequence::const_iterator first = dir.begin();
+  platformstl::readdir_sequence::const_iterator last = dir.end();
   while (first != last) {
-    readdir_sequence::const_iterator file = first++;
+    platformstl::readdir_sequence::const_iterator file = first++;
     char *filename = (char *) *file;
     if (isValidBotFile(baseDir, filename)) {
       newMatchDialog_->addBot(filename);
@@ -160,7 +161,7 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
 
 void GuiManager::linkListeners() {
   newMatchDialog_->setListener(
-      new MatchStarter(this, stageBaseDir_, botsBaseDir_));
+      new MatchRunner(this, stageBaseDir_, botsBaseDir_));
   shipPackager_ = new ShipPackager(this, fileManager_, packagingConsole_,
                                    botsBaseDir_);
   stagePackager_ = new StagePackager(this, fileManager_, packagingConsole_,
@@ -170,19 +171,13 @@ void GuiManager::linkListeners() {
 }
 
 void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
-  unsigned int thisMatchId = ++matchId_;
+  unsigned int thisMatchId = matchId_;
   paused_ = false;
-  clearConsoles();
   newMatchDialog_->Hide();
-  if (printHandler != 0) {
-    delete printHandler;
-    printHandler = 0;
-  }
+  packageStageDialog_->Hide();
+  packageShipDialog_->Hide();
 
   srand((unsigned int) time(NULL));
-  if (engine != 0) {
-    delete engine;
-  }
   engine = new BerryBotsEngine();
   stage = engine->getStage();
   const char *cacheDir = getCacheDir().c_str();
@@ -298,6 +293,10 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
 //  }
 
   gfxManager_->destroyBbGfx();
+  delete printHandler;
+  delete engine;
+  delete gfxHandler;
+  deleteMatchConsoles();
 }
 
 void GuiManager::showNewMatchDialog() {
@@ -322,6 +321,10 @@ void GuiManager::resumeMatch() {
   paused_ = false;
 }
 
+void GuiManager::cancelCurrentMatch() {
+  matchId_++;
+}
+
 void GuiManager::showStageConsole() {
   stageConsole_->Show();
 }
@@ -336,19 +339,17 @@ unsigned int GuiManager::nextConsoleId() {
   return nextId;
 }
 
-void GuiManager::clearConsoles() {
+void GuiManager::deleteMatchConsoles() {
   if (stageConsole_ != 0) {
     stageConsole_->Hide();
     delete stageConsole_;
-    stageConsole_ = 0;
   }
   if (teamConsoles_ != 0) {
     for (int x = 0; x < numTeams_; x++) {
-      teamConsoles_[x]->Close();
+      teamConsoles_[x]->Hide();
       delete teamConsoles_[x];
     }
     delete teamConsoles_;
-    teamConsoles_ = 0;
   }
 }
 
@@ -370,40 +371,96 @@ void GuiManager::quit() {
   delete gfxManager_;
 }
 
-MatchStarter::MatchStarter(GuiManager *guiManager, char *stageDir,
-                           char *botsDir) {
+MatchRunner::MatchRunner(GuiManager *guiManager, char *stageDir,
+                         char *botsDir) {
   guiManager_ = guiManager;
   stageDir_ = new char[strlen(stageDir) + 1];
   strcpy(stageDir_, stageDir);
   botsDir_ = new char[strlen(botsDir) + 1];
   strcpy(botsDir_, botsDir);
+  matchRunning_ = false;
+  nextStageName_ = 0;
+  nextTeamNames_ = 0;
+  nextNumTeams_ = 0;
+  matchQueueMutex_ = new wxMutex();
 }
 
-MatchStarter::~MatchStarter() {
+MatchRunner::~MatchRunner() {
   delete stageDir_;
   delete botsDir_;
+  delete matchQueueMutex_;
 }
 
-void MatchStarter::startMatch(const char *stageName, const char **teamNames,
-                              int numTeams) {
-  char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
-  sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
-  char **teamPaths = new char*[numTeams];
-  for (int x = 0; x < numTeams; x++) {
-    char *teamPath = new char[strlen(botsDir_) + strlen(teamNames[x]) + 2];
-    sprintf(teamPath, "%s%s%s", botsDir_, BB_DIRSEP, teamNames[x]);
-    teamPaths[x] = teamPath;
-  }
-  guiManager_->runMatch(stagePath, teamPaths, numTeams);
+void MatchRunner::startMatch(const char *stageName, char **teamNames,
+                             int numTeams) {
+  queueNextMatch(stageName, teamNames, numTeams);
+  if (matchRunning_) {
+    guiManager_->cancelCurrentMatch();
+  } else {
+    matchRunning_ = true;
+    while (nextStageName_ != 0) {
+      matchQueueMutex_->Lock();
 
-  delete stagePath;
-  for (int x = 0; x < numTeams; x++) {
-    delete teamPaths[x];
+      unsigned long stagePathLen =
+          strlen(stageDir_) + strlen(nextStageName_) + 1 + strlen(BB_DIRSEP);
+      char *stagePath = new char[stagePathLen];
+      sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, nextStageName_);
+      char **teamPaths = new char*[numTeams];
+      for (int x = 0; x < numTeams; x++) {
+        unsigned long teamPathLen = strlen(botsDir_) + strlen(nextTeamNames_[x])
+            + 1 + strlen(BB_DIRSEP);
+        char *teamPath = new char[teamPathLen];
+        sprintf(teamPath, "%s%s%s", botsDir_, BB_DIRSEP, nextTeamNames_[x]);
+        teamPaths[x] = teamPath;
+      }
+
+      clearNextMatch();
+      matchQueueMutex_->Unlock();
+
+      guiManager_->runMatch(stagePath, teamPaths, numTeams);
+
+      delete stagePath;
+      for (int x = 0; x < numTeams; x++) {
+        delete teamPaths[x];
+      }
+      delete teamPaths;
+
+    }
+    matchRunning_ = false;
   }
-  delete teamPaths;
 }
 
-void MatchStarter::cancel() {
+void MatchRunner::queueNextMatch(const char *stageName, char **teamNames,
+                                 int numTeams) {
+  matchQueueMutex_->Lock();
+  
+  nextStageName_ = new char[strlen(stageName) + 1];
+  strcpy(nextStageName_, stageName);
+  nextTeamNames_ = new char*[numTeams];
+  for (int x = 0; x < numTeams; x++) {
+    nextTeamNames_[x] = new char[strlen(teamNames[x]) + 1];
+    strcpy(nextTeamNames_[x], teamNames[x]);
+  }
+  nextNumTeams_ = numTeams;
+
+  matchQueueMutex_->Unlock();
+}
+
+void MatchRunner::clearNextMatch() {
+  if (nextStageName_ != 0) {
+    delete nextStageName_;
+    nextStageName_ = 0;
+  }
+  if (nextTeamNames_ != 0) {
+    for (int x = 0; x < nextNumTeams_; x++) {
+      delete nextTeamNames_[x];
+    }
+    delete nextTeamNames_;
+    nextTeamNames_ = 0;
+  }
+}
+
+void MatchRunner::cancel() {
   guiManager_->hideNewMatchDialog();
   guiManager_->resumeMatch();
 }

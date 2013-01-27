@@ -22,6 +22,7 @@
 #define GUI_MANAGER_H
 
 #include <SFML/Graphics.hpp>
+#include <wx/thread.h>
 #include "gfxmanager.h"
 #include "filemanager.h"
 #include "newmatch.h"
@@ -63,6 +64,7 @@ class GuiManager {
     void showPackageShipDialog();
     void showPackageStageDialog();
     void resumeMatch();
+    void cancelCurrentMatch();
     void showStageConsole();
     void showTeamConsole(int teamIndex);
     void hideNewMatchDialog();
@@ -71,20 +73,28 @@ class GuiManager {
     void quit();
   private:
     unsigned int nextConsoleId();
-    void clearConsoles();
+    void deleteMatchConsoles();
 };
 
-class MatchStarter : public NewMatchListener {
+class MatchRunner : public NewMatchListener {
   GuiManager *guiManager_;
   char *stageDir_;
   char *botsDir_;
+  bool matchRunning_;
+  char *nextStageName_;
+  char **nextTeamNames_;
+  int nextNumTeams_;
+  wxMutex *matchQueueMutex_;
 
   public:
-    MatchStarter(GuiManager *guiManager, char *stageDir, char *botsDir);
-    ~MatchStarter();
-    virtual void startMatch(const char *stageName, const char **teamNames,
+    MatchRunner(GuiManager *guiManager, char *stageDir, char *botsDir);
+    ~MatchRunner();
+    virtual void startMatch(const char *stageName, char **teamNames,
                             int numTeams);
     virtual void cancel();
+  private:
+    void queueNextMatch(const char *stageName, char **teamNames, int numTeams);
+    void clearNextMatch();
 };
 
 class ShipPackager : public PackageShipDialogListener {
