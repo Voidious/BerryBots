@@ -126,8 +126,6 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
     std::string resourcePath) {
   if (initialized_) {
     destroyBbGfx();
-  } else {
-    initialized_ = true;
   }
 
   window->setVerticalSyncEnabled(true);
@@ -218,6 +216,8 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
     zoneShape->setFillColor(zoneColor);
     zoneShapes[x] = zoneShape;
   }
+
+  initialized_ = true;
 }
 
 void drawWalls(sf::RenderWindow *window) {

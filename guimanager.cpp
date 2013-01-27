@@ -385,6 +385,11 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
       }
     }
 
+    // TODO: Leaking ~2 MB per bot per match on my MacBook Pro (10.8, Cocoa).
+    //       SFML folks seem to think it's in the video drivers.
+    //       http://en.sfml-dev.org/forums/index.php?topic=8609.0
+    //       Really need to investigate more and/or find a work-around.
+
     if (thisMatchId == matchId_) {
       window_->clear();
       gfxManager_->drawGame(window_, stage, engine->getShips(),
