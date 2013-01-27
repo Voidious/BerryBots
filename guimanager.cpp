@@ -519,15 +519,16 @@ void MatchRunner::startMatch(const char *stageName, char **teamNames,
     while (nextStageName_ != 0) {
       matchQueueMutex_->Lock();
 
+      int thisNumTeams = nextNumTeams_;
       unsigned long stagePathLen =
-          strlen(stageDir_) + strlen(nextStageName_) + 1 + strlen(BB_DIRSEP);
-      char *stagePath = new char[stagePathLen];
+          strlen(stageDir_) + strlen(BB_DIRSEP) + strlen(nextStageName_);
+      char *stagePath = new char[stagePathLen + 1];
       sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, nextStageName_);
-      char **teamPaths = new char*[numTeams];
-      for (int x = 0; x < numTeams; x++) {
-        unsigned long teamPathLen = strlen(botsDir_) + strlen(nextTeamNames_[x])
-            + 1 + strlen(BB_DIRSEP);
-        char *teamPath = new char[teamPathLen];
+      char **teamPaths = new char*[thisNumTeams];
+      for (int x = 0; x < thisNumTeams; x++) {
+        unsigned long teamPathLen = strlen(botsDir_) + strlen(BB_DIRSEP)
+            + strlen(nextTeamNames_[x]);
+        char *teamPath = new char[teamPathLen + 1];
         sprintf(teamPath, "%s%s%s", botsDir_, BB_DIRSEP, nextTeamNames_[x]);
         teamPaths[x] = teamPath;
       }
@@ -535,10 +536,10 @@ void MatchRunner::startMatch(const char *stageName, char **teamNames,
       clearNextMatch();
       matchQueueMutex_->Unlock();
 
-      guiManager_->runMatch(stagePath, teamPaths, numTeams);
+      guiManager_->runMatch(stagePath, teamPaths, thisNumTeams);
 
       delete stagePath;
-      for (int x = 0; x < numTeams; x++) {
+      for (int x = 0; x < thisNumTeams; x++) {
         delete teamPaths[x];
       }
       delete teamPaths;
