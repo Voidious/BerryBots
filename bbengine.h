@@ -39,6 +39,7 @@ class EngineInitException : public std::exception {
   
   public:
     EngineInitException(const char *details);
+    ~EngineInitException() throw();
     virtual const char* what() const throw();
 };
 

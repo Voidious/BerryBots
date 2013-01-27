@@ -151,8 +151,10 @@ int main(int argc, char *argv[]) {
     gfxManager->initBbGfx(window, viewHeight, stage, engine->getTeams(),
         engine->getNumTeams(), engine->getShips(), engine->getNumShips(),
         std::string(".") + std::string(BB_DIRSEP));
+    window->clear();
     gfxManager->drawGame(window, stage, engine->getShips(),
         engine->getNumShips(), engine->getGameTime(), gfxHandler, false);
+    window->display();
   }
   
   time_t realTime1;

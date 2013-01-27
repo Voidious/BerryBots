@@ -1005,12 +1005,12 @@ World* pushWorld(lua_State *L, Stage *stage, int numShips, int teamSize) {
   return world;
 }
 
-void pushStageShips(
-    lua_State *L, Ship** ships, Ship **stageShips, int numShips) {
+void pushCopyOfShips(
+    lua_State *L, Ship** ships, Ship **shipsCopy, int numShips) {
   lua_newtable(L);
   for (int x = 0; x < numShips; x++) {
-    stageShips[x] = pushShip(L);
-    *(stageShips[x]) = *(ships[x]);
+    shipsCopy[x] = pushShip(L);
+    *(shipsCopy[x]) = *(ships[x]);
     lua_rawseti(L, -2, x + 1);
   }
 }

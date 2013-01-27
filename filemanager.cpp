@@ -97,8 +97,9 @@ char* FileManager::getAbsoluteFilename(char *dir, char *filename) {
     strcpy(absFilename, filename);
     return absFilename;
   }
-  
-  absFilename = new char[strlen(dir) + strlen(filename) + 2];
+
+  long absFilenameLen = strlen(dir) + strlen(BB_DIRSEP) + strlen(filename);
+  absFilename = new char[absFilenameLen + 1];
   sprintf(absFilename, "%s%s%s", dir, BB_DIRSEP, filename);
   char *dots;
   int i = 0;
@@ -144,6 +145,7 @@ char* FileManager::getAbsoluteFilename(char *dir, char *filename) {
   return absFilename;
 }
 
+// Caller takes ownership of *userDir, *userFilename, and *userCwd memory.
 void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     char **userFilename, char **userCwd, const char *metaFilename,
     const char *cacheDir) throw (FileNotFoundException*) {
@@ -157,11 +159,13 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     createDirIfNecessary(cacheDir);
     
     const char *userDirName = parseFilename(srcFilename);
-    int userDirPathLen = (int) (strlen(cacheDir) + 1 + strlen(userDirName));
+    int userDirPathLen =
+        (int) (strlen(cacheDir) + strlen(BB_DIRSEP) + strlen(userDirName));
     
     char *userDirPath = new char[userDirPathLen + 1];
     sprintf(userDirPath, "%s%s%s", cacheDir, BB_DIRSEP, userDirName);
     *userDir = userDirPath;
+    delete userDirName;
     
     if (!fileExists(userDirPath)) {
       mkdir(userDirPath);
@@ -185,6 +189,7 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     *userCwd = new char[strlen(cwd) + 1];
     strcpy(*userCwd, cwd);
   } else {
+    // TODO: also support X:\ on Windows
     if ((*userDir)[0] == BB_DIRSEP_CHR) {
       *userCwd = new char[strlen(*userDir) + 1];
       strcpy(*userCwd, *userDir);

@@ -337,9 +337,11 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
                          engine->getNumTeams(), engine->getShips(),
                          engine->getNumShips(), resourcePath());
   window_->setVisible(true);
+  window_->clear();
   gfxManager_->drawGame(window_, stage, engine->getShips(),
                         engine->getNumShips(), engine->getGameTime(),
                         gfxHandler, false);
+  window_->display();
 
   stageConsole_ = new OutputConsole(this->nextConsoleId(), stage->getName());
   stageConsole_->Hide();
@@ -472,6 +474,7 @@ void GuiManager::deleteMatchConsoles() {
   if (stageConsole_ != 0) {
     stageConsole_->Hide();
     delete stageConsole_;
+    stageConsole_ = 0;
   }
   if (teamConsoles_ != 0) {
     for (int x = 0; x < numTeams_; x++) {
@@ -479,6 +482,7 @@ void GuiManager::deleteMatchConsoles() {
       delete teamConsoles_[x];
     }
     delete teamConsoles_;
+    teamConsoles_ = 0;
   }
 }
 

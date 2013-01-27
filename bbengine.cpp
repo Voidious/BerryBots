@@ -179,7 +179,6 @@ void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
   stage_->buildBaseWalls();
   stage_->setName(stageFilename_); // TODO: let stage set name like ship
   configureComplete_ = true;
-  delete stageCwd;
 }
 
 void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
@@ -357,7 +356,7 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
 
   lua_getglobal(stageState_, "init");
   stageShips_ = new Ship*[numShips_];
-  pushStageShips(stageState_, ships_, stageShips_, numShips_);
+  pushCopyOfShips(stageState_, ships_, stageShips_, numShips_);
   stage_->setTeamsAndShips(teams_, numTeams_, stageShips_, numShips_);
   if (strcmp(luaL_typename(stageState_, -2), "nil") != 0) {
     stageWorld_ = pushWorld(stageState_, stage_, numShips_, teamSize_);
@@ -546,7 +545,7 @@ void BerryBotsEngine::uniqueShipNames(Ship** ships, int numShips) {
   for (int x = 1; x < numShips; x++) {
     Ship *ship1 = ships[x];
     int nameNum = 1;
-    int nameLen = strlen(ship1->properties->name);
+    int nameLen = (int) strlen(ship1->properties->name);
     char numStr[8];
     for (int y = 0; y < x; y++) {
       Ship *ship2 = ships[y];
@@ -605,14 +604,15 @@ BerryBotsEngine::~BerryBotsEngine() {
     delete oldShips_[x];
   }
   delete ships_;
+  delete shipProperties_;
   delete oldShips_;
 
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
     if (!team->doa) {
-      lua_close(teams_[x]->state);
+      lua_close(team->state);
     }
-    delete teams_[x];
+    delete team;
   }
   delete teams_;
   lua_close(stageState_);
@@ -623,6 +623,10 @@ BerryBotsEngine::~BerryBotsEngine() {
   }
   delete teamVision_;
   delete stage_;
+  if (sensorHandler_ != 0) {
+    delete sensorHandler_;
+  }
+  delete fileManager_;
 }
 
 EngineInitException::EngineInitException(const char *details) {
@@ -632,4 +636,8 @@ EngineInitException::EngineInitException(const char *details) {
 
 const char* EngineInitException::what() const throw() {
   return message_;
+}
+
+EngineInitException::~EngineInitException() throw() {
+  delete message_;
 }

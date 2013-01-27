@@ -1026,7 +1026,7 @@ Stage::~Stage() {
   for (int x = 0; x < numStarts_; x++) {
     delete starts_[x];
   }
-  for (int x = 0; x < 3; x++) {
+  for (int x = 0; x < 4; x++) {
     if (baseWallLines_[x] != 0) {
       delete baseWallLines_[x];
     }
@@ -1045,4 +1045,5 @@ Stage::~Stage() {
   for (int x = 0; x < numStageShips_; x++) {
     delete stageShips_[x];
   }
+  delete ships_;
 }

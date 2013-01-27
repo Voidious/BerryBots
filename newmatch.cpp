@@ -43,6 +43,7 @@ NewMatchDialog::NewMatchDialog()
                               wxPoint(377, 460), wxDefaultSize, wxBU_EXACTFIT);
   numStages_ = numBots_ = numLoadedBots_ = 0;
   listener_ = 0;
+  menusInitialized_ = false;
 
   Connect(NEW_MATCH_ID, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(NewMatchDialog::onClose));
@@ -68,6 +69,7 @@ NewMatchDialog::~NewMatchDialog() {
   delete botsLabel_;
   delete botsSelect_;
   delete addArrow_;
+  delete removeArrow_;
   delete clearButton_;
   delete loadedBotsSelect_;
   delete startButton_;
@@ -123,8 +125,9 @@ void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
     wxArrayInt selectedStageIndex;
     stageSelect_->GetSelections(selectedStageIndex);
     if (numLoadedBots_ != 0 && selectedStageIndex.Count() != 0) {
-      char** bots = new char*[numLoadedBots_];
-      for (int x = 0; x < numLoadedBots_; x++) {
+      int numStartBots = numLoadedBots_;
+      char** bots = new char*[numStartBots];
+      for (int x = 0; x < numStartBots; x++) {
         wxString loadedBot = loadedBotsSelect_->GetString(x);
         char *bot = new char[loadedBot.length() + 1];
         strcpy(bot, loadedBot.fn_str());
@@ -136,7 +139,13 @@ void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
       char *stage = new char[selectedStage.length() + 1];
       strcpy(stage, selectedStage.fn_str());
 
-      listener_->startMatch(stage, bots, numLoadedBots_);
+      listener_->startMatch(stage, bots, numStartBots);
+
+      for (int x = 0; x < numStartBots; x++) {
+        delete bots[x];
+      }
+      delete bots;
+      delete stage;
     }
   }
 }
@@ -154,12 +163,15 @@ void NewMatchDialog::setListener(NewMatchListener *listener) {
 }
 
 void NewMatchDialog::initMenus() {
-  wxMenu *fileMenu = new wxMenu();
-  fileMenu->Insert(0, NEW_MATCH_MENU_ID, "New Match...", 0);
-  fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package Ship...", 0);
-  fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package Stage...", 0);
-  wxMenuBar *menuBar = new wxMenuBar();
-  menuBar->Insert(0, fileMenu, "File");
+  if (!menusInitialized_) {
+    wxMenu *fileMenu = new wxMenu();
+    fileMenu->Insert(0, NEW_MATCH_MENU_ID, "New Match...", 0);
+    fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package Ship...", 0);
+    fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package Stage...", 0);
+    wxMenuBar *menuBar = new wxMenuBar();
+    menuBar->Insert(0, fileMenu, "File");
 
-  this->SetMenuBar(menuBar);
+    this->SetMenuBar(menuBar);
+    menusInitialized_ = true;
+  }
 }

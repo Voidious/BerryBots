@@ -53,7 +53,7 @@ Line2D** Rectangle::getLines() {
 }
 
 Rectangle::~Rectangle() {
-  for (int x = 0; x < 3; x++) {
+  for (int x = 0; x < 4; x++) {
     delete lines_[x];
   }
 }

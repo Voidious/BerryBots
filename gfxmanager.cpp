@@ -28,6 +28,8 @@
 
 #include "gfxmanager.h"
 
+// TODO: make these member vars instead of globals
+
 sf::CircleShape shipShape(SHIP_RADIUS);
 sf::CircleShape shipDotShape(SHIP_DOT_RADIUS);
 sf::Vector2f shipDotPoint(SHIP_DOT_POSITION, 0);
@@ -551,12 +553,16 @@ void GfxManager::destroyBbGfx() {
       delete wallShapes[x];
     }
     delete wallShapes;
+    for (int x = 0; x < numZones; x++) {
+      delete zoneShapes[x];
+    }
+    delete zoneShapes;
     delete shipColors;
-    delete shipDotOffsets;
-    delete shipDotDirections;
     delete shipDeathColors;
     delete laserColors;
     delete thrusterColors;
+    delete shipDotOffsets;
+    delete shipDotDirections;
     initialized_ = false;
   }
 }

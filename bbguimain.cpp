@@ -72,6 +72,7 @@ bool BerryBotsApp::OnInit() {
 void BerryBotsApp::OnQuit(wxCommandEvent &event) {
   guiManager_->quit();
   ExitMainLoop();
+  // TODO: delete guiManager_ without clobbering anyone else
 }
 
 void BerryBotsApp::OnNewMatch(wxCommandEvent &event) {
