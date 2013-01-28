@@ -24,11 +24,12 @@
 #include <wx/wx.h>
 
 class PackageStageDialogListener {
-public:
-  virtual void package(const char *stageName, const char *version,
-                       bool nosrc) = 0;
-  virtual void cancel() = 0;
-  virtual ~PackageStageDialogListener() {};
+  public:
+    virtual wxMenuBar* getNewMenuBar() = 0;
+    virtual void package(const char *stageName, const char *version,
+                         bool nosrc) = 0;
+    virtual void cancel() = 0;
+    virtual ~PackageStageDialogListener() {};
 };
 
 // TODO: factor out common base class for this and PackageShipDialog
@@ -40,6 +41,7 @@ class PackageStageDialog : public wxFrame {
   wxButton *packageButton_;
   unsigned int numStages_;
   PackageStageDialogListener *listener_;
+  bool menusInitialized_;
 
   public:
   PackageStageDialog();

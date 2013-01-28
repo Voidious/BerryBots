@@ -37,6 +37,7 @@
 #include "guiprinthandler.h"
 #include "guimanager.h"
 #include "basedir.h"
+#include "bbwx.h"
 
 extern BerryBotsEngine *engine;
 extern Stage *stage;
@@ -489,6 +490,16 @@ void GuiManager::hidePackageStageDialog() {
   packageStageDialog_->Hide();
 }
 
+wxMenuBar* GuiManager::getNewMenuBar() {
+  wxMenu *fileMenu = new wxMenu();
+  fileMenu->Insert(0, NEW_MATCH_MENU_ID, "New Match...", 0);
+  fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package Ship...", 0);
+  fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package Stage...", 0);
+  wxMenuBar *menuBar = new wxMenuBar();
+  menuBar->Insert(0, fileMenu, "File");
+  return menuBar;
+}
+
 void GuiManager::quit() {
   matchId_ = 0;
 }
@@ -511,6 +522,10 @@ MatchRunner::~MatchRunner() {
   delete stageDir_;
   delete botsDir_;
   delete matchQueueMutex_;
+}
+
+wxMenuBar* MatchRunner::getNewMenuBar() {
+  return guiManager_->getNewMenuBar();
 }
 
 void MatchRunner::startMatch(const char *stageName, char **teamNames,
@@ -588,52 +603,8 @@ void MatchRunner::cancel() {
   guiManager_->resumeMatch();
 }
 
-StagePackager::StagePackager(GuiManager *guiManager, FileManager *fileManager,
-    OutputConsole *packagingConsole, char *stageDir, char *botsDir) {
-  packagingConsole_ = packagingConsole;
-  guiManager_ = guiManager;
-  fileManager_ = fileManager;
-  stageDir_ = new char[strlen(stageDir) + 1];
-  strcpy(stageDir_, stageDir);
-  botsDir_ = new char[strlen(botsDir) + 1];
-  strcpy(botsDir_, botsDir);
-}
-
-StagePackager::~StagePackager() {
-  delete stageDir_;
-  delete botsDir_;
-}
-
-void StagePackager::package(const char *stageName, const char *version,
-                            bool nosrc) {
-  char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
-  sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
-  char *cacheDir = getCacheDirCopy();
-  char *tmpDir = getTmpDirCopy();
-  try {
-    fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc);
-  } catch (FileNotFoundException *e) {
-    delete stagePath;
-    delete cacheDir;
-    delete tmpDir;
-    packagingConsole_->clear();
-    packagingConsole_->Show();
-    packagingConsole_->println("Packaging stage failed: ");
-    packagingConsole_->print("  ");
-    packagingConsole_->println(e->what());
-  }
-  delete stagePath;
-  delete cacheDir;
-  delete tmpDir;
-}
-
-void StagePackager::cancel() {
-  guiManager_->hidePackageStageDialog();
-  guiManager_->resumeMatch();
-}
-
 ShipPackager::ShipPackager(GuiManager *guiManager, FileManager *fileManager,
-    OutputConsole *packagingConsole, char *botsDir) {
+                           OutputConsole *packagingConsole, char *botsDir) {
   packagingConsole_ = packagingConsole;
   guiManager_ = guiManager;
   fileManager_ = fileManager;
@@ -643,6 +614,10 @@ ShipPackager::ShipPackager(GuiManager *guiManager, FileManager *fileManager,
 
 ShipPackager::~ShipPackager() {
   delete botsDir_;
+}
+
+wxMenuBar* ShipPackager::getNewMenuBar() {
+  return guiManager_->getNewMenuBar();
 }
 
 void ShipPackager::package(const char *botName, const char *version,
@@ -670,6 +645,54 @@ void ShipPackager::package(const char *botName, const char *version,
 
 void ShipPackager::cancel() {
   guiManager_->hidePackageShipDialog();
+  guiManager_->resumeMatch();
+}
+
+StagePackager::StagePackager(GuiManager *guiManager, FileManager *fileManager,
+    OutputConsole *packagingConsole, char *stageDir, char *botsDir) {
+  packagingConsole_ = packagingConsole;
+  guiManager_ = guiManager;
+  fileManager_ = fileManager;
+  stageDir_ = new char[strlen(stageDir) + 1];
+  strcpy(stageDir_, stageDir);
+  botsDir_ = new char[strlen(botsDir) + 1];
+  strcpy(botsDir_, botsDir);
+}
+
+StagePackager::~StagePackager() {
+  delete stageDir_;
+  delete botsDir_;
+}
+
+wxMenuBar* StagePackager::getNewMenuBar() {
+  return guiManager_->getNewMenuBar();
+}
+
+void StagePackager::package(const char *stageName, const char *version,
+                            bool nosrc) {
+  char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
+  sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
+  char *cacheDir = getCacheDirCopy();
+  char *tmpDir = getTmpDirCopy();
+  try {
+    fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc);
+  } catch (FileNotFoundException *e) {
+    delete stagePath;
+    delete cacheDir;
+    delete tmpDir;
+    packagingConsole_->clear();
+    packagingConsole_->Show();
+    packagingConsole_->println("Packaging stage failed: ");
+    packagingConsole_->print("  ");
+    packagingConsole_->println(e->what());
+  }
+  delete stagePath;
+  delete cacheDir;
+  delete tmpDir;
+}
+
+void StagePackager::cancel() {
+  guiManager_->hidePackageStageDialog();
   guiManager_->resumeMatch();
 }
 

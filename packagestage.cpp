@@ -23,7 +23,7 @@
 #include "bbwx.h"
 
 PackageStageDialog::PackageStageDialog()
-    : wxFrame(NULL, PACKAGE_STAGE_ID, "Package Stage...",
+    : wxFrame(NULL, PACKAGE_STAGE_ID, "Package Stage",
               wxPoint(50, 50), wxSize(380, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   stageSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
@@ -34,6 +34,7 @@ PackageStageDialog::PackageStageDialog()
       wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
   numStages_ = 0;
   listener_ = 0;
+  menusInitialized_ = false;
 
   Connect(PACKAGE_STAGE_ID, wxEVT_ACTIVATE,
           wxCommandEventHandler(PackageStageDialog::onActivate));
@@ -61,6 +62,10 @@ void PackageStageDialog::setListener(PackageStageDialogListener *listener) {
 }
 
 void PackageStageDialog::onActivate(wxCommandEvent &event) {
+  if (!menusInitialized_) {
+    this->SetMenuBar(listener_->getNewMenuBar());
+    menusInitialized_ = true;
+  }
   stageSelect_->SetFocus();
 }
 

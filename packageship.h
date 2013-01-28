@@ -25,6 +25,7 @@
 
 class PackageShipDialogListener {
   public:
+    virtual wxMenuBar* getNewMenuBar() = 0;
     virtual void package(const char *botName, const char *version,
                          bool nosrc) = 0;
     virtual void cancel() = 0;
@@ -40,7 +41,8 @@ class PackageShipDialog : public wxFrame {
   wxButton *packageButton_;
   unsigned int numBots_;
   PackageShipDialogListener *listener_;
-  
+  bool menusInitialized_;
+
   public:
     PackageShipDialog();
     ~PackageShipDialog();

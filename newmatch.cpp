@@ -23,7 +23,7 @@
 #include "bbwx.h"
 
 NewMatchDialog::NewMatchDialog()
-    : wxFrame(NULL, NEW_MATCH_ID, "New Match...",
+    : wxFrame(NULL, NEW_MATCH_ID, "BerryBots",
              wxPoint(50, 50), wxSize(500, 520),
              wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   stageLabel_ = new wxStaticText(this, -1, "Stage:", wxPoint(20, 10));
@@ -44,7 +44,9 @@ NewMatchDialog::NewMatchDialog()
   numStages_ = numBots_ = numLoadedBots_ = 0;
   listener_ = 0;
   menusInitialized_ = false;
-
+      
+  Connect(NEW_MATCH_ID, wxEVT_ACTIVATE,
+          wxCommandEventHandler(NewMatchDialog::onActivate));
   Connect(NEW_MATCH_ID, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(NewMatchDialog::onClose));
   Connect(ADD_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
@@ -59,8 +61,6 @@ NewMatchDialog::NewMatchDialog()
           wxCommandEventHandler(NewMatchDialog::onAddBots));
   Connect(LOADED_BOTS_ID, wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
           wxCommandEventHandler(NewMatchDialog::onRemoveBots));
-  Connect(NEW_MATCH_ID, wxEVT_ACTIVATE,
-          wxCommandEventHandler(NewMatchDialog::onActivate));
 }
 
 NewMatchDialog::~NewMatchDialog() {
@@ -75,6 +75,10 @@ NewMatchDialog::~NewMatchDialog() {
   delete startButton_;
 }
 
+void NewMatchDialog::setListener(NewMatchListener *listener) {
+  listener_ = listener;
+}
+
 void NewMatchDialog::addStage(char *stage) {
   stageSelect_->Insert(wxString(stage), numStages_++);
   if (stageSelect_->GetCount() > 0) {
@@ -87,6 +91,17 @@ void NewMatchDialog::addBot(char *bot) {
   if (botsSelect_->GetCount() > 0) {
     botsSelect_->SetFirstItem(0);
   }
+}
+
+void NewMatchDialog::onActivate(wxCommandEvent &event) {
+  if (!menusInitialized_) {
+    this->SetMenuBar(listener_->getNewMenuBar());
+    menusInitialized_ = true;
+  }
+}
+
+void NewMatchDialog::onClose(wxCommandEvent &event) {
+  listener_->cancel();
 }
 
 void NewMatchDialog::onAddBots(wxCommandEvent &event) {
@@ -147,31 +162,5 @@ void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
       delete bots;
       delete stage;
     }
-  }
-}
-
-void NewMatchDialog::onClose(wxCommandEvent &event) {
-  listener_->cancel();
-}
-
-void NewMatchDialog::onActivate(wxCommandEvent &event) {
-  this->initMenus();
-}
-
-void NewMatchDialog::setListener(NewMatchListener *listener) {
-  listener_ = listener;
-}
-
-void NewMatchDialog::initMenus() {
-  if (!menusInitialized_) {
-    wxMenu *fileMenu = new wxMenu();
-    fileMenu->Insert(0, NEW_MATCH_MENU_ID, "New Match...", 0);
-    fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package Ship...", 0);
-    fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package Stage...", 0);
-    wxMenuBar *menuBar = new wxMenuBar();
-    menuBar->Insert(0, fileMenu, "File");
-
-    this->SetMenuBar(menuBar);
-    menusInitialized_ = true;
   }
 }

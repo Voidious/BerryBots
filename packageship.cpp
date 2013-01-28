@@ -23,7 +23,7 @@
 #include "bbwx.h"
 
 PackageShipDialog::PackageShipDialog()
-    : wxFrame(NULL, PACKAGE_SHIP_ID, "Package Ship...",
+    : wxFrame(NULL, PACKAGE_SHIP_ID, "Package Ship",
               wxPoint(50, 50), wxSize(380, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   botSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
@@ -34,6 +34,7 @@ PackageShipDialog::PackageShipDialog()
       wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
   numBots_ = 0;
   listener_ = 0;
+  menusInitialized_ = false;
   
   Connect(PACKAGE_SHIP_ID, wxEVT_ACTIVATE,
           wxCommandEventHandler(PackageShipDialog::onActivate));
@@ -61,6 +62,10 @@ void PackageShipDialog::setListener(PackageShipDialogListener *listener) {
 }
 
 void PackageShipDialog::onActivate(wxCommandEvent &event) {
+  if (!menusInitialized_) {
+    this->SetMenuBar(listener_->getNewMenuBar());
+    menusInitialized_ = true;
+  }
   botSelect_->SetFocus();
 }
 

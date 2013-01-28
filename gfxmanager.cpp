@@ -459,7 +459,7 @@ void drawStageTexts(sf::RenderWindow *window, Stage *stage, bool gameOver) {
 void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage) {
   // TODO: avoid a lot of extra re-initialization
   window->setView(dockView);
-  sf::Text newMatchText(NEW_MATCH_TEXT, font, 18);
+  sf::Text newMatchText(NEW_MATCH_DOCK_TEXT, font, 18);
   newMatchText.setPosition(10, 30);
   sf::Text stageName(stage->getName(), font,  16);
   stageName.setPosition(10, 70);

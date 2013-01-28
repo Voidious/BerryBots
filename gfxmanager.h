@@ -51,7 +51,7 @@
 #define TORPEDO_BLAST_TIME       TORPEDO_BLAST_FRAMES
 #define FONT_NAME                "Questrial-Regular.ttf"
 
-#define NEW_MATCH_TEXT           "New Match..."
+#define NEW_MATCH_DOCK_TEXT      "New Match..."
 #define DOCK_ENERGY_LENGTH       DOCK_SIZE - 40
 
 class GfxViewListener {

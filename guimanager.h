@@ -70,6 +70,7 @@ class GuiManager {
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
+    wxMenuBar* getNewMenuBar();
     void quit();
   private:
     unsigned int nextConsoleId();
@@ -89,6 +90,7 @@ class MatchRunner : public NewMatchListener {
   public:
     MatchRunner(GuiManager *guiManager, char *stageDir, char *botsDir);
     ~MatchRunner();
+    virtual wxMenuBar* getNewMenuBar();
     virtual void startMatch(const char *stageName, char **teamNames,
                             int numTeams);
     virtual void cancel();
@@ -102,11 +104,12 @@ class ShipPackager : public PackageShipDialogListener {
   FileManager *fileManager_;
   OutputConsole *packagingConsole_;
   char *botsDir_;
-  
+
   public:
     ShipPackager(GuiManager *guiManager, FileManager *fileManager,
                  OutputConsole *packagingConsole, char *botsDir);
     ~ShipPackager();
+    virtual wxMenuBar* getNewMenuBar();
     virtual void package(const char *botName, const char *version, bool nosrc);
     virtual void cancel();
 };
@@ -122,6 +125,7 @@ class StagePackager : public PackageStageDialogListener {
     StagePackager(GuiManager *guiManager, FileManager *fileManager,
         OutputConsole *packagingConsole, char *stageDir, char *botsDir);
     ~StagePackager();
+    virtual wxMenuBar* getNewMenuBar();
     virtual void package(const char *stageName, const char *version,
                          bool nosrc);
     virtual void cancel();

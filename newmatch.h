@@ -25,6 +25,7 @@
 
 class NewMatchListener {
   public:
+    virtual wxMenuBar* getNewMenuBar() = 0;
     virtual void startMatch(const char *stagePath, char **teamPaths,
                             int numTeams) = 0;
     virtual void cancel() = 0;
@@ -49,16 +50,15 @@ class NewMatchDialog : public wxFrame {
   public:
     NewMatchDialog();
     ~NewMatchDialog();
+    void setListener(NewMatchListener *listener);
     void addStage(char *stage);
     void addBot(char *bot);
+    void onActivate(wxCommandEvent &event);
+    void onClose(wxCommandEvent &event);
     void onAddBots(wxCommandEvent &event);
     void onRemoveBots(wxCommandEvent &event);
     void onClearBots(wxCommandEvent &event);
     void onStartMatch(wxCommandEvent &event);
-    void onClose(wxCommandEvent &event);
-    void onActivate(wxCommandEvent &event);
-    void setListener(NewMatchListener *listener);
-    void initMenus();
 };
 
 #endif
