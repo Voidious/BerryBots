@@ -137,7 +137,7 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
         (int) (strlen(baseDir) + strlen(BB_DIRSEP) + strlen(stageFilename));
     char *stagePath = new char[stagePathLen + 1];
     sprintf(stagePath, "%s%s%s", baseDir, BB_DIRSEP, stageFilename);
-    const char *cacheDir = getCacheDir().c_str();
+    char *cacheDir = getCacheDirCopy();
     char *stageDir = 0;
     char *stageFilename = 0;
     char *stageCwd = 0;
@@ -148,6 +148,7 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
       // Only possible if user deletes file from disk after we find it on disk
       // but before we validate it. Seems safe to fail silently.
       delete stagePath;
+      delete cacheDir;
       if (stageDir != 0) {
         delete stageDir;
       }
@@ -160,6 +161,7 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
       return false;
     }
     delete stagePath;
+    delete cacheDir;
     lua_State *stageState;
     initStageState(&stageState, stageCwd, stageFilename);
     
@@ -225,17 +227,18 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
         (int) (strlen(baseDir) + strlen(BB_DIRSEP) + strlen(botFilename));
     char *botPath = new char[botPathLen + 1];
     sprintf(botPath, "%s%s%s", baseDir, BB_DIRSEP, botFilename);
-    const char *cacheDir = getCacheDir().c_str();
+    char *cacheDir = getCacheDirCopy();
     char *botDir = 0;
     char *botFilename = 0;
     char *botCwd = 0;
     try {
       fileManager_->loadBotFile(
-                                  botPath, &botDir, &botFilename, &botCwd, cacheDir);
+          botPath, &botDir, &botFilename, &botCwd, cacheDir);
     } catch (FileNotFoundException *fnfe) {
       // Only possible if user deletes file from disk after we find it on disk
       // but before we validate it. Seems safe to fail silently.
       delete botPath;
+      delete cacheDir;
       if (botDir != 0) {
         delete botDir;
       }
@@ -248,6 +251,7 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
       return false;
     }
     delete botPath;
+    delete cacheDir;
     lua_State *shipState;
     initShipState(&shipState, botCwd, botFilename);
     
@@ -300,15 +304,17 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
   srand((unsigned int) time(NULL));
   engine = new BerryBotsEngine();
   stage = engine->getStage();
-  const char *cacheDir = getCacheDir().c_str();
+  char *cacheDir = getCacheDirCopy();
   try {
     engine->initStage(stageName, cacheDir);
     engine->initShips(teamNames, numTeams, cacheDir);
   } catch (EngineInitException *e) {
     // TODO: display error message in GUI
     delete engine;
+    delete cacheDir;
     return;
   }
+  delete cacheDir;
   GfxEventHandler *gfxHandler = new GfxEventHandler();
   stage->addEventHandler((EventHandler*) gfxHandler);
   
@@ -400,33 +406,13 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
       time(&realTime2);
       if (realTime2 - realTime1 > 0) {
         realSeconds++;
-        if (realSeconds % 10 == 0) {
-          // TODO: How to display TPS in GUI
-  //        cout << "TPS: " << (((double) engine->getGameTime()) / realSeconds)
-  //        << endl;
-        }
+        // TODO: Display TPS in GUI.
       }
       realTime1 = realTime2;
     }
   }
 
-  // TODO: how to display all this in GUI
-//  char* winnerName = engine->getWinnerName();
-//  if (winnerName != 0) {
-//    cout << winnerName << " wins! Congratulations!" << endl;
-//    delete winnerName;
-//  }
-//  
-//  cout << endl << "CPU time used per tick (microseconds):" << endl;
-//  for (int x = 0; x < engine->getNumTeams(); x++) {
-//    Team *team = engine->getTeam(x);
-//    cout << "  " << team->name << ": "
-//    << (team->totalCpuTime / engine->getGameTime()) << endl;
-//  }
-//  
-//  if (realSeconds > 0) {
-//    cout << "TPS: " << (((double) engine->getGameTime()) / realSeconds) << endl;
-//  }
+  // TODO: Display winner / CPU usage in GUI
 
   gfxManager_->destroyBbGfx();
   delete printHandler;
@@ -622,10 +608,14 @@ void StagePackager::package(const char *stageName, const char *version,
                             bool nosrc) {
   char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
   sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
+  char *cacheDir = getCacheDirCopy();
+  char *tmpDir = getTmpDirCopy();
   try {
-    fileManager_->packageStage(stagePath, version, getCacheDir().c_str(),
-                               getTmpDir().c_str(), nosrc);
+    fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc);
   } catch (FileNotFoundException *e) {
+    delete stagePath;
+    delete cacheDir;
+    delete tmpDir;
     packagingConsole_->clear();
     packagingConsole_->Show();
     packagingConsole_->println("Packaging stage failed: ");
@@ -633,6 +623,8 @@ void StagePackager::package(const char *stageName, const char *version,
     packagingConsole_->println(e->what());
   }
   delete stagePath;
+  delete cacheDir;
+  delete tmpDir;
 }
 
 void StagePackager::cancel() {
@@ -657,10 +649,14 @@ void ShipPackager::package(const char *botName, const char *version,
                            bool nosrc) {
   char *botsPath = new char[strlen(botsDir_) + strlen(botName) + 2];
   sprintf(botsPath, "%s%s%s", botsDir_, BB_DIRSEP, botName);
+  char *cacheDir = getCacheDirCopy();
+  char *tmpDir = getTmpDirCopy();
   try {
-    fileManager_->packageBot(botsPath, version, getCacheDir().c_str(),
-                             getTmpDir().c_str(), nosrc);
+    fileManager_->packageBot(botsPath, version, cacheDir, tmpDir, nosrc);
   } catch (FileNotFoundException *e) {
+    delete botsPath;
+    delete cacheDir;
+    delete tmpDir;
     packagingConsole_->clear();
     packagingConsole_->Show();
     packagingConsole_->println("Packaging ship failed: ");
@@ -668,6 +664,8 @@ void ShipPackager::package(const char *botName, const char *version,
     packagingConsole_->println(e->what());
   }
   delete botsPath;
+  delete cacheDir;
+  delete tmpDir;
 }
 
 void ShipPackager::cancel() {

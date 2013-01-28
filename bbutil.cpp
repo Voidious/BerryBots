@@ -22,6 +22,7 @@
 #include <string.h>
 #include <algorithm>
 #include "bbutil.h"
+#include "basedir.h"
 
 double limit(double p, double q, double r) {
   return std::min(r, std::max(p, q));
@@ -94,4 +95,28 @@ bool flagExists(int argc, char *argv[], const char *flag) {
     }
   }
   return false;
+}
+
+char* getStageDirCopy() {
+  char *stageDir = new char[getStageDir().length() + 1];
+  strcpy(stageDir, getStageDir().c_str());
+  return stageDir;
+}
+
+char* getBotsDirCopy() {
+  char *botsDir = new char[getBotsDir().length() + 1];
+  strcpy(botsDir, getBotsDir().c_str());
+  return botsDir;
+}
+
+char* getCacheDirCopy() {
+  char *cacheDir = new char[getCacheDir().length() + 1];
+  strcpy(cacheDir, getCacheDir().c_str());
+  return cacheDir;
+}
+
+char* getTmpDirCopy() {
+  char *tmpDir = new char[getTmpDir().length() + 1];
+  strcpy(tmpDir, getTmpDir().c_str());
+  return tmpDir;
 }
