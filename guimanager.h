@@ -22,7 +22,6 @@
 #define GUI_MANAGER_H
 
 #include <SFML/Graphics.hpp>
-#include <wx/thread.h>
 #include "gfxmanager.h"
 #include "filemanager.h"
 #include "newmatch.h"
@@ -49,7 +48,14 @@ class GuiManager {
   char *botsBaseDir_;
   bool paused_;
   unsigned int consoleId_;
-  unsigned int matchId_;
+  bool matchRunning_;
+  char *currentStagePath_;
+  char **currentTeamPaths_;
+  int currentNumTeams_;
+  unsigned int viewWidth_;
+  unsigned int viewHeight_;
+  GfxEventHandler *gfxHandler_;
+  bool quitting_;
 
   public:
     GuiManager();
@@ -59,33 +65,31 @@ class GuiManager {
     void loadBots(const char *baseDir);
     bool isValidBotFile(const char *baseDir, char *stageFilename);
     void linkListeners();
-    void runMatch(char *stageName, char **teamNames, int numTeams);
+    void runNewMatch(char *stageName, char **teamNames, int numTeams);
+    void resumeMatch();
+    void processMainWindowEvents();
     void showNewMatchDialog();
     void showPackageShipDialog();
     void showPackageStageDialog();
-    void resumeMatch();
-    void cancelCurrentMatch();
     void showStageConsole();
     void showTeamConsole(int teamIndex);
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
     wxMenuBar* getNewMenuBar();
+    bool isMatchRunning();
     void quit();
   private:
+    void runCurrentMatch();
     unsigned int nextConsoleId();
     void deleteMatchConsoles();
+    void deleteCurrentMatchSettings();
 };
 
 class MatchRunner : public NewMatchListener {
   GuiManager *guiManager_;
   char *stageDir_;
   char *botsDir_;
-  bool matchRunning_;
-  char *nextStageName_;
-  char **nextTeamNames_;
-  int nextNumTeams_;
-  wxMutex *matchQueueMutex_;
 
   public:
     MatchRunner(GuiManager *guiManager, char *stageDir, char *botsDir);
@@ -94,9 +98,6 @@ class MatchRunner : public NewMatchListener {
     virtual void startMatch(const char *stageName, char **teamNames,
                             int numTeams);
     virtual void cancel();
-  private:
-    void queueNextMatch(const char *stageName, char **teamNames, int numTeams);
-    void clearNextMatch();
 };
 
 class ShipPackager : public PackageShipDialogListener {

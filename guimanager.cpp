@@ -71,12 +71,17 @@ GuiManager::GuiManager() {
   stageBaseDir_ = 0;
   botsBaseDir_ = 0;
   paused_ = false;
-  matchId_ = 1;
   engine = 0;
+  matchRunning_ = false;
+  currentStagePath_ = 0;
+  currentTeamPaths_ = 0;
+  currentNumTeams_ = 0;
+  quitting_ = false;
 }
 
 GuiManager::~GuiManager() {
   deleteMatchConsoles();
+  deleteCurrentMatchSettings();
   delete newMatchDialog_;
   delete packageShipDialog_;
   delete packageStageDialog_;
@@ -295,8 +300,7 @@ void GuiManager::linkListeners() {
   packageStageDialog_->setListener(stagePackager_);
 }
 
-void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
-  unsigned int thisMatchId = matchId_;
+void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   paused_ = false;
   newMatchDialog_->Hide();
   packageStageDialog_->Hide();
@@ -316,20 +320,20 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
     return;
   }
   delete cacheDir;
-  GfxEventHandler *gfxHandler = new GfxEventHandler();
-  stage->addEventHandler((EventHandler*) gfxHandler);
+  gfxHandler_ = new GfxEventHandler();
+  stage->addEventHandler((EventHandler*) gfxHandler_);
   
-  unsigned int viewWidth = stage->getWidth() + (STAGE_MARGIN * 2);
-  unsigned int viewHeight = stage->getHeight() + (STAGE_MARGIN * 2);
+  viewWidth_ = stage->getWidth() + (STAGE_MARGIN * 2);
+  viewHeight_ = stage->getHeight() + (STAGE_MARGIN * 2);
   unsigned int screenWidth = sf::VideoMode::getDesktopMode().width;
   unsigned int screenHeight = sf::VideoMode::getDesktopMode().height;
   double windowScale =
-      std::min(1.0, std::min(((double) screenWidth - DOCK_SIZE) / viewWidth,
-                             ((double) screenHeight) / viewHeight));
-  unsigned int targetWidth = floor(windowScale * viewWidth) + DOCK_SIZE;
-  unsigned int targetHeight = floor(windowScale * viewHeight);
+      std::min(1.0, std::min(((double) screenWidth - DOCK_SIZE) / viewWidth_,
+                             ((double) screenHeight) / viewHeight_));
+  unsigned int targetWidth = floor(windowScale * viewWidth_) + DOCK_SIZE;
+  unsigned int targetHeight = floor(windowScale * viewHeight_);
   window_->setSize(sf::Vector2u(targetWidth, targetHeight));
-  gfxManager_->updateView(window_, viewWidth, viewHeight);
+  gfxManager_->updateView(window_, viewWidth_, viewHeight_);
 
   // TODO: If/when SFML getPosition() works, adjust the window position to
   //       keep the whole window on the screen (if necessary). Might be worth
@@ -340,14 +344,14 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
   //       having to move the window occasionally if you switch to a bigger
   //       stage that goes off-screen.
 
-  gfxManager_->initBbGfx(window_, viewHeight, stage, engine->getTeams(),
+  gfxManager_->initBbGfx(window_, viewHeight_, stage, engine->getTeams(),
                          engine->getNumTeams(), engine->getShips(),
                          engine->getNumShips(), resourcePath());
   window_->setVisible(true);
   window_->clear();
   gfxManager_->drawGame(window_, stage, engine->getShips(),
                         engine->getNumShips(), engine->getGameTime(),
-                        gfxHandler, false);
+                        gfxHandler_, false);
   window_->display();
 
   stageConsole_ = new OutputConsole(this->nextConsoleId(), stage->getName());
@@ -362,64 +366,70 @@ void GuiManager::runMatch(char *stageName, char **teamNames, int numTeams) {
   }
   printHandler = new GuiPrintHandler(stageConsole_, teamConsoles_, numTeams_);
 
-  time_t realTime1;
-  time_t realTime2;
-  time(&realTime1);
-  int realSeconds = 0;
+  runCurrentMatch();
+}
 
-  while (thisMatchId == matchId_ && window_->isOpen()) {
-    if (!paused_ && !engine->isGameOver()) {
+// TODO: Track and display TPS in GUI.
+void GuiManager::runCurrentMatch() {
+  paused_ = false;
+  while (window_->isOpen() && !paused_ && !quitting_) {
+    if (!engine->isGameOver()) {
       engine->processTick();
     }
-
-    sf::Event event;
-    bool resized = false;
-    while (window_->pollEvent(event)) {
-      if (event.type == sf::Event::Closed) {
-        window_->close();
-      }
-      if (event.type == sf::Event::KeyPressed
-          && event.key.code == sf::Keyboard::Escape) {
-        window_->close();
-      }
-      if (event.type == sf::Event::Resized && !resized) {
-        resized = true;
-        gfxManager_->updateView(window_, viewWidth, viewHeight);
-      }
-      if (event.type == sf::Event::MouseButtonPressed) {
-        gfxManager_->processMouseClick(event.mouseButton.x,
-                                       event.mouseButton.y);
-      }
-    }
-
+    
+    processMainWindowEvents();
     // TODO: Leaking ~2 MB per bot per match on my MacBook Pro (10.8, Cocoa).
     //       SFML folks seem to think it's in the video drivers.
     //       http://en.sfml-dev.org/forums/index.php?topic=8609.0
     //       Really need to investigate more and/or find a work-around.
-
-    if (thisMatchId == matchId_) {
+    
+    if (!paused_ && !quitting_) {
       window_->clear();
       gfxManager_->drawGame(window_, stage, engine->getShips(),
-          engine->getNumShips(), engine->getGameTime(), gfxHandler,
-          engine->isGameOver());
+                            engine->getNumShips(), engine->getGameTime(),
+                            gfxHandler_, engine->isGameOver());
       window_->display();
       
-      time(&realTime2);
-      if (realTime2 - realTime1 > 0) {
-        realSeconds++;
-        // TODO: Display TPS in GUI.
-      }
-      realTime1 = realTime2;
     }
   }
-
+  
   // TODO: Display winner / CPU usage in GUI
 
-  gfxManager_->destroyBbGfx();
-  delete printHandler;
-  delete engine;
-  delete gfxHandler;
-  deleteMatchConsoles();
+  if (!paused_) {
+    gfxManager_->destroyBbGfx();
+    delete printHandler;
+    delete engine;
+    delete gfxHandler_;
+    deleteMatchConsoles();
+  }
+}
+
+void GuiManager::resumeMatch() {
+  if (paused_) {
+    runCurrentMatch();
+  }
+}
+
+void GuiManager::processMainWindowEvents() {
+  sf::Event event;
+  bool resized = false;
+  while (window_->pollEvent(event) && event.type != sf::Event::LostFocus) {
+    if (event.type == sf::Event::Closed) {
+      window_->close();
+    }
+    if (event.type == sf::Event::KeyPressed
+        && event.key.code == sf::Keyboard::Escape) {
+      window_->close();
+    }
+    if (event.type == sf::Event::Resized && !resized) {
+      resized = true;
+      gfxManager_->updateView(window_, viewWidth_, viewHeight_);
+    }
+    if (event.type == sf::Event::MouseButtonPressed) {
+      gfxManager_->processMouseClick(event.mouseButton.x,
+                                     event.mouseButton.y);
+    }
+  }
 }
 
 void GuiManager::showNewMatchDialog() {
@@ -438,14 +448,6 @@ void GuiManager::showPackageStageDialog() {
   paused_ = true;
   packageStageDialog_->Show();
   packageStageDialog_->Raise();
-}
-
-void GuiManager::resumeMatch() {
-  paused_ = false;
-}
-
-void GuiManager::cancelCurrentMatch() {
-  matchId_++;
 }
 
 void GuiManager::showStageConsole() {
@@ -500,8 +502,26 @@ wxMenuBar* GuiManager::getNewMenuBar() {
   return menuBar;
 }
 
+void GuiManager::deleteCurrentMatchSettings() {
+  if (currentStagePath_ != 0) {
+    delete currentStagePath_;
+    currentStagePath_ = 0;
+  }
+  if (currentTeamPaths_ != 0) {
+    for (int x = 0; x < numTeams_; x++) {
+      delete currentTeamPaths_[x];
+    }
+    delete currentTeamPaths_;
+    currentTeamPaths_ = 0;
+  }
+}
+
+bool GuiManager::isMatchRunning() {
+  return matchRunning_;
+}
+
 void GuiManager::quit() {
-  matchId_ = 0;
+  quitting_ = true;
 }
 
 MatchRunner::MatchRunner(GuiManager *guiManager, char *stageDir,
@@ -511,17 +531,11 @@ MatchRunner::MatchRunner(GuiManager *guiManager, char *stageDir,
   strcpy(stageDir_, stageDir);
   botsDir_ = new char[strlen(botsDir) + 1];
   strcpy(botsDir_, botsDir);
-  matchRunning_ = false;
-  nextStageName_ = 0;
-  nextTeamNames_ = 0;
-  nextNumTeams_ = 0;
-  matchQueueMutex_ = new wxMutex();
 }
 
 MatchRunner::~MatchRunner() {
   delete stageDir_;
   delete botsDir_;
-  delete matchQueueMutex_;
 }
 
 wxMenuBar* MatchRunner::getNewMenuBar() {
@@ -530,72 +544,20 @@ wxMenuBar* MatchRunner::getNewMenuBar() {
 
 void MatchRunner::startMatch(const char *stageName, char **teamNames,
                              int numTeams) {
-  queueNextMatch(stageName, teamNames, numTeams);
-  if (matchRunning_) {
-    guiManager_->cancelCurrentMatch();
-  } else {
-    matchRunning_ = true;
-    while (nextStageName_ != 0) {
-      matchQueueMutex_->Lock();
-
-      int thisNumTeams = nextNumTeams_;
-      unsigned long stagePathLen =
-          strlen(stageDir_) + strlen(BB_DIRSEP) + strlen(nextStageName_);
-      char *stagePath = new char[stagePathLen + 1];
-      sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, nextStageName_);
-      char **teamPaths = new char*[thisNumTeams];
-      for (int x = 0; x < thisNumTeams; x++) {
-        unsigned long teamPathLen = strlen(botsDir_) + strlen(BB_DIRSEP)
-            + strlen(nextTeamNames_[x]);
-        char *teamPath = new char[teamPathLen + 1];
-        sprintf(teamPath, "%s%s%s", botsDir_, BB_DIRSEP, nextTeamNames_[x]);
-        teamPaths[x] = teamPath;
-      }
-
-      clearNextMatch();
-      matchQueueMutex_->Unlock();
-
-      guiManager_->runMatch(stagePath, teamPaths, thisNumTeams);
-
-      delete stagePath;
-      for (int x = 0; x < thisNumTeams; x++) {
-        delete teamPaths[x];
-      }
-      delete teamPaths;
-
-    }
-    matchRunning_ = false;
-  }
-}
-
-void MatchRunner::queueNextMatch(const char *stageName, char **teamNames,
-                                 int numTeams) {
-  matchQueueMutex_->Lock();
-  
-  nextStageName_ = new char[strlen(stageName) + 1];
-  strcpy(nextStageName_, stageName);
-  nextTeamNames_ = new char*[numTeams];
+  unsigned long stagePathLen =
+      strlen(stageDir_) + strlen(BB_DIRSEP) + strlen(stageName);
+  char *stagePath = new char[stagePathLen + 1];
+  sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
+  char **teamPaths = new char*[numTeams];
   for (int x = 0; x < numTeams; x++) {
-    nextTeamNames_[x] = new char[strlen(teamNames[x]) + 1];
-    strcpy(nextTeamNames_[x], teamNames[x]);
+    unsigned long teamPathLen = strlen(botsDir_) + strlen(BB_DIRSEP)
+        + strlen(teamNames[x]);
+    char *teamPath = new char[teamPathLen + 1];
+    sprintf(teamPath, "%s%s%s", botsDir_, BB_DIRSEP, teamNames[x]);
+    teamPaths[x] = teamPath;
   }
-  nextNumTeams_ = numTeams;
 
-  matchQueueMutex_->Unlock();
-}
-
-void MatchRunner::clearNextMatch() {
-  if (nextStageName_ != 0) {
-    delete nextStageName_;
-    nextStageName_ = 0;
-  }
-  if (nextTeamNames_ != 0) {
-    for (int x = 0; x < nextNumTeams_; x++) {
-      delete nextTeamNames_[x];
-    }
-    delete nextTeamNames_;
-    nextTeamNames_ = 0;
-  }
+  guiManager_->runNewMatch(stagePath, teamPaths, numTeams);
 }
 
 void MatchRunner::cancel() {
