@@ -28,9 +28,9 @@ GuiPrintHandler::GuiPrintHandler(OutputConsole *stageConsole,
 }
 
 void GuiPrintHandler::stagePrint(const char *text) {
-  stageConsole_->print(text);
+  stageConsole_->println(text);
 }
 
 void GuiPrintHandler::shipPrint(int teamIndex, const char *text) {
-  teamConsoles_[teamIndex]->print(text);
+  teamConsoles_[teamIndex]->println(text);
 }

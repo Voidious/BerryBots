@@ -324,6 +324,7 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   newMatchDialog_->Hide();
   packageStageDialog_->Hide();
   packageShipDialog_->Hide();
+  deleteMatchConsoles();
 
   srand((unsigned int) time(NULL));
   engine = new BerryBotsEngine();
@@ -341,7 +342,7 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   delete cacheDir;
   gfxHandler_ = new GfxEventHandler();
   stage->addEventHandler((EventHandler*) gfxHandler_);
-  
+
   viewWidth_ = stage->getWidth() + (STAGE_MARGIN * 2);
   viewHeight_ = stage->getHeight() + (STAGE_MARGIN * 2);
   unsigned int screenWidth = sf::VideoMode::getDesktopMode().width;
@@ -451,6 +452,13 @@ void GuiManager::processMainWindowEvents() {
       gfxManager_->processMouseClick(event.mouseButton.x,
                                      event.mouseButton.y);
     }
+
+    // On Linux/GTK, the wxWidgets windows freeze while running a match,
+    // presumably because they only listen for events on the same thread that
+    // we're currently occupying to run/draw. Works fine on Mac/Cocoa.
+#ifdef __WXGTK__
+    wxYield();
+#endif
   }
 }
 
