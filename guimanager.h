@@ -43,7 +43,7 @@ class GuiManager {
   FileManager *fileManager_;
   PackageShipDialogListener *shipPackager_;
   PackageStageDialogListener *stagePackager_;
-  PackagingListener *packageStageReporter_;
+  PackagingListener *packageReporter_;
   char *stageBaseDir_;
   char *botsBaseDir_;
   bool paused_;
@@ -132,11 +132,11 @@ class StagePackager : public PackageStageDialogListener {
     virtual void cancel();
 };
 
-class PackageStageReporter : public PackagingListener {
+class PackageReporter : public PackagingListener {
   OutputConsole *packagingConsole_;
 
   public:
-    PackageStageReporter(OutputConsole *packagingConsole);
+    PackageReporter(OutputConsole *packagingConsole);
     virtual void packagingComplete(char **sourceFiles, int numFiles,
                                    const char *destinationFile);
 };

@@ -67,8 +67,8 @@ GuiManager::GuiManager() {
   fileManager_ = new FileManager();
   shipPackager_ = 0;
   stagePackager_ = 0;
-  packageStageReporter_ = new PackageStageReporter(packagingConsole_);
-  fileManager_->setListener(packageStageReporter_);
+  packageReporter_ = new PackageReporter(packagingConsole_);
+  fileManager_->setListener(packageReporter_);
   newMatchDialog_->Show();
   newMatchDialog_->wxWindow::SetFocus();
   stageBaseDir_ = 0;
@@ -109,7 +109,7 @@ GuiManager::~GuiManager() {
   if (stagePackager_ != 0) {
     delete stagePackager_;
   }
-  delete packageStageReporter_;
+  delete packageReporter_;
 }
 
 void GuiManager::loadStages(const char *baseDir) {
@@ -684,11 +684,11 @@ void StagePackager::cancel() {
   guiManager_->resumeMatch();
 }
 
-PackageStageReporter::PackageStageReporter(OutputConsole *packagingConsole) {
+PackageReporter::PackageReporter(OutputConsole *packagingConsole) {
   packagingConsole_ = packagingConsole;
 }
 
-void PackageStageReporter::packagingComplete(char **sourceFiles, int numFiles,
+void PackageReporter::packagingComplete(char **sourceFiles, int numFiles,
                                              const char *destinationFile) {
   packagingConsole_->clear();
   packagingConsole_->Show();
