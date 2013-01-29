@@ -44,6 +44,7 @@ BerryBotsEngine::BerryBotsEngine() {
   stageState_ = 0;
   stageDir_ = 0;
   stageFilename_ = 0;
+  stageWorld_ = 0;
   teams_ = 0;
   ships_ = 0;
   stageShips_ = 0;
@@ -148,9 +149,9 @@ int BerryBotsEngine::getNumTeams() {
 }
 
 void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
-    throw (EngineInitException*) {
+    throw (EngineException*) {
   if (stageDir_ != 0 || stageFilename_ != 0) {
-    throw new EngineInitException("Already initialized stage for this engine.");
+    throw new EngineException("Already initialized stage for this engine.");
   }
 
   char *stageCwd;
@@ -158,7 +159,7 @@ void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
     fileManager_->loadStageFile(
         stagePath, &stageDir_, &stageFilename_, &stageCwd, cacheDir);
   } catch (FileNotFoundException *fnfe) {
-    EngineInitException *eie = new EngineInitException(fnfe->what());
+    EngineException *eie = new EngineException(fnfe->what());
     delete fnfe;
     throw eie;
   }
@@ -166,15 +167,14 @@ void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
 
   if (luaL_loadfile(stageState_, stageFilename_)
       || lua_pcall(stageState_, 0, 0, 0)) {
-    luaL_error(stageState_, "cannot load stage file: %s",
-               lua_tostring(stageState_, -1));
+    throwForLuaError(stageState_, "Cannot load stage file: %s");
   }
 
   lua_getglobal(stageState_, "configure");
   pushStageBuilder(stageState_);
   if (lua_pcall(stageState_, 1, 0, 0) != 0) {
-    luaL_error(stageState_, "error calling stage function: 'configure': %s",
-               lua_tostring(stageState_, -1));
+    throwForLuaError(stageState_,
+                     "Error calling stage function: 'configure': %s");
   }
   stage_->buildBaseWalls();
   stage_->setName(stageFilename_); // TODO: let stage set name like ship
@@ -182,7 +182,7 @@ void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
 }
 
 void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
-    const char *cacheDir) throw (EngineInitException*) {
+    const char *cacheDir) throw (EngineException*) {
   int userTeams = numTeams;
   int numStageShips = stage_->getStageShipCount();
   numShips_ = (userTeams * teamSize_) + numStageShips;
@@ -226,7 +226,7 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
         delete shipFilename ;
       }
 
-      EngineInitException *eie = new EngineInitException(fnfe->what());
+      EngineException *eie = new EngineException(fnfe->what());
       delete fnfe;
       throw eie;
     }
@@ -237,6 +237,7 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
     bool doa;
     if (luaL_loadfile(teamState, shipFilename)
         || lua_pcall(teamState, 0, 0, 0)) {
+      // TODO: where should this display in GUI?
       printf("cannot load file: %s\n", lua_tostring(teamState, -1));
       doa = true;
     } else {
@@ -327,6 +328,7 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
     if (!doa) {
       worlds_[x] = pushWorld(teamState, stage_, numShips_, teamSize_);
       if (lua_pcall(teamState, 2, 0, 0) != 0) {
+        // TODO: where should this display in GUI?
         printf("error calling ship (%s) function: 'init': %s\n",
                shipFilename, lua_tostring(teamState, -1));
         for (int y = 0; y < numStateShips; y++) {
@@ -362,8 +364,7 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
     stageWorld_ = pushWorld(stageState_, stage_, numShips_, teamSize_);
     pushAdmin(stageState_);
     if (lua_pcall(stageState_, 3, 0, 0) != 0) {
-      luaL_error(stageState_, "error calling stage function: 'init': %s",
-                 lua_tostring(stageState_, -1));
+      throwForLuaError(stageState_, "Error calling stage function: 'init': %s");
     }
   }
 
@@ -425,7 +426,7 @@ void BerryBotsEngine::updateTeamShipsAlive() {
   }
 }
 
-void BerryBotsEngine::processTick() {
+void BerryBotsEngine::processTick() throw (EngineException*) {
   cpuTimeSlot_ = gameTime_ % CPU_TIME_TICKS;
   gameTime_++;
   updateTeamShipsAlive();    
@@ -449,6 +450,7 @@ void BerryBotsEngine::processTick() {
       Sensors *sensors = pushSensors(team, sensorHandler_, shipProperties_);
       team->counter.start();
       if (lua_pcall(team->state, 2, 0, 0) != 0) {
+        // TODO: where should this display in GUI?
         printf("error calling ship (%s) function: 'run': %s\n",
                team->name, lua_tostring(team->state, -1));
       }
@@ -469,15 +471,16 @@ void BerryBotsEngine::processTick() {
   }
 }
 
-void BerryBotsEngine::processStageRun() {
+void BerryBotsEngine::processStageRun() throw (EngineException*) {
   copyShips(ships_, stageShips_, numShips_);
-  stageWorld_->time = gameTime_;
+  if (stageWorld_ != 0) {
+    stageWorld_->time = gameTime_;
+  }
   lua_getglobal(stageState_, "run");
   StageSensors *stageSensors = pushStageSensors(
       stageState_, sensorHandler_, stageShips_, shipProperties_);
   if (lua_pcall(stageState_, 1, 0, 0) != 0) {
-    luaL_error(stageState_, "error calling stage function: 'run': %s",
-               lua_tostring(stageState_, -1));
+    throwForLuaError(stageState_, "Error calling stage function: 'run': %s");
   }
   cleanupStageSensorsTables(stageState_, stageSensors);
   lua_settop(stageState_, 0);
@@ -493,6 +496,7 @@ void BerryBotsEngine::processRoundOver() {
       lua_getglobal(team->state, "roundOver");
       team->counter.start();
       if (lua_pcall(team->state, 0, 0, 0) != 0) {
+        // TODO: where should this display in GUI?
         printf("error calling ship (%s) function: 'roundOver': %s\n",
                team->name, lua_tostring(team->state, -1));
       }
@@ -518,6 +522,7 @@ void BerryBotsEngine::processGameOver() {
       lua_getglobal(team->state, "gameOver");
       team->counter.start();
       if (lua_pcall(team->state, 0, 0, 0) != 0) {
+        // TODO: where should this display in GUI?
         printf("error calling ship (%s) function: 'gameOver': %s\n",
                team->name, lua_tostring(team->state, -1));
       }
@@ -585,6 +590,18 @@ void BerryBotsEngine::copyShips(
   }
 }
 
+void BerryBotsEngine::throwForLuaError(lua_State *L, const char *formatString)
+    throw (EngineException*) {
+  const char *luaMessage = lua_tostring(L, -1);
+  int messageLen = (int) (strlen(formatString) + strlen(luaMessage) - 2);
+  char *errorMessage = new char[messageLen + 1];
+  sprintf(errorMessage, formatString, luaMessage);
+  EngineException *e = new EngineException(errorMessage);
+  delete errorMessage;
+
+  throw e;
+}
+
 BerryBotsEngine::~BerryBotsEngine() {
   if (stageDir_ != 0) {
     delete stageDir_;
@@ -601,11 +618,15 @@ BerryBotsEngine::~BerryBotsEngine() {
     } else {
       delete ship->properties;
     }
-    delete oldShips_[x];
   }
   delete ships_;
   delete shipProperties_;
-  delete oldShips_;
+  if (oldShips_ != 0) {
+    for (int x = 0; x < numShips_; x++) {
+      delete oldShips_[x];
+    }
+    delete oldShips_;
+  }
 
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
@@ -615,13 +636,19 @@ BerryBotsEngine::~BerryBotsEngine() {
     delete team;
   }
   delete teams_;
-  lua_close(stageState_);
+  if (stageState_ != 0) {
+    lua_close(stageState_);
+  }
 
-  delete worlds_;
+  if (worlds_ != 0) {
+    delete worlds_;
+  }
   for (int x = 0; x < numTeams_; x++) {
     delete teamVision_[x];
   }
-  delete teamVision_;
+  if (teamVision_ != 0) {
+    delete teamVision_;
+  }
   delete stage_;
   if (sensorHandler_ != 0) {
     delete sensorHandler_;
@@ -629,15 +656,15 @@ BerryBotsEngine::~BerryBotsEngine() {
   delete fileManager_;
 }
 
-EngineInitException::EngineInitException(const char *details) {
+EngineException::EngineException(const char *details) {
   message_ = new char[strlen(details) + 41];
-  sprintf(message_, "BerryBots engine initialization failed: %s", details);
+  sprintf(message_, "Engine failure: %s", details);
 }
 
-const char* EngineInitException::what() const throw() {
+const char* EngineException::what() const throw() {
   return message_;
 }
 
-EngineInitException::~EngineInitException() throw() {
+EngineException::~EngineException() throw() {
   delete message_;
 }

@@ -68,7 +68,8 @@ int main(int argc, char *argv[]) {
       fileManager->packageStage(
           stageInfo[0], stageInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
     } catch (exception *e) {
-      cout << e->what() << endl;
+      cout << "BerryBots encountered an error:" << endl;
+      cout << "  " << e->what() << endl;
       exit(0);
     }
     delete stageInfo;
@@ -85,7 +86,8 @@ int main(int argc, char *argv[]) {
       fileManager->packageBot(
           botInfo[0], botInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
     } catch (exception *e) {
-      cout << e->what() << endl;
+      cout << "BerryBots encountered an error:" << endl;
+      cout << "  " << e->what() << endl;
       exit(0);
     }
     delete botInfo;
@@ -108,8 +110,9 @@ int main(int argc, char *argv[]) {
 
   try {
     engine->initStage(argv[nodisplay ? 2 : 1], CACHE_SUBDIR);
-  } catch (EngineInitException *e) {
-    cout << e->what() << endl;
+  } catch (EngineException *e) {
+    cout << "BerryBots initialization failed:" << endl;
+    cout << "  " << e->what() << endl;
     exit(0);
   }
 
@@ -122,8 +125,9 @@ int main(int argc, char *argv[]) {
 
   try {
     engine->initShips(teams, numTeams, CACHE_SUBDIR);
-  } catch (EngineInitException *e) {
-    cout << e->what() << endl;
+  } catch (EngineException *e) {
+    cout << "BerryBots initialization failed:" << endl;
+    cout << "  " << e->what() << endl;
     exit(0);
   }
 
@@ -144,23 +148,29 @@ int main(int argc, char *argv[]) {
   time(&realTime1);
   int realSeconds = 0;
 
-  do {
-    engine->processTick();
-    if (!nodisplay) {
-      drawGame(screenWidth, screenHeight, stage, engine->getShips(),
-          engine->getNumShips(), engine->getGameTime(), gfxHandler);
-    }
-
-    time(&realTime2);
-    if (realTime2 - realTime1 > 0) {
-      realSeconds++;
-      if (realSeconds % 10 == 0) {
-        cout << "TPS: " << (((double) engine->getGameTime()) / realSeconds)
-             << endl;
+  try {
+    do {
+      engine->processTick();
+      if (!nodisplay) {
+        drawGame(screenWidth, screenHeight, stage, engine->getShips(),
+            engine->getNumShips(), engine->getGameTime(), gfxHandler);
       }
-    }
-    realTime1 = realTime2;
-  } while (!engine->isGameOver());
+  
+      time(&realTime2);
+      if (realTime2 - realTime1 > 0) {
+        realSeconds++;
+        if (realSeconds % 10 == 0) {
+          cout << "TPS: " << (((double) engine->getGameTime()) / realSeconds)
+               << endl;
+        }
+      }
+      realTime1 = realTime2;
+    } while (!engine->isGameOver());
+  } catch (EngineException *e) {
+    cout << "BerryBots encountered an error:" << endl;
+    cout << "  " << e->what() << endl;
+    exit(0);
+  }
 
   if (!nodisplay) {
     destroyVgGfx();

@@ -70,7 +70,7 @@ GuiManager::GuiManager() {
   packageReporter_ = new PackageReporter(packagingConsole_);
   fileManager_->setListener(packageReporter_);
   newMatchDialog_->Show();
-  newMatchDialog_->wxWindow::SetFocus();
+  newMatchDialog_->SetFocus();
   stageBaseDir_ = 0;
   botsBaseDir_ = 0;
   paused_ = false;
@@ -320,12 +320,6 @@ sf::RenderWindow* GuiManager::getMainWindow() {
 }
 
 void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
-  paused_ = false;
-  newMatchDialog_->Hide();
-  packageStageDialog_->Hide();
-  packageShipDialog_->Hide();
-  deleteMatchConsoles();
-
   srand((unsigned int) time(NULL));
   engine = new BerryBotsEngine();
   stage = engine->getStage();
@@ -333,13 +327,21 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   try {
     engine->initStage(stageName, cacheDir);
     engine->initShips(teamNames, numTeams, cacheDir);
-  } catch (EngineInitException *e) {
-    // TODO: display error message in GUI
+  } catch (EngineException *e) {
+    wxMessageDialog errorMessage(NULL, e->what(),
+        "BerryBots engine initialization failed", wxOK, wxDefaultPosition);
+    errorMessage.ShowModal();
     delete engine;
     delete cacheDir;
     return;
   }
   delete cacheDir;
+
+  paused_ = false;
+  newMatchDialog_->Hide();
+  packageStageDialog_->Hide();
+  packageShipDialog_->Hide();
+  deleteMatchConsoles();
   gfxHandler_ = new GfxEventHandler();
   stage->addEventHandler((EventHandler*) gfxHandler_);
 
@@ -393,28 +395,34 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
 void GuiManager::runCurrentMatch() {
   paused_ = false;
   sf::RenderWindow *window = getMainWindow();
-  while (window->isOpen() && !paused_ && !quitting_) {
-    if (!engine->isGameOver()) {
-      engine->processTick();
-    }
-    
-    processMainWindowEvents();
-    // TODO: Leaking ~2 MB per bot per match on my MacBook Pro (10.8, Cocoa).
-    //       SFML folks seem to think it's in the video drivers.
-    //       http://en.sfml-dev.org/forums/index.php?topic=8609.0
-    //       Really need to investigate more and/or find a work-around.
-    //       Also seeing it under Linux/GTK, though much smaller (250-500kb).
-    
-    if (!paused_ && !quitting_) {
-      window->clear();
-      gfxManager_->drawGame(window, stage, engine->getShips(),
-                            engine->getNumShips(), engine->getGameTime(),
-                            gfxHandler_, engine->isGameOver());
-      window->display();
+  try {
+    while (window->isOpen() && !paused_ && !quitting_) {
+      if (!engine->isGameOver()) {
+        engine->processTick();
+      }
       
+      processMainWindowEvents();
+      // TODO: Leaking ~2 MB per bot per match on my MacBook Pro (10.8, Cocoa).
+      //       SFML folks seem to think it's in the video drivers.
+      //       http://en.sfml-dev.org/forums/index.php?topic=8609.0
+      //       Really need to investigate more and/or find a work-around.
+      //       Also seeing it under Linux/GTK, though much smaller (250-500kb).
+      
+      if (!paused_ && !quitting_) {
+        window->clear();
+        gfxManager_->drawGame(window, stage, engine->getShips(),
+                              engine->getNumShips(), engine->getGameTime(),
+                              gfxHandler_, engine->isGameOver());
+        window->display();
+        
+      }
     }
+  } catch (EngineException *e) {
+    wxMessageDialog errorMessage(NULL, e->what(),
+        "BerryBots encountered an error", wxOK, wxDefaultPosition);
+    errorMessage.ShowModal();
+    newMatchDialog_->Show();
   }
-  
   // TODO: Display winner / CPU usage in GUI
 
   if (!paused_) {
@@ -550,6 +558,30 @@ void GuiManager::quit() {
   quitting_ = true;
 }
 
+char* GuiManager::getStageDirCopy() {
+  char *stageDir = new char[getStageDir().length() + 1];
+  strcpy(stageDir, getStageDir().c_str());
+  return stageDir;
+}
+
+char* GuiManager::getBotsDirCopy() {
+  char *botsDir = new char[getBotsDir().length() + 1];
+  strcpy(botsDir, getBotsDir().c_str());
+  return botsDir;
+}
+
+char* GuiManager::getCacheDirCopy() {
+  char *cacheDir = new char[getCacheDir().length() + 1];
+  strcpy(cacheDir, getCacheDir().c_str());
+  return cacheDir;
+}
+
+char* GuiManager::getTmpDirCopy() {
+  char *tmpDir = new char[getTmpDir().length() + 1];
+  strcpy(tmpDir, getTmpDir().c_str());
+  return tmpDir;
+}
+
 MatchRunner::MatchRunner(GuiManager *guiManager, char *stageDir,
                          char *botsDir) {
   guiManager_ = guiManager;
@@ -612,8 +644,8 @@ void ShipPackager::package(const char *botName, const char *version,
                            bool nosrc) {
   char *botsPath = new char[strlen(botsDir_) + strlen(botName) + 2];
   sprintf(botsPath, "%s%s%s", botsDir_, BB_DIRSEP, botName);
-  char *cacheDir = getCacheDirCopy();
-  char *tmpDir = getTmpDirCopy();
+  char *cacheDir = guiManager_->getCacheDirCopy();
+  char *tmpDir = guiManager_->getTmpDirCopy();
   try {
     fileManager_->packageBot(botsPath, version, cacheDir, tmpDir, nosrc);
   } catch (FileNotFoundException *e) {
@@ -660,8 +692,8 @@ void StagePackager::package(const char *stageName, const char *version,
                             bool nosrc) {
   char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
   sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
-  char *cacheDir = getCacheDirCopy();
-  char *tmpDir = getTmpDirCopy();
+  char *cacheDir = guiManager_->getCacheDirCopy();
+  char *tmpDir = guiManager_->getTmpDirCopy();
   try {
     fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc);
   } catch (FileNotFoundException *e) {

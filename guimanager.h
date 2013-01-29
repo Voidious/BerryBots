@@ -77,6 +77,10 @@ class GuiManager {
     void hidePackageStageDialog();
     wxMenuBar* getNewMenuBar();
     void quit();
+    char* getStageDirCopy();
+    char* getBotsDirCopy();
+    char* getCacheDirCopy();
+    char* getTmpDirCopy();
   private:
     sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
     sf::RenderWindow* getMainWindow();

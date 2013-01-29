@@ -31,7 +31,6 @@
 #include "bbengine.h"
 #include "printhandler.h"
 #include "guimanager.h"
-#include "basedir.h"
 #include "bbutil.h"
 
 using namespace std;
@@ -54,8 +53,8 @@ wxIMPLEMENT_APP(BerryBotsApp);
 
 bool BerryBotsApp::OnInit() {
   guiManager_ = new GuiManager();
-  char *stageDir = getStageDirCopy();
-  char *botsDir = getBotsDirCopy();
+  char *stageDir = guiManager_->getStageDirCopy();
+  char *botsDir = guiManager_->getBotsDirCopy();
   guiManager_->loadStages(stageDir);
   guiManager_->loadBots(botsDir);
   guiManager_->linkListeners();

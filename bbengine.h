@@ -34,12 +34,12 @@ extern "C" {
   #include "lauxlib.h"
 }
 
-class EngineInitException : public std::exception {
+class EngineException : public std::exception {
   char *message_;
   
   public:
-    EngineInitException(const char *details);
-    ~EngineInitException() throw();
+    EngineException(const char *details);
+    ~EngineException() throw();
     virtual const char* what() const throw();
 };
 
@@ -90,10 +90,10 @@ class BerryBotsEngine {
     char* getWinnerName();
 
     void initStage(char *stagePath, const char *cacheDir)
-        throw (EngineInitException*);
+        throw (EngineException*);
     void initShips(char **teamPaths, int numTeams, const char *cacheDir)
-        throw (EngineInitException*);
-    void processTick();
+        throw (EngineException*);
+    void processTick() throw (EngineException*);
     void processRoundOver();
     void processGameOver();
 
@@ -114,10 +114,12 @@ class BerryBotsEngine {
   private:
     void initShipRound(Ship *ship);
     void updateTeamShipsAlive();
-    void processStageRun();
+    void processStageRun() throw (EngineException*);
     void uniqueShipNames(Ship** ships, int numShips);
     void uniqueTeamNames(Team** teams, int numTeams);
     void copyShips(Ship **srcShips, Ship **destShips, int numShips);
+    void throwForLuaError(lua_State *L, const char *formatString)
+        throw (EngineException*);
 };
 
 #endif
