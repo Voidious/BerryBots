@@ -44,10 +44,13 @@ extern Stage *stage;
 extern PrintHandler *printHandler;
 
 GuiManager::GuiManager() {
-  window_ = new sf::RenderWindow(sf::VideoMode(800, 600), "BerryBots",
-                                 sf::Style::Default,
-                                 sf::ContextSettings(0, 0, 16, 2, 0));
+  window_ = 0;
+#ifdef __WXOSX__
+  // On OS X, it complains if we initialize our first SFML window after the
+  // wxWidgets windows have set their menu bars, so initialize one here.
+  initMainWindow(800, 600);
   window_->setVisible(false);
+#endif
   newMatchDialog_ = new NewMatchDialog();
   packageShipDialog_ = new PackageShipDialog();
   packageStageDialog_ = new PackageStageDialog();
@@ -72,7 +75,6 @@ GuiManager::GuiManager() {
   botsBaseDir_ = 0;
   paused_ = false;
   engine = 0;
-  matchRunning_ = false;
   currentStagePath_ = 0;
   currentTeamPaths_ = 0;
   currentNumTeams_ = 0;
@@ -95,7 +97,9 @@ GuiManager::~GuiManager() {
   if (engine != 0) {
     delete engine;
   }
-  delete window_;
+  if (window_ != 0) {
+    delete window_;
+  }
   delete gfxManager_;
   delete viewListener_;
   delete fileManager_;
@@ -300,6 +304,21 @@ void GuiManager::linkListeners() {
   packageStageDialog_->setListener(stagePackager_);
 }
 
+sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
+                                         unsigned int height) {
+  if (window_ != 0) {
+    delete window_;
+  }
+  window_ = new sf::RenderWindow(sf::VideoMode(width, height), "BerryBots",
+                                 sf::Style::Default,
+                                 sf::ContextSettings(0, 0, 16, 2, 0));
+  return window_;
+}
+
+sf::RenderWindow* GuiManager::getMainWindow() {
+  return window_;
+}
+
 void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   paused_ = false;
   newMatchDialog_->Hide();
@@ -332,8 +351,8 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
                              ((double) screenHeight) / viewHeight_));
   unsigned int targetWidth = floor(windowScale * viewWidth_) + DOCK_SIZE;
   unsigned int targetHeight = floor(windowScale * viewHeight_);
-  window_->setSize(sf::Vector2u(targetWidth, targetHeight));
-  gfxManager_->updateView(window_, viewWidth_, viewHeight_);
+  sf::RenderWindow *window = initMainWindow(targetWidth, targetHeight);
+  gfxManager_->updateView(window, viewWidth_, viewHeight_);
 
   // TODO: If/when SFML getPosition() works, adjust the window position to
   //       keep the whole window on the screen (if necessary). Might be worth
@@ -344,15 +363,15 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   //       having to move the window occasionally if you switch to a bigger
   //       stage that goes off-screen.
 
-  gfxManager_->initBbGfx(window_, viewHeight_, stage, engine->getTeams(),
+  gfxManager_->initBbGfx(window, viewHeight_, stage, engine->getTeams(),
                          engine->getNumTeams(), engine->getShips(),
                          engine->getNumShips(), resourcePath());
-  window_->setVisible(true);
-  window_->clear();
-  gfxManager_->drawGame(window_, stage, engine->getShips(),
+  window->setVisible(true);
+  window->clear();
+  gfxManager_->drawGame(window, stage, engine->getShips(),
                         engine->getNumShips(), engine->getGameTime(),
                         gfxHandler_, false);
-  window_->display();
+  window->display();
 
   stageConsole_ = new OutputConsole(this->nextConsoleId(), stage->getName());
   stageConsole_->Hide();
@@ -372,7 +391,8 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
 // TODO: Track and display TPS in GUI.
 void GuiManager::runCurrentMatch() {
   paused_ = false;
-  while (window_->isOpen() && !paused_ && !quitting_) {
+  sf::RenderWindow *window = getMainWindow();
+  while (window->isOpen() && !paused_ && !quitting_) {
     if (!engine->isGameOver()) {
       engine->processTick();
     }
@@ -382,13 +402,14 @@ void GuiManager::runCurrentMatch() {
     //       SFML folks seem to think it's in the video drivers.
     //       http://en.sfml-dev.org/forums/index.php?topic=8609.0
     //       Really need to investigate more and/or find a work-around.
+    //       Also seeing it under Linux/GTK, though much smaller (250-500kb).
     
     if (!paused_ && !quitting_) {
-      window_->clear();
-      gfxManager_->drawGame(window_, stage, engine->getShips(),
+      window->clear();
+      gfxManager_->drawGame(window, stage, engine->getShips(),
                             engine->getNumShips(), engine->getGameTime(),
                             gfxHandler_, engine->isGameOver());
-      window_->display();
+      window->display();
       
     }
   }
@@ -411,19 +432,20 @@ void GuiManager::resumeMatch() {
 }
 
 void GuiManager::processMainWindowEvents() {
+  sf::RenderWindow *window = getMainWindow();
   sf::Event event;
   bool resized = false;
-  while (window_->pollEvent(event) && event.type != sf::Event::LostFocus) {
+  while (window->pollEvent(event) && event.type != sf::Event::LostFocus) {
     if (event.type == sf::Event::Closed) {
-      window_->close();
+      window->close();
     }
     if (event.type == sf::Event::KeyPressed
         && event.key.code == sf::Keyboard::Escape) {
-      window_->close();
+      window->close();
     }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
-      gfxManager_->updateView(window_, viewWidth_, viewHeight_);
+      gfxManager_->updateView(window, viewWidth_, viewHeight_);
     }
     if (event.type == sf::Event::MouseButtonPressed) {
       gfxManager_->processMouseClick(event.mouseButton.x,
@@ -514,10 +536,6 @@ void GuiManager::deleteCurrentMatchSettings() {
     delete currentTeamPaths_;
     currentTeamPaths_ = 0;
   }
-}
-
-bool GuiManager::isMatchRunning() {
-  return matchRunning_;
 }
 
 void GuiManager::quit() {

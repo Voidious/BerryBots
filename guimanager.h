@@ -48,7 +48,6 @@ class GuiManager {
   char *botsBaseDir_;
   bool paused_;
   unsigned int consoleId_;
-  bool matchRunning_;
   char *currentStagePath_;
   char **currentTeamPaths_;
   int currentNumTeams_;
@@ -77,9 +76,10 @@ class GuiManager {
     void hidePackageShipDialog();
     void hidePackageStageDialog();
     wxMenuBar* getNewMenuBar();
-    bool isMatchRunning();
     void quit();
   private:
+    sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
+    sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
     unsigned int nextConsoleId();
     void deleteMatchConsoles();
