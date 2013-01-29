@@ -1387,21 +1387,3 @@ int registerStageGlobals(lua_State *L) {
   lua_pop(L, 1);
   return 1;
 }
-
-// adapted from luac.c
-static int writer(lua_State* L, const void* p, size_t size, void* u) {
-  return (fwrite(p,size,1,(FILE*)u)!=1) && (size!=0);
-}
-
-void saveBytecode(char *srcFile, char *outputFile, char *luaCwd) {
-  lua_State *saveState = luaL_newstate();
-  lua_setcwd(saveState, luaCwd);
-  if (luaL_loadfile(saveState, srcFile) != 0) {
-    luaL_error(saveState, "cannot load file: %s",
-               lua_tostring(saveState, -1));
-  }
-  FILE* D = fopen(outputFile, "wb");
-  lua_dump(saveState, writer, D);
-  lua_close(saveState);
-  fclose(D);
-}

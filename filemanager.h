@@ -22,6 +22,7 @@
 #define FILE_MANAGER_H
 
 #include <exception>
+#include "bblua.h"
 
 extern "C" {
   #include "lua.h"
@@ -52,6 +53,14 @@ class InvalidLuaFilenameException : public std::exception {
     virtual const char* what() const throw();
 };
 
+class LuaException : public std::exception {
+  char *message_;
+public:
+  LuaException(const char *details);
+  ~LuaException() throw();
+  virtual const char* what() const throw();
+};
+
 class FileManager {
   PackagingListener *packagingListener_;
   public:
@@ -66,28 +75,29 @@ class FileManager {
     bool isLuaFilename(const char *filename);
     bool isZipFilename(const char *filename);
     void packageStage(const char *stageArg, const char *version,
-                      const char *cacheDir, const char *tmpDir, bool nosrc)
-                      throw (FileNotFoundException*,
-                             InvalidLuaFilenameException*);
+        const char *cacheDir, const char *tmpDir, bool nosrc)
+        throw (FileNotFoundException*, InvalidLuaFilenameException*,
+               LuaException*);
     void packageBot(char *botArg, const char *version, const char *cacheDir,
-                    const char *tmpDir, bool nosrc)
-                    throw (FileNotFoundException*,
-                           InvalidLuaFilenameException*);
+        const char *tmpDir, bool nosrc)
+        throw (FileNotFoundException*, InvalidLuaFilenameException*,
+               LuaException*);
+    void saveBytecode(char *srcFile, char *outputFile, char *luaCwd)
+        throw (LuaException*);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);
     void sliceString(char *filename, long start, long rest);
     char* getAbsoluteFilename(char *dir, char *filename);
     void loadUserFile(const char *srcFilename, char **userDir,
-                      char **userFilename, char **userCwd,
-                      const char *metaFilename, const char *cacheDir)
-                      throw (FileNotFoundException*);
+        char **userFilename, char **userCwd, const char *metaFilename,
+        const char *cacheDir) throw (FileNotFoundException*);
     bool hasExtension(const char *filename, const char *extension);
     void packageCommon(lua_State *userState, char *userDir, char *userFilename,
-                       char *luaCwd, const char *version,
-                       const char *metaFilename, int prevFiles, int numFiles,
-                       int prevCmdLen, char **packFilenames, const char *tmpDir,
-                       bool nosrc) throw (InvalidLuaFilenameException*);
+        char *luaCwd, const char *version, const char *metaFilename,
+        int prevFiles, int numFiles, int filesCmdLen, char **packFilenames,
+        const char *tmpDir, bool nosrc)
+        throw (InvalidLuaFilenameException*, LuaException*);
     void crawlFiles(lua_State *L, const char *startFile)
         throw (InvalidLuaFilenameException*);
     bool fileExists(const char *filename);

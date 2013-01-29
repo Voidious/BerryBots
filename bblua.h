@@ -21,6 +21,7 @@
 #ifndef BBLUA_H
 #define BBLUA_H
 
+#include <exception>
 #include "bbutil.h"
 #include "stage.h"
 #include "sensorhandler.h"
@@ -64,6 +65,5 @@ extern void pushCopyOfShips(
 extern World* pushWorld(lua_State *L, Stage *stage, int numShips, int teamSize);
 extern void pushAdmin(lua_State *L);
 extern void crawlFiles(lua_State *L, const char *startFile);
-extern void saveBytecode(char *srcFile, char *outputFile, char *luaCwd);
 
 #endif

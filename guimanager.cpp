@@ -19,6 +19,7 @@
 */
 
 #include <algorithm>
+#include <exception>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <platformstl/filesystem/readdir_sequence.hpp>
@@ -648,10 +649,7 @@ void ShipPackager::package(const char *botName, const char *version,
   char *tmpDir = guiManager_->getTmpDirCopy();
   try {
     fileManager_->packageBot(botsPath, version, cacheDir, tmpDir, nosrc);
-  } catch (FileNotFoundException *e) {
-    delete botsPath;
-    delete cacheDir;
-    delete tmpDir;
+  } catch (std::exception *e) {
     packagingConsole_->clear();
     packagingConsole_->Show();
     packagingConsole_->println("Packaging ship failed: ");
@@ -696,10 +694,7 @@ void StagePackager::package(const char *stageName, const char *version,
   char *tmpDir = guiManager_->getTmpDirCopy();
   try {
     fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc);
-  } catch (FileNotFoundException *e) {
-    delete stagePath;
-    delete cacheDir;
-    delete tmpDir;
+  } catch (std::exception *e) {
     packagingConsole_->clear();
     packagingConsole_->Show();
     packagingConsole_->println("Packaging stage failed: ");

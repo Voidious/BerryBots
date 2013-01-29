@@ -169,10 +169,9 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     
     if (!fileExists(userDirPath)) {
       mkdir(userDirPath);
-      int extractCmdLen = 20 + srcFilenameLen + 4 + userDirPathLen;
+      int extractCmdLen = 8 + srcFilenameLen + 4 + userDirPathLen;
       char *extractCmd = new char[extractCmdLen + 1];
-      sprintf(extractCmd, "tar xfv %s -C %s > /dev/null", srcFilename,
-              userDirPath);
+      sprintf(extractCmd, "tar xfv %s -C %s", srcFilename, userDirPath);
       system(extractCmd);
       delete extractCmd;
     }
@@ -239,43 +238,12 @@ bool FileManager::isZipFilename(const char *filename) {
 // TODO: Make this non-hideous.
 void FileManager::packageCommon(lua_State *userState, char *userDir,
     char *userFilename, char *luaCwd, const char *version,
-    const char *metaFilename, int prevFiles, int numFiles, int prevCmdLen,
+    const char *metaFilename, int prevFiles, int numFiles, int filesCmdLen,
     char **packFilenames, const char *tmpDir, bool nosrc)
-    throw (InvalidLuaFilenameException*) {
-  int x = prevFiles;
-  lua_pushnil(userState);
-  int cmdLen = prevCmdLen;
-  while (lua_next(userState, -2) != 0) {
-    const char *loadedFilename = lua_tostring(userState, -1);
-    checkLuaFilename(loadedFilename);
-    int lenFilename = (int) strlen(loadedFilename);
-    cmdLen += 3 + lenFilename;
-    packFilenames[x] = new char[lenFilename + 1];
-    strcpy(packFilenames[x], loadedFilename);
-    x++;
-    lua_pop(userState, 1);
-  }
-  lua_pop(userState, 1);
-  
+    throw (InvalidLuaFilenameException*, LuaException*) {
+  int cmdLen = 0;
   if (nosrc) {
     createDirIfNecessary(tmpDir);
-    for (int x = 0; x < numFiles; x++) {
-      if (packFilenames[x] != 0) {
-        char *outputFilename =
-        new char[strlen(tmpDir) + 1 + strlen(packFilenames[x]) + 1];
-        sprintf(outputFilename, "%s%s%s", tmpDir, BB_DIRSEP, packFilenames[x]);
-        
-        char *outputDir = parseDir(outputFilename);
-        if (outputDir != 0) {
-          mkdirIfNecessary(outputDir);
-        }
-        saveBytecode(packFilenames[x], outputFilename, userDir);
-        
-        delete outputFilename;
-      }
-    }
-  }
-  if (nosrc) {
     // 'cd "<tmpDir>"; '
     cmdLen += 4 + strlen(tmpDir) + 3;
     // ../
@@ -288,45 +256,111 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
     // 'cd "<userDir>"; '
     cmdLen += 4 + strlen(userDir) + 3;
   }
-  // 'echo "<userFilename>" > <metaFilename>; '
-  cmdLen += 6 + strlen(userFilename) + 4 + strlen(metaFilename) + 2;
-  // 'tar czfv "<userFilename - .lua + _version>.tar.gz" "<file1>" "<file2>" ... <metaFilename> > /dev/null; '
-  cmdLen += 10 + strlen(userFilename) - 4 + 1 + strlen(version) + 8 + 1
-  + strlen(metaFilename) + 14;
-  // "rm <metaFilename>\0"
-  cmdLen += 3 + strlen(metaFilename) + 1;
-  
+  // 'echo "<userFilename>" > <metaFilename>'
+  cmdLen += 6 + strlen(userFilename) + 4 + strlen(metaFilename);
+
+  char *packCmd = new char[cmdLen + 1];
+  if (nosrc) {
+    sprintf(packCmd, "cd \"%s\"; ", tmpDir);
+  } else if (userDir != 0) {
+    sprintf(packCmd, "cd \"%s\"; ", userDir);
+  }
+  sprintf(&(packCmd[strlen(packCmd)]), "echo \"%s\" > %s", userFilename,
+          metaFilename);
+  system(packCmd);
+  delete packCmd;
+
+  cmdLen = filesCmdLen;
+
+  int x = prevFiles;
+  lua_pushnil(userState);
+  while (lua_next(userState, -2) != 0) {
+    const char *loadedFilename = lua_tostring(userState, -1);
+    checkLuaFilename(loadedFilename);
+    int lenFilename = (int) strlen(loadedFilename);
+    cmdLen += 3 + lenFilename; // 1 space, 2 quotes, filename
+    packFilenames[x] = new char[lenFilename + 1];
+    strcpy(packFilenames[x], loadedFilename);
+    x++;
+    lua_pop(userState, 1);
+  }
+  lua_pop(userState, 1);
+
+  if (nosrc) {
+    for (int x = 0; x < numFiles; x++) {
+      if (packFilenames[x] != 0) {
+        int outputFilenameLen = (int) (strlen(tmpDir) + strlen(BB_DIRSEP)
+            + strlen(packFilenames[x]));
+        char *outputFilename = new char[outputFilenameLen + 1];
+        sprintf(outputFilename, "%s%s%s", tmpDir, BB_DIRSEP, packFilenames[x]);
+        
+        char *outputDir = parseDir(outputFilename);
+        if (outputDir != 0) {
+          mkdirIfNecessary(outputDir);
+        }
+        try {
+          saveBytecode(packFilenames[x], outputFilename, userDir);
+        } catch (LuaException *e) {
+          delete outputFilename;
+          throw e;
+        }
+        
+        delete outputFilename;
+      }
+    }
+  }
+
   int baseLen = (int) (strlen(userFilename) - strlen(LUA_EXTENSION));
   int outputFilenameLen =
       (int) (baseLen + 1 + strlen(version) + strlen(ZIP_EXTENSION));
   char *outputFilename = new char[outputFilenameLen + 1];
   strncpy(outputFilename, userFilename, baseLen);
   sprintf(&(outputFilename[baseLen]), "_%s%s", version, ZIP_EXTENSION);
-  
+
   char *destFilename;
   if (nosrc) {
     // ../<userDir>/outputFilename
-    destFilename = new char[3 + (userDir == 0 ? 0 : strlen(userDir) + 1)
-                            + outputFilenameLen + 1];
     if (userDir == 0) {
-      sprintf(destFilename, "../%s", outputFilename);
+      char dot[] = ".";
+      destFilename = getAbsoluteFilename(dot, outputFilename);
     } else {
-      sprintf(destFilename, "../%s/%s", userDir, outputFilename);
+      char cwd[1024];
+      getcwd(cwd, 1024);
+      // TODO: also support X:\ on Windows
+      if (userDir[0] == BB_DIRSEP_CHR) {
+        destFilename = getAbsoluteFilename(userDir, outputFilename);
+      } else {
+        char *userCwd = getAbsoluteFilename(cwd, userDir);
+        destFilename = getAbsoluteFilename(userCwd, outputFilename);
+        delete userCwd;
+      }
     }
   } else {
     destFilename = outputFilename;
   }
-  
-  char *packCmd = new char[cmdLen];
-  packCmd[0] = '\0';
+
+  if (nosrc) {
+    // 'cd "<tmpDir>"; '
+    cmdLen += 4 + strlen(tmpDir) + 3;
+  } else if (userDir != 0) {
+    // 'cd "<userDir>"; '
+    cmdLen += 4 + strlen(userDir) + 3;
+  }
+
+  // 'tar czfv "<userFilename - .lua + _version>.tar.gz" "<file1>" "<file2>" ... <metaFilename>; '
+  cmdLen += 10 + strlen(destFilename) - 4 + 1 + strlen(version) + 8 + 1
+      + strlen(metaFilename) + 2;
+  // "rm <metaFilename>"
+  cmdLen += 3 + strlen(metaFilename);
+
+  packCmd = new char[cmdLen + 1];
   if (nosrc) {
     sprintf(packCmd, "cd \"%s\"; ", tmpDir);
   } else if (userDir != 0) {
     sprintf(packCmd, "cd \"%s\"; ", userDir);
   }
-  sprintf(&(packCmd[strlen(packCmd)]), "echo \"%s\" > %s; tar czfv \"%s\"",
-          userFilename, metaFilename, destFilename);
-  
+  sprintf(&(packCmd[strlen(packCmd)]), "tar czfv \"%s\"", destFilename);
+
   for (int x = 0; x < numFiles; x++) {
     if (packFilenames[x] != 0) {
       strcat(packCmd, " \"");
@@ -334,7 +368,7 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
       strcat(packCmd, "\"");
     }
   }
-  sprintf(&(packCmd[strlen(packCmd)]), " %s > /dev/null; rm %s", metaFilename,
+  sprintf(&(packCmd[strlen(packCmd)]), " %s; rm %s", metaFilename,
           metaFilename);
   
   lua_close(userState);
@@ -388,7 +422,8 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile)
 
 void FileManager::packageStage(const char *stageArg, const char *version,
     const char *cacheDir, const char *tmpDir, bool nosrc)
-    throw (FileNotFoundException*, InvalidLuaFilenameException*) {
+    throw (FileNotFoundException*, InvalidLuaFilenameException*,
+           LuaException*) {
   lua_State *stageState;
   char *stageDir;
   char *stageFilename;
@@ -422,7 +457,7 @@ void FileManager::packageStage(const char *stageArg, const char *version,
   char **stageShipFilenames = stage->getStageShips();
   lua_getfield(stageState, LUA_REGISTRYINDEX, "__FILES");
   int numFiles = (int) (numStageShips + lua_objlen(stageState, -1));
-  int cmdLen = numStageShips * 3; // one space, two quotes for each filename
+  int filesCmdLen = numStageShips * 3; // 1 space, 2 quotes for each filename
   char **packFilenames = new char*[numFiles];
   for (int x = 0; x < numStageShips; x++) {
     char *stageShipFilename = stageShipFilenames[x];
@@ -435,7 +470,7 @@ void FileManager::packageStage(const char *stageArg, const char *version,
     }
     if (!dup) {
       int lenFilename = (int) strlen(stageShipFilename);
-      cmdLen += lenFilename;
+      filesCmdLen += lenFilename;
       packFilenames[x] = new char[lenFilename + 1];
       strcpy(packFilenames[x], stageShipFilename);
     }
@@ -443,8 +478,8 @@ void FileManager::packageStage(const char *stageArg, const char *version,
 
   try {
     packageCommon(stageState, stageDir, stageFilename, stageCwd, version,
-        STAGE_METAFILE, numStageShips, numFiles, cmdLen, packFilenames, tmpDir,
-        nosrc);
+        STAGE_METAFILE, numStageShips, numFiles, filesCmdLen, packFilenames,
+        tmpDir, nosrc);
   } catch (InvalidLuaFilenameException *e) {
     delete stage;
     for (int x = 0; x < numFiles; x++) {
@@ -452,6 +487,14 @@ void FileManager::packageStage(const char *stageArg, const char *version,
     }
     delete packFilenames;
 
+    throw e;
+  } catch (LuaException *e) {
+    delete stage;
+    for (int x = 0; x < numFiles; x++) {
+      delete packFilenames[x];
+    }
+    delete packFilenames;
+    
     throw e;
   }
   
@@ -464,7 +507,8 @@ void FileManager::packageStage(const char *stageArg, const char *version,
 
 void FileManager::packageBot(char *botArg, const char *version,
     const char *cacheDir, const char *tmpDir, bool nosrc)
-    throw (FileNotFoundException*, InvalidLuaFilenameException*) {
+    throw (FileNotFoundException*, InvalidLuaFilenameException*,
+           LuaException*) {
   lua_State *shipState;
   char *shipDir;
   char *shipFilename;
@@ -487,6 +531,13 @@ void FileManager::packageBot(char *botArg, const char *version,
     }
     delete packFilenames;
 
+    throw e;
+  } catch (LuaException *e) {
+    for (int x = 0; x < numFiles; x++) {
+      delete packFilenames[x];
+    }
+    delete packFilenames;
+    
     throw e;
   }
   
@@ -531,6 +582,9 @@ char* FileManager::parseDir(const char *dirAndFilename) {
     return 0;
   } else {
     long dirLen = fromFinalSlash - dirAndFilename;
+    if (dirLen == 0) {
+      return 0;
+    }
     char *dir = new char[dirLen + 1];
     strncpy(dir, dirAndFilename, dirLen);
     dir[dirLen] = '\0';
@@ -560,6 +614,45 @@ void FileManager::checkLuaFilename(const char *filename)
   if (!isLuaFilename(filename)) {
     throw new InvalidLuaFilenameException(filename);
   }
+}
+
+// adapted from luac.c
+static int writer(lua_State* L, const void* p, size_t size, void* u) {
+  return (fwrite(p,size,1,(FILE*)u)!=1) && (size!=0);
+}
+
+void FileManager::saveBytecode(char *srcFile, char *outputFile, char *luaCwd)
+    throw (LuaException*) {
+  lua_State *saveState = luaL_newstate();
+  lua_setcwd(saveState, luaCwd);
+  if (luaL_loadfile(saveState, srcFile) != 0) {
+    const char *luaMessage = lua_tostring(saveState, -1);
+    const char *formatString = "Lua failed to load file: %s";
+    int messageLen = (int) (strlen(formatString) + strlen(luaMessage) - 2);
+    char *errorMessage = new char[messageLen + 1];
+    sprintf(errorMessage, formatString, luaMessage);
+    LuaException *e = new LuaException(errorMessage);
+    delete errorMessage;
+
+    throw e;
+  }
+  FILE* D = fopen(outputFile, "wb");
+  lua_dump(saveState, writer, D);
+  lua_close(saveState);
+  fclose(D);
+}
+
+LuaException::LuaException(const char *details) {
+  message_ = new char[strlen(details) + 41];
+  sprintf(message_, "Lua processing failure: %s", details);
+}
+
+const char* LuaException::what() const throw() {
+  return message_;
+}
+
+LuaException::~LuaException() throw() {
+  delete message_;
 }
 
 FileNotFoundException::FileNotFoundException(const char *filename) {
