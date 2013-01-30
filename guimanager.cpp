@@ -74,11 +74,13 @@ GuiManager::GuiManager() {
   newMatchDialog_->SetFocus();
   stageBaseDir_ = 0;
   botsBaseDir_ = 0;
-  paused_ = false;
   engine = 0;
   currentStagePath_ = 0;
   currentTeamPaths_ = 0;
   currentNumTeams_ = 0;
+  interrupted_ = false;
+  paused_ = false;
+  restarting_ = false;
   quitting_ = false;
 }
 
@@ -320,14 +322,21 @@ sf::RenderWindow* GuiManager::getMainWindow() {
   return window_;
 }
 
-void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
+void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
+  if (!restarting_) {
+    deleteCurrentMatchSettings();
+    currentStagePath_ = stagePath;
+    currentTeamPaths_ = teamPaths;
+    currentNumTeams_ = numTeams;
+  }
+
   srand((unsigned int) time(NULL));
   engine = new BerryBotsEngine();
   stage = engine->getStage();
   char *cacheDir = getCacheDirCopy();
   try {
-    engine->initStage(stageName, cacheDir);
-    engine->initShips(teamNames, numTeams, cacheDir);
+    engine->initStage(stagePath, cacheDir);
+    engine->initShips(teamPaths, numTeams, cacheDir);
   } catch (EngineException *e) {
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots engine initialization failed", wxOK, wxDefaultPosition);
@@ -338,6 +347,7 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   }
   delete cacheDir;
 
+  interrupted_ = false;
   paused_ = false;
   newMatchDialog_->Hide();
   packageStageDialog_->Hide();
@@ -356,7 +366,6 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   unsigned int targetWidth = floor(windowScale * viewWidth_) + DOCK_SIZE;
   unsigned int targetHeight = floor(windowScale * viewHeight_);
   sf::RenderWindow *window = initMainWindow(targetWidth, targetHeight);
-  gfxManager_->updateView(window, viewWidth_, viewHeight_);
 
   // TODO: If/when SFML getPosition() works, adjust the window position to
   //       keep the whole window on the screen (if necessary). Might be worth
@@ -370,11 +379,12 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   gfxManager_->initBbGfx(window, viewHeight_, stage, engine->getTeams(),
                          engine->getNumTeams(), engine->getShips(),
                          engine->getNumShips(), resourcePath());
+  gfxManager_->updateView(window, viewWidth_, viewHeight_);
   window->setVisible(true);
   window->clear();
   gfxManager_->drawGame(window, stage, engine->getShips(),
                         engine->getNumShips(), engine->getGameTime(),
-                        gfxHandler_, false);
+                        gfxHandler_, false, false);
   window->display();
 
   stageConsole_ = new OutputConsole(this->nextConsoleId(), stage->getName());
@@ -390,15 +400,20 @@ void GuiManager::runNewMatch(char *stageName, char **teamNames, int numTeams) {
   printHandler = new GuiPrintHandler(stageConsole_, teamConsoles_, numTeams_);
 
   runCurrentMatch();
+
+  while (restarting_) {
+    runNewMatch(currentStagePath_, currentTeamPaths_, currentNumTeams_);
+  }
 }
 
 // TODO: Track and display TPS in GUI.
 void GuiManager::runCurrentMatch() {
-  paused_ = false;
+  interrupted_ = false;
+  restarting_ = false;
   sf::RenderWindow *window = getMainWindow();
   try {
-    while (window->isOpen() && !paused_ && !quitting_) {
-      if (!engine->isGameOver()) {
+    while (window->isOpen() && !interrupted_ && !restarting_ && !quitting_) {
+      if (!paused_ && !restarting_ && !engine->isGameOver()) {
         engine->processTick();
       }
       
@@ -409,11 +424,11 @@ void GuiManager::runCurrentMatch() {
       //       Really need to investigate more and/or find a work-around. Also
       //       seeing it under Linux/GTK, to a lesser extent.
       
-      if (!paused_ && !quitting_) {
+      if (!interrupted_ && !restarting_ && !quitting_) {
         window->clear();
         gfxManager_->drawGame(window, stage, engine->getShips(),
                               engine->getNumShips(), engine->getGameTime(),
-                              gfxHandler_, engine->isGameOver());
+                              gfxHandler_, paused_, engine->isGameOver());
         window->display();
         
       }
@@ -426,7 +441,7 @@ void GuiManager::runCurrentMatch() {
   }
   // TODO: Display winner / CPU usage in GUI
 
-  if (!paused_) {
+  if (!interrupted_) {
     gfxManager_->destroyBbGfx();
     delete printHandler;
     delete engine;
@@ -436,8 +451,11 @@ void GuiManager::runCurrentMatch() {
 }
 
 void GuiManager::resumeMatch() {
-  if (paused_) {
+  if (interrupted_) {
     runCurrentMatch();
+  }
+  while (restarting_) {
+    runNewMatch(currentStagePath_, currentTeamPaths_, currentNumTeams_);
   }
 }
 
@@ -491,19 +509,19 @@ void GuiManager::processMainWindowEvents() {
 }
 
 void GuiManager::showNewMatchDialog() {
-  paused_ = true;
+  interrupted_ = true;
   newMatchDialog_->Show();
   newMatchDialog_->Raise();
 }
 
 void GuiManager::showPackageShipDialog() {
-  paused_ = true;
+  interrupted_ = true;
   packageShipDialog_->Show();
   packageShipDialog_->Raise();
 }
 
 void GuiManager::showPackageStageDialog() {
-  paused_ = true;
+  interrupted_ = true;
   packageStageDialog_->Show();
   packageStageDialog_->Raise();
 }
@@ -572,6 +590,14 @@ void GuiManager::deleteCurrentMatchSettings() {
     delete currentTeamPaths_;
     currentTeamPaths_ = 0;
   }
+}
+
+void GuiManager::togglePause() {
+  paused_ = !paused_;
+}
+
+void GuiManager::restartMatch() {
+  restarting_ = true;
 }
 
 void GuiManager::quit() {
@@ -764,4 +790,12 @@ void ViewListener::onStageClick() {
 
 void ViewListener::onTeamClick(int teamIndex) {
   guiManager_->showTeamConsole(teamIndex);
+}
+
+void ViewListener::onPauseUnpause() {
+  guiManager_->togglePause();
+}
+
+void ViewListener::onRestart() {
+  guiManager_->restartMatch();
 }

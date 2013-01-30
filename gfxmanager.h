@@ -60,6 +60,8 @@ class GfxViewListener {
     virtual void onNewMatch() = 0;
     virtual void onStageClick() = 0;
     virtual void onTeamClick(int teamIndex) = 0;
+    virtual void onPauseUnpause() = 0;
+    virtual void onRestart() = 0;
     virtual ~GfxViewListener() {};
 };
 
@@ -68,11 +70,15 @@ class GfxManager {
   DockItem *newMatchButton_;
   DockItem *stageButton_;
   DockItem **teamButtons_;
+  DockItem *pauseButton_;
+  DockItem *playButton_;
+  DockItem *restartButton_;
   GfxViewListener *listener_;
   Team **teams_;
   int numTeams_;
   Ship **ships_;
   int numShips_;
+  Stage *stage_;
   bool initialized_;
 
   public:
@@ -85,12 +91,15 @@ class GfxManager {
     void setListener(GfxViewListener *listener);
     void drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
                   int numShips, int time, GfxEventHandler *gfxHandler,
-                  bool gameOver);
+                  bool paused, bool gameOver);
     void updateView(sf::RenderWindow *window, unsigned int viewWidth,
                     unsigned int viewHeight);
     void processMouseClick(int x, int y);
     void processMouseMoved(int x, int y);
   private:
+    void initDockItems(sf::RenderWindow *window);
+    void reinitDockItems(sf::RenderWindow *window);
+    void destroyDockItems();
     void drawWalls(sf::RenderWindow *window);
     void drawZones(sf::RenderWindow *window);
     void adjustTorpedoRayPoint(sf::RectangleShape *rayShape, double angle);
@@ -112,8 +121,9 @@ class GfxManager {
     void drawLaserSparks(sf::RenderWindow *window, int time,
                          GfxEventHandler *gfxHandler, Ship **ships);
     void drawNames(sf::RenderWindow *window, Ship **ships, int numShips);
-    void drawStageTexts(sf::RenderWindow *window, Stage *stage, bool gameOver);
-    void drawDock(sf::RenderWindow *window, Stage *stage);
+    void drawStageTexts(sf::RenderWindow *window, Stage *stage, bool paused,
+                        bool gameOver);
+    void drawDock(sf::RenderWindow *window, Stage *stage, bool paused);
     void drawDockItem(sf::RenderWindow *window, DockItem *dockItem);
     double adjustX(double x);
     double adjustY(double x, double height);

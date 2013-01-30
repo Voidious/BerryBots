@@ -26,6 +26,7 @@
 #include <SFML/Graphics/RectangleShape.hpp>
 #include <SFML/System/Vector2.hpp>
 
+#include "stage.h"
 #include "gfxmanager.h"
 
 // TODO: make these member vars instead of globals
@@ -79,11 +80,15 @@ GfxManager::GfxManager(bool showDock) {
   newMatchButton_ = 0;
   stageButton_ = 0;
   teamButtons_ = 0;
+  pauseButton_ = 0;
+  playButton_ = 0;
+  restartButton_ = 0;
   listener_ = 0;
   teams_ = 0;
   numTeams_ = 0;
   ships_ = 0;
   numShips_ = 0;
+  stage_ = 0;
   initialized_ = false;
 }
 
@@ -92,8 +97,8 @@ GfxManager::~GfxManager() {
 }
 
 void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
-                           Stage *stage, Team **teams, int numTeams, Ship **ships, int numShips,
-                           std::string resourcePath) {
+    Stage *stage, Team **teams, int numTeams, Ship **ships, int numShips,
+    std::string resourcePath) {
   if (initialized_) {
     destroyBbGfx();
   }
@@ -104,21 +109,13 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
   numTeams_ = numTeams;
   ships_ = ships;
   numShips_ = numShips;
+  stage_ = stage;
   
   if (!font.loadFromFile(resourcePath + FONT_NAME)) {
     exit(EXIT_FAILURE);
   }
 
-  newMatchButton_ = new DockItem(NEW_MATCH_DOCK_TEXT, &font, 18, 0, 25,
-                                 DOCK_SIZE, 30);
-  stageButton_ = new DockItem(stage->getName(), &font, 16,
-                              0, 65, DOCK_SIZE, 40);
-  teamButtons_ = new DockItem*[numShips_];
-  for (int x = 0; x < numShips_; x++) {
-    teamButtons_[x] = new DockItem(ships_[x]->properties->name, &font, 16,
-                                   0, 110 + (x * 30), DOCK_SIZE, 30);
-  }
-  
+  initDockItems(window);
   shipColors = new sf::Color[numShips];
   shipDeathColors = new sf::Color[numShips];
   laserColors = new sf::Color[numShips];
@@ -198,15 +195,69 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
   initialized_ = true;
 }
 
+void GfxManager::initDockItems(sf::RenderWindow *window) {
+  newMatchButton_ = new DockItem(NEW_MATCH_DOCK_TEXT, &font, 18, 0, 25,
+                                 DOCK_SIZE, 30);
+  stageButton_ = new DockItem(stage_->getName(), &font, 16,
+                              0, 65, DOCK_SIZE, 40);
+  teamButtons_ = new DockItem*[numShips_];
+  for (int x = 0; x < numShips_; x++) {
+    teamButtons_[x] = new DockItem(ships_[x]->properties->name, &font, 16,
+                                   0, 110 + (x * 30), DOCK_SIZE, 30);
+  }
+
+  sf::Shape** pauseShapes = new sf::Shape*[2];
+  pauseShapes[0] = new sf::RectangleShape(sf::Vector2f(5, 20));
+  pauseShapes[0]->move(-10, -10);
+  pauseShapes[0]->setOutlineThickness(0);
+  pauseShapes[1] = new sf::RectangleShape(sf::Vector2f(5, 20));
+  pauseShapes[1]->move(5, -10);
+  pauseShapes[1]->setOutlineThickness(0);
+  pauseButton_ = new DockItem(pauseShapes, 2,
+                              30, window->getSize().y - 100, 50, 50);
+
+  sf::Shape** playShapes = new sf::Shape*[1];
+  sf::ConvexShape *playShape = new sf::ConvexShape(3);
+  playShape->setPoint(0, sf::Vector2f(0, 0));
+  playShape->setPoint(1, sf::Vector2f(0, 20));
+  playShape->setPoint(2, sf::Vector2f(17, 10));
+  playShape->setOutlineThickness(0);
+  playShape->move(-7, -10);
+  playShapes[0] = playShape;
+  playButton_ = new DockItem(playShapes, 1,
+                              30, window->getSize().y - 100, 50, 50);
+
+  sf::Shape** restartShapes = new sf::Shape*[4];
+  restartShapes[0] = new sf::RectangleShape(sf::Vector2f(15, 2));
+  restartShapes[0]->move(-5, -9);
+  sf::ConvexShape *restartTriangle1 = new sf::ConvexShape(3);
+  restartTriangle1->setPoint(0, sf::Vector2f(8, 0));
+  restartTriangle1->setPoint(1, sf::Vector2f(8, 10));
+  restartTriangle1->setPoint(2, sf::Vector2f(0, 5));
+  restartTriangle1->setOutlineThickness(0);
+  restartTriangle1->move(-13, -13);
+  restartShapes[1] = restartTriangle1;
+  restartShapes[2] = new sf::RectangleShape(sf::Vector2f(15, 2));
+  restartShapes[2]->move(-10, 7);
+  sf::ConvexShape *restartTriangle2 = new sf::ConvexShape(3);
+  restartTriangle2->setPoint(0, sf::Vector2f(0, 0));
+  restartTriangle2->setPoint(1, sf::Vector2f(0, 10));
+  restartTriangle2->setPoint(2, sf::Vector2f(8, 5));
+  restartTriangle2->setOutlineThickness(0);
+  restartTriangle2->move(5, 3);
+  restartShapes[3] = restartTriangle2;
+  restartButton_ = new DockItem(restartShapes, 4,
+                                80, window->getSize().y - 100, 50, 50);
+}
+
+void GfxManager::reinitDockItems(sf::RenderWindow *window) {
+  destroyDockItems();
+  initDockItems(window);
+}
+
 void GfxManager::destroyBbGfx() {
   if (initialized_) {
-    delete newMatchButton_;
-    delete stageButton_;
-    for (int x = 0; x < numShips_; x++) {
-      delete teamButtons_[x];
-    }
-    delete teamButtons_;
-    
+    destroyDockItems();
     for (int x = 0; x < numWalls; x++) {
       delete wallShapes[x];
     }
@@ -225,6 +276,33 @@ void GfxManager::destroyBbGfx() {
   }
 }
 
+void GfxManager::destroyDockItems() {
+  if (newMatchButton_ != 0) {
+    delete newMatchButton_;
+    newMatchButton_ = 0;
+  }
+  if (stageButton_ != 0) {
+    delete stageButton_;
+    stageButton_ = 0;
+  }
+  if (teamButtons_ != 0) {
+    for (int x = 0; x < numShips_; x++) {
+      delete teamButtons_[x];
+    }
+    delete teamButtons_;
+    teamButtons_ = 0;
+  }
+  if (pauseButton_ != 0) {
+    delete pauseButton_;
+  }
+  if (playButton_ != 0) {
+    delete playButton_;
+  }
+  if (restartButton_ != 0) {
+    delete restartButton_;
+  }
+}
+
 void GfxManager::setListener(GfxViewListener *listener) {
   if (listener_ != 0) {
     delete listener_;
@@ -235,9 +313,9 @@ void GfxManager::setListener(GfxViewListener *listener) {
 // TODO: move all these args to class level?
 void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
                           int numShips, int time, GfxEventHandler *gfxHandler,
-                          bool gameOver) {
+                          bool paused, bool gameOver) {
   if (showDock_) {
-    drawDock(window, stage);
+    drawDock(window, stage, paused);
     window->setView(stageView);
   }
   gfxHandler->removeShipDeaths(time - SHIP_DEATH_TIME);
@@ -254,7 +332,7 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   drawNames(window, ships, numShips);
   drawLasers(window, stage);
   drawShips(window, ships, numShips, time);
-  drawStageTexts(window, stage, gameOver);
+  drawStageTexts(window, stage, paused, gameOver);
 }
 
 void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
@@ -278,6 +356,7 @@ void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
     dockView.setViewport(sf::FloatRect(0.f, 0.f, dockViewportSize, 1.f));
     stageView.setViewport(sf::FloatRect(dockViewportSize, 0.f,
                                         stageViewportSize, 1.f));
+    reinitDockItems(window);
   } else {
     stageView.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
     stageView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
@@ -291,6 +370,10 @@ void GfxManager::processMouseClick(int x, int y) {
       listener_->onNewMatch();
     } else if (stageButton_->contains(x, y)) {
       listener_->onStageClick();
+    } else if (pauseButton_->contains(x, y)) {
+      listener_->onPauseUnpause();
+    } else if (restartButton_->contains(x, y)) {
+      listener_->onRestart();
     } else {
       for (int x = 0; x < numTeams_; x++) {
         if (teamButtons_[x]->contains(x, y)) {
@@ -304,6 +387,9 @@ void GfxManager::processMouseClick(int x, int y) {
 void GfxManager::processMouseMoved(int x, int y) {
   newMatchButton_->setHighlights(x, y);
   stageButton_->setHighlights(x, y);
+  pauseButton_->setHighlights(x, y);
+  playButton_->setHighlights(x, y);
+  restartButton_->setHighlights(x, y);
   for (int z = 0; z < numTeams_; z++) {
     teamButtons_[z]->setHighlights(x, y);
   }
@@ -534,7 +620,7 @@ void GfxManager::drawNames(sf::RenderWindow *window, Ship **ships,
 }
 
 void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
-                                bool gameOver) {
+                                bool paused, bool gameOver) {
   int numTexts = stage->getTextCount();
   if (numTexts > 0) {
     StageText **stageTexts = stage->getTexts();
@@ -547,16 +633,18 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
                        adjustY(stageText->y + textRect.height));
       window->draw(text);
     }
-    if (!gameOver) {
+    if (!paused && !gameOver) {
       stage->updateTextTimers();
     }
   }
 }
 
-void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage) {
+void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
   window->setView(dockView);
   drawDockItem(window, newMatchButton_);
   drawDockItem(window, stageButton_);
+  drawDockItem(window, paused ? playButton_ : pauseButton_);
+  drawDockItem(window, restartButton_);
 
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
@@ -583,7 +671,10 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage) {
 }
 
 void GfxManager::drawDockItem(sf::RenderWindow *window, DockItem *dockItem) {
-  window->draw(*(dockItem->getSfmlText()));
+  sf::Drawable **drawables = dockItem->getDrawables();
+  for (int x = 0; x < dockItem->getNumDrawables(); x++) {
+    window->draw(*(drawables[x]));
+  }
 }
 
 double GfxManager::adjustX(double x) {

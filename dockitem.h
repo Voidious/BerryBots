@@ -24,20 +24,26 @@
 #include <SFML/Graphics.hpp>
 #include "rectangle.h"
 
-#define TEXT_COLOR         sf::Color(255, 255, 255, 255)
+#define DEFAULT_COLOR      sf::Color(255, 255, 255, 255)
 #define HIGHLIGHTED_COLOR  sf::Color(0, 255, 0, 255)
 
 class DockItem : public Rectangle {
   int top_;
   bool highlighted_;
-  sf::Text *sfmlText_;
+  sf::Text *drawableText_;
+  sf::Shape **drawableShapes_;
+  sf::Drawable **drawables_;
+  int numDrawables_;
 
   public:
     DockItem(const char *text, sf::Font *font, int fontSize, int left, int top,
              int width, int height);
+    DockItem(sf::Shape **shapes, int numShapes, int left, int top, int width,
+             int height);
     ~DockItem();
     void setHighlights(int mouseX, int mouseY);
-    sf::Text *getSfmlText();
+    sf::Drawable** getDrawables();
+    int getNumDrawables();
     bool contains(int x, int y);
 };
 

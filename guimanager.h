@@ -46,7 +46,6 @@ class GuiManager {
   PackagingListener *packageReporter_;
   char *stageBaseDir_;
   char *botsBaseDir_;
-  bool paused_;
   unsigned int consoleId_;
   char *currentStagePath_;
   char **currentTeamPaths_;
@@ -54,8 +53,15 @@ class GuiManager {
   unsigned int viewWidth_;
   unsigned int viewHeight_;
   GfxEventHandler *gfxHandler_;
+  // Interrupted means the user brought up a modal dialog (eg, "New Match")...
+  // The run loop exits and resumes if they don't start a different match.
+  bool interrupted_;
+  // Paused means the game engine is not executing the match, but the SFML
+  // window is still being drawn and lsitening for events.
+  bool paused_;
+  bool restarting_;
   bool quitting_;
-
+  
   public:
     GuiManager();
     ~GuiManager();
@@ -64,7 +70,7 @@ class GuiManager {
     void loadBots(const char *baseDir);
     bool isValidBotFile(const char *baseDir, char *stageFilename);
     void linkListeners();
-    void runNewMatch(char *stageName, char **teamNames, int numTeams);
+    void runNewMatch(char *stagePath, char **teamPaths, int numTeams);
     void resumeMatch();
     void processMainWindowEvents();
     void showNewMatchDialog();
@@ -76,6 +82,8 @@ class GuiManager {
     void hidePackageShipDialog();
     void hidePackageStageDialog();
     wxMenuBar* getNewMenuBar();
+    void togglePause();
+    void restartMatch();
     void quit();
     char* getStageDirCopy();
     char* getBotsDirCopy();
@@ -152,6 +160,8 @@ class ViewListener : public GfxViewListener {
     virtual void onNewMatch();
     virtual void onStageClick();
     virtual void onTeamClick(int teamIndex);
+    virtual void onPauseUnpause();
+    virtual void onRestart();
 };
 
 #endif

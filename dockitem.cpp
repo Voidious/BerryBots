@@ -24,29 +24,60 @@
 #include "rectangle.h"
 
 DockItem::DockItem(const char *text, sf::Font *font, int fontSize, int left,
-                   int top, int width, int height)
-    : Rectangle(left, top, width, height) {
+    int top, int width, int height) : Rectangle(left, top, width, height) {
   top_ = bottom_; // SFML draws from top to bottom, unlike BerryBots coordinates
   highlighted_ = false;
-  sfmlText_ = new sf::Text(text, *font, fontSize);
-  sfmlText_->setPosition(10, top_ + (height / 2) - fontSize);
-  sfmlText_->setColor(TEXT_COLOR);
+  drawableText_ = new sf::Text(text, *font, fontSize);
+  drawableText_->setPosition(10, top_ + (height / 2) - fontSize);
+  drawableText_->setColor(DEFAULT_COLOR);
+  drawables_ = new sf::Drawable*[1];
+  drawables_[0] = drawableText_;
+  numDrawables_ = 1;
+}
+
+DockItem::DockItem(sf::Shape **shapes, int numShapes, int left, int top,
+    int width, int height) : Rectangle(left, top, width, height) {
+  top_ = bottom_; // SFML draws from top to bottom, unlike BerryBots coordinates
+  highlighted_ = false;
+  drawableText_ = 0;
+  drawableShapes_ = shapes;
+  drawables_ = (sf::Drawable**) shapes;
+  numDrawables_ = numShapes;
+  sf::Vector2f newOrigin(left + (width / 2), top + (height / 2));
+  for (int x = 0; x < numDrawables_; x++) {
+    sf::Shape *shape = drawableShapes_[x];
+    shape->move(newOrigin);
+  }
 }
 
 DockItem::~DockItem() {
-  delete sfmlText_;
+  for (int x = 0; x < numDrawables_; x++) {
+    delete drawables_[x];
+  }
+  delete drawables_;
 }
 
 void DockItem::setHighlights(int mouseX, int mouseY) {
   bool highlight = contains(mouseX, mouseY);
   if (highlight != highlighted_) {
-    sfmlText_->setColor(highlight ? HIGHLIGHTED_COLOR : TEXT_COLOR);
+    if (drawableText_ != 0) {
+      drawableText_->setColor(highlight ? HIGHLIGHTED_COLOR : DEFAULT_COLOR);
+    } else if (drawables_ != 0) {
+      for (int x = 0; x < numDrawables_; x++) {
+        sf::Shape *shape = drawableShapes_[x];
+        shape->setFillColor(highlight ? HIGHLIGHTED_COLOR : DEFAULT_COLOR);
+      }
+    }
     highlighted_ = highlight;
   }
 }
 
-sf::Text* DockItem::getSfmlText() {
-  return sfmlText_;
+sf::Drawable** DockItem::getDrawables() {
+  return drawables_;
+}
+
+int DockItem::getNumDrawables() {
+  return numDrawables_;
 }
 
 bool DockItem::contains(int x, int y) {
