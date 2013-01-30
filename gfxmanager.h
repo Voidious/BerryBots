@@ -25,6 +25,7 @@
 #include "stage.h"
 #include "bbutil.h"
 #include "gfxeventhandler.h"
+#include "dockitem.h"
 
 #define STAGE_MARGIN             25
 #define DOCK_SIZE                150
@@ -64,6 +65,9 @@ class GfxViewListener {
 
 class GfxManager {
   bool showDock_;
+  DockItem *newMatchButton_;
+  DockItem *stageButton_;
+  DockItem **teamButtons_;
   GfxViewListener *listener_;
   Team **teams_;
   int numTeams_;
@@ -74,19 +78,46 @@ class GfxManager {
   public:
     GfxManager(bool showDock);
     ~GfxManager();
-    void setListener(GfxViewListener *listener);
-    void processMouseClick(int mouseX, int mouseY);
     void initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
                    Stage *stage, Team **teams, int numTeams, Ship **ships,
                    int numShips, std::string resourcePath);
+    void destroyBbGfx();
+    void setListener(GfxViewListener *listener);
     void drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
                   int numShips, int time, GfxEventHandler *gfxHandler,
                   bool gameOver);
     void updateView(sf::RenderWindow *window, unsigned int viewWidth,
                     unsigned int viewHeight);
-    void destroyBbGfx();
+    void processMouseClick(int x, int y);
+    void processMouseMoved(int x, int y);
   private:
+    void drawWalls(sf::RenderWindow *window);
+    void drawZones(sf::RenderWindow *window);
+    void adjustTorpedoRayPoint(sf::RectangleShape *rayShape, double angle);
+    void drawTorpedos(sf::RenderWindow *window, Stage *stage);
+    void drawTorpedoBlasts(sf::RenderWindow *window, int time,
+                           GfxEventHandler *gfxHandler);
+    void adjustThrusterPosition(sf::RectangleShape *thrusterShape,
+                                double angle);
+    void drawThrusters(sf::RenderWindow *window, Ship **ships, int numShips);
+    void adjustLaserPosition(sf::RectangleShape *laserShape, double angle);
+    void drawLasers(sf::RenderWindow *window, Stage *stage);
+    void adjustShipDotPosition(sf::CircleShape *shipDotShape, double angle);
+    void drawShips(sf::RenderWindow *window, Ship **ships, int numShips,
+                   int time);
+    void drawShipDeaths(sf::RenderWindow *window, int time,
+                        GfxEventHandler *gfxHandler);
+    void adjustLaserSparkPosition(sf::RectangleShape *sparkShape, double angle,
+                                  int sparkTime);
+    void drawLaserSparks(sf::RenderWindow *window, int time,
+                         GfxEventHandler *gfxHandler, Ship **ships);
+    void drawNames(sf::RenderWindow *window, Ship **ships, int numShips);
+    void drawStageTexts(sf::RenderWindow *window, Stage *stage, bool gameOver);
     void drawDock(sf::RenderWindow *window, Stage *stage);
+    void drawDockItem(sf::RenderWindow *window, DockItem *dockItem);
+    double adjustX(double x);
+    double adjustY(double x, double height);
+    double adjustY(double x);
 };
 
 #endif

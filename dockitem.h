@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 - Voidious
+  Copyright (C) 2013 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -18,32 +18,27 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <string.h>
-#include "bbutil.h"
+#ifndef DOCK_ITEM_H
+#define DOCK_ITEM_H
+
+#include <SFML/Graphics.hpp>
 #include "rectangle.h"
-#include "zone.h"
 
-Zone::Zone(int left, int bottom, int width, int height)
-    : Rectangle(left, bottom, width, height) {
-  tag_ = 0;
-}
+#define TEXT_COLOR         sf::Color(255, 255, 255, 255)
+#define HIGHLIGHTED_COLOR  sf::Color(0, 255, 0, 255)
 
-Zone::Zone(int left, int bottom, int width, int height, const char *tag)
-    : Rectangle(left, bottom, width, height) {
-  tag_ = new char[MAX_NAME_LENGTH + 1];
-  strncpy(tag_, tag, MAX_NAME_LENGTH);
-}
+class DockItem : public Rectangle {
+  int top_;
+  bool highlighted_;
+  sf::Text *sfmlText_;
 
-bool Zone::hasTag() {
-  return (tag_ != 0);
-}
+  public:
+    DockItem(const char *text, sf::Font *font, int fontSize, int left, int top,
+             int width, int height);
+    ~DockItem();
+    void setHighlights(int mouseX, int mouseY);
+    sf::Text *getSfmlText();
+    bool contains(int x, int y);
+};
 
-char* Zone::getTag() {
-  return tag_;
-}
-
-Zone::~Zone() {
-  if (tag_ != 0) {
-    delete tag_;
-  }
-}
+#endif

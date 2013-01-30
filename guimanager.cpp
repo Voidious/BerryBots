@@ -403,11 +403,11 @@ void GuiManager::runCurrentMatch() {
       }
       
       processMainWindowEvents();
-      // TODO: Leaking ~2 MB per bot per match on my MacBook Pro (10.8, Cocoa).
-      //       SFML folks seem to think it's in the video drivers.
+      // TODO: Leaking a bit match on my MacBook Pro (10.8, Cocoa). SFML folks
+      //       seem to think it's in the video drivers.
       //       http://en.sfml-dev.org/forums/index.php?topic=8609.0
-      //       Really need to investigate more and/or find a work-around.
-      //       Also seeing it under Linux/GTK, though much smaller (250-500kb).
+      //       Really need to investigate more and/or find a work-around. Also
+      //       seeing it under Linux/GTK, to a lesser extent.
       
       if (!paused_ && !quitting_) {
         window->clear();
@@ -445,7 +445,7 @@ void GuiManager::processMainWindowEvents() {
   sf::RenderWindow *window = getMainWindow();
   sf::Event event;
   bool resized = false;
-  while (window->pollEvent(event) && event.type != sf::Event::LostFocus) {
+  while (window->pollEvent(event)) {
     if (event.type == sf::Event::Closed) {
       window->close();
     }
@@ -460,6 +460,14 @@ void GuiManager::processMainWindowEvents() {
     if (event.type == sf::Event::MouseButtonPressed) {
       gfxManager_->processMouseClick(event.mouseButton.x,
                                      event.mouseButton.y);
+    }
+    if (event.type == sf::Event::MouseMoved
+        || event.type == sf::Event::MouseEntered) {
+      gfxManager_->processMouseMoved(event.mouseMove.x,
+                                     event.mouseMove.y);
+    }
+    if (event.type == sf::Event::MouseLeft) {
+      gfxManager_->processMouseMoved(-1, -1);
     }
 
     // On Linux/GTK, the wxWidgets windows freeze while running a match,
