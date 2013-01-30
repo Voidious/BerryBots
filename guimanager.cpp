@@ -449,10 +449,6 @@ void GuiManager::processMainWindowEvents() {
     if (event.type == sf::Event::Closed) {
       window->close();
     }
-    if (event.type == sf::Event::KeyPressed
-        && event.key.code == sf::Keyboard::Escape) {
-      window->close();
-    }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
       gfxManager_->updateView(window, viewWidth_, viewHeight_);
@@ -468,6 +464,21 @@ void GuiManager::processMainWindowEvents() {
     }
     if (event.type == sf::Event::MouseLeft) {
       gfxManager_->processMouseMoved(-1, -1);
+    }
+
+    // On Mac/Cocoa, when using a different Space, the rest of the OS UI slows
+    // to a crawl unless you have a frame rate limit set. But the frame rate is
+    // smoother if we use vsync instead of a fixed frame rate, so do that when we
+    // have focus.
+    // TODO: Determine if this is necessary/preferable on Linux/Windows.
+    // TODO: Might be better to restrict this to the Space case specifically,
+    //       or when window isn't visible to user.
+    if (event.type == sf::Event::LostFocus) {
+      window->setVerticalSyncEnabled(false);
+      window->setFramerateLimit(60);
+    } else if (event.type == sf::Event::GainedFocus) {
+      window->setVerticalSyncEnabled(true);
+      window->setFramerateLimit(0);
     }
 
     // On Linux/GTK, the wxWidgets windows freeze while running a match,
