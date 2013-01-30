@@ -99,7 +99,7 @@ class FileManager {
         const char *tmpDir, bool nosrc)
         throw (InvalidLuaFilenameException*, LuaException*);
     void crawlFiles(lua_State *L, const char *startFile)
-        throw (InvalidLuaFilenameException*);
+        throw (InvalidLuaFilenameException*, LuaException*);
     bool fileExists(const char *filename);
     void mkdir(const char *filename);
     char* parseFilename(const char *dirAndFilename);
@@ -108,6 +108,8 @@ class FileManager {
     void mkdirIfNecessary(char *dir);
     void checkLuaFilename(const char *filename)
         throw (InvalidLuaFilenameException*);
+    void throwForLuaError(lua_State *L, const char *formatString)
+        throw (LuaException*);
 };
 
 #endif

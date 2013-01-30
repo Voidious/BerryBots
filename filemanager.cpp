@@ -395,10 +395,9 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
 }
 
 void FileManager::crawlFiles(lua_State *L, const char *startFile)
-    throw (InvalidLuaFilenameException*) {
-  if (luaL_loadfile(L, startFile)
-      || lua_pcall(L, 0, 0, 0)) {
-    luaL_error(L, "failed to crawl file: %s", lua_tostring(L, -1));
+    throw (InvalidLuaFilenameException*, LuaException*) {
+  if (luaL_loadfile(L, startFile) || lua_pcall(L, 0, 0, 0)) {
+    throwForLuaError(L, "Failed to load file for crawling: %s ");
   }
   
   lua_getfield(L, LUA_REGISTRYINDEX, "__FILES");
@@ -411,7 +410,7 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile)
       const char *loadedFilename = lua_tostring(L, -1);
       checkLuaFilename(loadedFilename);
       if (luaL_loadfile(L, loadedFilename) || lua_pcall(L, 0, 0, 0)) {
-        luaL_error(L, "failed to crawl file: %s", lua_tostring(L, -1));
+        throwForLuaError(L, "Failed to load file for crawling: %s ");
       }
       lua_pop(L, 1);
     }
@@ -436,14 +435,14 @@ void FileManager::packageStage(const char *stageArg, const char *version,
   stage = engine->getStage();
   if (luaL_loadfile(stageState, stageFilename)
       || lua_pcall(stageState, 0, 0, 0)) {
-    luaL_error(stageState, "cannot load stage file: %s",
-               lua_tostring(stageState, -1));
+    delete engine;
+    throwForLuaError(stageState, "Failed to load file for crawling: %s");
   }
   lua_getglobal(stageState, "configure");
   pushStageBuilder(stageState);
   if (lua_pcall(stageState, 1, 0, 0) != 0) {
-    luaL_error(stageState, "error calling stage function: 'configure': %s",
-               lua_tostring(stageState, -1));
+    throwForLuaError(stageState,
+                     "Error calling stage function: 'configure': %s");
   }
 
   try {
@@ -451,8 +450,11 @@ void FileManager::packageStage(const char *stageArg, const char *version,
   } catch (InvalidLuaFilenameException *e) {
     delete engine;
     throw e;
+  } catch (LuaException *e) {
+    delete engine;
+    throw e;
   }
-  
+
   int numStageShips = stage->getStageShipCount();
   char **stageShipFilenames = stage->getStageShips();
   lua_getfield(stageState, LUA_REGISTRYINDEX, "__FILES");
@@ -640,6 +642,18 @@ void FileManager::saveBytecode(char *srcFile, char *outputFile, char *luaCwd)
   lua_dump(saveState, writer, D);
   lua_close(saveState);
   fclose(D);
+}
+
+void FileManager::throwForLuaError(lua_State *L, const char *formatString)
+    throw (LuaException*) {
+  const char *luaMessage = lua_tostring(L, -1);
+  int messageLen = (int) (strlen(formatString) + strlen(luaMessage) - 2);
+  char *errorMessage = new char[messageLen + 1];
+  sprintf(errorMessage, formatString, luaMessage);
+  LuaException *e = new LuaException(errorMessage);
+  delete errorMessage;
+  
+  throw e;
 }
 
 LuaException::LuaException(const char *details) {

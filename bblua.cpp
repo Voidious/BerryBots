@@ -35,7 +35,11 @@ extern BerryBotsEngine *engine;
 extern Stage *stage;
 extern PrintHandler *printHandler;
 
-// TODO: consider moving some stuff between stage and engine
+// TODO: Consider moving some stuff between stage and engine.
+// TODO: Once we have engine references in the BerryBots Lua objects
+//       (Ship/World etc), instead of luaL_error, report errors to the engine.
+//       GUI can register a listener to pick them up, CLI can do the same and
+//       handle it similarly to luaL_error.
 
 void luaSrand(lua_State *L) {
   char *luaSrand = new char[100];
