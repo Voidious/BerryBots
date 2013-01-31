@@ -59,6 +59,16 @@ class NewMatchDialog : public wxFrame {
     void onRemoveBots(wxCommandEvent &event);
     void onClearBots(wxCommandEvent &event);
     void onStartMatch(wxCommandEvent &event);
+    void onEscape();
+};
+
+class NewMatchEventFilter : public wxEventFilter {
+  NewMatchDialog *newMatchDialog_;
+
+  public:
+    NewMatchEventFilter(NewMatchDialog *newMatchDialog);
+    ~NewMatchEventFilter();
+    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif

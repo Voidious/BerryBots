@@ -22,10 +22,9 @@
 #include "newmatch.h"
 #include "bbwx.h"
 
-NewMatchDialog::NewMatchDialog()
-    : wxFrame(NULL, NEW_MATCH_ID, "BerryBots",
-             wxPoint(50, 50), wxSize(500, 520),
-             wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
+NewMatchDialog::NewMatchDialog() : wxFrame(NULL, NEW_MATCH_ID, "BerryBots",
+    wxPoint(50, 50), wxSize(500, 520),
+    wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   stageLabel_ = new wxStaticText(this, -1, "Stage:", wxPoint(20, 10));
   stageSelect_ = new wxListBox(this, -1, wxPoint(20, 30), wxSize(200, 200));
   botsLabel_ = new wxStaticText(this, -1, "Bots:", wxPoint(20, 240));
@@ -44,7 +43,7 @@ NewMatchDialog::NewMatchDialog()
   numStages_ = numBots_ = numLoadedBots_ = 0;
   listener_ = 0;
   menusInitialized_ = false;
-      
+
   Connect(NEW_MATCH_ID, wxEVT_ACTIVATE,
           wxCommandEventHandler(NewMatchDialog::onActivate));
   Connect(NEW_MATCH_ID, wxEVT_CLOSE_WINDOW,
@@ -61,6 +60,8 @@ NewMatchDialog::NewMatchDialog()
           wxCommandEventHandler(NewMatchDialog::onAddBots));
   Connect(LOADED_BOTS_ID, wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
           wxCommandEventHandler(NewMatchDialog::onRemoveBots));
+
+  this->GetEventHandler()->AddFilter(new NewMatchEventFilter(this));
 }
 
 NewMatchDialog::~NewMatchDialog() {
@@ -163,4 +164,25 @@ void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
       delete stage;
     }
   }
+}
+
+void NewMatchDialog::onEscape() {
+  listener_->cancel();
+}
+
+NewMatchEventFilter::NewMatchEventFilter(NewMatchDialog *newMatchDialog) {
+  newMatchDialog_ = newMatchDialog;
+}
+
+NewMatchEventFilter::~NewMatchEventFilter() {
+  
+}
+
+int NewMatchEventFilter::FilterEvent(wxEvent& event) {
+  const wxEventType type = event.GetEventType();
+  if (type == wxEVT_KEY_DOWN
+      && ((wxKeyEvent*) &event)->GetKeyCode() == WXK_ESCAPE) {
+    newMatchDialog_->onEscape();
+  }
+  return Event_Skip;
 }
