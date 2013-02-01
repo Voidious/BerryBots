@@ -418,8 +418,8 @@ void GuiManager::runCurrentMatch() {
       }
       
       processMainWindowEvents();
-      // TODO: Leaking a bit match on my MacBook Pro (10.8, Cocoa). SFML folks
-      //       seem to think it's in the video drivers.
+      // TODO: Leaking a bit per bot per match on my MacBook Pro (10.8, Cocoa).
+      //       SFML folks seem to think it's in the video drivers.
       //       http://en.sfml-dev.org/forums/index.php?topic=8609.0
       //       Really need to investigate more and/or find a work-around. Also
       //       seeing it under Linux/GTK, to a lesser extent.
@@ -482,6 +482,22 @@ void GuiManager::processMainWindowEvents() {
     }
     if (event.type == sf::Event::MouseLeft) {
       gfxManager_->processMouseMoved(-1, -1);
+    }
+    if (event.type == sf::Event::KeyPressed) {
+      switch (event.key.code) {
+        case sf::Keyboard::Space:
+          togglePause();
+          break;
+        case sf::Keyboard::Back:
+          restartMatch();
+          break;
+        case sf::Keyboard::N:
+        case sf::Keyboard::Escape:
+          showNewMatchDialog();
+          break;
+        default:
+          break;
+      }
     }
 
     // On Mac/Cocoa, when using a different Space, the rest of the OS UI slows

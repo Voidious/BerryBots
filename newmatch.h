@@ -56,10 +56,14 @@ class NewMatchDialog : public wxFrame {
     void onActivate(wxCommandEvent &event);
     void onClose(wxCommandEvent &event);
     void onAddBots(wxCommandEvent &event);
+    void addSelectedBots();
     void onRemoveBots(wxCommandEvent &event);
+    void removeSelectedLoadedBots();
     void onClearBots(wxCommandEvent &event);
     void onStartMatch(wxCommandEvent &event);
     void onEscape();
+    bool botsSelectHasFocus();
+    bool loadedBotsSelectHasFocus();
 };
 
 class NewMatchEventFilter : public wxEventFilter {

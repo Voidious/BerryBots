@@ -106,6 +106,10 @@ void NewMatchDialog::onClose(wxCommandEvent &event) {
 }
 
 void NewMatchDialog::onAddBots(wxCommandEvent &event) {
+  addSelectedBots();
+}
+
+void NewMatchDialog::addSelectedBots() {
   wxArrayInt selectedBots;
   botsSelect_->GetSelections(selectedBots);
   wxArrayInt::const_iterator first = selectedBots.begin();
@@ -118,6 +122,10 @@ void NewMatchDialog::onAddBots(wxCommandEvent &event) {
 }
 
 void NewMatchDialog::onRemoveBots(wxCommandEvent &event) {
+  removeSelectedLoadedBots();
+}
+
+void NewMatchDialog::removeSelectedLoadedBots() {
   wxArrayInt selectedBots;
   loadedBotsSelect_->GetSelections(selectedBots);
   wxArrayInt::const_iterator first = selectedBots.begin();
@@ -170,6 +178,14 @@ void NewMatchDialog::onEscape() {
   listener_->cancel();
 }
 
+bool NewMatchDialog::botsSelectHasFocus() {
+  return botsSelect_->HasFocus();
+}
+
+bool NewMatchDialog::loadedBotsSelectHasFocus() {
+  return loadedBotsSelect_->HasFocus();
+}
+
 NewMatchEventFilter::NewMatchEventFilter(NewMatchDialog *newMatchDialog) {
   newMatchDialog_ = newMatchDialog;
 }
@@ -180,9 +196,17 @@ NewMatchEventFilter::~NewMatchEventFilter() {
 
 int NewMatchEventFilter::FilterEvent(wxEvent& event) {
   const wxEventType type = event.GetEventType();
-  if (type == wxEVT_KEY_DOWN
-      && ((wxKeyEvent*) &event)->GetKeyCode() == WXK_ESCAPE) {
-    newMatchDialog_->onEscape();
+  if (type == wxEVT_KEY_DOWN) {
+    int keyCode = ((wxKeyEvent*) &event)->GetKeyCode();
+    if (keyCode == WXK_ESCAPE) {
+      newMatchDialog_->onEscape();
+    } else if ((keyCode == WXK_SPACE || keyCode == WXK_RETURN)
+               && newMatchDialog_->botsSelectHasFocus()) {
+      newMatchDialog_->addSelectedBots();
+    } else if ((keyCode == WXK_SPACE || keyCode == WXK_BACK)
+               && (newMatchDialog_->loadedBotsSelectHasFocus())) {
+      newMatchDialog_->removeSelectedLoadedBots();
+    }
   }
   return Event_Skip;
 }
