@@ -22,10 +22,11 @@
 #include "packagestage.h"
 #include "bbwx.h"
 
-PackageStageDialog::PackageStageDialog()
-    : wxFrame(NULL, PACKAGE_STAGE_ID, "Package Stage",
-              wxPoint(50, 50), wxSize(380, 260),
+PackageStageDialog::PackageStageDialog(PackageStageDialogListener *listener)
+    : wxFrame(NULL, PACKAGE_STAGE_ID, "Package Stage", wxPoint(50, 50),
+              wxSize(380, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
+  listener_ = listener;
   stageSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
   versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 163));
   versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 160),
@@ -33,11 +34,10 @@ PackageStageDialog::PackageStageDialog()
   packageButton_ = new wxButton(this, PACKAGE_STAGE_BUTTON_ID, "Package!",
       wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
   numStages_ = 0;
-  listener_ = 0;
   menusInitialized_ = false;
 
   Connect(PACKAGE_STAGE_ID, wxEVT_ACTIVATE,
-          wxCommandEventHandler(PackageStageDialog::onActivate));
+          wxActivateEventHandler(PackageStageDialog::onActivate));
   Connect(PACKAGE_STAGE_ID, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(PackageStageDialog::onClose));
   Connect(PACKAGE_STAGE_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
@@ -57,11 +57,7 @@ void PackageStageDialog::addStage(char *stage) {
   }
 }
 
-void PackageStageDialog::setListener(PackageStageDialogListener *listener) {
-  listener_ = listener;
-}
-
-void PackageStageDialog::onActivate(wxCommandEvent &event) {
+void PackageStageDialog::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
     this->SetMenuBar(listener_->getNewMenuBar());
     menusInitialized_ = true;

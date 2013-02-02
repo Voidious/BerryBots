@@ -48,12 +48,11 @@ class NewMatchDialog : public wxFrame {
   bool menusInitialized_;
 
   public:
-    NewMatchDialog();
+    NewMatchDialog(NewMatchListener *listener);
     ~NewMatchDialog();
-    void setListener(NewMatchListener *listener);
     void addStage(char *stage);
     void addBot(char *bot);
-    void onActivate(wxCommandEvent &event);
+    void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);
     void onAddBots(wxCommandEvent &event);
     void addSelectedBots();
@@ -61,6 +60,7 @@ class NewMatchDialog : public wxFrame {
     void removeSelectedLoadedBots();
     void onClearBots(wxCommandEvent &event);
     void onStartMatch(wxCommandEvent &event);
+    void startMatch();
     void onEscape();
     bool botsSelectHasFocus();
     bool loadedBotsSelectHasFocus();

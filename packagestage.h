@@ -44,11 +44,10 @@ class PackageStageDialog : public wxFrame {
   bool menusInitialized_;
 
   public:
-  PackageStageDialog();
-  ~PackageStageDialog();
+    PackageStageDialog(PackageStageDialogListener *listener);
+    ~PackageStageDialog();
     void addStage(char *stage);
-    void setListener(PackageStageDialogListener *listener);
-    void onActivate(wxCommandEvent &event);
+    void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);
     void onPackage(wxCommandEvent &event);
 };

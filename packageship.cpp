@@ -22,10 +22,11 @@
 #include "packageship.h"
 #include "bbwx.h"
 
-PackageShipDialog::PackageShipDialog()
+PackageShipDialog::PackageShipDialog(PackageShipDialogListener *listener)
     : wxFrame(NULL, PACKAGE_SHIP_ID, "Package Ship",
               wxPoint(50, 50), wxSize(380, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
+  listener_ = listener;
   botSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
   versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 163));
   versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 160),
@@ -33,11 +34,10 @@ PackageShipDialog::PackageShipDialog()
   packageButton_ = new wxButton(this, PACKAGE_SHIP_BUTTON_ID, "Package!",
       wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
   numBots_ = 0;
-  listener_ = 0;
   menusInitialized_ = false;
   
   Connect(PACKAGE_SHIP_ID, wxEVT_ACTIVATE,
-          wxCommandEventHandler(PackageShipDialog::onActivate));
+          wxActivateEventHandler(PackageShipDialog::onActivate));
   Connect(PACKAGE_SHIP_ID, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(PackageShipDialog::onClose));
   Connect(PACKAGE_SHIP_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
@@ -57,11 +57,7 @@ void PackageShipDialog::addBot(char *bot) {
   }
 }
 
-void PackageShipDialog::setListener(PackageShipDialogListener *listener) {
-  listener_ = listener;
-}
-
-void PackageShipDialog::onActivate(wxCommandEvent &event) {
+void PackageShipDialog::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
     this->SetMenuBar(listener_->getNewMenuBar());
     menusInitialized_ = true;

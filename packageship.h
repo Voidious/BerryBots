@@ -44,11 +44,10 @@ class PackageShipDialog : public wxFrame {
   bool menusInitialized_;
 
   public:
-    PackageShipDialog();
+    PackageShipDialog(PackageShipDialogListener *listener);
     ~PackageShipDialog();
     void addBot(char *bot);
-    void setListener(PackageShipDialogListener *listener);
-    void onActivate(wxCommandEvent &event);
+    void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);
     void onPackage(wxCommandEvent &event);
 };

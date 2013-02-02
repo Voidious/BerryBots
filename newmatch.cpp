@@ -22,9 +22,10 @@
 #include "newmatch.h"
 #include "bbwx.h"
 
-NewMatchDialog::NewMatchDialog() : wxFrame(NULL, NEW_MATCH_ID, "BerryBots",
-    wxPoint(50, 50), wxSize(500, 520),
+NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
+    NEW_MATCH_ID, "BerryBots", wxPoint(50, 50), wxSize(500, 520),
     wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
+  listener_ = listener;
   stageLabel_ = new wxStaticText(this, -1, "Stage:", wxPoint(20, 10));
   stageSelect_ = new wxListBox(this, -1, wxPoint(20, 30), wxSize(200, 200));
   botsLabel_ = new wxStaticText(this, -1, "Bots:", wxPoint(20, 240));
@@ -41,11 +42,10 @@ NewMatchDialog::NewMatchDialog() : wxFrame(NULL, NEW_MATCH_ID, "BerryBots",
   startButton_ = new wxButton(this, START_BUTTON_ID, "Start Match!",
                               wxPoint(377, 460), wxDefaultSize, wxBU_EXACTFIT);
   numStages_ = numBots_ = numLoadedBots_ = 0;
-  listener_ = 0;
   menusInitialized_ = false;
 
   Connect(NEW_MATCH_ID, wxEVT_ACTIVATE,
-          wxCommandEventHandler(NewMatchDialog::onActivate));
+          wxActivateEventHandler(NewMatchDialog::onActivate));
   Connect(NEW_MATCH_ID, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(NewMatchDialog::onClose));
   Connect(ADD_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
@@ -65,6 +65,7 @@ NewMatchDialog::NewMatchDialog() : wxFrame(NULL, NEW_MATCH_ID, "BerryBots",
 }
 
 NewMatchDialog::~NewMatchDialog() {
+  delete listener_;
   delete stageLabel_;
   delete stageSelect_;
   delete botsLabel_;
@@ -74,10 +75,6 @@ NewMatchDialog::~NewMatchDialog() {
   delete clearButton_;
   delete loadedBotsSelect_;
   delete startButton_;
-}
-
-void NewMatchDialog::setListener(NewMatchListener *listener) {
-  listener_ = listener;
 }
 
 void NewMatchDialog::addStage(char *stage) {
@@ -94,7 +91,7 @@ void NewMatchDialog::addBot(char *bot) {
   }
 }
 
-void NewMatchDialog::onActivate(wxCommandEvent &event) {
+void NewMatchDialog::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
     this->SetMenuBar(listener_->getNewMenuBar());
     menusInitialized_ = true;
@@ -144,6 +141,10 @@ void NewMatchDialog::onClearBots(wxCommandEvent &event) {
 }
 
 void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
+  startMatch();
+}
+
+void NewMatchDialog::startMatch() {
   if (listener_ != 0) {
     wxArrayInt loadedBots;
     wxArrayInt selectedStageIndex;
@@ -157,14 +158,14 @@ void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
         strcpy(bot, loadedBot.fn_str());
         bots[x] = bot;
       }
-
+      
       wxString selectedStage =
           stageSelect_->GetString(*(selectedStageIndex.begin()));
       char *stage = new char[selectedStage.length() + 1];
       strcpy(stage, selectedStage.fn_str());
-
+      
       listener_->startMatch(stage, bots, numStartBots);
-
+      
       for (int x = 0; x < numStartBots; x++) {
         delete bots[x];
       }
@@ -191,13 +192,14 @@ NewMatchEventFilter::NewMatchEventFilter(NewMatchDialog *newMatchDialog) {
 }
 
 NewMatchEventFilter::~NewMatchEventFilter() {
-  
+
 }
 
 int NewMatchEventFilter::FilterEvent(wxEvent& event) {
   const wxEventType type = event.GetEventType();
-  if (type == wxEVT_KEY_DOWN) {
-    int keyCode = ((wxKeyEvent*) &event)->GetKeyCode();
+  if (type == wxEVT_KEY_DOWN && newMatchDialog_->IsShown()) {
+    wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+    int keyCode = keyEvent->GetKeyCode();
     if (keyCode == WXK_ESCAPE) {
       newMatchDialog_->onEscape();
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_RETURN)
@@ -206,6 +208,8 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_BACK)
                && (newMatchDialog_->loadedBotsSelectHasFocus())) {
       newMatchDialog_->removeSelectedLoadedBots();
+    } else if (keyEvent->GetUnicodeKey() == 'M' && keyEvent->ControlDown()) {
+      newMatchDialog_->startMatch();
     }
   }
   return Event_Skip;

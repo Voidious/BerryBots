@@ -63,13 +63,12 @@ class GuiManager {
   bool quitting_;
   
   public:
-    GuiManager();
+    GuiManager(char *stageDir, char *botsDir);
     ~GuiManager();
     void loadStages(const char *baseDir);
     bool isValidStageFile(const char *baseDir, char *stageFilename);
     void loadBots(const char *baseDir);
     bool isValidBotFile(const char *baseDir, char *stageFilename);
-    void linkListeners();
     void runNewMatch(char *stagePath, char **teamPaths, int numTeams);
     void resumeMatch();
     void processMainWindowEvents();

@@ -18,13 +18,13 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <wx/wx.h>
-
 #include <iostream>
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
 #include <math.h>
+#include <SFML/Graphics.hpp>
+#include <wx/wx.h>
 
 #include "bbwx.h"
 #include "stage.h"
@@ -52,12 +52,20 @@ class BerryBotsApp: public wxApp {
 wxIMPLEMENT_APP(BerryBotsApp);
 
 bool BerryBotsApp::OnInit() {
-  guiManager_ = new GuiManager();
+
+#ifdef __WXOSX__
+  // On OS X, it complains if we initialize our first SFML window after the
+  // wxWidgets windows have set their menu bars or after the base dir selector,
+  // so initialize one here first.
+  sf::RenderWindow *window = new sf::RenderWindow(
+      sf::VideoMode(800, 600), "BerryBots", sf::Style::Default,
+      sf::ContextSettings(0, 0, 0, 2, 0));
+  delete window;
+#endif
+
   char *stageDir = guiManager_->getStageDirCopy();
   char *botsDir = guiManager_->getBotsDirCopy();
-  guiManager_->loadStages(stageDir);
-  guiManager_->loadBots(botsDir);
-  guiManager_->linkListeners();
+  guiManager_ = new GuiManager(stageDir, botsDir);
   delete stageDir;
   delete botsDir;
 

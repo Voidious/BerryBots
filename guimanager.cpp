@@ -44,36 +44,39 @@ extern BerryBotsEngine *engine;
 extern Stage *stage;
 extern PrintHandler *printHandler;
 
-GuiManager::GuiManager() {
+GuiManager::GuiManager(char *stageDir, char *botsDir) {
+  stageBaseDir_ = new char[strlen(stageDir) + 1];
+  strcpy(stageBaseDir_, stageDir);
+  botsBaseDir_ = new char[strlen(botsDir) + 1];
+  strcpy(botsBaseDir_, botsDir);
+
   window_ = 0;
-#ifdef __WXOSX__
-  // On OS X, it complains if we initialize our first SFML window after the
-  // wxWidgets windows have set their menu bars, so initialize one here.
-  initMainWindow(800, 600);
-  window_->setVisible(false);
-#endif
-  newMatchDialog_ = new NewMatchDialog();
-  packageShipDialog_ = new PackageShipDialog();
-  packageStageDialog_ = new PackageStageDialog();
   consoleId_ = 1000;
+  fileManager_ = new FileManager();
+  packagingConsole_ =
+      new OutputConsole(this->nextConsoleId(), "Packaging Details");
+  packagingConsole_->SetPosition(wxPoint(150, 100));
+  newMatchDialog_ =
+      new NewMatchDialog(new MatchRunner(this, stageBaseDir_, botsBaseDir_));
+  shipPackager_ = new ShipPackager(
+      this, fileManager_, packagingConsole_, botsBaseDir_);
+  stagePackager_ = new StagePackager(
+      this, fileManager_, packagingConsole_, stageBaseDir_, botsBaseDir_);
+  packageShipDialog_ = new PackageShipDialog(shipPackager_);
+  packageStageDialog_ = new PackageStageDialog(stagePackager_);
+  loadStages(stageDir);
+  loadBots(botsDir);
+
   stageConsole_ = 0;
   teamConsoles_ = 0;
-  packagingConsole_ = new OutputConsole(this->nextConsoleId(),
-                                        "Packaging Details");
-  packagingConsole_->SetPosition(wxPoint(150, 100));
   numTeams_ = 0;
   gfxManager_ = new GfxManager(true);
   viewListener_ = new ViewListener(this);
   gfxManager_->setListener(viewListener_);
-  fileManager_ = new FileManager();
-  shipPackager_ = 0;
-  stagePackager_ = 0;
   packageReporter_ = new PackageReporter(packagingConsole_);
   fileManager_->setListener(packageReporter_);
   newMatchDialog_->Show();
   newMatchDialog_->SetFocus();
-  stageBaseDir_ = 0;
-  botsBaseDir_ = 0;
   engine = 0;
   currentStagePath_ = 0;
   currentTeamPaths_ = 0;
@@ -91,12 +94,8 @@ GuiManager::~GuiManager() {
   delete packageShipDialog_;
   delete packageStageDialog_;
   delete packagingConsole_;
-  if (stageBaseDir_ != 0) {
-    delete stageBaseDir_;
-  }
-  if (botsBaseDir_ != 0) {
-    delete botsBaseDir_;
-  }
+  delete stageBaseDir_;
+  delete botsBaseDir_;
   if (engine != 0) {
     delete engine;
   }
@@ -106,22 +105,12 @@ GuiManager::~GuiManager() {
   delete gfxManager_;
   delete viewListener_;
   delete fileManager_;
-  if (shipPackager_ != 0) {
-    delete shipPackager_;
-  }
-  if (stagePackager_ != 0) {
-    delete stagePackager_;
-  }
+  delete shipPackager_;
+  delete stagePackager_;
   delete packageReporter_;
 }
 
 void GuiManager::loadStages(const char *baseDir) {
-  if (stageBaseDir_ != 0) {
-    delete stageBaseDir_;
-  }
-  stageBaseDir_ = new char[strlen(baseDir) + 1];
-  strcpy(stageBaseDir_, baseDir);
-
   platformstl::readdir_sequence dir(baseDir,
                                     platformstl::readdir_sequence::files);
   platformstl::readdir_sequence::const_iterator first = dir.begin();
@@ -206,12 +195,6 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
 }
 
 void GuiManager::loadBots(const char *baseDir) {
-  if (botsBaseDir_ != 0) {
-    delete botsBaseDir_;
-  }
-  botsBaseDir_ = new char[strlen(baseDir) + 1];
-  strcpy(botsBaseDir_, baseDir);
-
   platformstl::readdir_sequence dir(baseDir,
                                     platformstl::readdir_sequence::files);
   platformstl::readdir_sequence::const_iterator first = dir.begin();
@@ -294,17 +277,6 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
     return true;
   }
   return false;
-}
-
-void GuiManager::linkListeners() {
-  newMatchDialog_->setListener(
-      new MatchRunner(this, stageBaseDir_, botsBaseDir_));
-  shipPackager_ = new ShipPackager(this, fileManager_, packagingConsole_,
-                                   botsBaseDir_);
-  stagePackager_ = new StagePackager(this, fileManager_, packagingConsole_,
-                                     stageBaseDir_, botsBaseDir_);
-  packageShipDialog_->setListener(shipPackager_);
-  packageStageDialog_->setListener(stagePackager_);
 }
 
 sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
@@ -488,7 +460,7 @@ void GuiManager::processMainWindowEvents() {
         case sf::Keyboard::Space:
           togglePause();
           break;
-        case sf::Keyboard::Back:
+        case sf::Keyboard::BackSpace:
           restartMatch();
           break;
         case sf::Keyboard::N:
