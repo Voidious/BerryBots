@@ -29,6 +29,14 @@ OutputConsole::OutputConsole(wxWindowID id, const char *title)
                           wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator);
   Connect(id, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(OutputConsole::onClose));
+  eventFilter_ = new OutputConsoleEventFilter(this);
+  this->GetEventHandler()->AddFilter(eventFilter_);
+}
+
+OutputConsole::~OutputConsole() {
+  this->GetEventHandler()->RemoveFilter(eventFilter_);
+  delete eventFilter_;
+  delete output_;
 }
 
 void OutputConsole::print(const char *text) {
@@ -52,6 +60,28 @@ void OutputConsole::onClose(wxCommandEvent &event) {
   Hide();
 }
 
-OutputConsole::~OutputConsole() {
-  delete output_;
+OutputConsoleEventFilter::OutputConsoleEventFilter(
+    OutputConsole *outputConsole) {
+  outputConsole_ = outputConsole;
+}
+
+OutputConsoleEventFilter::~OutputConsoleEventFilter() {
+  
+}
+
+int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
+  const wxEventType type = event.GetEventType();
+  wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+  int keyCode = keyEvent->GetKeyCode();
+  if (type == wxEVT_KEY_DOWN && outputConsole_->IsActive()) {
+    if (keyCode == WXK_ESCAPE) {
+      outputConsole_->Hide();
+    }
+#ifdef __WXOSX__
+    if (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown()) {
+      outputConsole_->Hide();
+    }
+#endif
+  }
+  return Event_Skip;
 }

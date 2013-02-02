@@ -44,7 +44,8 @@ extern BerryBotsEngine *engine;
 extern Stage *stage;
 extern PrintHandler *printHandler;
 
-GuiManager::GuiManager(char *stageDir, char *botsDir) {
+GuiManager::GuiManager(GuiListener *listener, char *stageDir, char *botsDir) {
+  listener_ = listener;
   stageBaseDir_ = new char[strlen(stageDir) + 1];
   strcpy(stageBaseDir_, stageDir);
   botsBaseDir_ = new char[strlen(botsDir) + 1];
@@ -411,6 +412,11 @@ void GuiManager::runCurrentMatch() {
     errorMessage.ShowModal();
     newMatchDialog_->Show();
   }
+
+  if (!window->isOpen()) {
+    listener_->onMainWindowClose();
+  }
+
   // TODO: Display winner / CPU usage in GUI
 
   if (!interrupted_) {

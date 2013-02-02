@@ -47,6 +47,7 @@ class NewMatchDialog : public wxFrame {
   unsigned int numLoadedBots_;
   NewMatchListener *listener_;
   bool menusInitialized_;
+  wxEventFilter *eventFilter_;
 
   public:
     NewMatchDialog(NewMatchListener *listener);

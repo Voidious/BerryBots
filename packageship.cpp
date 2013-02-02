@@ -43,10 +43,13 @@ PackageShipDialog::PackageShipDialog(PackageShipDialogListener *listener)
   Connect(PACKAGE_SHIP_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(PackageShipDialog::onPackage));
 
-  this->GetEventHandler()->AddFilter(new PackageShipEventFilter(this));
+  eventFilter_ = new PackageShipEventFilter(this);
+  this->GetEventHandler()->AddFilter(eventFilter_);
 }
 
 PackageShipDialog::~PackageShipDialog() {
+  this->GetEventHandler()->RemoveFilter(eventFilter_);
+  delete eventFilter_;
   delete botsSelect_;
   delete versionLabel_;
   delete versionText_;
@@ -114,6 +117,11 @@ int PackageShipEventFilter::FilterEvent(wxEvent& event) {
     } else if (keyEvent->GetUnicodeKey() == 'P' && keyEvent->ControlDown()) {
       packageShipDialog_->packageSelectedBot();
     }
+#ifdef __WXOSX__
+    if (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown()) {
+      packageShipDialog_->onEscape();
+    }
+#endif
   }
   return Event_Skip;
 }

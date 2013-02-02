@@ -41,12 +41,24 @@ PrintHandler *printHandler = 0;
 
 class BerryBotsApp: public wxApp {
   GuiManager *guiManager_;
+  GuiListener *guiListener_;
+
   public:
     virtual bool OnInit();
     virtual void OnQuit(wxCommandEvent &event);
+    void quit();
     virtual void OnNewMatch(wxCommandEvent &event);
     virtual void OnPackageShip(wxCommandEvent &event);
     virtual void OnPackageStage(wxCommandEvent &event);
+};
+
+class AppGuiListener : public GuiListener {
+  BerryBotsApp *app_;
+  
+  public:
+    AppGuiListener(BerryBotsApp *app);
+    ~AppGuiListener();
+    void onMainWindowClose();
 };
 
 wxIMPLEMENT_APP(BerryBotsApp);
@@ -65,7 +77,8 @@ bool BerryBotsApp::OnInit() {
 
   char *stageDir = guiManager_->getStageDirCopy();
   char *botsDir = guiManager_->getBotsDirCopy();
-  guiManager_ = new GuiManager(stageDir, botsDir);
+  guiListener_ = new AppGuiListener(this);
+  guiManager_ = new GuiManager(guiListener_, stageDir, botsDir);
   delete stageDir;
   delete botsDir;
 
@@ -82,8 +95,13 @@ bool BerryBotsApp::OnInit() {
 }
 
 void BerryBotsApp::OnQuit(wxCommandEvent &event) {
+  quit();
+}
+
+void BerryBotsApp::quit() {
   guiManager_->quit();
   ExitMainLoop();
+  delete guiListener_;
   // TODO: delete guiManager_ without clobbering anyone else
 }
 
@@ -103,4 +121,16 @@ void BerryBotsApp::OnPackageStage(wxCommandEvent &event) {
   guiManager_->showPackageStageDialog();
   guiManager_->hideNewMatchDialog();
   guiManager_->hidePackageShipDialog();
+}
+
+AppGuiListener::AppGuiListener(BerryBotsApp *app) {
+  app_ = app;
+}
+
+AppGuiListener::~AppGuiListener() {
+  
+}
+
+void AppGuiListener::onMainWindowClose() {
+  app_->quit();
 }

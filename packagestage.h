@@ -42,6 +42,7 @@ class PackageStageDialog : public wxFrame {
   unsigned int numStages_;
   PackageStageDialogListener *listener_;
   bool menusInitialized_;
+  wxEventFilter *eventFilter_;
 
   public:
     PackageStageDialog(PackageStageDialogListener *listener);

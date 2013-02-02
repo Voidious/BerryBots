@@ -25,14 +25,25 @@
 
 class OutputConsole : public wxFrame {
   wxTextCtrl *output_;
+  wxEventFilter *eventFilter_;
+
   public:
     OutputConsole(wxWindowID id, const char *title);
+    ~OutputConsole();
     void print(const char *text);
     void println(const char *text);
     void println();
     void clear();
     void onClose(wxCommandEvent &event);
-    ~OutputConsole();
+};
+
+class OutputConsoleEventFilter : public wxEventFilter {
+  OutputConsole *outputConsole_;
+  
+  public:
+    OutputConsoleEventFilter(OutputConsole *outputConsole);
+    ~OutputConsoleEventFilter();
+    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif

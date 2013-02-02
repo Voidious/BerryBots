@@ -42,6 +42,7 @@ class PackageShipDialog : public wxFrame {
   unsigned int numBots_;
   PackageShipDialogListener *listener_;
   bool menusInitialized_;
+  wxEventFilter *eventFilter_;
 
   public:
     PackageShipDialog(PackageShipDialogListener *listener);

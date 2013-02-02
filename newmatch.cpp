@@ -61,10 +61,13 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
   Connect(LOADED_BOTS_ID, wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
           wxCommandEventHandler(NewMatchDialog::onRemoveBots));
 
-  this->GetEventHandler()->AddFilter(new NewMatchEventFilter(this));
+  eventFilter_ = new NewMatchEventFilter(this);
+  this->GetEventHandler()->AddFilter(eventFilter_);
 }
 
 NewMatchDialog::~NewMatchDialog() {
+  this->GetEventHandler()->RemoveFilter(eventFilter_);
+  delete eventFilter_;
   delete listener_;
   delete stageLabel_;
   delete stageSelect_;
@@ -211,6 +214,11 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
     } else if (keyEvent->GetUnicodeKey() == 'M' && keyEvent->ControlDown()) {
       newMatchDialog_->startMatch();
     }
+#ifdef __WXOSX__
+    if (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown()) {
+      newMatchDialog_->onEscape();
+    }
+#endif
   }
   return Event_Skip;
 }

@@ -43,10 +43,13 @@ PackageStageDialog::PackageStageDialog(PackageStageDialogListener *listener)
   Connect(PACKAGE_STAGE_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(PackageStageDialog::onPackage));
 
-  this->GetEventHandler()->AddFilter(new PackageStageEventFilter(this));
+  eventFilter_ = new PackageStageEventFilter(this);
+  this->GetEventHandler()->AddFilter(eventFilter_);
 }
 
 PackageStageDialog::~PackageStageDialog() {
+  this->GetEventHandler()->RemoveFilter(eventFilter_);
+  delete eventFilter_;
   delete stageSelect_;
   delete versionLabel_;
   delete versionText_;
@@ -114,6 +117,11 @@ int PackageStageEventFilter::FilterEvent(wxEvent& event) {
     } else if (keyEvent->GetUnicodeKey() == 'P' && keyEvent->ControlDown()) {
       packageStageDialog_->packageSelectedStage();
     }
+#ifdef __WXOSX__
+    if (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown()) {
+      packageStageDialog_->onEscape();
+    }
+#endif
   }
   return Event_Skip;
 }

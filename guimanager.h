@@ -29,7 +29,14 @@
 #include "packagestage.h"
 #include "outputconsole.h"
 
+class GuiListener {
+  public:
+    virtual void onMainWindowClose() = 0;
+    virtual ~GuiListener() {};
+};
+
 class GuiManager {
+  GuiListener *listener_;
   NewMatchDialog *newMatchDialog_;
   PackageShipDialog *packageShipDialog_;
   PackageStageDialog *packageStageDialog_;
@@ -63,7 +70,7 @@ class GuiManager {
   bool quitting_;
   
   public:
-    GuiManager(char *stageDir, char *botsDir);
+    GuiManager(GuiListener *listener, char *stageDir, char *botsDir);
     ~GuiManager();
     void loadStages(const char *baseDir);
     bool isValidStageFile(const char *baseDir, char *stageFilename);
