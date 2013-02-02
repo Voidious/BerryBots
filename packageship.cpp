@@ -55,6 +55,11 @@ PackageShipDialog::~PackageShipDialog() {
   delete versionText_;
 }
 
+void PackageShipDialog::clearBots() {
+  botsSelect_->Clear();
+  numBots_ = 0;
+}
+
 void PackageShipDialog::addBot(char *bot) {
   botsSelect_->Insert(wxString(bot), numBots_++);
   if (botsSelect_->GetCount() > 0) {

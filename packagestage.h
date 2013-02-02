@@ -47,6 +47,7 @@ class PackageStageDialog : public wxFrame {
   public:
     PackageStageDialog(PackageStageDialogListener *listener);
     ~PackageStageDialog();
+    void clearStages();
     void addStage(char *stage);
     void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);

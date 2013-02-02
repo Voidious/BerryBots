@@ -47,6 +47,7 @@ class PackageShipDialog : public wxFrame {
   public:
     PackageShipDialog(PackageShipDialogListener *listener);
     ~PackageShipDialog();
+    void clearBots();
     void addBot(char *bot);
     void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);

@@ -52,7 +52,9 @@ class NewMatchDialog : public wxFrame {
   public:
     NewMatchDialog(NewMatchListener *listener);
     ~NewMatchDialog();
+    void clearStages();
     void addStage(char *stage);
+    void clearBots();
     void addBot(char *bot);
     void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);

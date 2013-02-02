@@ -55,6 +55,11 @@ PackageStageDialog::~PackageStageDialog() {
   delete versionText_;
 }
 
+void PackageStageDialog::clearStages() {
+  stageSelect_->Clear();
+  numStages_ = 0;
+}
+
 void PackageStageDialog::addStage(char *stage) {
   stageSelect_->Insert(wxString(stage), numStages_++);
   if (stageSelect_->GetCount() > 0) {

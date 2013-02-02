@@ -80,11 +80,22 @@ NewMatchDialog::~NewMatchDialog() {
   delete startButton_;
 }
 
+void NewMatchDialog::clearStages() {
+  stageSelect_->Clear();
+  numStages_ = 0;
+}
+
 void NewMatchDialog::addStage(char *stage) {
   stageSelect_->Insert(wxString(stage), numStages_++);
   if (stageSelect_->GetCount() > 0) {
     stageSelect_->SetFirstItem(0);
   }
+}
+
+void NewMatchDialog::clearBots() {
+  botsSelect_->Clear();
+  loadedBotsSelect_->Clear();
+  numBots_ = numLoadedBots_ = 0;
 }
 
 void NewMatchDialog::addBot(char *bot) {

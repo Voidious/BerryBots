@@ -65,8 +65,8 @@ GuiManager::GuiManager(GuiListener *listener, char *stageDir, char *botsDir) {
       this, fileManager_, packagingConsole_, stageBaseDir_, botsBaseDir_);
   packageShipDialog_ = new PackageShipDialog(shipPackager_);
   packageStageDialog_ = new PackageStageDialog(stagePackager_);
-  loadStages(stageDir);
-  loadBots(botsDir);
+  loadStages();
+  loadBots();
 
   stageConsole_ = 0;
   teamConsoles_ = 0;
@@ -111,15 +111,17 @@ GuiManager::~GuiManager() {
   delete packageReporter_;
 }
 
-void GuiManager::loadStages(const char *baseDir) {
-  platformstl::readdir_sequence dir(baseDir,
+void GuiManager::loadStages() {
+  newMatchDialog_->clearStages();
+  packageStageDialog_->clearStages();
+  platformstl::readdir_sequence dir(stageBaseDir_,
                                     platformstl::readdir_sequence::files);
   platformstl::readdir_sequence::const_iterator first = dir.begin();
   platformstl::readdir_sequence::const_iterator last = dir.end();
   while (first != last) {
     platformstl::readdir_sequence::const_iterator file = first++;
     char *filename = (char *) *file;
-    if (isValidStageFile(baseDir, filename)) {
+    if (isValidStageFile(stageBaseDir_, filename)) {
       newMatchDialog_->addStage(filename);
       if (fileManager_->isLuaFilename(filename)) {
         packageStageDialog_->addStage(filename);
@@ -195,15 +197,17 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
   return false;
 }
 
-void GuiManager::loadBots(const char *baseDir) {
-  platformstl::readdir_sequence dir(baseDir,
+void GuiManager::loadBots() {
+  newMatchDialog_->clearBots();
+  packageShipDialog_->clearBots();
+  platformstl::readdir_sequence dir(botsBaseDir_,
                                     platformstl::readdir_sequence::files);
   platformstl::readdir_sequence::const_iterator first = dir.begin();
   platformstl::readdir_sequence::const_iterator last = dir.end();
   while (first != last) {
     platformstl::readdir_sequence::const_iterator file = first++;
     char *filename = (char *) *file;
-    if (isValidBotFile(baseDir, filename)) {
+    if (isValidBotFile(botsBaseDir_, filename)) {
       newMatchDialog_->addBot(filename);
       if (fileManager_->isLuaFilename(filename)) {
         packageShipDialog_->addBot(filename);
@@ -704,6 +708,7 @@ void ShipPackager::package(const char *botName, const char *version,
   delete botsPath;
   delete cacheDir;
   delete tmpDir;
+  guiManager_->loadBots();
 }
 
 void ShipPackager::cancel() {
@@ -748,6 +753,7 @@ void StagePackager::package(const char *stageName, const char *version,
   delete stagePath;
   delete cacheDir;
   delete tmpDir;
+  guiManager_->loadStages();
 }
 
 void StagePackager::cancel() {
