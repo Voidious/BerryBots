@@ -375,9 +375,9 @@ void GfxManager::processMouseClick(int x, int y) {
     } else if (restartButton_->contains(x, y)) {
       listener_->onRestart();
     } else {
-      for (int x = 0; x < numTeams_; x++) {
-        if (teamButtons_[x]->contains(x, y)) {
-          listener_->onTeamClick(teams_[x]->index);
+      for (int z = 0; z < numTeams_; z++) {
+        if (teamButtons_[z]->contains(x, y)) {
+          listener_->onTeamClick(teams_[z]->index);
         }
       }
     }
