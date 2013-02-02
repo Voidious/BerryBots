@@ -50,6 +50,7 @@ class BerryBotsApp: public wxApp {
     virtual void OnNewMatch(wxCommandEvent &event);
     virtual void OnPackageShip(wxCommandEvent &event);
     virtual void OnPackageStage(wxCommandEvent &event);
+    virtual void MacReopenApp();
 };
 
 class AppGuiListener : public GuiListener {
@@ -121,6 +122,12 @@ void BerryBotsApp::OnPackageStage(wxCommandEvent &event) {
   guiManager_->showPackageStageDialog();
   guiManager_->hideNewMatchDialog();
   guiManager_->hidePackageShipDialog();
+}
+
+void BerryBotsApp::MacReopenApp() {
+  // No-op - When SFML window is only one open and user switches to app via icon
+  // in Mac OS X dock, this stops wxWidgets from opening one of its windows
+  // unnecessarily.
 }
 
 AppGuiListener::AppGuiListener(BerryBotsApp *app) {
