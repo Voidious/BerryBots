@@ -30,7 +30,7 @@ extern "C" {
 
 class PackagingListener {
   public:
-    virtual void packagingComplete(char **sourceFiles, int numFiles,
+    virtual void packagingComplete(char **sourceFiles, int numFiles, bool nosrc,
                                    const char *destinationFile) = 0;
     virtual ~PackagingListener() {};
 };

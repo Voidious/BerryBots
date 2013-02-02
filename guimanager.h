@@ -156,7 +156,7 @@ class PackageReporter : public PackagingListener {
 
   public:
     PackageReporter(OutputConsole *packagingConsole);
-    virtual void packagingComplete(char **sourceFiles, int numFiles,
+    virtual void packagingComplete(char **sourceFiles, int numFiles, bool nosrc,
                                    const char *destinationFile);
 };
 

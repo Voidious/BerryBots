@@ -26,7 +26,7 @@
 class CliPackageReporter : public PackagingListener {
   public:
     CliPackageReporter();
-    virtual void packagingComplete(char **sourceFiles, int numFiles,
+    virtual void packagingComplete(char **sourceFiles, int numFiles, bool nosrc,
                                    const char *destinationFile);
 };
 

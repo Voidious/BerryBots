@@ -23,13 +23,16 @@
 #include "bbwx.h"
 
 PackageStageDialog::PackageStageDialog(PackageStageDialogListener *listener)
-    : wxFrame(NULL, PACKAGE_STAGE_ID, "Package Stage", wxPoint(50, 50),
-              wxSize(380, 260),
+    : wxFrame(NULL, PACKAGE_STAGE_ID, "Package Stage",
+              wxPoint(50, 50), wxSize(400, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
   stageSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
-  versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 163));
-  versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 160),
+  includeSrcCheckBox_ = new wxCheckBox(
+      this, STAGE_SRC_CHECKBOX_ID, "Include source code", wxPoint(230, 168));
+  includeSrcCheckBox_->SetValue(true);
+  versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 140));
+  versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 137),
                                 wxSize(70, 23));
   packageButton_ = new wxButton(this, PACKAGE_STAGE_BUTTON_ID, "Package!",
       wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
@@ -51,6 +54,7 @@ PackageStageDialog::~PackageStageDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
   delete stageSelect_;
+  delete includeSrcCheckBox_;
   delete versionLabel_;
   delete versionText_;
 }
@@ -96,7 +100,7 @@ void PackageStageDialog::packageSelectedStage() {
     char *version = new char[stageVersion.length() + 1];
     strcpy(version, stageVersion.fn_str());
 
-    listener_->package(stage, version, false);
+    listener_->package(stage, version, !includeSrcCheckBox_->IsChecked());
   }
 }
 

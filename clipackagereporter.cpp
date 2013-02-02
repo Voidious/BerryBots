@@ -25,9 +25,15 @@ CliPackageReporter::CliPackageReporter() {
 
 }
 
-void CliPackageReporter::packagingComplete(char **sourceFiles, int numFiles,
-                                           const char *destinationFile) {
-  std::cout << "The following source files were packaged:" << std::endl;
+void CliPackageReporter::packagingComplete(
+    char **sourceFiles, int numFiles, bool nosrc, const char *destinationFile) {
+  if (nosrc) {
+    std::cout << "The following files were compiled and packaged as Lua "
+        << "bytecode:" << std::endl;
+  } else {
+    std::cout << "The following files were packaged as source code:"
+        << std::endl;
+  }
   for (int x = 0; x < numFiles; x++) {
     if (sourceFiles[x] != 0) {
       std::cout << "  " << sourceFiles[x] << std::endl;

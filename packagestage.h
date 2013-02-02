@@ -36,6 +36,7 @@ class PackageStageDialogListener {
 
 class PackageStageDialog : public wxFrame {
   wxListBox *stageSelect_;
+  wxCheckBox *includeSrcCheckBox_;
   wxStaticText *versionLabel_;
   wxTextCtrl *versionText_;
   wxButton *packageButton_;

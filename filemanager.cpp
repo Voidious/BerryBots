@@ -375,7 +375,7 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
   system(packCmd);
   
   if (packagingListener_ != 0) {
-    packagingListener_->packagingComplete(packFilenames, numFiles,
+    packagingListener_->packagingComplete(packFilenames, numFiles, nosrc,
                                           outputFilename);
   }
   

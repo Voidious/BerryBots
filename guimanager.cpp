@@ -770,11 +770,17 @@ PackageReporter::PackageReporter(OutputConsole *packagingConsole) {
   packagingConsole_ = packagingConsole;
 }
 
-void PackageReporter::packagingComplete(char **sourceFiles, int numFiles,
-                                             const char *destinationFile) {
+void PackageReporter::packagingComplete(
+    char **sourceFiles, int numFiles, bool nosrc, const char *destinationFile) {
   packagingConsole_->clear();
   packagingConsole_->Show();
-  packagingConsole_->println("The following source files were packaged:");
+  if (nosrc) {
+    packagingConsole_->println(
+        "The following files were compiled and packaged as Lua bytecode:");
+  } else {
+    packagingConsole_->println(
+        "The following files were packaged as source code:");
+  }
   for (int x = 0; x < numFiles; x++) {
     if (sourceFiles[x] != 0) {
       packagingConsole_->print("  ");

@@ -24,12 +24,15 @@
 
 PackageShipDialog::PackageShipDialog(PackageShipDialogListener *listener)
     : wxFrame(NULL, PACKAGE_SHIP_ID, "Package Ship",
-              wxPoint(50, 50), wxSize(380, 260),
+              wxPoint(50, 50), wxSize(400, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
   botsSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
-  versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 163));
-  versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 160),
+  includeSrcCheckBox_ = new wxCheckBox(
+      this, SHIP_SRC_CHECKBOX_ID, "Include source code", wxPoint(230, 168));
+  includeSrcCheckBox_->SetValue(true);
+  versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 140));
+  versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 137),
                                 wxSize(70, 23));
   packageButton_ = new wxButton(this, PACKAGE_SHIP_BUTTON_ID, "Package!",
       wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
@@ -51,6 +54,7 @@ PackageShipDialog::~PackageShipDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
   delete botsSelect_;
+  delete includeSrcCheckBox_;
   delete versionLabel_;
   delete versionText_;
 }
@@ -96,7 +100,7 @@ void PackageShipDialog::packageSelectedBot() {
     char *version = new char[botVersion.length() + 1];
     strcpy(version, botVersion.fn_str());
     
-    listener_->package(bot, version, false);
+    listener_->package(bot, version, !includeSrcCheckBox_->IsChecked());
   }
 }
 

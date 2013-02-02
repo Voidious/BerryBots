@@ -36,6 +36,7 @@ class PackageShipDialogListener {
 
 class PackageShipDialog : public wxFrame {
   wxListBox *botsSelect_;
+  wxCheckBox *includeSrcCheckBox_;
   wxStaticText *versionLabel_;
   wxTextCtrl *versionText_;
   wxButton *packageButton_;
