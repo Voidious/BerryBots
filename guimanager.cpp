@@ -431,15 +431,16 @@ void GuiManager::runCurrentMatch() {
 void GuiManager::resumeMatch() {
   if (window_ == 0) {
     listener_->onAllWindowsClosed();
-  }
-  if (interrupted_) {
-    hideNewMatchDialog();
-    hidePackageShipDialog();
-    hidePackageStageDialog();
-    runCurrentMatch();
-  }
-  while (restarting_) {
-    runNewMatch(currentStagePath_, currentTeamPaths_, currentNumTeams_);
+  } else {
+    if (interrupted_) {
+      hideNewMatchDialog();
+      hidePackageShipDialog();
+      hidePackageStageDialog();
+      runCurrentMatch();
+    }
+    while (restarting_) {
+      runNewMatch(currentStagePath_, currentTeamPaths_, currentNumTeams_);
+    }
   }
 }
 
