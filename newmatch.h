@@ -28,6 +28,7 @@ class NewMatchListener {
     virtual wxMenuBar* getNewMenuBar() = 0;
     virtual void startMatch(const char *stagePath, char **teamPaths,
                             int numTeams) = 0;
+    virtual void refreshFiles() = 0;
     virtual void cancel() = 0;
     virtual ~NewMatchListener() {};
 };
@@ -42,6 +43,7 @@ class NewMatchDialog : public wxFrame {
   wxButton *clearButton_;
   wxListBox *loadedBotsSelect_;
   wxButton *startButton_;
+  wxButton *refreshButton_;
   unsigned int numStages_;
   unsigned int numBots_;
   unsigned int numLoadedBots_;
@@ -62,9 +64,11 @@ class NewMatchDialog : public wxFrame {
     void addSelectedBots();
     void onRemoveBots(wxCommandEvent &event);
     void removeSelectedLoadedBots();
-    void onClearBots(wxCommandEvent &event);
+    void removeStaleLoadedBots();
+    void onClearLoadedBots(wxCommandEvent &event);
     void onStartMatch(wxCommandEvent &event);
     void startMatch();
+    void onRefreshFiles(wxCommandEvent &event);
     void onEscape();
     bool botsSelectHasFocus();
     bool loadedBotsSelectHasFocus();

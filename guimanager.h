@@ -115,6 +115,7 @@ class MatchRunner : public NewMatchListener {
     virtual wxMenuBar* getNewMenuBar();
     virtual void startMatch(const char *stageName, char **teamNames,
                             int numTeams);
+    virtual void refreshFiles();
     virtual void cancel();
 };
 

@@ -41,6 +41,8 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
                                     wxSize(200, 200), 0, NULL, wxLB_MULTIPLE);
   startButton_ = new wxButton(this, START_BUTTON_ID, "Start Match!",
                               wxPoint(377, 460), wxDefaultSize, wxBU_EXACTFIT);
+  refreshButton_ = new wxButton(this, wxID_REFRESH, wxEmptyString,
+                                wxPoint(15, 460), wxDefaultSize);
   numStages_ = numBots_ = numLoadedBots_ = 0;
   menusInitialized_ = false;
 
@@ -53,14 +55,16 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
   Connect(REMOVE_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onRemoveBots));
   Connect(CLEAR_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
-          wxCommandEventHandler(NewMatchDialog::onClearBots));
+          wxCommandEventHandler(NewMatchDialog::onClearLoadedBots));
   Connect(START_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onStartMatch));
   Connect(SELECT_BOTS_ID, wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
           wxCommandEventHandler(NewMatchDialog::onAddBots));
   Connect(LOADED_BOTS_ID, wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
           wxCommandEventHandler(NewMatchDialog::onRemoveBots));
-
+  Connect(wxID_REFRESH, wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(NewMatchDialog::onRefreshFiles));
+  
   eventFilter_ = new NewMatchEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
 }
@@ -78,6 +82,7 @@ NewMatchDialog::~NewMatchDialog() {
   delete clearButton_;
   delete loadedBotsSelect_;
   delete startButton_;
+  delete refreshButton_;
 }
 
 void NewMatchDialog::clearStages() {
@@ -94,8 +99,7 @@ void NewMatchDialog::addStage(char *stage) {
 
 void NewMatchDialog::clearBots() {
   botsSelect_->Clear();
-  loadedBotsSelect_->Clear();
-  numBots_ = numLoadedBots_ = 0;
+  numBots_ = 0;
 }
 
 void NewMatchDialog::addBot(char *bot) {
@@ -149,7 +153,21 @@ void NewMatchDialog::removeSelectedLoadedBots() {
   }
 }
 
-void NewMatchDialog::onClearBots(wxCommandEvent &event) {
+void NewMatchDialog::removeStaleLoadedBots() {
+  wxArrayInt loadedBots;
+  if (numLoadedBots_ != 0) {
+    for (int x = 0; x < numLoadedBots_; x++) {
+      wxString loadedBot = loadedBotsSelect_->GetString(x);
+      if (botsSelect_->FindString(loadedBot) == wxNOT_FOUND) {
+        loadedBotsSelect_->Delete(x);
+        x--;
+        numLoadedBots_--;
+      }
+    }
+  }
+}
+
+void NewMatchDialog::onClearLoadedBots(wxCommandEvent &event) {
   loadedBotsSelect_->Clear();
   numLoadedBots_ = 0;
 }
@@ -187,6 +205,10 @@ void NewMatchDialog::startMatch() {
       delete stage;
     }
   }
+}
+
+void NewMatchDialog::onRefreshFiles(wxCommandEvent &event) {
+  listener_->refreshFiles();
 }
 
 void NewMatchDialog::onEscape() {

@@ -214,6 +214,7 @@ void GuiManager::loadBots() {
       }
     }
   }
+  newMatchDialog_->removeStaleLoadedBots();
 }
 
 bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
@@ -667,6 +668,11 @@ void MatchRunner::startMatch(const char *stageName, char **teamNames,
   }
 
   guiManager_->runNewMatch(stagePath, teamPaths, numTeams);
+}
+
+void MatchRunner::refreshFiles() {
+  guiManager_->loadStages();
+  guiManager_->loadBots();
 }
 
 void MatchRunner::cancel() {
