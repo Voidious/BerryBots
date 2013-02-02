@@ -414,7 +414,7 @@ void GuiManager::runCurrentMatch() {
   }
 
   if (!window->isOpen()) {
-    listener_->onMainWindowClose();
+    listener_->onAllWindowsClosed();
   }
 
   // TODO: Display winner / CPU usage in GUI
@@ -429,7 +429,13 @@ void GuiManager::runCurrentMatch() {
 }
 
 void GuiManager::resumeMatch() {
+  if (window_ == 0) {
+    listener_->onAllWindowsClosed();
+  }
   if (interrupted_) {
+    hideNewMatchDialog();
+    hidePackageShipDialog();
+    hidePackageStageDialog();
     runCurrentMatch();
   }
   while (restarting_) {
@@ -659,7 +665,6 @@ void MatchRunner::startMatch(const char *stageName, char **teamNames,
 }
 
 void MatchRunner::cancel() {
-  guiManager_->hideNewMatchDialog();
   guiManager_->resumeMatch();
 }
 
@@ -701,7 +706,6 @@ void ShipPackager::package(const char *botName, const char *version,
 }
 
 void ShipPackager::cancel() {
-  guiManager_->hidePackageShipDialog();
   guiManager_->resumeMatch();
 }
 
@@ -746,7 +750,6 @@ void StagePackager::package(const char *stageName, const char *version,
 }
 
 void StagePackager::cancel() {
-  guiManager_->hidePackageStageDialog();
   guiManager_->resumeMatch();
 }
 

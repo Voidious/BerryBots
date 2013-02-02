@@ -31,7 +31,7 @@
 
 class GuiListener {
   public:
-    virtual void onMainWindowClose() = 0;
+    virtual void onAllWindowsClosed() = 0;
     virtual ~GuiListener() {};
 };
 

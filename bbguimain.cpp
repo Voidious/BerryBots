@@ -58,7 +58,7 @@ class AppGuiListener : public GuiListener {
   public:
     AppGuiListener(BerryBotsApp *app);
     ~AppGuiListener();
-    void onMainWindowClose();
+    void onAllWindowsClosed();
 };
 
 wxIMPLEMENT_APP(BerryBotsApp);
@@ -131,6 +131,6 @@ AppGuiListener::~AppGuiListener() {
   
 }
 
-void AppGuiListener::onMainWindowClose() {
+void AppGuiListener::onAllWindowsClosed() {
   app_->quit();
 }
