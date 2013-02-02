@@ -18,12 +18,14 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#include "bbutil.h"
 #include "guiprinthandler.h"
 
 GuiPrintHandler::GuiPrintHandler(OutputConsole *stageConsole,
-                                 OutputConsole **teamConsoles, int numTeams) {
+    OutputConsole **teamConsoles, Team **teams, int numTeams) {
   stageConsole_ = stageConsole;
   teamConsoles_ = teamConsoles;
+  teams_ = teams;
   numTeams_ = numTeams;
 }
 
@@ -31,6 +33,12 @@ void GuiPrintHandler::stagePrint(const char *text) {
   stageConsole_->println(text);
 }
 
-void GuiPrintHandler::shipPrint(int teamIndex, const char *text) {
-  teamConsoles_[teamIndex]->println(text);
+void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    if (team->state == L) {
+      teamConsoles_[x]->println(text);
+      break;
+    }
+  }
 }

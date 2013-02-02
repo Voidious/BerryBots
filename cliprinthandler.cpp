@@ -32,6 +32,12 @@ void CliPrintHandler::stagePrint(const char *text) {
   cout << "Stage: " << text << endl;
 }
 
-void CliPrintHandler::shipPrint(int teamIndex, const char *text) {
-  cout << "Ship: " << teams_[teamIndex]->name << ": " << text << endl;
+void CliPrintHandler::shipPrint(lua_State *L, const char *text) {
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    if (team->state == L) {
+      cout << "Ship: " << team->name << ": " << text << endl;
+      break;
+    }
+  }
 }

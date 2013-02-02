@@ -171,7 +171,8 @@ void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
   }
 
   lua_getglobal(stageState_, "configure");
-  pushStageBuilder(stageState_);
+  StageBuilder *stageBuilder = pushStageBuilder(stageState_);
+  stageBuilder->engine = this;
   if (lua_pcall(stageState_, 1, 0, 0) != 0) {
     throwForLuaError(stageState_,
                      "Error calling stage function: 'configure': %s");
@@ -313,6 +314,7 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
       properties->laserG = 255;
       properties->thrusterG = properties->thrusterB = 0;
       properties->thrusterR = 255;
+      properties->engine = this;
   
       strncpy(properties->name, shipFilename, nameLength);
       properties->name[nameLength] = '\0';
@@ -327,6 +329,7 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
 
     if (!doa) {
       worlds_[x] = pushWorld(teamState, stage_, numShips_, teamSize_);
+      worlds_[x]->engine = this;
       if (lua_pcall(teamState, 2, 0, 0) != 0) {
         // TODO: where should this display in GUI?
         printf("error calling ship (%s) function: 'init': %s\n",
@@ -362,7 +365,9 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
   stage_->setTeamsAndShips(teams_, numTeams_, stageShips_, numShips_);
   if (strcmp(luaL_typename(stageState_, -2), "nil") != 0) {
     stageWorld_ = pushWorld(stageState_, stage_, numShips_, teamSize_);
-    pushAdmin(stageState_);
+    stageWorld_->engine = this;
+    Admin *admin = pushAdmin(stageState_);
+    admin->engine = this;
     if (lua_pcall(stageState_, 3, 0, 0) != 0) {
       throwForLuaError(stageState_, "Error calling stage function: 'init': %s");
     }

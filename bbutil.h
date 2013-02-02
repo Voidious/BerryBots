@@ -37,6 +37,8 @@ extern "C" {
 #define ADMIN          "Admin"
 #define STAGE_SENSORS  "StageSensors"
 
+class BerryBotsEngine;
+
 typedef struct {
   unsigned short index;
   unsigned short firstShipIndex;
@@ -68,6 +70,7 @@ typedef struct {
   unsigned short thrusterB;
   bool doa;
   bool stageShip;
+  BerryBotsEngine *engine;
 } ShipProperties;
 
 typedef struct {
@@ -131,6 +134,10 @@ typedef struct {
 } Torpedo;
 
 typedef struct {
+  BerryBotsEngine *engine;
+} StageBuilder;
+
+typedef struct {
   unsigned short width;
   unsigned short height;
   unsigned short numShips;
@@ -139,7 +146,12 @@ typedef struct {
   int wallsRef;
   int zonesRef;
   int constantsRef;
+  BerryBotsEngine *engine;
 } World;
+
+typedef struct {
+  BerryBotsEngine *engine;
+} Admin;
 
 typedef struct {
   int shipHitShipRef;

@@ -21,18 +21,23 @@
 #ifndef GUI_PRINT_HANDLER_H
 #define GUI_PRINT_HANDLER_H
 
+extern "C" {
+  #include "lua.h"
+}
+
 #include "printhandler.h"
 #include "outputconsole.h"
 
 class GuiPrintHandler : public PrintHandler {
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
+  Team **teams_;
   int numTeams_;
   public:
     GuiPrintHandler(OutputConsole *stageConsole, OutputConsole **teamConsoles,
-                    int numTeams);
+                    Team **teams, int numTeams);
     virtual void stagePrint(const char *text);
-    virtual void shipPrint(int teamIndex, const char *text);
+    virtual void shipPrint(lua_State *L, const char *text);
 };
 
 #endif

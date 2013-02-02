@@ -57,13 +57,13 @@ extern StageSensors* pushStageSensors(lua_State *L,
     SensorHandler *sensorHandler, Ship **ships, ShipProperties **properties);
 extern void cleanupStageSensorsTables(
     lua_State *L, StageSensors *stageSensors);
-extern void pushStageBuilder(lua_State *L);
+extern StageBuilder* pushStageBuilder(lua_State *L);
 extern void pushWalls(lua_State *L, Wall** walls, int wallCount);
 extern void pushZones(lua_State *L, Zone** zones, int zoneCount);
 extern void pushCopyOfShips(
     lua_State *L, Ship** ships, Ship **shipsCopy, int numShips);
 extern World* pushWorld(lua_State *L, Stage *stage, int numShips, int teamSize);
-extern void pushAdmin(lua_State *L);
+extern Admin* pushAdmin(lua_State *L);
 extern void crawlFiles(lua_State *L, const char *startFile);
 
 #endif

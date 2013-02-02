@@ -34,10 +34,6 @@ extern "C" {
   #include "lauxlib.h"
 }
 
-// TODO: refactor this to ditch the globals
-extern BerryBotsEngine *engine;
-extern Stage *stage;
-
 FileManager::FileManager() {
   packagingListener_ = 0;
 }
@@ -431,15 +427,16 @@ void FileManager::packageStage(const char *stageArg, const char *version,
   checkLuaFilename(stageFilename);
   initStageState(&stageState, stageCwd, stageFilename);
   
-  engine = new BerryBotsEngine();
-  stage = engine->getStage();
+  BerryBotsEngine *engine = new BerryBotsEngine();
+  Stage *stage = engine->getStage();
   if (luaL_loadfile(stageState, stageFilename)
       || lua_pcall(stageState, 0, 0, 0)) {
     delete engine;
     throwForLuaError(stageState, "Failed to load file for crawling: %s");
   }
   lua_getglobal(stageState, "configure");
-  pushStageBuilder(stageState);
+  StageBuilder *stageBuilder = pushStageBuilder(stageState);
+  stageBuilder->engine = engine;
   if (lua_pcall(stageState, 1, 0, 0) != 0) {
     throwForLuaError(stageState,
                      "Error calling stage function: 'configure': %s");

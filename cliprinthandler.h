@@ -21,6 +21,10 @@
 #ifndef CLI_PRINT_HANDLER_H
 #define CLI_PRINT_HANDLER_H
 
+extern "C" {
+  #include "lua.h"
+}
+
 #include "bbutil.h"
 #include "printhandler.h"
 
@@ -30,7 +34,7 @@ class CliPrintHandler : public PrintHandler {
   public:
     CliPrintHandler(Team **teams, int numTeams);
     virtual void stagePrint(const char *text);
-    virtual void shipPrint(int teamIndex, const char *text);
+    virtual void shipPrint(lua_State *L, const char *text);
 };
 
 #endif

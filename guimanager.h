@@ -51,6 +51,7 @@ class GuiManager {
   PackageShipDialogListener *shipPackager_;
   PackageStageDialogListener *stagePackager_;
   PackagingListener *packageReporter_;
+  BerryBotsEngine *engine_;
   char *stageBaseDir_;
   char *botsBaseDir_;
   unsigned int consoleId_;

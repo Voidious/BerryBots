@@ -35,8 +35,6 @@
 
 using namespace std;
 
-BerryBotsEngine *engine = 0;
-Stage *stage = 0;
 PrintHandler *printHandler = 0;
 
 class BerryBotsApp: public wxApp {

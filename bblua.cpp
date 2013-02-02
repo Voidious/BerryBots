@@ -31,8 +31,6 @@
 
 using namespace std;
 
-extern BerryBotsEngine *engine;
-extern Stage *stage;
 extern PrintHandler *printHandler;
 
 // TODO: Consider moving some stuff between stage and engine.
@@ -40,6 +38,7 @@ extern PrintHandler *printHandler;
 //       (Ship/World etc), instead of luaL_error, report errors to the engine.
 //       GUI can register a listener to pick them up, CLI can do the same and
 //       handle it similarly to luaL_error.
+// TODO: Consider adding stage pointer to StageBuilder and Admin, for speed.
 
 void luaSrand(lua_State *L) {
   char *luaSrand = new char[100];
@@ -145,8 +144,10 @@ int Ship_fireThruster(lua_State *L) {
 
 int Ship_fireLaser(lua_State *L) {
   Ship *ship = checkShip(L, 1);
-  if (ship->alive && ship->laserEnabled && stage->fireLaser(
-          ship, luaL_checknumber(L, 2), engine->getGameTime())) {
+  if (ship->alive && ship->laserEnabled
+      && ship->properties->engine->getStage()->fireLaser(
+          ship, luaL_checknumber(L, 2),
+          ship->properties->engine->getGameTime())) {
     ship->laserGunHeat = LASER_HEAT;
     lua_pushboolean(L, true);
   } else {
@@ -158,8 +159,10 @@ int Ship_fireLaser(lua_State *L) {
 int Ship_fireTorpedo(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   if (ship->alive && ship->torpedoEnabled
-      && stage->fireTorpedo(ship, luaL_checknumber(L, 2), std::max(
-          0.0, (double) luaL_checknumber(L, 3)), engine->getGameTime())) {
+      && ship->properties->engine->getStage()->fireTorpedo(
+          ship, luaL_checknumber(L, 2),
+          std::max(0.0, (double) luaL_checknumber(L, 3)),
+          ship->properties->engine->getGameTime())) {
     ship->torpedoGunHeat = TORPEDO_HEAT;
     lua_pushboolean(L, true);
   } else {
@@ -242,6 +245,7 @@ void setTeamName(Team *team, const char *name) {
 int Ship_setName(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   const char *shipName = luaL_checkstring(L, 2);
+  BerryBotsEngine *engine = ship->properties->engine;
   if (!engine->isInitComplete()) {
     strncpy(ship->properties->name, shipName, MAX_NAME_LENGTH);
     ship->properties->name[MAX_NAME_LENGTH] = '\0';
@@ -257,6 +261,7 @@ int Ship_setName(lua_State *L) {
 int Ship_setTeamName(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   const char *teamName = luaL_checkstring(L, 2);
+  BerryBotsEngine *engine = ship->properties->engine;
   if (!engine->isInitComplete()) {
     setTeamName(engine->getTeam(ship->teamIndex), teamName);
   }
@@ -266,7 +271,7 @@ int Ship_setTeamName(lua_State *L) {
 
 int Ship_setShipColor(lua_State *L) {
   Ship *ship = checkShip(L, 1);
-  if (!engine->isInitComplete()) {
+  if (!ship->properties->engine->isInitComplete()) {
     ship->properties->shipR = limit(0, luaL_checkint(L, 2), 255);
     ship->properties->shipG = limit(0, luaL_checkint(L, 3), 255);
     ship->properties->shipB = limit(0, luaL_checkint(L, 4), 255);
@@ -277,7 +282,7 @@ int Ship_setShipColor(lua_State *L) {
 
 int Ship_setLaserColor(lua_State *L) {
   Ship *ship = checkShip(L, 1);
-  if (!engine->isInitComplete()) {
+  if (!ship->properties->engine->isInitComplete()) {
     ship->properties->laserR = limit(0, luaL_checkint(L, 2), 255);
     ship->properties->laserG = limit(0, luaL_checkint(L, 3), 255);
     ship->properties->laserB = limit(0, luaL_checkint(L, 4), 255);
@@ -288,7 +293,7 @@ int Ship_setLaserColor(lua_State *L) {
 
 int Ship_setThrusterColor(lua_State *L) {
   Ship *ship = checkShip(L, 1);
-  if (!engine->isInitComplete()) {
+  if (!ship->properties->engine->isInitComplete()) {
     ship->properties->thrusterR = limit(0, luaL_checkint(L, 2), 255);
     ship->properties->thrusterG = limit(0, luaL_checkint(L, 3), 255);
     ship->properties->thrusterB = limit(0, luaL_checkint(L, 4), 255);
@@ -305,7 +310,7 @@ int Ship_name(lua_State *L) {
 
 int Ship_teamName(lua_State *L) {
   Ship *ship = checkShip(L, 1);
-  lua_pushstring(L, engine->getTeam(ship->teamIndex)->name);
+  lua_pushstring(L, ship->properties->engine->getTeam(ship->teamIndex)->name);
   return 1;
 }
 
@@ -353,7 +358,8 @@ void pushVisibleEnemyShips(
       setField(L, "energy", ship->energy);
       setField(L, "isStageShip", ship->properties->stageShip);
       setField(L, "name", ship->properties->name);
-      setField(L, "teamName", engine->getTeam(ship->teamIndex)->name);
+      setField(L, "teamName",
+               ship->properties->engine->getTeam(ship->teamIndex)->name);
       lua_rawseti(L, -2, visibleIndex++);
     }
   }
@@ -700,7 +706,9 @@ StageSensors* pushStageSensors(lua_State *L, SensorHandler *sensorHandler,
   ShipDestroyed** shipDestroyedEvents = sensorHandler->getStageShipDestroyeds();
   for (int x = 0; x < numShipDestroyeds; x++) {
     ShipDestroyed* shipDestroyed = shipDestroyedEvents[x];
+    BerryBotsEngine *engine = properties[shipDestroyed->shipIndex]->engine;
     if (shipDestroyed->time == engine->getGameTime()) {
+      // TODO: doesn't seem like we shoul dneed this check - do we?
       lua_newtable(L);
       setField(L, "time", shipDestroyed->time);
       setField(L, "shipName", properties[shipDestroyed->shipIndex]->name);
@@ -816,50 +824,55 @@ int registerStageSensors(lua_State *L) {
   return registerClass(L, STAGE_SENSORS, StageSensors_methods);
 }
 
-void checkStageBuilder(lua_State *L, int index) {
+StageBuilder* checkStageBuilder(lua_State *L, int index) {
   luaL_checktype(L, index, LUA_TUSERDATA);
-  void *stageBuilder = (void *) luaL_checkudata(L, index, STAGE_BUILDER);
+  StageBuilder *stageBuilder =
+      (StageBuilder *) luaL_checkudata(L, index, STAGE_BUILDER);
   if (stageBuilder == NULL) luaL_error(L, "error in checkStageBuilder");
+  return stageBuilder;
 }
 
-void pushStageBuilder(lua_State *L) {
-  lua_newuserdata(L, 0);
+StageBuilder* pushStageBuilder(lua_State *L) {
+  StageBuilder *stageBuilder =
+      (StageBuilder *) lua_newuserdata(L, sizeof(StageBuilder));
   luaL_getmetatable(L, STAGE_BUILDER);
   lua_setmetatable(L, -2);
   int stageBuilderRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
   lua_rawgeti(L, LUA_REGISTRYINDEX, stageBuilderRef);
+  return stageBuilder;
 }
 
 int StageBuilder_setSize(lua_State *L) {
-  checkStageBuilder(L, 1);
+  StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int width = luaL_checkint(L, 2);
   int height = luaL_checkint(L, 3);
-  if (engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isConfigureComplete()) {
     cout << "ERROR: Can only set stage size during configure." << endl;
   } else {
-    stage->setSize(width, height);
+    stageBuilder->engine->getStage()->setSize(width, height);
   }
   return 1;
 }
 
 int StageBuilder_setBattleMode(lua_State *L) {
-  checkStageBuilder(L, 1);
+  StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   bool battleMode = lua_toboolean(L, 2);
-  if (engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isConfigureComplete()) {
     cout << "ERROR: Can only set battle mode during configure." << endl;
   } else {
-    engine->setBattleMode(battleMode);
+    stageBuilder->engine->setBattleMode(battleMode);
   }
   return 1;
 }
 
 int StageBuilder_addWall(lua_State *L) {
-  checkStageBuilder(L, 1);
+  StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int left = luaL_checkint(L, 2);
   int bottom = luaL_checkint(L, 3);
   int width = luaL_checkint(L, 4);
   int height = luaL_checkint(L, 5);
-  if (engine->isConfigureComplete()) {
+  Stage *stage =stageBuilder->engine->getStage();
+  if (stageBuilder->engine->isConfigureComplete()) {
     cout << "ERROR: Can only add walls during configure." << endl;
   } else if (!stage->addWall(left, bottom, width, height, true)) {
     cout << "ERROR: Failed to add wall. Current wall count: "
@@ -869,10 +882,11 @@ int StageBuilder_addWall(lua_State *L) {
 }
 
 int StageBuilder_addStart(lua_State *L) {
-  checkStageBuilder(L, 1);
+  StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int x = luaL_checkint(L, 2);
   int y = luaL_checkint(L, 3);
-  if (engine->isConfigureComplete()) {
+  Stage *stage =stageBuilder->engine->getStage();
+  if (stageBuilder->engine->isConfigureComplete()) {
     cout << "ERROR: Can only add starts during configure." << endl;
   } else if (!stage->addStart(x, y)) {
     cout << "ERROR: Failed to add start. Current start count: "
@@ -882,13 +896,14 @@ int StageBuilder_addStart(lua_State *L) {
 }
 
 int StageBuilder_addZone(lua_State *L) {
-  checkStageBuilder(L, 1);
+  StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int left = luaL_checkint(L, 2);
   int bottom = luaL_checkint(L, 3);
   int width = luaL_checkint(L, 4);
   int height = luaL_checkint(L, 5);
   const char *zoneTag = luaL_optstring(L, 6, "");
-  if (engine->isConfigureComplete()) {
+  Stage *stage =stageBuilder->engine->getStage();
+  if (stageBuilder->engine->isConfigureComplete()) {
     cout << "ERROR: Can only add zones during configure." << endl;
   } else if (!stage->addZone(left, bottom, width, height, zoneTag)) {
     cout << "ERROR: Failed to add zone. Current zone count: "
@@ -898,9 +913,10 @@ int StageBuilder_addZone(lua_State *L) {
 }
 
 int StageBuilder_addShip(lua_State *L) {
-  checkStageBuilder(L, 1);
+  StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   const char *stageShipFilename = luaL_checkstring(L, 2);
-  if (engine->isConfigureComplete()) {
+  Stage *stage =stageBuilder->engine->getStage();
+  if (stageBuilder->engine->isConfigureComplete()) {
     cout << "ERROR: Can only add stage ships during configure." << endl;
   } else if (!stage->addStageShip(stageShipFilename)) {
     cout << "ERROR: Failed to add stage ship. Current stage ship count: "
@@ -910,12 +926,12 @@ int StageBuilder_addShip(lua_State *L) {
 }
 
 int StageBuilder_setTeamSize(lua_State *L) {
-  checkStageBuilder(L, 1);
+  StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int teamSize = luaL_checkint(L, 2);
-  if (engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isConfigureComplete()) {
     cout << "ERROR: Can only set team size during configure." << endl;
   } else {
-    engine->setTeamSize(teamSize);
+    stageBuilder->engine->setTeamSize(teamSize);
   }
   return 1;
 }
@@ -1068,32 +1084,32 @@ int World_teamSize(lua_State *L) {
 }
 
 int World_inAnyZone(lua_State *L) {
-  checkWorld(L, 1);
+  World *world = checkWorld(L, 1);
   Ship *ship = checkShip(L, 2);
-  lua_pushboolean(L, stage->inAnyZone(ship));
+  lua_pushboolean(L, world->engine->getStage()->inAnyZone(ship));
   return 1;
 }
 
 int World_inZone(lua_State *L) {
-  checkWorld(L, 1);
+  World *world = checkWorld(L, 1);
   Ship *ship = checkShip(L, 2);
   const char *zoneTag = luaL_optstring(L, 3, "");
-  lua_pushboolean(L, stage->inZone(ship, zoneTag));
+  lua_pushboolean(L, world->engine->getStage()->inZone(ship, zoneTag));
   return 1;
 }
 
 int World_touchedAnyZone(lua_State *L) {
-  checkWorld(L, 1);
+  World *world = checkWorld(L, 1);
   Ship *ship = checkShip(L, 2);
-  lua_pushboolean(L, engine->touchedAnyZone(ship));
+  lua_pushboolean(L, world->engine->touchedAnyZone(ship));
   return 1;
 }
 
 int World_touchedZone(lua_State *L) {
-  checkWorld(L, 1);
+  World *world = checkWorld(L, 1);
   Ship *ship = checkShip(L, 2);
   const char *zoneTag = luaL_optstring(L, 3, "");
-  lua_pushboolean(L, engine->touchedZone(ship, zoneTag));
+  lua_pushboolean(L, world->engine->touchedZone(ship, zoneTag));
   return 1;
 }
 
@@ -1117,42 +1133,44 @@ int registerWorld(lua_State *L) {
   return registerClass(L, WORLD, World_methods);
 }
 
-void checkAdmin(lua_State *L, int index) {
+Admin* checkAdmin(lua_State *L, int index) {
   luaL_checktype(L, index, LUA_TUSERDATA);
-  void *admin = (void *) luaL_checkudata(L, index, ADMIN);
+  Admin *admin = (Admin *) luaL_checkudata(L, index, ADMIN);
   if (admin == NULL) luaL_error(L, "error in checkAdmin");
+  return admin;
 }
 
-void pushAdmin(lua_State *L) {
-  lua_newuserdata(L, 0);
+Admin* pushAdmin(lua_State *L) {
+  Admin *admin = (Admin *) lua_newuserdata(L, sizeof(Admin));
   luaL_getmetatable(L, ADMIN);
   lua_setmetatable(L, -2);
   int adminRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
   lua_rawgeti(L, LUA_REGISTRYINDEX, adminRef);
+  return admin;
 }
 
 int Admin_destroyShip(lua_State *L) {
-  checkAdmin(L, 1);
+  Admin *admin = checkAdmin(L, 1);
   Ship *ship = checkShip(L, 2);
-  engine->destroyShip(ship);
+  admin->engine->destroyShip(ship);
   return 1;
 }
 
 int Admin_reviveShip(lua_State *L) {
-  checkAdmin(L, 1);
+  Admin *admin = checkAdmin(L, 1);
   Ship *ship = checkShip(L, 2);
   ship->alive = true;
   ship->energy = DEFAULT_ENERGY;
-  stage->updateShipPosition(ship, ship->x, ship->y);
+  admin->engine->getStage()->updateShipPosition(ship, ship->x, ship->y);
   return 1;
 }
 
 int Admin_moveShip(lua_State *L) {
-  checkAdmin(L, 1);
+  Admin *admin = checkAdmin(L, 1);
   Ship *ship = checkShip(L, 2);
   double x = luaL_checknumber(L, 3);
   double y = luaL_checknumber(L, 4);
-  stage->updateShipPosition(ship, x, y);
+  admin->engine->getStage()->updateShipPosition(ship, x, y);
   return 1;
 }
 
@@ -1242,7 +1260,7 @@ void copyValue(lua_State *L1, lua_State *L2) {
 int Admin_sendEvent(lua_State *L) {
   checkAdmin(L, 1);
   Ship *ship = checkShip(L, 2);
-  Team *team = engine->getTeam(ship->teamIndex);
+  Team *team = ship->properties->engine->getTeam(ship->teamIndex);
   lua_State *teamState = team->state;
 
   if (team->stageEventRef == 0) {
@@ -1287,14 +1305,15 @@ int Admin_shipFriendlyDamage(lua_State *L) {
 }
 
 int Admin_setWinner(lua_State *L) {
-  checkAdmin(L, 1);
+  Admin *admin = checkAdmin(L, 1);
   const char *winnerName = luaL_checkstring(L, 2);
-  engine->setWinnerName(winnerName);
+  admin->engine->setWinnerName(winnerName);
   return 1;
 }
 
 int Admin_roundOver(lua_State *L) {
-  checkAdmin(L, 1);
+  Admin *admin = checkAdmin(L, 1);
+  BerryBotsEngine *engine = admin->engine;
   if (!engine->isRoundOver()) {
     engine->processRoundOver();
     engine->setRoundOver(true);
@@ -1303,7 +1322,8 @@ int Admin_roundOver(lua_State *L) {
 }
 
 int Admin_gameOver(lua_State *L) {
-  checkAdmin(L, 1);
+  Admin *admin = checkAdmin(L, 1);
+  BerryBotsEngine *engine = admin->engine;
   if (!engine->isGameOver()) {
     engine->processGameOver();
     engine->setGameOver(true);
@@ -1312,11 +1332,11 @@ int Admin_gameOver(lua_State *L) {
 }
 
 int Admin_drawText(lua_State *L) {
-  checkAdmin(L, 1);
+  Admin *admin = checkAdmin(L, 1);
   int x = luaL_checkint(L, 2);
   int y = luaL_checkint(L, 3);
   const char *text = luaL_checkstring(L, 4);
-  stage->addText(x, y, text);
+  admin->engine->getStage()->addText(x, y, text);
   return 1;
 }
 
@@ -1353,7 +1373,7 @@ int ShipGlobals_print(lua_State *L) {
   const char *str = luaL_optstring(L, 1, "");
   // TODO: don't send init prints into a vortex
   if (printHandler != 0) {
-    printHandler->shipPrint(engine->getTeam(L)->index, str);
+    printHandler->shipPrint(L, str);
   }
   return std::min(top, 1);
 }

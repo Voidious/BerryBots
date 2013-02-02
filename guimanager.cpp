@@ -40,8 +40,6 @@
 #include "basedir.h"
 #include "bbwx.h"
 
-extern BerryBotsEngine *engine;
-extern Stage *stage;
 extern PrintHandler *printHandler;
 
 GuiManager::GuiManager(GuiListener *listener, char *stageDir, char *botsDir) {
@@ -78,7 +76,7 @@ GuiManager::GuiManager(GuiListener *listener, char *stageDir, char *botsDir) {
   fileManager_->setListener(packageReporter_);
   newMatchDialog_->Show();
   newMatchDialog_->SetFocus();
-  engine = 0;
+  engine_ = 0;
   currentStagePath_ = 0;
   currentTeamPaths_ = 0;
   currentNumTeams_ = 0;
@@ -97,8 +95,8 @@ GuiManager::~GuiManager() {
   delete packagingConsole_;
   delete stageBaseDir_;
   delete botsBaseDir_;
-  if (engine != 0) {
-    delete engine;
+  if (engine_ != 0) {
+    delete engine_;
   }
   if (window_ != 0) {
     delete window_;
@@ -307,19 +305,22 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
     currentTeamPaths_ = teamPaths;
     currentNumTeams_ = numTeams;
   }
-
+  if (engine_ != 0) {
+    delete engine_;
+  }
   srand((unsigned int) time(NULL));
-  engine = new BerryBotsEngine();
-  stage = engine->getStage();
+  engine_ = new BerryBotsEngine();
+  Stage *stage = engine_->getStage();
   char *cacheDir = getCacheDirCopy();
   try {
-    engine->initStage(stagePath, cacheDir);
-    engine->initShips(teamPaths, numTeams, cacheDir);
+    engine_->initStage(stagePath, cacheDir);
+    engine_->initShips(teamPaths, numTeams, cacheDir);
   } catch (EngineException *e) {
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots engine initialization failed", wxOK, wxDefaultPosition);
     errorMessage.ShowModal();
-    delete engine;
+    delete engine_;
+    engine_ = 0;
     delete cacheDir;
     return;
   }
@@ -354,14 +355,14 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
   //       having to move the window occasionally if you switch to a bigger
   //       stage that goes off-screen.
 
-  gfxManager_->initBbGfx(window, viewHeight_, stage, engine->getTeams(),
-                         engine->getNumTeams(), engine->getShips(),
-                         engine->getNumShips(), resourcePath());
+  gfxManager_->initBbGfx(window, viewHeight_, stage, engine_->getTeams(),
+                         engine_->getNumTeams(), engine_->getShips(),
+                         engine_->getNumShips(), resourcePath());
   gfxManager_->updateView(window, viewWidth_, viewHeight_);
   window->setVisible(true);
   window->clear();
-  gfxManager_->drawGame(window, stage, engine->getShips(),
-                        engine->getNumShips(), engine->getGameTime(),
+  gfxManager_->drawGame(window, stage, engine_->getShips(),
+                        engine_->getNumShips(), engine_->getGameTime(),
                         gfxHandler_, false, false);
   window->display();
 
@@ -371,11 +372,15 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
   teamConsoles_ = new OutputConsole*[numTeams_];
   for (int x = 0; x < numTeams_; x++) {
     OutputConsole *teamConsole =
-        new OutputConsole(this->nextConsoleId(), engine->getTeam(x)->name);
+        new OutputConsole(this->nextConsoleId(), engine_->getTeam(x)->name);
     teamConsole->Hide();
     teamConsoles_[x] = teamConsole;
   }
-  printHandler = new GuiPrintHandler(stageConsole_, teamConsoles_, numTeams_);
+  if (printHandler != 0) {
+    delete printHandler;
+  }
+  printHandler = new GuiPrintHandler(stageConsole_, teamConsoles_,
+                                     engine_->getTeams(), numTeams_);
 
   runCurrentMatch();
 
@@ -391,8 +396,8 @@ void GuiManager::runCurrentMatch() {
   sf::RenderWindow *window = getMainWindow();
   try {
     while (window->isOpen() && !interrupted_ && !restarting_ && !quitting_) {
-      if (!paused_ && !restarting_ && !engine->isGameOver()) {
-        engine->processTick();
+      if (!paused_ && !restarting_ && !engine_->isGameOver()) {
+        engine_->processTick();
       }
       
       processMainWindowEvents();
@@ -404,9 +409,9 @@ void GuiManager::runCurrentMatch() {
       
       if (!interrupted_ && !restarting_ && !quitting_) {
         window->clear();
-        gfxManager_->drawGame(window, stage, engine->getShips(),
-                              engine->getNumShips(), engine->getGameTime(),
-                              gfxHandler_, paused_, engine->isGameOver());
+        gfxManager_->drawGame(window, engine_->getStage(), engine_->getShips(),
+                              engine_->getNumShips(), engine_->getGameTime(),
+                              gfxHandler_, paused_, engine_->isGameOver());
         window->display();
         
       }
@@ -427,7 +432,9 @@ void GuiManager::runCurrentMatch() {
   if (!interrupted_) {
     gfxManager_->destroyBbGfx();
     delete printHandler;
-    delete engine;
+    printHandler = 0;
+    delete engine_;
+    engine_ = 0;
     delete gfxHandler_;
     deleteMatchConsoles();
   }
