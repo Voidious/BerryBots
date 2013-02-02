@@ -18,8 +18,8 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#import "osxcfg.h"
 #import "bbconst.h"
+#import "osxcfg.h"
 
 @implementation OsxCfg
 
@@ -38,7 +38,6 @@ bool fileExists(const char *filename) {
 }
 
 - (id) init {
-  
   self = [super init];
   if (self) {
     NSString *errorDesc = nil;
@@ -49,25 +48,25 @@ bool fileExists(const char *filename) {
             stringByAppendingPathComponent:@"BerryBots"];
     plistPath = [rootPath stringByAppendingPathComponent:@"config.plist"];
     bool selectRoot = true;
-    if ([[NSFileManager defaultManager] fileExistsAtPath:plistPath]) {
-      NSData *plistXML =
-      [[NSFileManager defaultManager] contentsAtPath:plistPath];
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:plistPath]) {
+      NSData *plistXML = [fileManager contentsAtPath:plistPath];
       NSDictionary *temp =
-      (NSDictionary *)[NSPropertyListSerialization
-                       propertyListFromData:plistXML
-                       mutabilityOption:
-                       NSPropertyListMutableContainersAndLeaves
-                       format:&format
-                       errorDescription:&errorDesc];
+          (NSDictionary *)[NSPropertyListSerialization
+                           propertyListFromData:plistXML
+                           mutabilityOption:
+                           NSPropertyListMutableContainersAndLeaves
+                           format:&format
+                           errorDescription:&errorDesc];
       if (!temp) {
-        NSLog(@"Error reading plist: %@, format: %d", errorDesc, format);
+        NSLog(@"Error reading plist: %@, format: %ld", errorDesc, format);
       }
       self.stageDir = [temp objectForKey:@"Stage dir"];
       self.botsDir = [temp objectForKey:@"Bots dir"];
       self.cacheDir = [temp objectForKey:@"Cache dir"];
       self.tmpDir = [temp objectForKey:@"Tmp dir"];
-      if ([[NSFileManager defaultManager] fileExistsAtPath:self.stageDir]
-          && [[NSFileManager defaultManager] fileExistsAtPath:self.botsDir]) {
+      if ([fileManager fileExistsAtPath:self.stageDir]
+          && [fileManager fileExistsAtPath:self.botsDir]) {
         selectRoot = false;
       }
     }
@@ -78,7 +77,7 @@ bool fileExists(const char *filename) {
       [openDlg setCanCreateDirectories:YES];
       [openDlg setAllowsMultipleSelection:NO];
       [openDlg setTitle:
-          @"Select a BerryBots root directory, for bots, stages, and cache"];
+          @"Select a BerryBots base directory - for bots, stages, and cache files"];
       if ( [openDlg runModal] == NSOKButton ) {
         NSArray *files = [openDlg URLs];
         for( int i = 0; i < [files count]; i++ ) {
@@ -93,7 +92,26 @@ bool fileExists(const char *filename) {
         self.tmpDir = [NSString stringWithFormat:@"%@/%@",
                        [[files objectAtIndex:0] path], @TMP_SUBDIR];
         [self save];
-        // TODO: copy sample bots and stages
+
+        NSString *srcPath = [[NSBundle mainBundle] resourcePath];
+        if ([fileManager isReadableFileAtPath:srcPath]) {
+          NSError *dError;
+          NSString *stagesSrc =
+              [NSString stringWithFormat:@"%@/stages", srcPath];
+          int success = [fileManager
+                         copyItemAtPath:stagesSrc toPath:self.stageDir
+                         error:&dError];
+          if (success != YES) {
+            NSLog(@"Error: %@", dError);
+          }
+
+          NSString *botsSrc = [NSString stringWithFormat:@"%@/bots", srcPath];
+          success = [fileManager
+                     copyItemAtPath:botsSrc toPath:self.botsDir error:&dError];
+          if (success != YES) {
+            NSLog(@"Error: %@", dError);
+          }
+        }
       } else {
         exit(1);
       }
@@ -126,9 +144,8 @@ bool fileExists(const char *filename) {
           errorDescription:&error];
   if(plistData) {
     [plistData writeToFile:plistPath atomically:YES];
-  }
-  else {
-    NSLog(error);
+  } else {
+    NSLog(@"Error saving plist: %@", error);
     [error release];
   }
 }
