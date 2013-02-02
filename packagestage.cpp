@@ -42,6 +42,8 @@ PackageStageDialog::PackageStageDialog(PackageStageDialogListener *listener)
           wxCommandEventHandler(PackageStageDialog::onClose));
   Connect(PACKAGE_STAGE_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(PackageStageDialog::onPackage));
+
+  this->GetEventHandler()->AddFilter(new PackageStageEventFilter(this));
 }
 
 PackageStageDialog::~PackageStageDialog() {
@@ -70,6 +72,10 @@ void PackageStageDialog::onClose(wxCommandEvent &event) {
 }
 
 void PackageStageDialog::onPackage(wxCommandEvent &event) {
+  packageSelectedStage();
+}
+
+void PackageStageDialog::packageSelectedStage() {
   wxArrayInt selectedStageIndex;
   stageSelect_->GetSelections(selectedStageIndex);
   wxString stageVersion = versionText_->GetValue();
@@ -84,4 +90,30 @@ void PackageStageDialog::onPackage(wxCommandEvent &event) {
 
     listener_->package(stage, version, false);
   }
+}
+
+void PackageStageDialog::onEscape() {
+  listener_->cancel();
+}
+
+PackageStageEventFilter::PackageStageEventFilter(PackageStageDialog *dialog) {
+  packageStageDialog_ = dialog;
+}
+
+PackageStageEventFilter::~PackageStageEventFilter() {
+  
+}
+
+int PackageStageEventFilter::FilterEvent(wxEvent& event) {
+  const wxEventType type = event.GetEventType();
+  if (type == wxEVT_KEY_DOWN && packageStageDialog_->IsActive()) {
+    wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+    int keyCode = keyEvent->GetKeyCode();
+    if (keyCode == WXK_ESCAPE) {
+      packageStageDialog_->onEscape();
+    } else if (keyEvent->GetUnicodeKey() == 'P' && keyEvent->ControlDown()) {
+      packageStageDialog_->packageSelectedStage();
+    }
+  }
+  return Event_Skip;
 }

@@ -27,7 +27,7 @@ PackageShipDialog::PackageShipDialog(PackageShipDialogListener *listener)
               wxPoint(50, 50), wxSize(380, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
-  botSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
+  botsSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
   versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 163));
   versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 160),
                                 wxSize(70, 23));
@@ -42,18 +42,20 @@ PackageShipDialog::PackageShipDialog(PackageShipDialogListener *listener)
           wxCommandEventHandler(PackageShipDialog::onClose));
   Connect(PACKAGE_SHIP_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(PackageShipDialog::onPackage));
+
+  this->GetEventHandler()->AddFilter(new PackageShipEventFilter(this));
 }
 
 PackageShipDialog::~PackageShipDialog() {
-  delete botSelect_;
+  delete botsSelect_;
   delete versionLabel_;
   delete versionText_;
 }
 
 void PackageShipDialog::addBot(char *bot) {
-  botSelect_->Insert(wxString(bot), numBots_++);
-  if (botSelect_->GetCount() > 0) {
-    botSelect_->SetFirstItem(0);
+  botsSelect_->Insert(wxString(bot), numBots_++);
+  if (botsSelect_->GetCount() > 0) {
+    botsSelect_->SetFirstItem(0);
   }
 }
 
@@ -62,7 +64,7 @@ void PackageShipDialog::onActivate(wxActivateEvent &event) {
     this->SetMenuBar(listener_->getNewMenuBar());
     menusInitialized_ = true;
   }
-  botSelect_->SetFocus();
+  botsSelect_->SetFocus();
 }
 
 void PackageShipDialog::onClose(wxCommandEvent &event) {
@@ -70,12 +72,16 @@ void PackageShipDialog::onClose(wxCommandEvent &event) {
 }
 
 void PackageShipDialog::onPackage(wxCommandEvent &event) {
+  packageSelectedBot();
+}
+
+void PackageShipDialog::packageSelectedBot() {
   wxArrayInt selectedBotIndex;
-  botSelect_->GetSelections(selectedBotIndex);
+  botsSelect_->GetSelections(selectedBotIndex);
   wxString botVersion = versionText_->GetValue();
   if (selectedBotIndex.Count() != 0 && botVersion.length() > 0) {
     wxString selectedBot =
-    botSelect_->GetString(*(selectedBotIndex.begin()));
+    botsSelect_->GetString(*(selectedBotIndex.begin()));
     char *bot = new char[selectedBot.length() + 1];
     strcpy(bot, selectedBot.fn_str());
     
@@ -84,4 +90,30 @@ void PackageShipDialog::onPackage(wxCommandEvent &event) {
     
     listener_->package(bot, version, false);
   }
+}
+
+void PackageShipDialog::onEscape() {
+  listener_->cancel();
+}
+
+PackageShipEventFilter::PackageShipEventFilter(PackageShipDialog *dialog) {
+  packageShipDialog_ = dialog;
+}
+
+PackageShipEventFilter::~PackageShipEventFilter() {
+  
+}
+
+int PackageShipEventFilter::FilterEvent(wxEvent& event) {
+  const wxEventType type = event.GetEventType();
+  if (type == wxEVT_KEY_DOWN && packageShipDialog_->IsActive()) {
+    wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+    int keyCode = keyEvent->GetKeyCode();
+    if (keyCode == WXK_ESCAPE) {
+      packageShipDialog_->onEscape();
+    } else if (keyEvent->GetUnicodeKey() == 'P' && keyEvent->ControlDown()) {
+      packageShipDialog_->packageSelectedBot();
+    }
+  }
+  return Event_Skip;
 }

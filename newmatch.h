@@ -29,6 +29,7 @@ class NewMatchListener {
     virtual void startMatch(const char *stagePath, char **teamPaths,
                             int numTeams) = 0;
     virtual void cancel() = 0;
+    virtual ~NewMatchListener() {};
 };
 
 class NewMatchDialog : public wxFrame {

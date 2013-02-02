@@ -35,7 +35,7 @@ class PackageShipDialogListener {
 // TODO: factor out common base class for this and PackageStageDialog
 
 class PackageShipDialog : public wxFrame {
-  wxListBox *botSelect_;
+  wxListBox *botsSelect_;
   wxStaticText *versionLabel_;
   wxTextCtrl *versionText_;
   wxButton *packageButton_;
@@ -50,6 +50,17 @@ class PackageShipDialog : public wxFrame {
     void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);
     void onPackage(wxCommandEvent &event);
+    void packageSelectedBot();
+    void onEscape();
+};
+
+class PackageShipEventFilter : public wxEventFilter {
+  PackageShipDialog *packageShipDialog_;
+  
+  public:
+    PackageShipEventFilter(PackageShipDialog *dialog);
+    ~PackageShipEventFilter();
+    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif

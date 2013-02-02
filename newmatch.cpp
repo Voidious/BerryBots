@@ -197,7 +197,7 @@ NewMatchEventFilter::~NewMatchEventFilter() {
 
 int NewMatchEventFilter::FilterEvent(wxEvent& event) {
   const wxEventType type = event.GetEventType();
-  if (type == wxEVT_KEY_DOWN && newMatchDialog_->IsShown()) {
+  if (type == wxEVT_KEY_DOWN && newMatchDialog_->IsActive()) {
     wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
     int keyCode = keyEvent->GetKeyCode();
     if (keyCode == WXK_ESCAPE) {

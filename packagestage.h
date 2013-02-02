@@ -50,6 +50,17 @@ class PackageStageDialog : public wxFrame {
     void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);
     void onPackage(wxCommandEvent &event);
+    void packageSelectedStage();
+    void onEscape();
+};
+
+class PackageStageEventFilter : public wxEventFilter {
+  PackageStageDialog *packageStageDialog_;
+  
+  public:
+    PackageStageEventFilter(PackageStageDialog *dialog);
+    ~PackageStageEventFilter();
+    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif
