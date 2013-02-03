@@ -44,7 +44,6 @@ class GuiManager {
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
   OutputConsole *packagingConsole_;
-  int numTeams_;
   GfxManager *gfxManager_;
   GfxViewListener *viewListener_;
   FileManager *fileManager_;
@@ -102,6 +101,8 @@ class GuiManager {
     void runCurrentMatch();
     unsigned int nextConsoleId();
     void deleteMatchConsoles();
+    void saveCurrentMatchSettings(
+        char *stagePath, char **teamPaths, int numTeams);
     void deleteCurrentMatchSettings();
 };
 

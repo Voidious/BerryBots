@@ -18,7 +18,6 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <iostream>
 #include <string.h>
 #include <stdlib.h>
 #include <algorithm>
@@ -29,16 +28,14 @@
 #include "bblua.h"
 #include "printhandler.h"
 
-using namespace std;
-
 extern PrintHandler *printHandler;
 
 // TODO: Consider moving some stuff between stage and engine.
-// TODO: Once we have engine references in the BerryBots Lua objects
-//       (Ship/World etc), instead of luaL_error, report errors to the engine.
-//       GUI can register a listener to pick them up, CLI can do the same and
-//       handle it similarly to luaL_error.
 // TODO: Consider adding stage pointer to StageBuilder and Admin, for speed.
+
+// Note: The luaL_error's in this file are from within C functions being called
+//       by Lua (C -> Lua -> C). They are not fatal to the host app and are
+//       handled appropriately (CLI vs GUI) by the original C caller.
 
 void luaSrand(lua_State *L) {
   char *luaSrand = new char[100];
@@ -847,7 +844,7 @@ int StageBuilder_setSize(lua_State *L) {
   int width = luaL_checkint(L, 2);
   int height = luaL_checkint(L, 3);
   if (stageBuilder->engine->isConfigureComplete()) {
-    cout << "ERROR: Can only set stage size during configure." << endl;
+    luaL_error(L, "Can't set stage size outside of 'configure' function.");
   } else {
     stageBuilder->engine->getStage()->setSize(width, height);
   }
@@ -858,7 +855,7 @@ int StageBuilder_setBattleMode(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   bool battleMode = lua_toboolean(L, 2);
   if (stageBuilder->engine->isConfigureComplete()) {
-    cout << "ERROR: Can only set battle mode during configure." << endl;
+    luaL_error(L, "Can't set battle mode outside of 'configure' function.");
   } else {
     stageBuilder->engine->setBattleMode(battleMode);
   }
@@ -871,12 +868,12 @@ int StageBuilder_addWall(lua_State *L) {
   int bottom = luaL_checkint(L, 3);
   int width = luaL_checkint(L, 4);
   int height = luaL_checkint(L, 5);
-  Stage *stage =stageBuilder->engine->getStage();
+  Stage *stage = stageBuilder->engine->getStage();
   if (stageBuilder->engine->isConfigureComplete()) {
-    cout << "ERROR: Can only add walls during configure." << endl;
+    luaL_error(L, "Can't add walls outside of 'configure' function.");
   } else if (!stage->addWall(left, bottom, width, height, true)) {
-    cout << "ERROR: Failed to add wall. Current wall count: "
-         << stage->getWallCount() << endl;
+    luaL_error(L, "Failed to add wall - is %i too many?",
+               stage->getWallCount());
   }
   return 1;
 }
@@ -885,12 +882,12 @@ int StageBuilder_addStart(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int x = luaL_checkint(L, 2);
   int y = luaL_checkint(L, 3);
-  Stage *stage =stageBuilder->engine->getStage();
+  Stage *stage = stageBuilder->engine->getStage();
   if (stageBuilder->engine->isConfigureComplete()) {
-    cout << "ERROR: Can only add starts during configure." << endl;
+    luaL_error(L, "Can't add starts outside of 'configure' function.");
   } else if (!stage->addStart(x, y)) {
-    cout << "ERROR: Failed to add start. Current start count: "
-         << stage->getStartCount() << endl;
+    luaL_error(L, "Failed to add start - is %i too many?",
+               stage->getStartCount());
   }
   return 1;
 }
@@ -902,12 +899,12 @@ int StageBuilder_addZone(lua_State *L) {
   int width = luaL_checkint(L, 4);
   int height = luaL_checkint(L, 5);
   const char *zoneTag = luaL_optstring(L, 6, "");
-  Stage *stage =stageBuilder->engine->getStage();
+  Stage *stage = stageBuilder->engine->getStage();
   if (stageBuilder->engine->isConfigureComplete()) {
-    cout << "ERROR: Can only add zones during configure." << endl;
+    luaL_error(L, "Can't add zones outside of 'configure' function.");
   } else if (!stage->addZone(left, bottom, width, height, zoneTag)) {
-    cout << "ERROR: Failed to add zone. Current zone count: "
-         << stage->getZoneCount() << endl;
+    luaL_error(L, "Failed to add zone - is %i too many?",
+               stage->getZoneCount());
   }
   return 1;
 }
@@ -915,12 +912,12 @@ int StageBuilder_addZone(lua_State *L) {
 int StageBuilder_addShip(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   const char *stageShipFilename = luaL_checkstring(L, 2);
-  Stage *stage =stageBuilder->engine->getStage();
+  Stage *stage = stageBuilder->engine->getStage();
   if (stageBuilder->engine->isConfigureComplete()) {
-    cout << "ERROR: Can only add stage ships during configure." << endl;
+    luaL_error(L, "Can't add stage ships outside of 'configure' function.");
   } else if (!stage->addStageShip(stageShipFilename)) {
-    cout << "ERROR: Failed to add stage ship. Current stage ship count: "
-         << stage->getStageShipCount() << endl;
+    luaL_error(L, "Failed to add stage ship - is %i too many?",
+               stage->getStageShipCount());
   }
   return 1;
 }
@@ -929,7 +926,7 @@ int StageBuilder_setTeamSize(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int teamSize = luaL_checkint(L, 2);
   if (stageBuilder->engine->isConfigureComplete()) {
-    cout << "ERROR: Can only set team size during configure." << endl;
+    luaL_error(L, "Can't set team size outside of 'configure' function.");
   } else {
     stageBuilder->engine->setTeamSize(teamSize);
   }
@@ -1249,7 +1246,9 @@ void copyValueAtIndex(lua_State *L1, lua_State *L2, int index) {
       lua_pop(L1, 1);
     }
   } else {
-    luaL_error(L1, "don't know how to copy that");
+    luaL_error(L1, "Can't copy type '%s' to send as stage event. %s",
+               luaL_typename(L1, index),
+               "Valid stage event types: nil, number, string, table, boolean.");
   }
 }
 

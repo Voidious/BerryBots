@@ -22,9 +22,7 @@
 #include <float.h>
 #include <stdlib.h>
 #include <string.h>
-#include <iostream>
 #include <algorithm>
-using namespace std;
 
 #include "stage.h"
 #include "wall.h"
@@ -897,10 +895,7 @@ void Stage::updateShipPosition(Ship *ship, double x, double y) {
 }
 
 int Stage::fireLaser(Ship *ship, double heading, int gameTime) {
-  if (ship->laserGunHeat > 0) {
-    return 0;
-  } else if (numLasers_ >= MAX_LASERS) {
-    cout << "WARNING: Max lasers (" << MAX_LASERS << ") on stage." << endl;
+  if (ship->laserGunHeat > 0 || numLasers_ >= MAX_LASERS) {
     return 0;
   } else {
     for (int z = 0; z < numEventHandlers_; z++) {
@@ -934,10 +929,7 @@ int Stage::fireLaser(Ship *ship, double heading, int gameTime) {
 
 int Stage::fireTorpedo(
     Ship *ship, double heading, double distance, int gameTime) {
-  if (ship->torpedoGunHeat > 0) {
-    return 0;
-  } else if (numTorpedos_ >= MAX_TORPEDOS) {
-    cout << "WARNING: Max torpedos (" << MAX_TORPEDOS << ") on stage." << endl;
+  if (ship->torpedoGunHeat > 0 || numTorpedos_ >= MAX_TORPEDOS) {
     return 0;
   } else {
     Torpedo *torpedo = new Torpedo;

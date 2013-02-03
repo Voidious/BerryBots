@@ -68,7 +68,6 @@ GuiManager::GuiManager(GuiListener *listener, char *stageDir, char *botsDir) {
 
   stageConsole_ = 0;
   teamConsoles_ = 0;
-  numTeams_ = 0;
   gfxManager_ = new GfxManager(true);
   viewListener_ = new ViewListener(this);
   gfxManager_->setListener(viewListener_);
@@ -299,11 +298,9 @@ sf::RenderWindow* GuiManager::getMainWindow() {
 }
 
 void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
+  deleteMatchConsoles();
   if (!restarting_) {
-    deleteCurrentMatchSettings();
-    currentStagePath_ = stagePath;
-    currentTeamPaths_ = teamPaths;
-    currentNumTeams_ = numTeams;
+    saveCurrentMatchSettings(stagePath, teamPaths, numTeams);
   }
   if (engine_ != 0) {
     delete engine_;
@@ -322,6 +319,8 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
     delete engine_;
     engine_ = 0;
     delete cacheDir;
+    restarting_ = false;
+    newMatchDialog_->Show();
     return;
   }
   delete cacheDir;
@@ -331,7 +330,6 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
   newMatchDialog_->Hide();
   packageStageDialog_->Hide();
   packageShipDialog_->Hide();
-  deleteMatchConsoles();
   gfxHandler_ = new GfxEventHandler();
   stage->addEventHandler((EventHandler*) gfxHandler_);
 
@@ -368,9 +366,8 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
 
   stageConsole_ = new OutputConsole(this->nextConsoleId(), stage->getName());
   stageConsole_->Hide();
-  numTeams_ = numTeams;
-  teamConsoles_ = new OutputConsole*[numTeams_];
-  for (int x = 0; x < numTeams_; x++) {
+  teamConsoles_ = new OutputConsole*[numTeams];
+  for (int x = 0; x < numTeams; x++) {
     OutputConsole *teamConsole =
         new OutputConsole(this->nextConsoleId(), engine_->getTeam(x)->name);
     teamConsole->Hide();
@@ -380,7 +377,7 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
     delete printHandler;
   }
   printHandler = new GuiPrintHandler(stageConsole_, teamConsoles_,
-                                     engine_->getTeams(), numTeams_);
+                                     engine_->getTeams(), numTeams);
 
   runCurrentMatch();
 
@@ -421,6 +418,7 @@ void GuiManager::runCurrentMatch() {
         "BerryBots encountered an error", wxOK, wxDefaultPosition);
     errorMessage.ShowModal();
     newMatchDialog_->Show();
+    return;
   }
 
   if (!window->isOpen()) {
@@ -560,7 +558,7 @@ void GuiManager::deleteMatchConsoles() {
     stageConsole_ = 0;
   }
   if (teamConsoles_ != 0) {
-    for (int x = 0; x < numTeams_; x++) {
+    for (int x = 0; x < currentNumTeams_; x++) {
       teamConsoles_[x]->Hide();
       delete teamConsoles_[x];
     }
@@ -591,13 +589,26 @@ wxMenuBar* GuiManager::getNewMenuBar() {
   return menuBar;
 }
 
+void GuiManager::saveCurrentMatchSettings(
+    char *stagePath, char **teamPaths, int numTeams) {
+  deleteCurrentMatchSettings();
+  currentStagePath_ = new char[strlen(stagePath) + 1];
+  strcpy(currentStagePath_, stagePath);
+  currentTeamPaths_ = new char*[numTeams];
+  for (int x = 0; x < numTeams; x++) {
+    currentTeamPaths_[x] = new char[strlen(teamPaths[x]) + 1];
+    strcpy(currentTeamPaths_[x], teamPaths[x]);
+  }
+  currentNumTeams_ = numTeams;
+}
+
 void GuiManager::deleteCurrentMatchSettings() {
   if (currentStagePath_ != 0) {
     delete currentStagePath_;
     currentStagePath_ = 0;
   }
   if (currentTeamPaths_ != 0) {
-    for (int x = 0; x < numTeams_; x++) {
+    for (int x = 0; x < currentNumTeams_; x++) {
       delete currentTeamPaths_[x];
     }
     delete currentTeamPaths_;
