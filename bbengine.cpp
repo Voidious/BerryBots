@@ -26,7 +26,7 @@
 #include "bblua.h"
 #include "bbengine.h"
 
-BerryBotsEngine::BerryBotsEngine() {
+BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   stage_ = new Stage(DEFAULT_STAGE_WIDTH, DEFAULT_STAGE_HEIGHT);
   gameTime_ = 0;
   numTeams_ = 0;
@@ -53,7 +53,7 @@ BerryBotsEngine::BerryBotsEngine() {
   worlds_ = 0;
   teamVision_ = 0;
   sensorHandler_ = 0;
-  fileManager_ = new FileManager();
+  fileManager_ = fileManager;
 }
 
 Stage* BerryBotsEngine::getStage() {
@@ -658,7 +658,6 @@ BerryBotsEngine::~BerryBotsEngine() {
   if (sensorHandler_ != 0) {
     delete sensorHandler_;
   }
-  delete fileManager_;
 }
 
 EngineException::EngineException(const char *details) {

@@ -74,7 +74,7 @@ class BerryBotsEngine {
   char winnerName_[MAX_NAME_LENGTH + 1];
 
   public:
-    BerryBotsEngine();
+    BerryBotsEngine(FileManager *manager);
     ~BerryBotsEngine();
 
     bool isConfigureComplete();

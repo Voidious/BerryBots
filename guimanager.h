@@ -46,6 +46,7 @@ class GuiManager {
   OutputConsole *packagingConsole_;
   GfxManager *gfxManager_;
   GfxViewListener *viewListener_;
+  Zipper *zipper_;
   FileManager *fileManager_;
   PackageShipDialogListener *shipPackager_;
   PackageStageDialogListener *stagePackager_;
@@ -61,10 +62,12 @@ class GuiManager {
   unsigned int viewHeight_;
   GfxEventHandler *gfxHandler_;
   // Interrupted means the user brought up a modal dialog (eg, "New Match")...
-  // The run loop exits and resumes if they don't start a different match.
+  // The run loop exits but everything stays initialized. Match may be resumed
+  // if user closes the New Match window, or clobbered to start a new match.
   bool interrupted_;
   // Paused means the game engine is not executing the match, but the SFML
-  // window is still being drawn and lsitening for events.
+  // window is still being drawn and listening for events. (Either the user
+  // paused the game or it ended and they haven't done anything yet.)
   bool paused_;
   bool restarting_;
   bool quitting_;

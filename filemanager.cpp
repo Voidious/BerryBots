@@ -20,17 +20,14 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <iostream>
 #include <fstream>
 #include <unistd.h>
 #include <fcntl.h>
-#include <libarchive/archive.h>
-#include <libarchive/archive_entry.h>
-#include <platformstl/filesystem/filesystem_traits.hpp>
 #include "bbconst.h"
 #include "filemanager.h"
 #include "bbengine.h"
 #include "bblua.h"
+#include "zipper.h"
 
 extern "C" {
   #include "lua.h"
@@ -38,7 +35,8 @@ extern "C" {
   #include "lauxlib.h"
 }
 
-FileManager::FileManager() {
+FileManager::FileManager(Zipper *zipper) {
+  zipper_ = zipper;
   packagingListener_ = 0;
 }
 
@@ -169,7 +167,8 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     delete userDirName;
     
     if (!fileExists(userDirPath)) {
-      unpackUserFile(userDirPath, srcFilename);
+      mkdir(userDirPath);
+      zipper_->unpackFile(srcFilename, userDirPath);
     }
     
     *userFilename = loadUserLuaFilename(userDirPath, metaFilename);
@@ -190,102 +189,6 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
       strcpy(*userCwd, *userDir);
     } else {
       *userCwd = getAbsoluteFilename(cwd, *userDir);
-    }
-  }
-}
-
-void FileManager::unpackUserFileOld(
-      const char *userDirPath, const char *srcFilename) {
-  mkdir(userDirPath);
-  int extractCmdLen = (int) (8 + strlen(srcFilename) + 4 + strlen(userDirPath));
-  char *extractCmd = new char[extractCmdLen + 1];
-  sprintf(extractCmd, "tar xfv %s -C %s", srcFilename, userDirPath);
-  system(extractCmd);
-  delete extractCmd;
-}
-
-// Taken almost verbatim from libarchive's public example code.
-// https://github.com/libarchive/libarchive/wiki/Examples#wiki-Constructing_Objects_On_Disk
-void FileManager::unpackUserFile(
-    const char *userDirPath, const char *srcFilename) {
-  mkdir(userDirPath);
-
-  // TODO: use archive_write_disk_open instead (if/when it exists)
-  char cwd[4096];
-  getcwd(cwd, 4096);
-  platformstl::filesystem_traits<char> traits;
-  traits.set_current_directory(userDirPath);
-
-  char *filename = getAbsoluteFilename(userDirPath, srcFilename);
-  struct archive *a;
-  struct archive *ext;
-  struct archive_entry *entry;
-  int flags;
-  int r;
-  
-  flags = ARCHIVE_EXTRACT_TIME;
-  flags |= ARCHIVE_EXTRACT_PERM;
-  flags |= ARCHIVE_EXTRACT_ACL;
-  flags |= ARCHIVE_EXTRACT_FFLAGS;
-  
-  a = archive_read_new();
-  archive_read_support_format_tar(a);
-  archive_read_support_filter_gzip(a);
-  ext = archive_write_disk_new();
-  archive_write_disk_set_options(ext, flags);
-  archive_write_disk_set_standard_lookup(ext);
-  if ((r = archive_read_open_filename(a, filename, 10240)))
-    exit(1);
-  for (;;) {
-    r = archive_read_next_header(a, &entry);
-    if (r == ARCHIVE_EOF)
-      break;
-    if (r != ARCHIVE_OK)
-      fprintf(stderr, "%s\n", archive_error_string(a));
-    if (r < ARCHIVE_WARN)
-      exit(1);
-    r = archive_write_header(ext, entry);
-    if (r != ARCHIVE_OK)
-      fprintf(stderr, "%s\n", archive_error_string(ext));
-    else if (archive_entry_size(entry) > 0) {
-      copyData(a, ext, userDirPath);
-      if (r != ARCHIVE_OK)
-        fprintf(stderr, "%s\n", archive_error_string(ext));
-      if (r < ARCHIVE_WARN)
-        exit(1);
-    }
-    r = archive_write_finish_entry(ext);
-    if (r != ARCHIVE_OK)
-      fprintf(stderr, "%s\n", archive_error_string(ext));
-    if (r < ARCHIVE_WARN)
-      exit(1);
-  }
-  archive_read_close(a);
-  archive_read_free(a);
-  archive_write_close(ext);
-  archive_write_free(ext);
-
-  traits.set_current_directory(cwd);
-}
-
-// Taken almost verbatim from libarchive's public example code.
-// https://github.com/libarchive/libarchive/wiki/Examples#wiki-Constructing_Objects_On_Disk
-ssize_t FileManager::copyData(struct archive *ar, struct archive *aw,
-                              const char *userDirPath) {
-  ssize_t r;
-  const void *buff;
-  size_t size;
-  off_t offset;
-  for (;;) {
-    r = archive_read_data_block(ar, &buff, &size, &offset);
-    if (r == ARCHIVE_EOF)
-      return (ARCHIVE_OK);
-    if (r != ARCHIVE_OK)
-      return (r);
-    r = archive_write_data_block(aw, buff, size, offset);
-    if (r != ARCHIVE_OK) {
-      fprintf(stderr, "%s\n", archive_error_string(aw));
-      return (r);
     }
   }
 }
@@ -327,165 +230,6 @@ bool FileManager::isZipFilename(const char *filename) {
 // a big concern that he might try to hack himself. Still, only pack files with
 // .lua extension, and show all files that get packaged so the user might catch
 // anything fishy if they are indeed packaging someone else's code.
-// TODO: Make this non-hideous.
-void FileManager::packageCommonOld(lua_State *userState, char *userDir,
-    char *userFilename, char *luaCwd, const char *version,
-    const char *metaFilename, int prevFiles, int numFiles, int filesCmdLen,
-    char **packFilenames, const char *tmpDir, bool nosrc)
-throw (InvalidLuaFilenameException*, LuaException*) {
-  int cmdLen = 0;
-  if (nosrc) {
-    createDirIfNecessary(tmpDir);
-    // 'cd "<tmpDir>"; '
-    cmdLen += 4 + strlen(tmpDir) + 3;
-    // ../
-    cmdLen += 3;
-    if (userDir != 0) {
-      // <userDir>/
-      cmdLen += strlen(userDir) + 1;
-    }
-  } else if (userDir != 0) {
-    // 'cd "<userDir>"; '
-    cmdLen += 4 + strlen(userDir) + 3;
-  }
-  // 'echo "<userFilename>" > <metaFilename>'
-  cmdLen += 6 + strlen(userFilename) + 4 + strlen(metaFilename);
-
-  char *packCmd = new char[cmdLen + 1];
-  if (nosrc) {
-    sprintf(packCmd, "cd \"%s\"; ", tmpDir);
-  } else if (userDir != 0) {
-    sprintf(packCmd, "cd \"%s\"; ", userDir);
-  }
-  sprintf(&(packCmd[strlen(packCmd)]), "echo \"%s\" > %s", userFilename,
-          metaFilename);
-  system(packCmd);
-  delete packCmd;
-
-  cmdLen = filesCmdLen;
-
-  int x = prevFiles;
-  lua_pushnil(userState);
-  while (lua_next(userState, -2) != 0) {
-    const char *loadedFilename = lua_tostring(userState, -1);
-    checkLuaFilename(loadedFilename);
-    int lenFilename = (int) strlen(loadedFilename);
-    cmdLen += 3 + lenFilename; // 1 space, 2 quotes, filename
-    packFilenames[x] = new char[lenFilename + 1];
-    strcpy(packFilenames[x], loadedFilename);
-    x++;
-    lua_pop(userState, 1);
-  }
-  lua_pop(userState, 1);
-
-  if (nosrc) {
-    for (int x = 0; x < numFiles; x++) {
-      if (packFilenames[x] != 0) {
-        int outputFilenameLen = (int) (strlen(tmpDir) + strlen(BB_DIRSEP)
-            + strlen(packFilenames[x]));
-        char *outputFilename = new char[outputFilenameLen + 1];
-        sprintf(outputFilename, "%s%s%s", tmpDir, BB_DIRSEP, packFilenames[x]);
-        
-        char *outputDir = parseDir(outputFilename);
-        if (outputDir != 0) {
-          mkdirIfNecessary(outputDir);
-        }
-        try {
-          saveBytecode(packFilenames[x], outputFilename, userDir);
-        } catch (LuaException *e) {
-          delete outputFilename;
-          throw e;
-        }
-        
-        delete outputFilename;
-      }
-    }
-  }
-
-  int baseLen = (int) (strlen(userFilename) - strlen(LUA_EXTENSION));
-  int outputFilenameLen =
-      (int) (baseLen + 1 + strlen(version) + strlen(ZIP_EXTENSION));
-  char *outputFilename = new char[outputFilenameLen + 1];
-  strncpy(outputFilename, userFilename, baseLen);
-  sprintf(&(outputFilename[baseLen]), "_%s%s", version, ZIP_EXTENSION);
-
-  char *destFilename;
-  if (nosrc) {
-    // ../<userDir>/outputFilename
-    if (userDir == 0) {
-      char dot[] = ".";
-      destFilename = getAbsoluteFilename(dot, outputFilename);
-    } else {
-      char cwd[4096];
-      getcwd(cwd, 4096);
-      // TODO: also support X:\ on Windows
-      if (userDir[0] == BB_DIRSEP_CHR) {
-        destFilename = getAbsoluteFilename(userDir, outputFilename);
-      } else {
-        char *userCwd = getAbsoluteFilename(cwd, userDir);
-        destFilename = getAbsoluteFilename(userCwd, outputFilename);
-        delete userCwd;
-      }
-    }
-  } else {
-    destFilename = outputFilename;
-  }
-
-  if (nosrc) {
-    // 'cd "<tmpDir>"; '
-    cmdLen += 4 + strlen(tmpDir) + 3;
-  } else if (userDir != 0) {
-    // 'cd "<userDir>"; '
-    cmdLen += 4 + strlen(userDir) + 3;
-  }
-
-  // 'tar czfv "<userFilename - .lua + _version>.tar.gz" "<file1>" "<file2>" ... <metaFilename>; '
-  cmdLen += 10 + strlen(destFilename) - 4 + 1 + strlen(version) + 8 + 1
-      + strlen(metaFilename) + 2;
-  // "rm <metaFilename>"
-  cmdLen += 3 + strlen(metaFilename);
-
-  packCmd = new char[cmdLen + 1];
-  if (nosrc) {
-    sprintf(packCmd, "cd \"%s\"; ", tmpDir);
-  } else if (userDir != 0) {
-    sprintf(packCmd, "cd \"%s\"; ", userDir);
-  }
-  sprintf(&(packCmd[strlen(packCmd)]), "tar czfv \"%s\"", destFilename);
-
-  for (int x = 0; x < numFiles; x++) {
-    if (packFilenames[x] != 0) {
-      strcat(packCmd, " \"");
-      strcat(packCmd, packFilenames[x]);
-      strcat(packCmd, "\"");
-    }
-  }
-  sprintf(&(packCmd[strlen(packCmd)]), " %s; rm %s", metaFilename,
-          metaFilename);
-  
-  lua_close(userState);
-  system(packCmd);
-  
-  if (packagingListener_ != 0) {
-    packagingListener_->packagingComplete(packFilenames, numFiles, nosrc,
-                                          outputFilename);
-  }
-  
-  if (nosrc) {
-    delete destFilename;
-    
-    // rm <tmpDir>
-    char *deleteCmd = new char[7 + strlen(tmpDir) + 1];
-    strcpy(deleteCmd, "rm -rf ");
-    strcat(deleteCmd, tmpDir);
-    system(deleteCmd);
-    delete deleteCmd;
-  }
-  
-  delete outputFilename;
-  delete packCmd;
-}
-
 void FileManager::packageCommon(lua_State *userState, char *userDir,
     char *userFilename, char *luaCwd, const char *version,
     const char *metaFilename, int prevFiles, int numFiles, int filesCmdLen,
@@ -506,7 +250,10 @@ throw (InvalidLuaFilenameException*, LuaException*) {
 
   char *absMetaFilename;
   createDirIfNecessary(tmpDir);
-  absMetaFilename = getAbsoluteFilename(tmpDir, metaFilename);
+  char cwd[4096];
+  getcwd(cwd, 4096);
+  char *absTmpDir = getAbsoluteFilename(cwd, tmpDir);
+  absMetaFilename = getAbsoluteFilename(absTmpDir, metaFilename);
   std::ofstream fout(absMetaFilename);
   fout << userFilename;
   fout.flush();
@@ -528,6 +275,7 @@ throw (InvalidLuaFilenameException*, LuaException*) {
           saveBytecode(packFilenames[x], outputFilename, userDir);
         } catch (LuaException *e) {
           delete outputFilename;
+          delete absTmpDir;
           throw e;
         }
         
@@ -579,8 +327,8 @@ throw (InvalidLuaFilenameException*, LuaException*) {
       inputFiles[z++] = packFilenames[x];
     }
   }
-  packageFiles(destFilename, filesDir, inputFiles, numInputFiles,
-               absMetaFilename, metaFilename);
+  zipper_->packageFiles(destFilename, filesDir, inputFiles, numInputFiles,
+                        absMetaFilename, metaFilename);
 
   if (packagingListener_ != 0) {
     packagingListener_->packagingComplete(packFilenames, numFiles, nosrc,
@@ -594,6 +342,7 @@ throw (InvalidLuaFilenameException*, LuaException*) {
   lua_close(userState);
   delete srcDir;
   delete filesDir;
+  delete absTmpDir;
   delete destFilename;
   delete inputFiles;
   delete outputFilename;
@@ -624,47 +373,6 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile)
   lua_pop(L, 1);
 }
 
-// Taken almost verbatim from libarchive's public example code.
-// https://github.com/libarchive/libarchive/wiki/Examples#wiki-A_Basic_Write_Example
-void FileManager::packageFiles(const char *outputFile, const char *baseDir,
-    char **filenames, int numFiles, const char *absMetaFilename,
-    const const char *metaFilename) {
-  struct archive *a = archive_write_new();
-  archive_write_add_filter_gzip(a);
-  archive_write_set_format_pax_restricted(a);
-  archive_write_open_filename(a, outputFile);
-  packageSingleFile(absMetaFilename, metaFilename, a);
-  for (int x = 0; x < numFiles; x++) {
-    char *filename = filenames[x];
-    char *absFilename = getAbsoluteFilename(baseDir, filename);
-    packageSingleFile(absFilename, filename, a);
-  }
-  archive_write_close(a);
-  archive_write_free(a);
-}
-
-void FileManager::packageSingleFile(const char *absFilename,
-    const char *filename, struct archive *a) {
-  struct stat st;
-  char buff[8192];
-  int fd;
-  stat(absFilename, &st);
-  struct archive_entry *entry = archive_entry_new(); // Note 2
-  archive_entry_copy_stat(entry, &st);
-  archive_entry_set_pathname(entry, filename);
-  archive_entry_set_perm(entry, 0644);
-  archive_write_header(a, entry);
-  fd = open(absFilename, O_RDONLY);
-  ssize_t len = read(fd, buff, sizeof(buff));
-  while (len > 0) {
-    archive_write_data(a, buff, len);
-    len = read(fd, buff, sizeof(buff));
-  }
-  close(fd);
-  archive_entry_free(entry);
-  delete absFilename;
-}
-
 void FileManager::packageStage(const char *stageArg, const char *version,
     const char *cacheDir, const char *tmpDir, bool nosrc)
     throw (FileNotFoundException*, InvalidLuaFilenameException*,
@@ -677,7 +385,7 @@ void FileManager::packageStage(const char *stageArg, const char *version,
   checkLuaFilename(stageFilename);
   initStageState(&stageState, stageCwd, stageFilename);
   
-  BerryBotsEngine *engine = new BerryBotsEngine();
+  BerryBotsEngine *engine = new BerryBotsEngine(this);
   Stage *stage = engine->getStage();
   if (luaL_loadfile(stageState, stageFilename)
       || lua_pcall(stageState, 0, 0, 0)) {

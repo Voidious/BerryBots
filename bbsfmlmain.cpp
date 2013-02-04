@@ -38,26 +38,28 @@
 #include "printhandler.h"
 #include "cliprinthandler.h"
 #include "clipackagereporter.h"
-
-using namespace std;
+#include "tarzipper.h"
 
 BerryBotsEngine *engine = 0;
 Stage *stage = 0;
 PrintHandler *printHandler = 0;
 
 void printUsage() {
-  cout << "Usage:" << endl;
-  cout << "  berrybots.sh [-nodisplay] <stage.lua> <bot1.lua> [<bot2.lua> ...]"
-       << endl;
-  cout << "  OR" << endl;
-  cout << "  berrybots.sh [-nosrc] -packstage <stage.lua> <version>" << endl;
-  cout << "  OR" << endl;
-  cout << "  berrybots.sh [-nosrc] -packbot <bot.lua> <version>" << endl;
+  std::cout << "Usage:" << std::endl;
+  std::cout << "  berrybots.sh [-nodisplay] <stage.lua> <bot1.lua> [<bot2.lua> ...]"
+            << std::endl;
+  std::cout << "  OR" << std::endl;
+  std::cout << "  berrybots.sh [-nosrc] -packstage <stage.lua> <version>"
+            << std::endl;
+  std::cout << "  OR" << std::endl;
+  std::cout << "  berrybots.sh [-nosrc] -packbot <bot.lua> <version>"
+            << std::endl;
   exit(0);
 }
 
 int main(int argc, char *argv[]) {
-  FileManager *fileManager = new FileManager();
+  Zipper *zipper = new TarZipper();
+  FileManager *fileManager = new FileManager(zipper);
   CliPackageReporter *packageReporter = new CliPackageReporter();
   fileManager->setListener(packageReporter);
   
@@ -70,9 +72,9 @@ int main(int argc, char *argv[]) {
     try {
       fileManager->packageStage(
           stageInfo[0], stageInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
-    } catch (exception *e) {
-      cout << "BerryBots encountered an error:" << endl;
-      cout << "  " << e->what() << endl;
+    } catch (std::exception *e) {
+      std::cout << "BerryBots encountered an error:" << std::endl;
+      std::cout << "  " << e->what() << std::endl;
       exit(0);
     }
     delete stageInfo;
@@ -88,9 +90,9 @@ int main(int argc, char *argv[]) {
     try {
       fileManager->packageBot(
           botInfo[0], botInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
-    } catch (exception *e) {
-      cout << "BerryBots encountered an error:" << endl;
-      cout << "  " << e->what() << endl;
+    } catch (std::exception *e) {
+      std::cout << "BerryBots encountered an error:" << std::endl;
+      std::cout << "  " << e->what() << std::endl;
       exit(0);
     }
     delete botInfo;
@@ -103,14 +105,14 @@ int main(int argc, char *argv[]) {
   }
 
   srand(time(NULL));
-  engine = new BerryBotsEngine();
+  engine = new BerryBotsEngine(fileManager);
   stage = engine->getStage();
 
   try {
     engine->initStage(argv[nodisplay ? 2 : 1], CACHE_SUBDIR);
   } catch (EngineException *e) {
-    cout << "BerryBots initialization failed:" << endl;
-    cout << "  " << e->what() << endl;
+    std::cout << "BerryBots initialization failed:" << std::endl;
+    std::cout << "  " << e->what() << std::endl;
     exit(0);
   }
 
@@ -124,8 +126,8 @@ int main(int argc, char *argv[]) {
   try {
     engine->initShips(teams, numTeams, CACHE_SUBDIR);
   } catch (EngineException *e) {
-    cout << "BerryBots initialization failed:" << endl;
-    cout << "  " << e->what() << endl;
+    std::cout << "BerryBots initialization failed:" << std::endl;
+    std::cout << "  " << e->what() << std::endl;
     exit(0);
   }
 
@@ -198,15 +200,16 @@ int main(int argc, char *argv[]) {
       if (realTime2 - realTime1 > 0) {
         realSeconds++;
         if (realSeconds % 10 == 0) {
-          cout << "TPS: " << (((double) engine->getGameTime()) / realSeconds)
-               << endl;
+          std::cout << "TPS: "
+                    << (((double) engine->getGameTime()) / realSeconds)
+                    << std::endl;
         }
       }
       realTime1 = realTime2;
     }
   } catch (EngineException *e) {
-    cout << "BerryBots encountered an error:" << endl;
-    cout << "  " << e->what() << endl;
+    std::cout << "BerryBots encountered an error:" << std::endl;
+    std::cout << "  " << e->what() << std::endl;
     exit(0);
   }
   
@@ -217,22 +220,24 @@ int main(int argc, char *argv[]) {
   
   char* winnerName = engine->getWinnerName();
   if (winnerName != 0) {
-    cout << winnerName << " wins! Congratulations!" << endl;
+    std::cout << winnerName << " wins! Congratulations!" << std::endl;
     delete winnerName;
   }
 
-  cout << endl << "CPU time used per tick (microseconds):" << endl;
+  std::cout << std::endl << "CPU time used per tick (microseconds):"
+            << std::endl;
   for (int x = 0; x < engine->getNumTeams(); x++) {
     Team *team = engine->getTeam(x);
     if (!team->stageShip && !team->doa) {
-      cout << "  " << team->name << ": "
-           << (team->totalCpuTime / team->totalCpuTicks) << endl;
+      std::cout << "  " << team->name << ": "
+                << (team->totalCpuTime / team->totalCpuTicks) << std::endl;
     }
   }
 
   if (realSeconds > 0) {
-    cout << endl << "TPS: " << (((double) engine->getGameTime()) / realSeconds)
-         << endl;
+    std::cout << std::endl << "TPS: "
+              << (((double) engine->getGameTime()) / realSeconds)
+              << std::endl;
   }
   
   delete engine;
@@ -243,6 +248,7 @@ int main(int argc, char *argv[]) {
   }
   delete packageReporter;
   delete fileManager;
+  delete zipper;
 
   return 0;
 }

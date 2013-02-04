@@ -39,6 +39,7 @@
 #include "guimanager.h"
 #include "basedir.h"
 #include "bbwx.h"
+#include "guizipper.h"
 
 extern PrintHandler *printHandler;
 
@@ -51,7 +52,8 @@ GuiManager::GuiManager(GuiListener *listener, char *stageDir, char *botsDir) {
 
   window_ = 0;
   consoleId_ = 1000;
-  fileManager_ = new FileManager();
+  zipper_ = new GuiZipper();
+  fileManager_ = new FileManager(zipper_);
   packagingConsole_ =
       new OutputConsole(this->nextConsoleId(), "Packaging Details");
   packagingConsole_->SetPosition(wxPoint(150, 100));
@@ -102,6 +104,7 @@ GuiManager::~GuiManager() {
   }
   delete gfxManager_;
   delete viewListener_;
+  delete zipper_;
   delete fileManager_;
   delete shipPackager_;
   delete stagePackager_;
@@ -306,9 +309,10 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
   }
   if (engine_ != 0) {
     delete engine_;
+    engine_ = 0;
   }
   srand((unsigned int) time(NULL));
-  engine_ = new BerryBotsEngine();
+  engine_ = new BerryBotsEngine(fileManager_);
   Stage *stage = engine_->getStage();
   char *cacheDir = getCacheDirCopy();
   try {
