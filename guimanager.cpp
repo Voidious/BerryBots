@@ -111,6 +111,7 @@ GuiManager::~GuiManager() {
 void GuiManager::loadStages() {
   newMatchDialog_->clearStages();
   packageStageDialog_->clearStages();
+  // TODO: move file related stuff to FileManager
   platformstl::readdir_sequence dir(stageBaseDir_,
                                     platformstl::readdir_sequence::files);
   platformstl::readdir_sequence::const_iterator first = dir.begin();
@@ -197,6 +198,7 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
 void GuiManager::loadBots() {
   newMatchDialog_->clearBots();
   packageShipDialog_->clearBots();
+  // TODO: move file related stuff to FileManager
   platformstl::readdir_sequence dir(botsBaseDir_,
                                     platformstl::readdir_sequence::files);
   platformstl::readdir_sequence::const_iterator first = dir.begin();

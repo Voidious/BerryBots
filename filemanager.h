@@ -92,6 +92,11 @@ class FileManager {
     void loadUserFile(const char *srcFilename, char **userDir,
         char **userFilename, char **userCwd, const char *metaFilename,
         const char *cacheDir) throw (FileNotFoundException*);
+    void unpackUserFileOld(const char *userDirPath, const char *srcFilename);
+    void unpackUserFile(const char *userDirPath, const char *srcFilename);
+    ssize_t copyData(struct archive *archiveRead, struct archive *archiveWrite,
+                     const char *userDirPath);
+
     bool hasExtension(const char *filename, const char *extension);
     void packageCommonOld(lua_State *userState, char *userDir, char *userFilename,
         char *luaCwd, const char *version, const char *metaFilename,
