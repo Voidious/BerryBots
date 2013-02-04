@@ -214,18 +214,18 @@ void GuiManager::loadBots() {
   newMatchDialog_->removeStaleLoadedBots();
 }
 
-bool GuiManager::isValidBotFile(const char *baseDir, char *botFilename) {
+bool GuiManager::isValidBotFile(const char *baseDir, char *origFilename) {
   // TODO: Is this too slow? Should we keep this list in the cache so we don't
   //       have to do this on every startup / refresh - at least for packaged
   //       ships? In fact, just the presence in the cache could be considered
   //       a sign of validity.
   // TODO: Move this out of the GUI code.
-  if (fileManager_->isLuaFilename(botFilename)
-      || fileManager_->isZipFilename(botFilename)) {
+  if (fileManager_->isLuaFilename(origFilename)
+      || fileManager_->isZipFilename(origFilename)) {
     int botPathLen =
-        (int) (strlen(baseDir) + strlen(BB_DIRSEP) + strlen(botFilename));
+        (int) (strlen(baseDir) + strlen(BB_DIRSEP) + strlen(origFilename));
     char *botPath = new char[botPathLen + 1];
-    sprintf(botPath, "%s%s%s", baseDir, BB_DIRSEP, botFilename);
+    sprintf(botPath, "%s%s%s", baseDir, BB_DIRSEP, origFilename);
     char *cacheDir = getCacheDirCopy();
     char *botDir = 0;
     char *botFilename = 0;

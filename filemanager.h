@@ -88,11 +88,16 @@ class FileManager {
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);
     void sliceString(char *filename, long start, long rest);
-    char* getAbsoluteFilename(char *dir, char *filename);
+    char* getAbsoluteFilename(const char *dir, const char *filename);
     void loadUserFile(const char *srcFilename, char **userDir,
         char **userFilename, char **userCwd, const char *metaFilename,
         const char *cacheDir) throw (FileNotFoundException*);
     bool hasExtension(const char *filename, const char *extension);
+    void packageCommonOld(lua_State *userState, char *userDir, char *userFilename,
+        char *luaCwd, const char *version, const char *metaFilename,
+        int prevFiles, int numFiles, int filesCmdLen, char **packFilenames,
+        const char *tmpDir, bool nosrc)
+        throw (InvalidLuaFilenameException*, LuaException*);
     void packageCommon(lua_State *userState, char *userDir, char *userFilename,
         char *luaCwd, const char *version, const char *metaFilename,
         int prevFiles, int numFiles, int filesCmdLen, char **packFilenames,
@@ -100,6 +105,11 @@ class FileManager {
         throw (InvalidLuaFilenameException*, LuaException*);
     void crawlFiles(lua_State *L, const char *startFile)
         throw (InvalidLuaFilenameException*, LuaException*);
+    void packageFiles(const char *outputFile, const char *baseDir,
+        char **filenames, int numFiles, const char *absMetaFilename,
+        const char *metaFilename);
+    void packageSingleFile(
+        const char *absFilename, const char *filename, struct archive *a);
     bool fileExists(const char *filename);
     void mkdir(const char *filename);
     char* parseFilename(const char *dirAndFilename);
