@@ -34,6 +34,12 @@ class NewMatchListener {
 };
 
 class NewMatchDialog : public wxFrame {
+  wxBoxSizer *borderSizer_;
+  wxFlexGridSizer *gridSizer_;
+  wxBoxSizer *stageSizer_;
+  wxBoxSizer *botsSizer_;
+  wxBoxSizer *botButtonsSizer_;
+  wxBoxSizer *loadedBotsSizer_;
   wxStaticText *stageLabel_;
   wxListBox *stageSelect_;
   wxStaticText *botsLabel_;

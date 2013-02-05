@@ -27,7 +27,8 @@ PackageStageDialog::PackageStageDialog(PackageStageDialogListener *listener)
               wxPoint(50, 50), wxSize(400, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
-  stageSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
+  stageSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200), 0,
+                               NULL, wxLB_SORT);
   includeSrcCheckBox_ = new wxCheckBox(
       this, STAGE_SRC_CHECKBOX_ID, "Include source code", wxPoint(230, 168));
   includeSrcCheckBox_->SetValue(true);
@@ -65,7 +66,8 @@ void PackageStageDialog::clearStages() {
 }
 
 void PackageStageDialog::addStage(char *stage) {
-  stageSelect_->Insert(wxString(stage), numStages_++);
+  stageSelect_->Append(wxString(stage));
+  numStages_++;
   if (stageSelect_->GetCount() > 0) {
     stageSelect_->SetFirstItem(0);
   }

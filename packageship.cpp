@@ -27,7 +27,8 @@ PackageShipDialog::PackageShipDialog(PackageShipDialogListener *listener)
               wxPoint(50, 50), wxSize(400, 260),
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
-  botsSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200));
+  botsSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200), 0,
+                              NULL, wxLB_SORT);
   includeSrcCheckBox_ = new wxCheckBox(
       this, SHIP_SRC_CHECKBOX_ID, "Include source code", wxPoint(230, 168));
   includeSrcCheckBox_->SetValue(true);
@@ -65,7 +66,8 @@ void PackageShipDialog::clearBots() {
 }
 
 void PackageShipDialog::addBot(char *bot) {
-  botsSelect_->Insert(wxString(bot), numBots_++);
+  botsSelect_->Append(wxString(bot));
+  numBots_++;
   if (botsSelect_->GetCount() > 0) {
     botsSelect_->SetFirstItem(0);
   }
