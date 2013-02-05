@@ -1,18 +1,27 @@
+#include "filemanager.h"
 #include "basedir.h"
 
+std::string getFullPath(const char *relativePath) {
+  char cwd[4096];
+  getcwd(cwd, 4096);
+  char *absFilename = FileManager::getAbsoluteFilename(cwd, relativePath);
+  std::string fullPath = std::string(absFilename);
+  delete absFilename;
+  return fullPath;
+}
+
 std::string getStageDir() {
-  return std::string("./stages");
+  return getFullPath("./stages");
 }
 
 std::string getBotsDir() {
-  return std::string("./bots");
+  return getFullPath("./bots");
 }
 
 std::string getCacheDir() {
-  return std::string("./cache");
+  return getFullPath("./cache");
 }
 
 std::string getTmpDir() {
-  return std::string("./.tmp");
+  return getFullPath("./.tmp");
 }
-
