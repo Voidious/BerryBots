@@ -18,6 +18,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <iostream>
 #include <libarchive/archive.h>
 #include <libarchive/archive_entry.h>
 #include <platformstl/filesystem/filesystem_traits.hpp>
@@ -57,8 +58,9 @@ void GuiZipper::packageSingleFile(const char *absFilename,
   char buff[8192];
   int fd;
   stat(absFilename, &st);
-  struct archive_entry *entry = archive_entry_new(); // Note 2
-  archive_entry_copy_stat(entry, &st);
+  struct archive_entry *entry = archive_entry_new();
+  archive_entry_set_size(entry, st.st_size);
+  archive_entry_set_filetype(entry, AE_IFREG);
   archive_entry_set_pathname(entry, filename);
   archive_entry_set_perm(entry, 0644);
   archive_write_header(a, entry);
@@ -79,6 +81,7 @@ void GuiZipper::unpackFile(const char *zipFile, const char *outputDir) {
   // TODO: use archive_write_disk_open instead (if/when it exists)
   char cwd[4096];
   getcwd(cwd, 4096);
+  char *absZipFile = FileManager::getAbsoluteFilename(cwd, zipFile);
   platformstl::filesystem_traits<char> traits;
   traits.set_current_directory(outputDir);
   
@@ -99,31 +102,46 @@ void GuiZipper::unpackFile(const char *zipFile, const char *outputDir) {
   ext = archive_write_disk_new();
   archive_write_disk_set_options(ext, flags);
   archive_write_disk_set_standard_lookup(ext);
-  if ((r = archive_read_open_filename(a, zipFile, 10240)))
+  if ((r = archive_read_open_filename(a, absZipFile, 10240))) {
+    std::cout << "Error opening archive for reading: " << absZipFile << std::endl;
     exit(1);
+  }
   for (;;) {
     r = archive_read_next_header(a, &entry);
-    if (r == ARCHIVE_EOF)
+    if (r == ARCHIVE_EOF) {
       break;
-    if (r != ARCHIVE_OK)
+    }
+    if (r != ARCHIVE_OK) {
       fprintf(stderr, "%s\n", archive_error_string(a));
-    if (r < ARCHIVE_WARN)
+    }
+    if (r < ARCHIVE_WARN) {
+      std::cout << "Error reading next archive header: " << absZipFile << " ("
+                << r << ")" << std::endl;
       exit(1);
+    }
     r = archive_write_header(ext, entry);
-    if (r != ARCHIVE_OK)
+    if (r != ARCHIVE_OK) {
       fprintf(stderr, "%s\n", archive_error_string(ext));
-    else if (archive_entry_size(entry) > 0) {
+    } else if (archive_entry_size(entry) > 0) {
       copyData(a, ext, outputDir);
-      if (r != ARCHIVE_OK)
+      if (r != ARCHIVE_OK) {
         fprintf(stderr, "%s\n", archive_error_string(ext));
-      if (r < ARCHIVE_WARN)
+      }
+      if (r < ARCHIVE_WARN) {
+        std::cout << "Error writing next archive header: " << absZipFile << " ("
+                  << r << ")" << std::endl;
         exit(1);
+      }
     }
     r = archive_write_finish_entry(ext);
-    if (r != ARCHIVE_OK)
+    if (r != ARCHIVE_OK) {
       fprintf(stderr, "%s\n", archive_error_string(ext));
-    if (r < ARCHIVE_WARN)
+    }
+    if (r < ARCHIVE_WARN) {
+      std::cout << "Error writing finish entry: " << absZipFile << " ("
+                << r << ")" << std::endl;
       exit(1);
+    }
   }
   archive_read_close(a);
   archive_read_free(a);
@@ -131,6 +149,7 @@ void GuiZipper::unpackFile(const char *zipFile, const char *outputDir) {
   archive_write_free(ext);
   
   traits.set_current_directory(cwd);
+  delete absZipFile;
 }
 
 // Taken almost verbatim from libarchive's public example code.
@@ -140,13 +159,15 @@ ssize_t GuiZipper::copyData(struct archive *ar, struct archive *aw,
   ssize_t r;
   const void *buff;
   size_t size;
-  off_t offset;
+  int64_t offset;
   for (;;) {
     r = archive_read_data_block(ar, &buff, &size, &offset);
-    if (r == ARCHIVE_EOF)
+    if (r == ARCHIVE_EOF) {
       return (ARCHIVE_OK);
-    if (r != ARCHIVE_OK)
+    }
+    if (r != ARCHIVE_OK) {
       return (r);
+    }
     r = archive_write_data_block(aw, buff, size, offset);
     if (r != ARCHIVE_OK) {
       fprintf(stderr, "%s\n", archive_error_string(aw));
