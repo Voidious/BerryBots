@@ -23,6 +23,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <fcntl.h>
+#include <platformstl/filesystem/filesystem_traits.hpp>
 #include "bbconst.h"
 #include "filemanager.h"
 #include "bbengine.h"
@@ -155,7 +156,7 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
   }
   if (srcFilenameLen > zipLen
       && strcmp(&(srcFilename[srcFilenameLen - zipLen]), ZIP_EXTENSION) == 0) {
-    createDirIfNecessary(cacheDir);
+    createDirectoryIfNecessary(cacheDir);
     
     const char *userDirName = parseFilename(srcFilename);
     int userDirPathLen =
@@ -167,7 +168,7 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     delete userDirName;
     
     if (!fileExists(userDirPath)) {
-      mkdir(userDirPath);
+      createDirectory(userDirPath);
       zipper_->unpackFile(srcFilename, userDirPath);
     }
     
@@ -249,7 +250,7 @@ throw (InvalidLuaFilenameException*, LuaException*) {
   lua_pop(userState, 1);
 
   char *absMetaFilename;
-  createDirIfNecessary(tmpDir);
+  createDirectoryIfNecessary(tmpDir);
   char cwd[4096];
   getcwd(cwd, 4096);
   char *absTmpDir = getAbsoluteFilename(cwd, tmpDir);
@@ -269,7 +270,7 @@ throw (InvalidLuaFilenameException*, LuaException*) {
         
         char *outputDir = parseDir(outputFilename);
         if (outputDir != 0) {
-          mkdirIfNecessary(outputDir);
+          createDirectoryIfNecessary(outputDir);
         }
         try {
           saveBytecode(packFilenames[x], outputFilename, userDir);
@@ -513,12 +514,9 @@ bool FileManager::fileExists(const char *filename) {
   return exists;
 }
 
-void FileManager::mkdir(const char *filename) {
-  // TODO: do this with platformstl or something else
-  char *mkdirCmd = new char[strlen(filename) + 7];
-  sprintf(mkdirCmd, "mkdir %s", filename);
-  system(mkdirCmd);
-  delete mkdirCmd;
+void FileManager::createDirectory(const char *filename) {
+  platformstl::filesystem_traits<char> traits;
+  traits.create_directory(filename);
 }
 
 char* FileManager::parseFilename(const char *dirAndFilename) {
@@ -534,6 +532,17 @@ char* FileManager::parseFilename(const char *dirAndFilename) {
   return filename;
 }
 
+void FileManager::createDirectoryIfNecessary(const char *dir) {
+  char *parentDir = parseDir(dir);
+  if (parentDir != 0) {
+    createDirectoryIfNecessary(parentDir);
+    delete parentDir;
+  }
+  if (!fileExists(dir)) {
+    createDirectory(dir);
+  }
+}
+
 char* FileManager::parseDir(const char *dirAndFilename) {
   const char *fromFinalSlash = strrchr(dirAndFilename, BB_DIRSEP_CHR);
   if (fromFinalSlash == 0) {
@@ -547,23 +556,6 @@ char* FileManager::parseDir(const char *dirAndFilename) {
     strncpy(dir, dirAndFilename, dirLen);
     dir[dirLen] = '\0';
     return dir;
-  }
-}
-
-void FileManager::createDirIfNecessary(const char *dir) {
-  if (!fileExists(dir)) {
-    mkdir(dir);
-  }
-}
-
-void FileManager::mkdirIfNecessary(char *dir) {
-  char *parentDir = parseDir(dir);
-  if (parentDir != 0) {
-    mkdirIfNecessary(parentDir);
-    delete parentDir;
-  }
-  if (!fileExists(dir)) {
-    mkdir(dir);
   }
 }
 

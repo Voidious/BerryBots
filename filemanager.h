@@ -104,10 +104,9 @@ class FileManager {
     void crawlFiles(lua_State *L, const char *startFile)
         throw (InvalidLuaFilenameException*, LuaException*);
     bool fileExists(const char *filename);
-    void mkdir(const char *filename);
+    void createDirectory(const char *filename);
+    void createDirectoryIfNecessary(const char *dir);
     char* parseFilename(const char *dirAndFilename);
-    void createDirIfNecessary(const char *dir);
-    void mkdirIfNecessary(char *dir);
     void checkLuaFilename(const char *filename)
         throw (InvalidLuaFilenameException*);
     void throwForLuaError(lua_State *L, const char *formatString)
