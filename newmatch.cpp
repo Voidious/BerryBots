@@ -75,7 +75,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
   startButton_ = new wxButton(this, START_BUTTON_ID, "Start Match!",
                               wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   gridSizer_->Add(startButton_, 0, wxALIGN_RIGHT);
-  borderSizer_->Add(gridSizer_, 0, wxALL, 10);
+  borderSizer_->Add(gridSizer_, 0, wxALL, 12);
   SetSizerAndFit(borderSizer_);
 
   numStages_ = numBots_ = numLoadedBots_ = 0;

@@ -33,10 +33,14 @@ class PackageDialogListener {
 };
 
 class PackageDialog : public wxFrame {
+  wxBoxSizer *borderSizer_;
+  wxFlexGridSizer *gridSizer_;
+  wxBoxSizer *versionSizer_;
+  wxBoxSizer *settingsSizer_;
   wxListBox *selectListBox_;
-  wxCheckBox *includeSrcCheckBox_;
   wxStaticText *versionLabel_;
   wxTextCtrl *versionText_;
+  wxCheckBox *includeSrcCheckBox_;
   wxButton *packageButton_;
   unsigned int numItems_;
   PackageDialogListener *listener_;

@@ -23,21 +23,41 @@
 #include "bbwx.h"
 
 PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener)
-    : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxSize(400, 260),
+    : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
-  selectListBox_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200), 0,
-                                 NULL, wxLB_SORT);
-  includeSrcCheckBox_ = new wxCheckBox(
-      this, wxID_ANY, "Include source code", wxPoint(230, 168));
-  includeSrcCheckBox_->SetValue(true);
-  versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 140));
-  versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 137),
-                                wxSize(70, 23));
-  packageButton_ = new wxButton(this, wxID_ANY, "Package!",
-      wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
   numItems_ = 0;
   menusInitialized_ = false;
+  
+  borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
+  gridSizer_ = new wxFlexGridSizer(2, 5, 5);
+  versionSizer_ = new wxBoxSizer(wxHORIZONTAL);
+  settingsSizer_ = new wxBoxSizer(wxVERTICAL);
+
+  selectListBox_ = new wxListBox(this, wxID_ANY, wxDefaultPosition,
+                                 wxSize(275, 225), 0, NULL, wxLB_SORT);
+  gridSizer_->Add(selectListBox_);
+  versionLabel_ = new wxStaticText(this, wxID_ANY, "Version:");
+  versionText_ = new wxTextCtrl(this, wxID_ANY, "1.0", wxDefaultPosition,
+                                wxSize(70, 23));
+  versionSizer_->Add(versionLabel_, 0, wxALIGN_CENTER_VERTICAL);
+  versionSizer_->AddSpacer(5);
+  versionSizer_->Add(versionText_, 0, wxALIGN_CENTER_VERTICAL);
+  settingsSizer_->AddStretchSpacer(5);
+  settingsSizer_->Add(versionSizer_, 0, wxALIGN_LEFT);
+  includeSrcCheckBox_ = new wxCheckBox(this, wxID_ANY, "Include source code");
+  includeSrcCheckBox_->SetValue(true);
+  settingsSizer_->AddSpacer(5);
+  settingsSizer_->Add(includeSrcCheckBox_, 0, wxALIGN_LEFT);
+  wxString buttonLabel = wxString(title);
+  buttonLabel.Append("!");
+  packageButton_ = new wxButton(this, wxID_ANY, buttonLabel, wxDefaultPosition,
+                                wxDefaultSize, wxBU_EXACTFIT);
+  settingsSizer_->AddStretchSpacer(1);
+  settingsSizer_->Add(packageButton_, 0, wxALIGN_RIGHT);
+  gridSizer_->Add(settingsSizer_, 0, wxEXPAND);
+  borderSizer_->Add(gridSizer_, 0, wxALL, 12);
+  SetSizerAndFit(borderSizer_);
 
   Connect(this->GetId(), wxEVT_ACTIVATE,
           wxActivateEventHandler(PackageDialog::onActivate));
