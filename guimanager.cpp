@@ -113,7 +113,7 @@ GuiManager::~GuiManager() {
 
 void GuiManager::loadStages() {
   newMatchDialog_->clearStages();
-  packageStageDialog_->clearStages();
+  packageStageDialog_->clearItems();
   // TODO: move file related stuff to FileManager
   platformstl::readdir_sequence dir(stageBaseDir_,
                                     platformstl::readdir_sequence::files);
@@ -125,7 +125,7 @@ void GuiManager::loadStages() {
     if (isValidStageFile(stageBaseDir_, filename)) {
       newMatchDialog_->addStage(filename);
       if (fileManager_->isLuaFilename(filename)) {
-        packageStageDialog_->addStage(filename);
+        packageStageDialog_->addItem(filename);
       }
     }
   }
@@ -200,7 +200,7 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
 
 void GuiManager::loadBots() {
   newMatchDialog_->clearBots();
-  packageShipDialog_->clearBots();
+  packageShipDialog_->clearItems();
   // TODO: move file related stuff to FileManager
   platformstl::readdir_sequence dir(botsBaseDir_,
                                     platformstl::readdir_sequence::files);
@@ -212,7 +212,7 @@ void GuiManager::loadBots() {
     if (isValidBotFile(botsBaseDir_, filename)) {
       newMatchDialog_->addBot(filename);
       if (fileManager_->isLuaFilename(filename)) {
-        packageShipDialog_->addBot(filename);
+        packageShipDialog_->addItem(filename);
       }
     }
   }

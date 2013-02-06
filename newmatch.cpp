@@ -43,7 +43,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
   gridSizer_->AddSpacer(0);
   gridSizer_->AddSpacer(0);
 
-  botsLabel_ = new wxStaticText(this, -1, "Bots:");
+  botsLabel_ = new wxStaticText(this, -1, "Ships:");
   botsSelect_ = new wxListBox(this, SELECT_BOTS_ID, wxDefaultPosition,
                               wxSize(275, 225), 0, NULL,
                               wxLB_MULTIPLE | wxLB_SORT);

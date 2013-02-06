@@ -21,49 +21,12 @@
 #ifndef PACKAGE_STAGE_H
 #define PACKAGE_STAGE_H
 
-#include <wx/wx.h>
+#include "packagedialog.h"
 
-class PackageStageDialogListener {
+class PackageStageDialog : public PackageDialog {
   public:
-    virtual wxMenuBar* getNewMenuBar() = 0;
-    virtual void package(const char *stageName, const char *version,
-                         bool nosrc) = 0;
-    virtual void cancel() = 0;
-    virtual ~PackageStageDialogListener() {};
-};
-
-// TODO: factor out common base class for this and PackageShipDialog
-
-class PackageStageDialog : public wxFrame {
-  wxListBox *stageSelect_;
-  wxCheckBox *includeSrcCheckBox_;
-  wxStaticText *versionLabel_;
-  wxTextCtrl *versionText_;
-  wxButton *packageButton_;
-  unsigned int numStages_;
-  PackageStageDialogListener *listener_;
-  bool menusInitialized_;
-  wxEventFilter *eventFilter_;
-
-  public:
-    PackageStageDialog(PackageStageDialogListener *listener);
+    PackageStageDialog(PackageDialogListener *listener);
     ~PackageStageDialog();
-    void clearStages();
-    void addStage(char *stage);
-    void onActivate(wxActivateEvent &event);
-    void onClose(wxCommandEvent &event);
-    void onPackage(wxCommandEvent &event);
-    void packageSelectedStage();
-    void onEscape();
-};
-
-class PackageStageEventFilter : public wxEventFilter {
-  PackageStageDialog *packageStageDialog_;
-  
-  public:
-    PackageStageEventFilter(PackageStageDialog *dialog);
-    ~PackageStageEventFilter();
-    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif

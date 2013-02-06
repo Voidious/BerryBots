@@ -25,6 +25,7 @@
 #include "gfxmanager.h"
 #include "filemanager.h"
 #include "newmatch.h"
+#include "packagedialog.h"
 #include "packageship.h"
 #include "packagestage.h"
 #include "outputconsole.h"
@@ -48,8 +49,8 @@ class GuiManager {
   GfxViewListener *viewListener_;
   Zipper *zipper_;
   FileManager *fileManager_;
-  PackageShipDialogListener *shipPackager_;
-  PackageStageDialogListener *stagePackager_;
+  PackageDialogListener *shipPackager_;
+  PackageDialogListener *stagePackager_;
   PackagingListener *packageReporter_;
   BerryBotsEngine *engine_;
   char *stageBaseDir_;
@@ -124,7 +125,7 @@ class MatchRunner : public NewMatchListener {
     virtual void cancel();
 };
 
-class ShipPackager : public PackageShipDialogListener {
+class ShipPackager : public PackageDialogListener {
   GuiManager *guiManager_;
   FileManager *fileManager_;
   OutputConsole *packagingConsole_;
@@ -139,7 +140,7 @@ class ShipPackager : public PackageShipDialogListener {
     virtual void cancel();
 };
 
-class StagePackager : public PackageStageDialogListener {
+class StagePackager : public PackageDialogListener {
   GuiManager *guiManager_;
   FileManager *fileManager_;
   OutputConsole *packagingConsole_;

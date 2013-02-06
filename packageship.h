@@ -21,49 +21,12 @@
 #ifndef PACKAGE_SHIP_H
 #define PACKAGE_SHIP_H
 
-#include <wx/wx.h>
+#include "packagedialog.h"
 
-class PackageShipDialogListener {
+class PackageShipDialog : public PackageDialog {
   public:
-    virtual wxMenuBar* getNewMenuBar() = 0;
-    virtual void package(const char *botName, const char *version,
-                         bool nosrc) = 0;
-    virtual void cancel() = 0;
-    virtual ~PackageShipDialogListener() {};
-};
-
-// TODO: factor out common base class for this and PackageStageDialog
-
-class PackageShipDialog : public wxFrame {
-  wxListBox *botsSelect_;
-  wxCheckBox *includeSrcCheckBox_;
-  wxStaticText *versionLabel_;
-  wxTextCtrl *versionText_;
-  wxButton *packageButton_;
-  unsigned int numBots_;
-  PackageShipDialogListener *listener_;
-  bool menusInitialized_;
-  wxEventFilter *eventFilter_;
-
-  public:
-    PackageShipDialog(PackageShipDialogListener *listener);
+    PackageShipDialog(PackageDialogListener *listener);
     ~PackageShipDialog();
-    void clearBots();
-    void addBot(char *bot);
-    void onActivate(wxActivateEvent &event);
-    void onClose(wxCommandEvent &event);
-    void onPackage(wxCommandEvent &event);
-    void packageSelectedBot();
-    void onEscape();
-};
-
-class PackageShipEventFilter : public wxEventFilter {
-  PackageShipDialog *packageShipDialog_;
-  
-  public:
-    PackageShipEventFilter(PackageShipDialog *dialog);
-    ~PackageShipEventFilter();
-    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif

@@ -18,121 +18,14 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <wx/wx.h>
 #include "packagestage.h"
 #include "bbwx.h"
 
-PackageStageDialog::PackageStageDialog(PackageStageDialogListener *listener)
-    : wxFrame(NULL, PACKAGE_STAGE_ID, "Package Stage",
-              wxPoint(50, 50), wxSize(400, 260),
-              wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
-  listener_ = listener;
-  stageSelect_ = new wxListBox(this, -1, wxPoint(20, 20), wxSize(200, 200), 0,
-                               NULL, wxLB_SORT);
-  includeSrcCheckBox_ = new wxCheckBox(
-      this, STAGE_SRC_CHECKBOX_ID, "Include source code", wxPoint(230, 168));
-  includeSrcCheckBox_->SetValue(true);
-  versionLabel_ = new wxStaticText(this, -1, "Version:", wxPoint(230, 140));
-  versionText_ = new wxTextCtrl(this, -1, "1.0", wxPoint(290, 137),
-                                wxSize(70, 23));
-  packageButton_ = new wxButton(this, PACKAGE_STAGE_BUTTON_ID, "Package!",
-      wxPoint(224, 190), wxDefaultSize, wxBU_EXACTFIT);
-  numStages_ = 0;
-  menusInitialized_ = false;
+PackageStageDialog::PackageStageDialog(PackageDialogListener *listener)
+    : PackageDialog("Package Stage", listener) {
 
-  Connect(PACKAGE_STAGE_ID, wxEVT_ACTIVATE,
-          wxActivateEventHandler(PackageStageDialog::onActivate));
-  Connect(PACKAGE_STAGE_ID, wxEVT_CLOSE_WINDOW,
-          wxCommandEventHandler(PackageStageDialog::onClose));
-  Connect(PACKAGE_STAGE_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
-          wxCommandEventHandler(PackageStageDialog::onPackage));
-
-  eventFilter_ = new PackageStageEventFilter(this);
-  this->GetEventHandler()->AddFilter(eventFilter_);
 }
 
 PackageStageDialog::~PackageStageDialog() {
-  this->GetEventHandler()->RemoveFilter(eventFilter_);
-  delete eventFilter_;
-  delete stageSelect_;
-  delete includeSrcCheckBox_;
-  delete versionLabel_;
-  delete versionText_;
-}
-
-void PackageStageDialog::clearStages() {
-  stageSelect_->Clear();
-  numStages_ = 0;
-}
-
-void PackageStageDialog::addStage(char *stage) {
-  stageSelect_->Append(wxString(stage));
-  numStages_++;
-  if (stageSelect_->GetCount() > 0) {
-    stageSelect_->SetFirstItem(0);
-  }
-}
-
-void PackageStageDialog::onActivate(wxActivateEvent &event) {
-  if (!menusInitialized_) {
-    this->SetMenuBar(listener_->getNewMenuBar());
-    menusInitialized_ = true;
-  }
-  stageSelect_->SetFocus();
-}
-
-void PackageStageDialog::onClose(wxCommandEvent &event) {
-  listener_->cancel();
-}
-
-void PackageStageDialog::onPackage(wxCommandEvent &event) {
-  packageSelectedStage();
-}
-
-void PackageStageDialog::packageSelectedStage() {
-  wxArrayInt selectedStageIndex;
-  stageSelect_->GetSelections(selectedStageIndex);
-  wxString stageVersion = versionText_->GetValue();
-  if (selectedStageIndex.Count() != 0 && stageVersion.length() > 0) {
-    wxString selectedStage =
-        stageSelect_->GetString(*(selectedStageIndex.begin()));
-    char *stage = new char[selectedStage.length() + 1];
-    strcpy(stage, selectedStage.fn_str());
-
-    char *version = new char[stageVersion.length() + 1];
-    strcpy(version, stageVersion.fn_str());
-
-    listener_->package(stage, version, !includeSrcCheckBox_->IsChecked());
-  }
-}
-
-void PackageStageDialog::onEscape() {
-  listener_->cancel();
-}
-
-PackageStageEventFilter::PackageStageEventFilter(PackageStageDialog *dialog) {
-  packageStageDialog_ = dialog;
-}
-
-PackageStageEventFilter::~PackageStageEventFilter() {
   
-}
-
-int PackageStageEventFilter::FilterEvent(wxEvent& event) {
-  const wxEventType type = event.GetEventType();
-  if (type == wxEVT_KEY_DOWN && packageStageDialog_->IsActive()) {
-    wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
-    int keyCode = keyEvent->GetKeyCode();
-    if (keyCode == WXK_ESCAPE) {
-      packageStageDialog_->onEscape();
-    } else if (keyEvent->GetUnicodeKey() == 'P' && keyEvent->ControlDown()) {
-      packageStageDialog_->packageSelectedStage();
-    }
-#ifdef __WXOSX__
-    if (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown()) {
-      packageStageDialog_->onEscape();
-    }
-#endif
-  }
-  return Event_Skip;
 }
