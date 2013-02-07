@@ -90,9 +90,13 @@ void FileManager::sliceString(char *filename, long start, long rest) {
 // TODO: this could use a better name
 char* FileManager::getAbsoluteFilename(const char *dir, const char *filename) {
   char *absFilename;
-  // TODO: Can "C:/" also be absolute path on Windows?
-  if (dir == 0 || filename[0] == BB_DIRSEP_CHR
-      || (strlen(filename) > 1 && strncmp(&(filename[1]), ":\\", 2) == 0)) {
+#ifdef __WIN32__
+  bool pathFromRoot = (filename[0] == BB_DIRSEP_CHR)
+      || (strlen(filename) >= 3 && strncmp(&(filename[1]), ":\\", 2) == 0);
+#else
+  bool pathFromRoot = (filename[0] == BB_DIRSEP_CHR);
+#endif
+  if (pathFromRoot || dir == 0) {
     absFilename = new char[strlen(filename) + 1];
     strcpy(absFilename, filename);
     return absFilename;
@@ -184,13 +188,7 @@ void FileManager::loadUserFile(const char *srcFilename, char **userDir,
     *userCwd = new char[strlen(cwd) + 1];
     strcpy(*userCwd, cwd);
   } else {
-    // TODO: also support X:\ on Windows
-    if ((*userDir)[0] == BB_DIRSEP_CHR) {
-      *userCwd = new char[strlen(*userDir) + 1];
-      strcpy(*userCwd, *userDir);
-    } else {
-      *userCwd = getAbsoluteFilename(cwd, *userDir);
-    }
+    *userCwd = getAbsoluteFilename(cwd, *userDir);
   }
 }
 
@@ -296,10 +294,6 @@ throw (InvalidLuaFilenameException*, LuaException*) {
   if (userDir == 0) {
     srcDir = new char[2];
     sprintf(srcDir, ".");
-  } else if (userDir[0] == BB_DIRSEP_CHR) {
-    // TODO: also support X:\ on Windows
-    srcDir = new char[strlen(userDir) + 1];
-    strcpy(srcDir, userDir);
   } else {
     char cwd[4096];
     getcwd(cwd, 4096);
@@ -415,6 +409,7 @@ void FileManager::packageStage(const char *stageArg, const char *version,
   char **stageShipFilenames = stage->getStageShips();
   lua_getfield(stageState, LUA_REGISTRYINDEX, "__FILES");
   int numFiles = (int) (numStageShips + lua_objlen(stageState, -1));
+  // TODO: get rid of this useless cmdLen stuff
   int filesCmdLen = numStageShips * 3; // 1 space, 2 quotes for each filename
   char **packFilenames = new char*[numFiles];
   for (int x = 0; x < numStageShips; x++) {

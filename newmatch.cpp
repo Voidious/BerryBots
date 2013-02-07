@@ -195,7 +195,8 @@ void NewMatchDialog::removeStaleLoadedBots() {
   if (numLoadedBots_ != 0) {
     for (int x = 0; x < numLoadedBots_; x++) {
       wxString loadedBot = loadedBotsSelect_->GetString(x);
-      if (botsSelect_->FindString(loadedBot) == wxNOT_FOUND) {
+      if (botsSelect_->wxItemContainerImmutable::FindString(loadedBot)
+              == wxNOT_FOUND) {
         loadedBotsSelect_->Delete(x);
         x--;
         numLoadedBots_--;

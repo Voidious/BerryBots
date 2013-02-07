@@ -2,7 +2,7 @@ cd luajit
 make
 cd ..
 g++ bbguimain.cpp guiprinthandler.cpp guimanager.cpp newmatch.cpp \
-outputconsole.cpp linuxbasedir.cpp linuxresourcepath.cpp bbutil.cpp \
+outputconsole.cpp relativebasedir.cpp linuxresourcepath.cpp bbutil.cpp \
 gfxmanager.cpp filemanager.cpp circle2d.cpp line2d.cpp point2d.cpp \
 sensorhandler.cpp zone.cpp bbengine.cpp bblua.cpp gfxeventhandler.cpp \
 rectangle.cpp stage.cpp packagedialog.cpp packageship.cpp packagestage.cpp \

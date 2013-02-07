@@ -298,7 +298,11 @@ static const char *searchpath (lua_State *L, const char *name,
     const char *absFilename = luaL_gsub(L, filename, "~", lua_getcwd(L));
     if (readable(absFilename)) { /* does file exist and is readable? */
       lua_pop(L, 1);
+#if defined(_WIN32)
+      const char *relativeFilename = luaL_gsub(L, filename, "~\\", "");
+#else
       const char *relativeFilename = luaL_gsub(L, filename, "~/", "");
+#endif
       lua_remove(L, -2);  /* remove file name */
       return relativeFilename;
     }

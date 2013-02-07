@@ -32,17 +32,17 @@ std::string getFullPath(const char *relativePath) {
 }
 
 std::string getStageDir() {
-  return getFullPath("./stages");
+  return getFullPath("stages");
 }
 
 std::string getBotsDir() {
-  return getFullPath("./bots");
+  return getFullPath("bots");
 }
 
 std::string getCacheDir() {
-  return getFullPath("./cache");
+  return getFullPath("cache");
 }
 
 std::string getTmpDir() {
-  return getFullPath("./.tmp");
+  return getFullPath(".tmp");
 }

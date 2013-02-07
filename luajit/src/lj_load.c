@@ -123,17 +123,36 @@ const char *getBaseDir(lua_State *L) {
 //            ./ and ../ appropriately. Leaves new string on top of stack.
 const char *getAbsoluteFilename(
     lua_State *L, const char *dir, const char *filename) {
-  if (filename[0] == '/' || dir == 0) {
+  int pathFromRoot = 0;
+#if defined(_WIN32)
+  if ((strlen(filename) >= 3 && filename[1] == ':'
+           && filename[2] == LUA_DIRSEP[0])
+      || filename[0] == LUA_DIRSEP[0]) {
+    pathFromRoot = 1;
+  }
+  char dotSlash[] = ".\\";
+  char dotDotSlash[] = "..\\";
+  char slashDot[] = "\\.";
+#else
+  if (filename[0] == LUA_DIRSEP[0]) {
+    pathFromRoot = 1;
+  }
+  char dotSlash[] = "./";
+  char dotDotSlash[] = "../";
+  char slashDot[] = "/.";
+#endif
+  if (pathFromRoot || dir == 0) {
     lua_pushstring(L, filename);
     return lua_tostring(L, -1);
   }
 
-  const char *absFilename = lua_pushfstring(L, "%s/%s", dir, filename);
+  const char *absFilename =
+      lua_pushfstring(L, "%s%s%s", dir, LUA_DIRSEP, filename);
   char *dots;
   int i = 0;
-  while ((dots = strstr(&(absFilename[i]), "./")) != NULL) {
+  while ((dots = strstr(&(absFilename[i]), dotSlash)) != NULL) {
     int offset = dots - absFilename;
-    if (offset == 0 || absFilename[offset - 1] == '/') {
+    if (offset == 0 || absFilename[offset - 1] == LUA_DIRSEP[0]) {
       absFilename = sliceString(L, absFilename, offset, offset + 2);
       i = offset;
     } else {
@@ -141,16 +160,17 @@ const char *getAbsoluteFilename(
     }
   }
   int filenameLen = strlen(absFilename);
-  if (filenameLen >= 2 && strcmp(&(absFilename[filenameLen - 2]), "/.") == 0) {
+  if (filenameLen >= 2
+      && strcmp(&(absFilename[filenameLen - 2]), slashDot) == 0) {
     lua_pushlstring(L, absFilename, filenameLen - 2);
     absFilename = lua_tostring(L, -1);
     lua_remove(L, -2);
   }
-  while ((dots = strstr(absFilename, "../")) != NULL) {
+  while ((dots = strstr(absFilename, dotDotSlash)) != NULL) {
     int prevSlash = -1;
     int x;
     for (x = dots - absFilename - 2; x > 0; x--) {
-      if (absFilename[x] == '/') {
+      if (absFilename[x] == LUA_DIRSEP[0]) {
         prevSlash = x;
         break;
       }
