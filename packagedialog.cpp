@@ -115,9 +115,19 @@ void PackageDialog::packageSelectedItem() {
   if (selectedIndex.Count() != 0 && versionString.length() > 0) {
     wxString selectedItem = selectListBox_->GetString(*(selectedIndex.begin()));
     char *name = new char[selectedItem.length() + 1];
+
+#ifdef __WINDOWS__
+    strcpy(name, selectedItem.c_str());
+#else
     strcpy(name, selectedItem.fn_str());
+#endif
+
     char *version = new char[versionString.length() + 1];
+#ifdef __WINDOWS__
+    strcpy(version, versionString.c_str());
+#else
     strcpy(version, versionString.fn_str());
+ #endif
 
     listener_->package(name, version, !includeSrcCheckBox_->IsChecked());
   }

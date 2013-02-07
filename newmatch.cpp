@@ -224,14 +224,22 @@ void NewMatchDialog::startMatch() {
       for (int x = 0; x < numStartBots; x++) {
         wxString loadedBot = loadedBotsSelect_->GetString(x);
         char *bot = new char[loadedBot.length() + 1];
+#ifdef __WINDOWS__
+        strcpy(bot, loadedBot.c_str());
+#else
         strcpy(bot, loadedBot.fn_str());
+#endif
         bots[x] = bot;
       }
       
       wxString selectedStage =
           stageSelect_->GetString(*(selectedStageIndex.begin()));
       char *stage = new char[selectedStage.length() + 1];
+#ifdef __WINDOWS__
+      strcpy(stage, selectedStage.c_str());
+#else
       strcpy(stage, selectedStage.fn_str());
+#endif
       
       listener_->startMatch(stage, bots, numStartBots);
       

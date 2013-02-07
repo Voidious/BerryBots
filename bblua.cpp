@@ -705,7 +705,7 @@ StageSensors* pushStageSensors(lua_State *L, SensorHandler *sensorHandler,
     ShipDestroyed* shipDestroyed = shipDestroyedEvents[x];
     BerryBotsEngine *engine = properties[shipDestroyed->shipIndex]->engine;
     if (shipDestroyed->time == engine->getGameTime()) {
-      // TODO: doesn't seem like we shoul dneed this check - do we?
+      // TODO: doesn't seem like we should need this check - do we?
       lua_newtable(L);
       setField(L, "time", shipDestroyed->time);
       setField(L, "shipName", properties[shipDestroyed->shipIndex]->name);

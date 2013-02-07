@@ -516,10 +516,11 @@ void GuiManager::processMainWindowEvents() {
       window->setFramerateLimit(0);
     }
 
-    // On Linux/GTK, the wxWidgets windows freeze while running a match,
-    // presumably because they only listen for events on the same thread that
-    // we're currently occupying to run/draw. Works fine on Mac/Cocoa.
-#ifdef __WXGTK__
+    // On Linux/GTK and Windows, the wxWidgets windows freeze while running a
+    // match presumably because they only listen for events on the same thread
+    // that we're currently occupying to run/draw. Works fine on Mac/Cocoa for
+    // whatever reason.
+#ifndef __WXOSX__
     wxYield();
 #endif
   }

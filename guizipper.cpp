@@ -19,6 +19,8 @@
 */
 
 #include <iostream>
+#include <unistd.h>
+#include <fcntl.h>
 #include <libarchive/archive.h>
 #include <libarchive/archive_entry.h>
 #include <platformstl/filesystem/filesystem_traits.hpp>
