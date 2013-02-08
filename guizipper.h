@@ -37,7 +37,7 @@ class GuiZipper : public Zipper {
                            struct archive *a);
     ssize_t copyData(struct archive *archiveRead, struct archive *archiveWrite,
                      const char *userDirPath);
-
+    void checkForErrors(const char *message, struct archive *a, int r);
 };
 
 #endif

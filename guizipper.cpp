@@ -40,18 +40,24 @@ GuiZipper::~GuiZipper() {
 void GuiZipper::packageFiles(const char *outputFile, const char *baseDir,
     char **filenames, int numFiles, const char *absMetaFilename,
     const char *metaFilename) {
+  int r;
   struct archive *a = archive_write_new();
-  archive_write_add_filter_gzip(a);
-  archive_write_set_format_pax_restricted(a);
-  archive_write_open_filename(a, outputFile);
+  r = archive_write_add_filter_gzip(a);
+  checkForErrors("Error adding filter gzip", a, r);
+  r = archive_write_set_format_pax_restricted(a);
+  checkForErrors("Error setting format pax restricted", a, r);
+  r = archive_write_open_filename(a, outputFile);
+  checkForErrors("Error opening file", a, r);
   packageSingleFile(absMetaFilename, metaFilename, a);
   for (int x = 0; x < numFiles; x++) {
     char *filename = filenames[x];
     char *absFilename = FileManager::getAbsoluteFilename(baseDir, filename);
     packageSingleFile(absFilename, filename, a);
   }
-  archive_write_close(a);
-  archive_write_free(a);
+  r = archive_write_close(a);
+  checkForErrors("Error writing close", a, r);
+  r = archive_write_free(a);
+  checkForErrors("Error writing free", a, r);
 }
 
 void GuiZipper::packageSingleFile(const char *absFilename,
@@ -65,7 +71,8 @@ void GuiZipper::packageSingleFile(const char *absFilename,
   archive_entry_set_filetype(entry, AE_IFREG);
   archive_entry_set_pathname(entry, filename);
   archive_entry_set_perm(entry, 0644);
-  archive_write_header(a, entry);
+  int r = archive_write_header(a, entry);
+  checkForErrors("Error writing header", a, r);
   fd = open(absFilename, O_RDONLY);
   ssize_t len = read(fd, buff, sizeof(buff));
   while (len > 0) {
@@ -175,5 +182,13 @@ ssize_t GuiZipper::copyData(struct archive *ar, struct archive *aw,
       fprintf(stderr, "%s\n", archive_error_string(aw));
       return (r);
     }
+  }
+}
+
+void GuiZipper::checkForErrors(const char *message, struct archive *a, int r) {
+  if (r != ARCHIVE_OK) {
+    std::cout << message << " (" << r << ")" << std::endl;
+    std::cout << archive_errno(a) << " :: " << archive_error_string(a)
+              << std::endl;
   }
 }
