@@ -35,7 +35,7 @@ TarZipper::~TarZipper() {
 }
 
 void TarZipper::packageFiles(const char *outputFile, const char *baseDir,
-    char **filenames, int numFiles, const char *absMetaFilename,
+    char **filenames, int numFiles, bool binary, const char *absMetaFilename,
     const char *metaFilename) {
   std::stringstream cmdStream;
   cmdStream << "cd \"" << baseDir << "\"; "

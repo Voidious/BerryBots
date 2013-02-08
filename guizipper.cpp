@@ -38,7 +38,7 @@ GuiZipper::~GuiZipper() {
 // Taken almost verbatim from libarchive's public example code.
 // https://github.com/libarchive/libarchive/wiki/Examples#wiki-A_Basic_Write_Example
 void GuiZipper::packageFiles(const char *outputFile, const char *baseDir,
-    char **filenames, int numFiles, const char *absMetaFilename,
+    char **filenames, int numFiles, bool binary, const char *absMetaFilename,
     const char *metaFilename) {
   int r;
   struct archive *a = archive_write_new();
@@ -48,11 +48,11 @@ void GuiZipper::packageFiles(const char *outputFile, const char *baseDir,
   checkForErrors("Error setting format pax restricted", a, r);
   r = archive_write_open_filename(a, outputFile);
   checkForErrors("Error opening file", a, r);
-  packageSingleFile(absMetaFilename, metaFilename, a);
+  packageSingleFile(absMetaFilename, metaFilename, a, false);
   for (int x = 0; x < numFiles; x++) {
     char *filename = filenames[x];
     char *absFilename = FileManager::getAbsoluteFilename(baseDir, filename);
-    packageSingleFile(absFilename, filename, a);
+    packageSingleFile(absFilename, filename, a, binary);
   }
   r = archive_write_close(a);
   checkForErrors("Error writing close", a, r);
@@ -60,8 +60,8 @@ void GuiZipper::packageFiles(const char *outputFile, const char *baseDir,
   checkForErrors("Error writing free", a, r);
 }
 
-void GuiZipper::packageSingleFile(const char *absFilename,
-                                  const char *filename, struct archive *a) {
+void GuiZipper::packageSingleFile(const char *absFilename, const char *filename,
+                                  struct archive *a, bool binary) {
   struct stat st;
   char buff[8192];
   int fd;
@@ -73,7 +73,13 @@ void GuiZipper::packageSingleFile(const char *absFilename,
   archive_entry_set_perm(entry, 0644);
   int r = archive_write_header(a, entry);
   checkForErrors("Error writing header", a, r);
-  fd = open(absFilename, O_RDONLY);
+  int flags = O_RDONLY;
+#ifdef __WIN32__
+  if (binary) {
+    flags |= O_BINARY;
+  }
+#endif
+  fd = open(absFilename, flags);
   ssize_t len = read(fd, buff, sizeof(buff));
   while (len > 0) {
     archive_write_data(a, buff, len);

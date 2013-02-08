@@ -24,8 +24,8 @@
 class Zipper {
   public:
     virtual void packageFiles(const char *outputFile, const char *baseDir,
-        char **filenames, int numFiles, const char *absMetaFilename,
-        const char *metaFilename) = 0;
+        char **filenames, int numFiles, bool binary,
+        const char *absMetaFilename, const char *metaFilename) = 0;
     virtual void unpackFile(const char *zipFile, const char *outputDir) = 0;
     virtual ~Zipper() {};
 };

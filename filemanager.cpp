@@ -323,7 +323,7 @@ throw (InvalidLuaFilenameException*, LuaException*) {
     }
   }
   zipper_->packageFiles(destFilename, filesDir, inputFiles, numInputFiles,
-                        absMetaFilename, metaFilename);
+                        nosrc, absMetaFilename, metaFilename);
 
   if (packagingListener_ != 0) {
     packagingListener_->packagingComplete(packFilenames, numFiles, nosrc,
