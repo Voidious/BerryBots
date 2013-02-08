@@ -27,7 +27,12 @@ OutputConsole::OutputConsole(wxWindowID id, const char *title)
               wxDEFAULT_FRAME_STYLE) {
   output_ = new wxTextCtrl(this, id + 1, "", wxPoint(0, 0), wxSize(400, 350),
                           wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator);
+#ifdef __WINDOWS__
+  output_->SetFont(wxFont(10, wxFONTFAMILY_TELETYPE));
+#else
   output_->SetFont(wxFont(12, wxFONTFAMILY_TELETYPE));
+#endif
+
   Connect(id, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(OutputConsole::onClose));
   eventFilter_ = new OutputConsoleEventFilter(this);

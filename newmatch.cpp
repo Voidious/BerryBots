@@ -46,7 +46,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
   botsLabel_ = new wxStaticText(this, -1, "Ships:");
   botsSelect_ = new wxListBox(this, SELECT_BOTS_ID, wxDefaultPosition,
                               wxSize(275, 225), 0, NULL,
-                              wxLB_MULTIPLE | wxLB_SORT);
+                              wxLB_EXTENDED | wxLB_SORT);
   botsSizer_->Add(botsLabel_, 0, wxALIGN_LEFT);
   botsSizer_->AddSpacer(3);
   botsSizer_->Add(botsSelect_, 0, wxALIGN_LEFT);
@@ -66,7 +66,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
   gridSizer_->Add(botButtonsSizer_, 0, wxALIGN_CENTER);
 
   loadedBotsSelect_ = new wxListBox(this, LOADED_BOTS_ID, wxDefaultPosition,
-                                    wxSize(275, 225), 0, NULL, wxLB_MULTIPLE);
+                                    wxSize(275, 225), 0, NULL, wxLB_EXTENDED);
   gridSizer_->Add(loadedBotsSelect_, 0, wxALIGN_BOTTOM | wxALIGN_RIGHT);
 
   refreshButton_ = new wxButton(this, wxID_REFRESH);
@@ -150,6 +150,7 @@ void NewMatchDialog::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
     this->SetMenuBar(listener_->getNewMenuBar());
     menusInitialized_ = true;
+    SetSizerAndFit(borderSizer_);
   }
 }
 
