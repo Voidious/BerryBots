@@ -50,6 +50,8 @@ sf::Vector2f thrusterPoint(0, THRUSTER_THICKNESS / 2);
 sf::RectangleShape energyShape(sf::Vector2f(ENERGY_LENGTH, ENERGY_THICKNESS));
 sf::RectangleShape dockEnergyShape(sf::Vector2f(DOCK_ENERGY_LENGTH,
                                                 ENERGY_THICKNESS));
+sf::RectangleShape dockLineShape(sf::Vector2f(1, 4096));
+sf::RectangleShape dockMarginShape(sf::Vector2f(8, 4096));
 
 sf::RectangleShape **wallShapes;
 int numWalls;
@@ -67,6 +69,7 @@ sf::Color torpedoColor(255, 89, 38, 255);
 sf::Color blastColor(255, 128, 51, 255);
 sf::Color energyColor(255, 255, 0, 255);
 sf::Color zoneColor(100, 68, 68, 255);
+sf::Color dockLineColor(100, 100, 100);
 
 sf::View dockView;
 sf::View stageView;
@@ -78,6 +81,8 @@ int windowHeight;
 GfxManager::GfxManager(bool showDock) {
   showDock_ = showDock;
   newMatchButton_ = 0;
+  packageShipButton_ = 0;
+  packageStageButton_ = 0;
   stageButton_ = 0;
   teamButtons_ = 0;
   pauseButton_ = 0;
@@ -165,6 +170,12 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
   energyShape.setFillColor(energyColor);
   dockEnergyShape.setOutlineColor(energyColor);
   dockEnergyShape.setFillColor(energyColor);
+  dockLineShape.setOutlineThickness(0);
+  dockLineShape.setFillColor(dockLineColor);
+  dockLineShape.setPosition(DOCK_SIZE - 1, 0);
+  dockMarginShape.setOutlineThickness(0);
+  dockMarginShape.setFillColor(sf::Color::Black);
+  dockMarginShape.setPosition(DOCK_SIZE - 9, 0);
   
   numWalls = stage->getWallCount();
   wallShapes = new sf::RectangleShape*[numWalls];
@@ -196,14 +207,57 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
 }
 
 void GfxManager::initDockItems(sf::RenderWindow *window) {
-  newMatchButton_ = new DockItem(NEW_MATCH_DOCK_TEXT, &font, 18, 0, 25,
-                                 DOCK_SIZE, 30);
-  stageButton_ = new DockItem(stage_->getName(), &font, 16,
-                              0, 65, DOCK_SIZE, 40);
+  sf::Shape** newShapes = new sf::Shape*[2];
+  newShapes[0] = new sf::RectangleShape(sf::Vector2f(18, 22));
+  newShapes[0]->move(-12, -10);
+  newShapes[0]->setOutlineThickness(2);
+  newShapes[0]->setFillColor(sf::Color::Black);
+  newShapes[1] = new sf::RectangleShape(sf::Vector2f(18, 22));
+  newShapes[1]->move(-6, -16);
+  newShapes[1]->setOutlineThickness(2);
+  newShapes[1]->setFillColor(sf::Color::Black);
+  newMatchButton_ = new DockItem(newShapes, 2, 10, 12, 40, 40, "New Match",
+                                 &font, 20, 25, 50);
+
+  sf::Shape** packageShipShapes = new sf::Shape*[4];
+  packageShipShapes[0] = new sf::CircleShape(SHIP_RADIUS);
+  packageShipShapes[0]->move(-SHIP_RADIUS, -SHIP_RADIUS);
+  packageShipShapes[0]->setOutlineThickness(2);
+  packageShipShapes[0]->setFillColor(sf::Color::Black);
+  packageShipShapes[1] = new sf::CircleShape(SHIP_DOT_RADIUS);
+  packageShipShapes[1]->move(-SHIP_DOT_RADIUS, -SHIP_DOT_RADIUS);
+  adjustShipDotPosition((sf::CircleShape *) packageShipShapes[1], 15);
+  packageShipShapes[2] = new sf::CircleShape(SHIP_DOT_RADIUS);
+  packageShipShapes[2]->move(-SHIP_DOT_RADIUS, -SHIP_DOT_RADIUS);
+  adjustShipDotPosition((sf::CircleShape *) packageShipShapes[2], 135);
+  packageShipShapes[3] = new sf::CircleShape(SHIP_DOT_RADIUS);
+  packageShipShapes[3]->move(-SHIP_DOT_RADIUS, -SHIP_DOT_RADIUS);
+  adjustShipDotPosition((sf::CircleShape *) packageShipShapes[3], 255);
+  packageShipButton_ = new DockItem(packageShipShapes, 4, 59, 10, 40, 40,
+                                    "Package Ship", &font, 20, 16, 50);
+
+  sf::Shape** packageStageShapes = new sf::Shape*[5];
+  packageStageShapes[0] = new sf::RectangleShape(sf::Vector2f(26, 18));
+  packageStageShapes[0]->move(-13, -9);
+  packageStageShapes[0]->setOutlineThickness(2);
+  packageStageShapes[0]->setFillColor(sf::Color::Black);
+  packageStageShapes[1] = new sf::RectangleShape(sf::Vector2f(2, 2));
+  packageStageShapes[1]->move(-7, 3);
+  packageStageShapes[2] = new sf::RectangleShape(sf::Vector2f(2, 2));
+  packageStageShapes[2]->move(-7, -5);
+  packageStageShapes[3] = new sf::RectangleShape(sf::Vector2f(2, 2));
+  packageStageShapes[3]->move(5, -5);
+  packageStageShapes[4] = new sf::RectangleShape(sf::Vector2f(2, 2));
+  packageStageShapes[4]->move(5, 3);
+  packageStageButton_ = new DockItem(packageStageShapes, 5, 108, 10, 40, 40,
+                                     "Package Stage", &font, 20, 8, 50);
+
+  stageButton_ = new DockItem(stage_->getName(), &font, 16, 10, 75, DOCK_SIZE,
+                              50);
   teamButtons_ = new DockItem*[numShips_];
   for (int x = 0; x < numShips_; x++) {
     teamButtons_[x] = new DockItem(ships_[x]->properties->name, &font, 16,
-                                   0, 110 + (x * 30), DOCK_SIZE, 30);
+                                   0, 120 + (x * 30), DOCK_SIZE, 30);
   }
 
   sf::Shape** pauseShapes = new sf::Shape*[2];
@@ -213,8 +267,8 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   pauseShapes[1] = new sf::RectangleShape(sf::Vector2f(5, 20));
   pauseShapes[1]->move(5, -10);
   pauseShapes[1]->setOutlineThickness(0);
-  pauseButton_ = new DockItem(pauseShapes, 2,
-                              30, window->getSize().y - 100, 50, 50);
+  pauseButton_ = new DockItem(pauseShapes, 2, 30, window->getSize().y - 100,
+      50, 50, "Pause", &font, 20, 26, window->getSize().y - 55);
 
   sf::Shape** playShapes = new sf::Shape*[1];
   sf::ConvexShape *playShape = new sf::ConvexShape(3);
@@ -224,8 +278,8 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   playShape->setOutlineThickness(0);
   playShape->move(-7, -10);
   playShapes[0] = playShape;
-  playButton_ = new DockItem(playShapes, 1,
-                              30, window->getSize().y - 100, 50, 50);
+  playButton_ = new DockItem(playShapes, 1, 30, window->getSize().y - 100, 50,
+      50, "Resume", &font, 20, 18, window->getSize().y - 55);
 
   sf::Shape** restartShapes = new sf::Shape*[4];
   restartShapes[0] = new sf::RectangleShape(sf::Vector2f(15, 2));
@@ -246,8 +300,8 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   restartTriangle2->setOutlineThickness(0);
   restartTriangle2->move(5, 3);
   restartShapes[3] = restartTriangle2;
-  restartButton_ = new DockItem(restartShapes, 4,
-                                80, window->getSize().y - 100, 50, 50);
+  restartButton_ = new DockItem(restartShapes, 4, 80, window->getSize().y - 100,
+      50, 50, "Restart", &font, 20, 69, window->getSize().y - 55);
 }
 
 void GfxManager::reinitDockItems(sf::RenderWindow *window) {
@@ -368,6 +422,10 @@ void GfxManager::processMouseClick(int x, int y) {
   if (listener_ != 0) {
     if (newMatchButton_->contains(x, y)) {
       listener_->onNewMatch();
+    } else if (packageShipButton_->contains(x, y)) {
+      listener_->onPackageShip();
+    } else if (packageStageButton_->contains(x, y)) {
+      listener_->onPackageStage();
     } else if (stageButton_->contains(x, y)) {
       listener_->onStageClick();
     } else if (pauseButton_->contains(x, y)) {
@@ -386,6 +444,8 @@ void GfxManager::processMouseClick(int x, int y) {
 
 void GfxManager::processMouseMoved(int x, int y) {
   newMatchButton_->setHighlights(x, y);
+  packageShipButton_->setHighlights(x, y);
+  packageStageButton_->setHighlights(x, y);
   stageButton_->setHighlights(x, y);
   pauseButton_->setHighlights(x, y);
   playButton_->setHighlights(x, y);
@@ -642,6 +702,8 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
 void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
   window->setView(dockView);
   drawDockItem(window, newMatchButton_);
+  drawDockItem(window, packageShipButton_);
+  drawDockItem(window, packageStageButton_);
   drawDockItem(window, stageButton_);
   drawDockItem(window, paused ? playButton_ : pauseButton_);
   drawDockItem(window, restartButton_);
@@ -664,10 +726,12 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
       dockEnergyShape.setScale(teamEnergy / teamEnergyTotal, 1);
       window->draw(dockEnergyShape);
     }
+    window->draw(dockLineShape);
     if (showTeam) {
       drawDockItem(window, teamButtons_[x]);
     }
   }
+  window->draw(dockMarginShape);
 }
 
 void GfxManager::drawDockItem(sf::RenderWindow *window, DockItem *dockItem) {

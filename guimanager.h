@@ -171,6 +171,8 @@ class ViewListener : public GfxViewListener {
   public:
     ViewListener(GuiManager *guiManager);
     virtual void onNewMatch();
+    virtual void onPackageShip();
+    virtual void onPackageStage();
     virtual void onStageClick();
     virtual void onTeamClick(int teamIndex);
     virtual void onPauseUnpause();

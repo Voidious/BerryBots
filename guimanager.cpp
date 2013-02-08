@@ -825,6 +825,14 @@ void ViewListener::onNewMatch() {
   guiManager_->showNewMatchDialog();
 }
 
+void ViewListener::onPackageShip() {
+  guiManager_->showPackageShipDialog();
+}
+
+void ViewListener::onPackageStage() {
+  guiManager_->showPackageStageDialog();
+}
+
 void ViewListener::onStageClick() {
   guiManager_->showStageConsole();
 }

@@ -28,7 +28,7 @@
 #include "dockitem.h"
 
 #define STAGE_MARGIN             25
-#define DOCK_SIZE                150
+#define DOCK_SIZE                159
 #define SHIP_DOT_POSITION        SHIP_RADIUS * .45
 #define SHIP_DOT_RADIUS          SHIP_RADIUS * .2
 #define SHIP_DOT_FRAMES          240
@@ -58,6 +58,8 @@
 class GfxViewListener {
   public:
     virtual void onNewMatch() = 0;
+    virtual void onPackageShip() = 0;
+    virtual void onPackageStage() = 0;
     virtual void onStageClick() = 0;
     virtual void onTeamClick(int teamIndex) = 0;
     virtual void onPauseUnpause() = 0;
@@ -68,6 +70,8 @@ class GfxViewListener {
 class GfxManager {
   bool showDock_;
   DockItem *newMatchButton_;
+  DockItem *packageShipButton_;
+  DockItem *packageStageButton_;
   DockItem *stageButton_;
   DockItem **teamButtons_;
   DockItem *pauseButton_;

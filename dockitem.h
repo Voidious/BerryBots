@@ -33,13 +33,17 @@ class DockItem : public Rectangle {
   sf::Text *drawableText_;
   sf::Shape **drawableShapes_;
   sf::Drawable **drawables_;
+  sf::Drawable **highlightedDrawables_;
+  sf::Text *hoverText_;
   int numDrawables_;
+  int numHighlightedDrawables_;
 
   public:
     DockItem(const char *text, sf::Font *font, int fontSize, int left, int top,
              int width, int height);
     DockItem(sf::Shape **shapes, int numShapes, int left, int top, int width,
-             int height);
+             int height, const char *hoverText, sf::Font *font, int fontSize,
+             int textLeft, int textTop);
     ~DockItem();
     void setHighlights(int mouseX, int mouseY);
     sf::Drawable** getDrawables();
