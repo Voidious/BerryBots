@@ -642,7 +642,8 @@ void FileManager::deleteFromCache(const char *cacheDir, const char *filename) {
 void FileManager::recursiveDelete(const char *fileToDelete) {
   if (isDirectory(fileToDelete)) {
     platformstl::readdir_sequence dir(fileToDelete,
-                                      platformstl::readdir_sequence::files);
+        platformstl::readdir_sequence::files
+            | platformstl::readdir_sequence::directories);
     platformstl::readdir_sequence::const_iterator first = dir.begin();
     platformstl::readdir_sequence::const_iterator last = dir.end();
     while (first != last) {

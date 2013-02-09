@@ -97,6 +97,7 @@ class FileManager {
     void deleteFromCache(const char *cacheDir, const char *filename);
     static char* getAbsoluteFilename(const char *dir, const char *filename);
     static char* parseDir(const char *dirAndFilename);
+    static bool isDirectory(const char *filePath);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);
@@ -114,7 +115,6 @@ class FileManager {
     void crawlFiles(lua_State *L, const char *startFile)
         throw (InvalidLuaFilenameException*, LuaException*);
     bool fileExists(const char *filename);
-    bool isDirectory(const char *filePath);
     void createDirectory(const char *filename);
     void createDirectoryIfNecessary(const char *dir);
     char* parseFilename(const char *dirAndFilename);

@@ -118,21 +118,11 @@ GuiManager::~GuiManager() {
 void GuiManager::loadStages() {
   newMatchDialog_->clearStages();
   packageStageDialog_->clearItems();
-  // TODO: move file related stuff to FileManager
-  platformstl::readdir_sequence dir(stageBaseDir_,
-                                    platformstl::readdir_sequence::files);
-  platformstl::readdir_sequence::const_iterator first = dir.begin();
-  platformstl::readdir_sequence::const_iterator last = dir.end();
-  while (first != last) {
-    platformstl::readdir_sequence::const_iterator file = first++;
-    char *filename = (char *) *file;
-    if (isValidStageFile(stageBaseDir_, filename)) {
-      newMatchDialog_->addStage(filename);
-      if (fileManager_->isLuaFilename(filename)) {
-        packageStageDialog_->addItem(filename);
-      }
-    }
-  }
+  loadStagesFromDir(stageBaseDir_);
+}
+
+void GuiManager::loadStagesFromDir(const char *loadDir) {
+  loadItemsFromDir(stageBaseDir_, loadDir, ITEM_STAGE, packageStageDialog_);
 }
 
 bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
@@ -205,22 +195,12 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
 void GuiManager::loadBots() {
   newMatchDialog_->clearBots();
   packageShipDialog_->clearItems();
-  // TODO: move file related stuff to FileManager
-  platformstl::readdir_sequence dir(botsBaseDir_,
-                                    platformstl::readdir_sequence::files);
-  platformstl::readdir_sequence::const_iterator first = dir.begin();
-  platformstl::readdir_sequence::const_iterator last = dir.end();
-  while (first != last) {
-    platformstl::readdir_sequence::const_iterator file = first++;
-    char *filename = (char *) *file;
-    if (isValidBotFile(botsBaseDir_, filename)) {
-      newMatchDialog_->addBot(filename);
-      if (fileManager_->isLuaFilename(filename)) {
-        packageShipDialog_->addItem(filename);
-      }
-    }
-  }
+  loadBotsFromDir(botsBaseDir_);
   newMatchDialog_->removeStaleLoadedBots();
+}
+
+void GuiManager::loadBotsFromDir(const char *loadDir) {
+  loadItemsFromDir(botsBaseDir_, loadDir, ITEM_BOT, packageShipDialog_);
 }
 
 bool GuiManager::isValidBotFile(const char *baseDir, char *origFilename) {
@@ -289,6 +269,38 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *origFilename) {
     return true;
   }
   return false;
+}
+
+void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
+    int itemType, PackageDialog *packageDialog) {
+  platformstl::readdir_sequence dir(loadDir,
+      platformstl::readdir_sequence::files
+          | platformstl::readdir_sequence::directories);
+  platformstl::readdir_sequence::const_iterator first = dir.begin();
+  platformstl::readdir_sequence::const_iterator last = dir.end();
+  while (first != last) {
+    platformstl::readdir_sequence::const_iterator file = first++;
+    char *filename = (char *) *file;
+    char *absFilename = FileManager::getAbsoluteFilename(loadDir, filename);
+    if (FileManager::isDirectory(absFilename)) {
+      loadItemsFromDir(baseDir, absFilename, itemType, packageDialog);
+    } else {
+      char *relativeFilename = &(absFilename[strlen(baseDir) + 1]);
+      bool valid = false;
+      if (itemType == ITEM_BOT && isValidBotFile(loadDir, filename)) {
+        newMatchDialog_->addBot(relativeFilename);
+        valid = true;
+      } else if (itemType == ITEM_STAGE
+                 && isValidStageFile(loadDir, filename)) {
+        newMatchDialog_->addStage(relativeFilename);
+        valid = true;
+      }
+      if (valid && fileManager_->isLuaFilename(filename)) {
+        packageDialog->addItem(relativeFilename);
+      }
+    }
+    delete absFilename;
+  }
 }
 
 sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,

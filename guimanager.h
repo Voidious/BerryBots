@@ -31,6 +31,9 @@
 #include "outputconsole.h"
 #include "menubarmaker.h"
 
+#define ITEM_STAGE  1
+#define ITEM_BOT    2
+
 class GuiListener {
   public:
     virtual void onAllWindowsClosed() = 0;
@@ -110,6 +113,10 @@ class GuiManager {
     void saveCurrentMatchSettings(
         char *stagePath, char **teamPaths, int numTeams);
     void deleteCurrentMatchSettings();
+    void loadStagesFromDir(const char *loadDir);
+    void loadBotsFromDir(const char *loadDir);
+    void loadItemsFromDir(const char *baseDir, const char *loadDir,
+                          int itemType, PackageDialog *packageDialog);
 };
 
 class MatchRunner : public NewMatchListener {
