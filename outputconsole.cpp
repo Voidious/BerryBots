@@ -27,10 +27,10 @@ OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
               wxDEFAULT_FRAME_STYLE) {
   output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0), wxSize(400, 350),
                           wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator);
-#ifdef __WINDOWS__
-  output_->SetFont(wxFont(10, wxFONTFAMILY_TELETYPE));
-#else
+#ifdef __WXOSX__
   output_->SetFont(wxFont(12, wxFONTFAMILY_TELETYPE));
+#else
+  output_->SetFont(wxFont(10, wxFONTFAMILY_TELETYPE));
 #endif
 
   menuBarMaker_ = menuBarMaker;

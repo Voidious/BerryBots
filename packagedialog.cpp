@@ -98,8 +98,8 @@ void PackageDialog::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
-    SetSizerAndFit(borderSizer_);
   }
+  SetSizerAndFit(borderSizer_);
   selectListBox_->SetFocus();
 }
 
