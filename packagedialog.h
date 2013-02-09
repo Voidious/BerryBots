@@ -28,6 +28,7 @@ class PackageDialogListener {
   public:
     virtual void package(const char *name, const char *version,
                          bool nosrc) = 0;
+    virtual void refreshFiles() = 0;
     virtual void cancel() = 0;
     virtual ~PackageDialogListener() {};
 };
@@ -41,6 +42,7 @@ class PackageDialog : public wxFrame {
   wxStaticText *versionLabel_;
   wxTextCtrl *versionText_;
   wxCheckBox *includeSrcCheckBox_;
+  wxButton *refreshButton_;
   wxButton *packageButton_;
   unsigned int numItems_;
   PackageDialogListener *listener_;
@@ -58,6 +60,7 @@ class PackageDialog : public wxFrame {
     void onClose(wxCommandEvent &event);
     void onPackage(wxCommandEvent &event);
     void packageSelectedItem();
+    void onRefreshFiles(wxCommandEvent &event);
     void onEscape();
 };
 

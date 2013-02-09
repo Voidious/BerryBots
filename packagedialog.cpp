@@ -45,19 +45,21 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
   versionSizer_->Add(versionLabel_, 0, wxALIGN_CENTER_VERTICAL);
   versionSizer_->AddSpacer(5);
   versionSizer_->Add(versionText_, 0, wxALIGN_CENTER_VERTICAL);
-  settingsSizer_->AddStretchSpacer(5);
+  settingsSizer_->AddStretchSpacer(1);
   settingsSizer_->Add(versionSizer_, 0, wxALIGN_LEFT);
   includeSrcCheckBox_ = new wxCheckBox(this, wxID_ANY, "Include source code");
   includeSrcCheckBox_->SetValue(true);
   settingsSizer_->AddSpacer(5);
   settingsSizer_->Add(includeSrcCheckBox_, 0, wxALIGN_LEFT);
+  settingsSizer_->AddSpacer(5);
+  refreshButton_ = new wxButton(this, wxID_REFRESH, "Refresh");
   wxString buttonLabel = wxString(title);
   buttonLabel.Append("!");
   packageButton_ = new wxButton(this, wxID_ANY, buttonLabel, wxDefaultPosition,
                                 wxDefaultSize, wxBU_EXACTFIT);
-  settingsSizer_->AddStretchSpacer(1);
-  settingsSizer_->Add(packageButton_, 0, wxALIGN_RIGHT);
   gridSizer_->Add(settingsSizer_, 0, wxEXPAND);
+  gridSizer_->Add(refreshButton_, 0, wxALIGN_LEFT);
+  gridSizer_->Add(packageButton_, 0, wxALIGN_RIGHT);
   borderSizer_->Add(gridSizer_, 0, wxALL, 12);
   SetSizerAndFit(borderSizer_);
 
@@ -67,6 +69,8 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
           wxCommandEventHandler(PackageDialog::onClose));
   Connect(packageButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(PackageDialog::onPackage));
+  Connect(wxID_REFRESH, wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(PackageDialog::onRefreshFiles));
 
   eventFilter_ = new PackageEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
@@ -134,6 +138,10 @@ void PackageDialog::packageSelectedItem() {
 
     listener_->package(name, version, !includeSrcCheckBox_->IsChecked());
   }
+}
+
+void PackageDialog::onRefreshFiles(wxCommandEvent &event) {
+  listener_->refreshFiles();
 }
 
 void PackageDialog::onEscape() {

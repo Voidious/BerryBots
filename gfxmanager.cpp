@@ -253,7 +253,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
                                      "Package Stage", &font, 20, 8, 50);
 
   stageButton_ = new DockItem(stage_->getName(), &font, 16, 10, 75, DOCK_SIZE,
-                              50);
+                              40);
   teamButtons_ = new DockItem*[numShips_];
   for (int x = 0; x < numShips_; x++) {
     teamButtons_[x] = new DockItem(ships_[x]->properties->name, &font, 16,

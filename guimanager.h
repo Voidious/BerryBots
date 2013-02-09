@@ -86,7 +86,7 @@ class GuiManager {
     bool isValidStageFile(const char *srcFilename);
     void loadBots();
     bool isValidBotFile(const char *srcFilename);
-    void runNewMatch(char *stagePath, char **teamPaths, int numTeams);
+    void runNewMatch(const char *stageName, char **teamNames, int numTeams);
     void resumeMatch();
     void processMainWindowEvents();
     void showNewMatchDialog();
@@ -111,7 +111,7 @@ class GuiManager {
     void runCurrentMatch();
     void deleteMatchConsoles();
     void saveCurrentMatchSettings(
-        char *stagePath, char **teamPaths, int numTeams);
+        const char *stageName, char **teamNames, int numTeams);
     void deleteCurrentMatchSettings();
     void loadStagesFromDir(const char *loadDir);
     void loadBotsFromDir(const char *loadDir);
@@ -144,6 +144,7 @@ class ShipPackager : public PackageDialogListener {
                  OutputConsole *packagingConsole, char *botsDir);
     ~ShipPackager();
     virtual void package(const char *botName, const char *version, bool nosrc);
+    virtual void refreshFiles();
     virtual void cancel();
 };
 
@@ -160,6 +161,7 @@ class StagePackager : public PackageDialogListener {
     ~StagePackager();
     virtual void package(const char *stageName, const char *version,
                          bool nosrc);
+    virtual void refreshFiles();
     virtual void cancel();
 };
 

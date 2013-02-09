@@ -107,6 +107,7 @@ class FileManager {
                                        const char *absFilePath);
     static char* getStageShipRelativePath(const char *stageDir,
         const char *stageFilename, const char *stageShipName);
+    static char* stripExtension(const char *filename);
     static bool isDirectory(const char *filePath);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)

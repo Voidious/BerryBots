@@ -175,6 +175,16 @@ char* FileManager::getStageShipRelativePath(const char *stageDir,
   return relativePath;
 }
 
+char* FileManager::stripExtension(const char *filename) {
+  const char *extension = strrchr(filename, '.');
+  int nameLength = std::min(MAX_NAME_LENGTH, (int) ((extension == 0)
+      ? strlen(filename) : extension - filename));
+  char *filenameRoot = new char[MAX_NAME_LENGTH];
+  strncpy(filenameRoot, filename, nameLength);
+  filenameRoot[nameLength] = '\0';
+  return filenameRoot;
+}
+
 // srcFilename may either be a packaged ship/stage or a Lua source file. If it
 // is a packaged ship/stage, it will be extracted and userDir/userFilename will
 // point to the ship/stage file in the cache. Otherwise they will point to the

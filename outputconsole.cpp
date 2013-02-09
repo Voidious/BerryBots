@@ -18,9 +18,9 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "outputconsole.h"
-
+#include <algorithm>
 #include <wx/wx.h>
+#include "outputconsole.h"
 
 OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
     : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxSize(600, 450),
@@ -28,10 +28,12 @@ OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
   output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0), wxSize(400, 350),
                           wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator);
 #ifdef __WXOSX__
-  output_->SetFont(wxFont(12, wxFONTFAMILY_TELETYPE));
+  defaultFontSize_ = 12;
 #else
-  output_->SetFont(wxFont(10, wxFONTFAMILY_TELETYPE));
+  defaultFontSize_ = 10;
 #endif
+  fontSize_ = defaultFontSize_;
+  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
 
   menuBarMaker_ = menuBarMaker;
   menusInitialized_ = false;
@@ -80,6 +82,22 @@ void OutputConsole::onClose(wxCommandEvent &event) {
   Hide();
 }
 
+// TODO: delta based on current text size, eg 36 => 42 vs 38
+void OutputConsole::increaseTextSize() {
+  fontSize_ += 2;
+  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
+}
+
+void OutputConsole::decreaseTextSize() {
+  fontSize_ = std::max(4, fontSize_ -2);
+  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
+}
+
+void OutputConsole::defaultTextSize() {
+  fontSize_ = defaultFontSize_;
+  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
+}
+
 OutputConsoleEventFilter::OutputConsoleEventFilter(
     OutputConsole *outputConsole) {
   outputConsole_ = outputConsole;
@@ -98,6 +116,12 @@ int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       outputConsole_->Hide();
       return Event_Processed;
+    } else if (keyEvent->GetUnicodeKey() == '=' && keyEvent->ControlDown()) {
+      outputConsole_->increaseTextSize();
+    } else if (keyEvent->GetUnicodeKey() == '-' && keyEvent->ControlDown()) {
+      outputConsole_->decreaseTextSize();
+    } else if (keyEvent->GetUnicodeKey() == '0' && keyEvent->ControlDown()) {
+      outputConsole_->defaultTextSize();
     }
   }
   return Event_Skip;

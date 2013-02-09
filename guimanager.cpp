@@ -315,10 +315,11 @@ sf::RenderWindow* GuiManager::getMainWindow() {
   return window_;
 }
 
-void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
+void GuiManager::runNewMatch(const char *stageName, char **teamNames,
+                             int numTeams) {
   deleteMatchConsoles();
   if (!restarting_) {
-    saveCurrentMatchSettings(stagePath, teamPaths, numTeams);
+    saveCurrentMatchSettings(stageName, teamNames, numTeams);
   }
   if (engine_ != 0) {
     delete engine_;
@@ -329,8 +330,8 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
   Stage *stage = engine_->getStage();
   char *cacheDir = getCacheDirCopy();
   try {
-    engine_->initStage(stageBaseDir_, stagePath, cacheDir);
-    engine_->initShips(botsBaseDir_, teamPaths, numTeams, cacheDir);
+    engine_->initStage(stageBaseDir_, stageName, cacheDir);
+    engine_->initShips(botsBaseDir_, teamNames, numTeams, cacheDir);
   } catch (EngineException *e) {
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots engine init failed", wxOK | wxICON_EXCLAMATION);
@@ -510,6 +511,12 @@ void GuiManager::processMainWindowEvents() {
         case sf::Keyboard::Escape:
           showNewMatchDialog();
           break;
+        case sf::Keyboard::H:
+          showPackageShipDialog();
+          break;
+        case sf::Keyboard::T:
+          showPackageStageDialog();
+          break;
         default:
           break;
       }
@@ -606,7 +613,7 @@ void GuiManager::hidePackagingConsole() {
 }
 
 void GuiManager::saveCurrentMatchSettings(
-    char *stagePath, char **teamPaths, int numTeams) {
+    const char *stagePath, char **teamPaths, int numTeams) {
   deleteCurrentMatchSettings();
   currentStagePath_ = new char[strlen(stagePath) + 1];
   strcpy(currentStagePath_, stagePath);
@@ -684,20 +691,7 @@ MatchRunner::~MatchRunner() {
 
 void MatchRunner::startMatch(const char *stageName, char **teamNames,
                              int numTeams) {
-  unsigned long stagePathLen =
-      strlen(stageDir_) + strlen(BB_DIRSEP) + strlen(stageName);
-  char *stagePath = new char[stagePathLen + 1];
-  sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
-  char **teamPaths = new char*[numTeams];
-  for (int x = 0; x < numTeams; x++) {
-    unsigned long teamPathLen = strlen(botsDir_) + strlen(BB_DIRSEP)
-        + strlen(teamNames[x]);
-    char *teamPath = new char[teamPathLen + 1];
-    sprintf(teamPath, "%s%s%s", botsDir_, BB_DIRSEP, teamNames[x]);
-    teamPaths[x] = teamPath;
-  }
-
-  guiManager_->runNewMatch(stagePath, teamPaths, numTeams);
+  guiManager_->runNewMatch(stageName, teamNames, numTeams);
 }
 
 void MatchRunner::refreshFiles() {
@@ -758,6 +752,11 @@ void ShipPackager::package(const char *botName, const char *version,
   }
 }
 
+void ShipPackager::refreshFiles() {
+  guiManager_->loadStages();
+  guiManager_->loadBots();
+}
+
 void ShipPackager::cancel() {
   guiManager_->resumeMatch();
 }
@@ -812,6 +811,11 @@ void StagePackager::package(const char *stageName, const char *version,
   if (refresh) {
     guiManager_->loadStages();
   }
+}
+
+void StagePackager::refreshFiles() {
+  guiManager_->loadStages();
+  guiManager_->loadBots();
 }
 
 void StagePackager::cancel() {

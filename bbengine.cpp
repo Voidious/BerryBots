@@ -187,7 +187,9 @@ void BerryBotsEngine::initStage(const char *stageBaseDir, const char *stageName,
                      "Error calling stage function: 'configure': %s");
   }
   stage_->buildBaseWalls();
-  stage_->setName(stageFilename_); // TODO: let stage set name like ship
+  char *stageDisplayName = FileManager::stripExtension(stageFilename_);
+  stage_->setName(stageDisplayName); // TODO: let stage set name like ship
+  delete stageDisplayName;
   configureComplete_ = true;
 }
 
@@ -299,11 +301,11 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     team->hasGameOver = (strcmp(luaL_typename(teamState, -1), "nil") != 0);
     lua_pop(teamState, 2);
 
-    char *extension = strrchr(shipFilename, '.');
-    int nameLength = std::min(MAX_NAME_LENGTH, (int) ((extension == 0)
-        ? strlen(shipFilename) : extension - shipFilename));
-    strncpy(team->name, shipFilename, nameLength);
+    char *shipFilenameRoot = FileManager::stripExtension(shipFilename);
+    int nameLength = (int) strlen(shipFilenameRoot);
+    strncpy(team->name, shipFilenameRoot, nameLength);
     team->name[nameLength] = '\0';
+    delete shipFilenameRoot;
     team->stageShip = stageShip;
 
     for (int y = 0; y < numStateShips; y++) {

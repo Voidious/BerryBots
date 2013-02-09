@@ -29,6 +29,8 @@ class OutputConsole : public wxFrame {
   MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
   wxEventFilter *eventFilter_;
+  int defaultFontSize_;
+  int fontSize_;
 
   public:
     OutputConsole(const char *title, MenuBarMaker *menuBarMaker);
@@ -39,6 +41,9 @@ class OutputConsole : public wxFrame {
     void println();
     void clear();
     void onClose(wxCommandEvent &event);
+    void increaseTextSize();
+    void decreaseTextSize();
+    void defaultTextSize();
 };
 
 class OutputConsoleEventFilter : public wxEventFilter {
