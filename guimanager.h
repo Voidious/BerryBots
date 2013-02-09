@@ -83,9 +83,9 @@ class GuiManager {
     GuiManager(GuiListener *listener, char *stageDir, char *botsDir);
     ~GuiManager();
     void loadStages();
-    bool isValidStageFile(const char *baseDir, char *stageFilename);
+    bool isValidStageFile(const char *srcFilename);
     void loadBots();
-    bool isValidBotFile(const char *baseDir, char *stageFilename);
+    bool isValidBotFile(const char *srcFilename);
     void runNewMatch(char *stagePath, char **teamPaths, int numTeams);
     void resumeMatch();
     void processMainWindowEvents();

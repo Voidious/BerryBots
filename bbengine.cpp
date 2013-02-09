@@ -24,6 +24,7 @@
 #include <platformstl/performance/performance_counter.hpp>
 #include "bbconst.h"
 #include "bblua.h"
+#include "zipper.h"
 #include "bbengine.h"
 
 BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
@@ -148,18 +149,27 @@ int BerryBotsEngine::getNumTeams() {
   return numTeams_;
 }
 
-void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
+// Loads the stage in the file stageName, which may include a relative path,
+// from the root directory stageBaseDir. Note that the file may be either a .lua
+// file, in which case we just load it directly; or a stage packaged as a
+// .tar.gz file, in which case we extract it to the cache and load from there.
+void BerryBotsEngine::initStage(const char *stageBaseDir, const char *stageName,
+                                const char *cacheDir)
     throw (EngineException*) {
   if (stageDir_ != 0 || stageFilename_ != 0) {
     throw new EngineException("Already initialized stage for this engine.");
   }
 
   try {
-    fileManager_->loadStageFile(
-        stagePath, &stageDir_, &stageFilename_, cacheDir);
+    fileManager_->loadStageFileData(
+        stageBaseDir, stageName, &stageDir_, &stageFilename_, cacheDir);
   } catch (FileNotFoundException *fnfe) {
     EngineException *eie = new EngineException(fnfe->what());
     delete fnfe;
+    throw eie;
+  } catch (ZipperException *ze) {
+    EngineException *eie = new EngineException(ze->what());
+    delete ze;
     throw eie;
   }
   initStageState(&stageState_, stageDir_);
@@ -181,8 +191,13 @@ void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
   configureComplete_ = true;
 }
 
-void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
-    const char *cacheDir) throw (EngineException*) {
+// Loads the teams in the files specified in teamNames from the root directory
+// botsBaseDir. Each team name is a path relative to botsBaseDir . Note that the
+// team file may be either a .lua file, in which case we just load it directly;
+// or a ship/team packaged as a .tar.gz file, in which case we extract it to the
+// cache and load from there.
+void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
+    int numTeams, const char *cacheDir) throw (EngineException*) {
   int userTeams = numTeams;
   int numStageShips = stage_->getStageShipCount();
   numShips_ = (userTeams * teamSize_) + numStageShips;
@@ -193,26 +208,28 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
   worlds_ = new World*[numTeams_];
   int shipIndex = 0;
   for (int x = 0; x < numTeams_; x++) {
+    const char *baseDir;
     char *filename;
     bool deleteFilename = false;
     bool stageShip = (x >= userTeams);
     if (stageShip) {
-      filename = stage_->getStageShips()[x - userTeams];
-      if (stageDir_ != 0) {
-        char *rawFilename = filename;
-        filename = new char[strlen(stageDir_) + strlen(rawFilename) + 2];
-        sprintf(filename, "%s%s%s", stageDir_, BB_DIRSEP, rawFilename);
-        deleteFilename = true;
-      }
+      baseDir = stageDir_;
+      const char *localFilename = stage_->getStageShips()[x - userTeams];
+      filename = FileManager::getStageShipRelativePath(
+          stageDir_, stageFilename_, localFilename);
+
+      deleteFilename = true;
     } else {
-      filename = teamPaths[x];
+      baseDir = botsBaseDir;
+      filename = teamNames[x];
     }
 
     lua_State *teamState;
     char *shipDir = 0;
     char *shipFilename = 0;
     try {
-      fileManager_->loadBotFile(filename, &shipDir, &shipFilename, cacheDir);
+      fileManager_->loadBotFileData(baseDir, filename, &shipDir, &shipFilename,
+                                    cacheDir);
     } catch (FileNotFoundException *fnfe) {
       if (deleteFilename) {
         delete filename;
@@ -226,6 +243,20 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
 
       EngineException *eie = new EngineException(fnfe->what());
       delete fnfe;
+      throw eie;
+    } catch (ZipperException *ze) {
+      if (deleteFilename) {
+        delete filename;
+      }
+      if (shipDir != 0) {
+        delete shipDir;
+      }
+      if (shipFilename != 0) {
+        delete shipFilename ;
+      }
+      
+      EngineException *eie = new EngineException(ze->what());
+      delete ze;
       throw eie;
     }
     initShipState(&teamState, shipDir);
@@ -571,7 +602,7 @@ void BerryBotsEngine::uniqueTeamNames(Team** teams, int numTeams) {
   for (int x = 1; x < numTeams; x++) {
     Team *team1 = teams[x];
     int nameNum = 1;
-    int nameLen = strlen(team1->name);
+    int nameLen = (int) strlen(team1->name);
     char numStr[8];
     for (int y = 0; y < x; y++) {
       Team *team2 = teams[y];

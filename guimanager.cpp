@@ -125,28 +125,23 @@ void GuiManager::loadStagesFromDir(const char *loadDir) {
   loadItemsFromDir(stageBaseDir_, loadDir, ITEM_STAGE, packageStageDialog_);
 }
 
-bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
+bool GuiManager::isValidStageFile(const char *srcFilename) {
   // TODO: Is this too slow? Should we keep this list in the cache so we don't
   //       have to do this on every startup / refresh - at least for packaged
   //       stages? In fact, just the presence in the cache could be considered
   //       a sign of validity.
   // TODO: Move this out of the GUI code.
-  if (fileManager_->isLuaFilename(stageFilename)
-      || fileManager_->isZipFilename(stageFilename)) {
-    int stagePathLen =
-        (int) (strlen(baseDir) + strlen(BB_DIRSEP) + strlen(stageFilename));
-    char *stagePath = new char[stagePathLen + 1];
-    sprintf(stagePath, "%s%s%s", baseDir, BB_DIRSEP, stageFilename);
+  if (fileManager_->isLuaFilename(srcFilename)
+      || fileManager_->isZipFilename(srcFilename)) {
     char *cacheDir = getCacheDirCopy();
     char *stageDir = 0;
     char *stageFilename = 0;
     try {
-      fileManager_->loadStageFile(stagePath, &stageDir, &stageFilename,
-                                  cacheDir);
+      fileManager_->loadStageFileData(stageBaseDir_, srcFilename, &stageDir,
+                                      &stageFilename, cacheDir);
     } catch (FileNotFoundException *fnfe) {
       // Only possible if user deletes file from disk after we find it on disk
       // but before we validate it. Seems safe to fail silently.
-      delete stagePath;
       delete cacheDir;
       if (stageDir != 0) {
         delete stageDir;
@@ -155,8 +150,19 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
         delete stageFilename;
       }
       return false;
+    } catch (ZipperException *ze) {
+      delete cacheDir;
+      if (stageDir != 0) {
+        delete stageDir;
+      }
+      if (stageFilename != 0) {
+        delete stageFilename;
+      }
+      wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
+                                   wxOK | wxICON_EXCLAMATION);
+      errorMessage.ShowModal();
+      return false;
     }
-    delete stagePath;
     delete cacheDir;
     lua_State *stageState;
     initStageState(&stageState, stageDir);
@@ -196,24 +202,23 @@ void GuiManager::loadBotsFromDir(const char *loadDir) {
   loadItemsFromDir(botsBaseDir_, loadDir, ITEM_BOT, packageShipDialog_);
 }
 
-bool GuiManager::isValidBotFile(const char *baseDir, char *origFilename) {
+bool GuiManager::isValidBotFile(const char *srcFilename) {
   // TODO: Is this too slow? Should we keep this list in the cache so we don't
   //       have to do this on every startup / refresh - at least for packaged
   //       ships? In fact, just the presence in the cache could be considered
   //       a sign of validity.
   // TODO: Move this out of the GUI code.
-  if (fileManager_->isLuaFilename(origFilename)
-      || fileManager_->isZipFilename(origFilename)) {
-    char *botPath = FileManager::getFilePath(baseDir, origFilename);
+  if (fileManager_->isLuaFilename(srcFilename)
+      || fileManager_->isZipFilename(srcFilename)) {
     char *cacheDir = getCacheDirCopy();
     char *botDir = 0;
     char *botFilename = 0;
     try {
-      fileManager_->loadBotFile(botPath, &botDir, &botFilename, cacheDir);
+      fileManager_->loadBotFileData(botsBaseDir_, srcFilename, &botDir,
+                                    &botFilename, cacheDir);
     } catch (FileNotFoundException *fnfe) {
       // Only possible if user deletes file from disk after we find it on disk
       // but before we validate it. Seems safe to fail silently.
-      delete botPath;
       delete cacheDir;
       if (botDir != 0) {
         delete botDir;
@@ -222,8 +227,19 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *origFilename) {
         delete botFilename;
       }
       return false;
+    } catch (ZipperException *ze) {
+      delete cacheDir;
+      if (botDir != 0) {
+        delete botDir;
+      }
+      if (botFilename != 0) {
+        delete botFilename;
+      }
+      wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
+                                   wxOK | wxICON_EXCLAMATION);
+      errorMessage.ShowModal();
+      return false;
     }
-    delete botPath;
     delete cacheDir;
     lua_State *shipState;
     initShipState(&shipState, botDir);
@@ -269,11 +285,10 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
     } else {
       char *relativeFilename = &(filePath[strlen(baseDir) + 1]);
       bool valid = false;
-      if (itemType == ITEM_BOT && isValidBotFile(loadDir, filename)) {
+      if (itemType == ITEM_BOT && isValidBotFile(relativeFilename)) {
         newMatchDialog_->addBot(relativeFilename);
         valid = true;
-      } else if (itemType == ITEM_STAGE
-                 && isValidStageFile(loadDir, filename)) {
+      } else if (itemType == ITEM_STAGE && isValidStageFile(relativeFilename)) {
         newMatchDialog_->addStage(relativeFilename);
         valid = true;
       }
@@ -314,8 +329,8 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
   Stage *stage = engine_->getStage();
   char *cacheDir = getCacheDirCopy();
   try {
-    engine_->initStage(stagePath, cacheDir);
-    engine_->initShips(teamPaths, numTeams, cacheDir);
+    engine_->initStage(stageBaseDir_, stagePath, cacheDir);
+    engine_->initShips(botsBaseDir_, teamPaths, numTeams, cacheDir);
   } catch (EngineException *e) {
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots engine init failed", wxOK | wxICON_EXCLAMATION);

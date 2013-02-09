@@ -77,11 +77,12 @@ class FileManager {
     FileManager(Zipper *zipper);
     ~FileManager();
     void setListener(PackagingListener *packagingListener);
-    void loadStageFile(const char *filename, char **stageDir,
-        char **stageDirFilename, const char *cacheDir)
-        throw (FileNotFoundException*);
-    void loadBotFile(const char *filename, char **botDir, char **botDirFilename,
-        const char *cacheDir) throw (FileNotFoundException*);
+    void loadStageFileData(const char *stageBaseDir, const char *filename,
+        char **stageDir, char **stageDirFilename, const char *cacheDir)
+        throw (FileNotFoundException*, ZipperException*);
+    void loadBotFileData(const char *botsBaseDir, const char *filename,
+        char **botDir, char **botDirFilename, const char *cacheDir)
+        throw (FileNotFoundException*, ZipperException*);
     bool isLuaFilename(const char *filename);
     bool isZipFilename(const char *filename);
     void packageStage(const char *stageBaseDir, const char *stageName,
@@ -89,7 +90,7 @@ class FileManager {
                       const char *tmpDir, bool nosrc, bool force)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
                LuaException*, ZipperException*, FileExistsException*);
-    void packageBot(const char *botsBaseDir, const char *botName,
+    void packageBot(const char *botBaseDir, const char *botName,
                     const char *version, const char *cacheDir,
                     const char *tmpDir, bool nosrc, bool force)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
@@ -99,18 +100,23 @@ class FileManager {
         throw (LuaException*);
     void deleteFromCache(const char *cacheDir, const char *filename);
     static char* getFilePath(const char *dir, const char *filename);
+    static char* getAbsFilePath(const char *filename);
     static char* parseDir(const char *dirAndFilename);
     static char* parseFilename(const char *dirAndFilename);
+    static char* parseRelativeFilePath(const char *absBaseDir,
+                                       const char *absFilePath);
+    static char* getStageShipRelativePath(const char *stageDir,
+        const char *stageFilename, const char *stageShipName);
     static bool isDirectory(const char *filePath);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);
     static void sliceString(char *filename, long start, long rest);
-    void loadUserFile(const char *srcFilename, char **userDir,
-        char **userFilename, const char *metaFilename,
-        const char *cacheDir) throw (FileNotFoundException*);
+    void loadUserFileData(const char *srcBaseDir, const char *srcFilename,
+        char **userDir, char **userFilename, const char *metaFilename,
+        const char *cacheDir) throw (FileNotFoundException*, ZipperException*);
     bool hasExtension(const char *filename, const char *extension);
-    void packageCommon(lua_State *userState, const char *userDir,
+    void packageCommon(lua_State *userState, const char *userAbsBaseDir,
         const char *userFilename, const char *version, const char *metaFilename,
         int prevFiles, int numFiles, char **packFilenames, const char *tmpDir,
         bool nosrc, bool force)

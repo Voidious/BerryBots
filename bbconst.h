@@ -21,6 +21,8 @@
 #ifndef BBCONST_H
 #define BBCONST_H
 
+#define BOTS_SUBDIR           "bots"
+#define STAGES_SUBDIR         "stages"
 #define CACHE_SUBDIR          "cache"
 #define TMP_SUBDIR            ".tmp"
 #define ZIP_EXTENSION         ".tar.gz"

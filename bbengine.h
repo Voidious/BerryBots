@@ -89,10 +89,10 @@ class BerryBotsEngine {
     void setWinnerName(const char* winnerName);
     char* getWinnerName();
 
-    void initStage(char *stagePath, const char *cacheDir)
-        throw (EngineException*);
-    void initShips(char **teamPaths, int numTeams, const char *cacheDir)
-        throw (EngineException*);
+    void initStage(const char *stageBaseDir, const char *stageName,
+                   const char *cacheDir) throw (EngineException*);
+    void initShips(const char *botsBaseDir, char **teamNames, int numTeams,
+                   const char *cacheDir) throw (EngineException*);
     void processTick() throw (EngineException*);
     void processRoundOver();
     void processGameOver();

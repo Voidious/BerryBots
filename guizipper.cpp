@@ -37,32 +37,27 @@ void GuiZipper::packageFiles(const char *outputFile, const char *baseDir,
     const char *metaFilename) throw (ZipperException*) {
   int r;
   struct archive *a = archive_write_new();
-  try {
-    r = archive_write_add_filter_gzip(a);
-    checkForErrors("Error adding filter gzip", a, r);
-    r = archive_write_set_format_pax_restricted(a);
-    checkForErrors("Error setting format pax restricted", a, r);
-    r = archive_write_open_filename(a, outputFile);
-    checkForErrors("Error opening file", a, r);
-    packageSingleFile(absMetaFilename, metaFilename, a, false);
-    for (int x = 0; x < numFiles; x++) {
-      char *filename = filenames[x];
-      char *filePath = FileManager::getFilePath(baseDir, filename);
-      try {
-        packageSingleFile(filePath, filename, a, binary);
-      } catch (ZipperException *ze) {
-        delete filePath;
-        throw ze;
-      }
+  r = archive_write_add_filter_gzip(a);
+  checkForErrors("Error adding filter gzip", a, r);
+  r = archive_write_set_format_pax_restricted(a);
+  checkForErrors("Error setting format pax restricted", a, r);
+  r = archive_write_open_filename(a, outputFile);
+  checkForErrors("Error opening file", a, r);
+  packageSingleFile(absMetaFilename, metaFilename, a, false);
+  for (int x = 0; x < numFiles; x++) {
+    char *filename = filenames[x];
+    char *filePath = FileManager::getFilePath(baseDir, filename);
+    try {
+      packageSingleFile(filePath, filename, a, binary);
+    } catch (ZipperException *ze) {
+      delete filePath;
+      throw ze;
     }
-    r = archive_write_close(a);
-    checkForErrors("Error writing close", a, r);
-    r = archive_write_free(a);
-    checkForErrors("Error writing free", a, r);
-  } catch (ZipperException *e) {
-    archive_write_free(a);
-    throw e;
   }
+  r = archive_write_close(a);
+  checkForErrors("Error writing close", a, r);
+  r = archive_write_free(a);
+  checkForErrors("Error writing free", a, r);
 }
 
 void GuiZipper::packageSingleFile(const char *absFilename, const char *filename,
@@ -72,31 +67,26 @@ void GuiZipper::packageSingleFile(const char *absFilename, const char *filename,
   int fd;
   stat(absFilename, &st);
   struct archive_entry *entry = archive_entry_new();
-  try {
-    archive_entry_set_size(entry, st.st_size);
-    archive_entry_set_filetype(entry, AE_IFREG);
-    archive_entry_set_pathname(entry, filename);
-    archive_entry_set_perm(entry, 0644);
-    int r = archive_write_header(a, entry);
-    checkForErrors("Error writing header", a, r);
-    int flags = O_RDONLY;
+  archive_entry_set_size(entry, st.st_size);
+  archive_entry_set_filetype(entry, AE_IFREG);
+  archive_entry_set_pathname(entry, filename);
+  archive_entry_set_perm(entry, 0644);
+  int r = archive_write_header(a, entry);
+  checkForErrors("Error writing header", a, r);
+  int flags = O_RDONLY;
 #ifdef __WIN32__
-    if (binary) {
-      flags |= O_BINARY;
-    }
-#endif
-    fd = open(absFilename, flags);
-    ssize_t len = read(fd, buff, sizeof(buff));
-    while (len > 0) {
-      archive_write_data(a, buff, len);
-      len = read(fd, buff, sizeof(buff));
-    }
-    close(fd);
-    archive_entry_free(entry);
-  } catch (ZipperException *e) {
-    archive_entry_free(entry);
-    throw e;
+  if (binary) {
+    flags |= O_BINARY;
   }
+#endif
+  fd = open(absFilename, flags);
+  ssize_t len = read(fd, buff, sizeof(buff));
+  while (len > 0) {
+    archive_write_data(a, buff, len);
+    len = read(fd, buff, sizeof(buff));
+  }
+  close(fd);
+  archive_entry_free(entry);
 }
 
 // Based on libarchive's public example code.
@@ -106,7 +96,7 @@ void GuiZipper::unpackFile(const char *zipFile, const char *outputDir)
   // TODO: use archive_write_disk_open instead (if/when it exists)
   char cwd[4096];
   getcwd(cwd, 4096);
-  char *absZipFile = FileManager::getFilePath(cwd, zipFile);
+  char *absZipFile = FileManager::getAbsFilePath(zipFile);
   platformstl::filesystem_traits<char> traits;
   traits.set_current_directory(outputDir);
   
@@ -122,39 +112,34 @@ void GuiZipper::unpackFile(const char *zipFile, const char *outputDir)
   flags |= ARCHIVE_EXTRACT_FFLAGS;
   
   a = archive_read_new();
-  try {
-    archive_read_support_format_tar(a);
-    archive_read_support_filter_gzip(a);
-    ext = archive_write_disk_new();
-    archive_write_disk_set_options(ext, flags);
-    archive_write_disk_set_standard_lookup(ext);
-    r = archive_read_open_filename(a, absZipFile, 10240);
-    checkForErrors("Error opening archive for reading", a, r);
-    for (;;) {
-      r = archive_read_next_header(a, &entry);
-      if (r == ARCHIVE_EOF) {
-        break;
-      }
-      checkForErrors("Error reading next archive header", a, r);
-      r = archive_write_header(ext, entry);
-      checkForErrors("Error writing next archive header", a, r);
-      copyData(a, ext, outputDir);
-      r = archive_write_finish_entry(ext);
-      checkForErrors("Error writing archive finish entry", a, r);
+  archive_read_support_format_tar(a);
+  archive_read_support_filter_gzip(a);
+  ext = archive_write_disk_new();
+  archive_write_disk_set_options(ext, flags);
+  archive_write_disk_set_standard_lookup(ext);
+  r = archive_read_open_filename(a, absZipFile, 10240);
+  checkForErrors("Error opening archive for reading", a, r);
+  for (;;) {
+    r = archive_read_next_header(a, &entry);
+    if (r == ARCHIVE_EOF) {
+      break;
     }
-    r = archive_read_close(a);
-    checkForErrors("Error closing read archive", a, r);
-    r = archive_read_free(a);
-    checkForErrors("Error freeing read archive", a, r);
-    r = archive_write_close(ext);
-    checkForErrors("Error closing write archive", a, r);
-    r = archive_write_free(ext);
-    checkForErrors("Error freeing write archive", a, r);
-  } catch (ZipperException *e) {
-    archive_read_free(a);
-    archive_write_free(a);
-    throw e;
+    checkForErrors("Error reading next archive header", a, r);
+    r = archive_write_header(ext, entry);
+    checkForErrors("Error writing next archive header", a, r);
+    copyData(a, ext, outputDir);
+    r = archive_write_finish_entry(ext);
+    checkForErrors("Error writing archive finish entry", a, r);
   }
+  r = archive_read_close(a);
+  checkForErrors("Error closing read archive", a, r);
+  r = archive_read_free(a);
+  checkForErrors("Error freeing read archive", a, r);
+  r = archive_write_close(ext);
+  checkForErrors("Error closing write archive", a, r);
+  r = archive_write_free(ext);
+  checkForErrors("Error freeing write archive", a, r);
+
   traits.set_current_directory(cwd);
   delete absZipFile;
 }

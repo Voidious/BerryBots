@@ -62,7 +62,10 @@ int main(int argc, char *argv[]) {
   FileManager *fileManager = new FileManager(zipper);
   CliPackageReporter *packageReporter = new CliPackageReporter();
   fileManager->setListener(packageReporter);
-  
+
+  char *botsBaseDir = FileManager::getAbsFilePath(BOTS_SUBDIR);
+  char *stagesBaseDir = FileManager::getAbsFilePath(STAGES_SUBDIR);
+
   char **stageInfo = parseFlag(argc, argv, "packstage", 2);
   if (stageInfo != 0) {
     if (argc < 4) {
@@ -70,11 +73,12 @@ int main(int argc, char *argv[]) {
     }
     bool nosrc = flagExists(argc, argv, "nosrc");
     try {
-      char *stageDir = FileManager::parseDir(stageInfo[0]);
-      char *stageName = FileManager::parseFilename(stageInfo[0]);
-      fileManager->packageStage(stageDir, stageName, stageInfo[1],
+      char *stageAbsName = FileManager::getAbsFilePath(stageInfo[0]);
+      char *stageName =
+          FileManager::parseRelativeFilePath(stagesBaseDir, stageAbsName);
+      fileManager->packageStage(stagesBaseDir, stageName, stageInfo[1],
                                 CACHE_SUBDIR, TMP_SUBDIR, nosrc, true);
-      delete stageDir;
+      delete stageAbsName;
       delete stageName;
     } catch (std::exception *e) {
       std::cout << "BerryBots encountered an error:" << std::endl;
@@ -92,11 +96,12 @@ int main(int argc, char *argv[]) {
     }
     bool nosrc = flagExists(argc, argv, "nosrc");
     try {
-      char *botDir = FileManager::parseDir(botInfo[0]);
-      char *botName = FileManager::parseFilename(botInfo[0]);
-      fileManager->packageBot(botDir, botName, botInfo[1], CACHE_SUBDIR,
+      char *botAbsName = FileManager::getAbsFilePath(botInfo[0]);
+      char *botName =
+         FileManager::parseRelativeFilePath(botsBaseDir, botAbsName);
+      fileManager->packageBot(botsBaseDir, botName, botInfo[1], CACHE_SUBDIR,
                               TMP_SUBDIR, nosrc, true);
-      delete botDir;
+      delete botAbsName;
       delete botName;
     } catch (std::exception *e) {
       std::cout << "BerryBots encountered an error:" << std::endl;
@@ -116,23 +121,34 @@ int main(int argc, char *argv[]) {
   engine = new BerryBotsEngine(fileManager);
   stage = engine->getStage();
 
+  char *stageAbsName = FileManager::getAbsFilePath(argv[nodisplay ? 2 : 1]);
+  char *stageName =
+      FileManager::parseRelativeFilePath(stagesBaseDir, stageAbsName);
   try {
-    engine->initStage(argv[nodisplay ? 2 : 1], CACHE_SUBDIR);
+    engine->initStage(stagesBaseDir, stageName, CACHE_SUBDIR);
   } catch (EngineException *e) {
+    delete stageAbsName;
+    delete stageName;
     std::cout << "BerryBots initialization failed:" << std::endl;
     std::cout << "  " << e->what() << std::endl;
     exit(0);
   }
+  delete stageAbsName;
+  delete stageName;
 
   int firstTeam = (nodisplay ? 3 : 2);
   int numTeams = argc - firstTeam;
   char **teams = new char*[numTeams];
   for (int x = 0; x < numTeams; x++) {
-    teams[x] = argv[x + firstTeam];
+    char *teamAbsName = FileManager::getAbsFilePath(argv[x + firstTeam]);
+    char *teamName =
+        FileManager::parseRelativeFilePath(botsBaseDir, teamAbsName);
+    teams[x] = teamName;
+    delete teamAbsName;
   }
 
   try {
-    engine->initShips(teams, numTeams, CACHE_SUBDIR);
+    engine->initShips(botsBaseDir, teams, numTeams, CACHE_SUBDIR);
   } catch (EngineException *e) {
     std::cout << "BerryBots initialization failed:" << std::endl;
     std::cout << "  " << e->what() << std::endl;
@@ -257,6 +273,8 @@ int main(int argc, char *argv[]) {
   delete packageReporter;
   delete fileManager;
   delete zipper;
+  delete botsBaseDir;
+  delete stagesBaseDir;
 
   return 0;
 }
