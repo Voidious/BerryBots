@@ -94,6 +94,7 @@ class GuiManager {
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
+    void hidePackagingConsole();
     void togglePause();
     void restartMatch();
     void quit();

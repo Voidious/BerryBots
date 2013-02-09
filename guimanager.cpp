@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <sstream>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <wx/wx.h>
@@ -323,7 +324,7 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
     engine_->initShips(teamPaths, numTeams, cacheDir);
   } catch (EngineException *e) {
     wxMessageDialog errorMessage(NULL, e->what(),
-        "BerryBots engine initialization failed", wxOK, wxDefaultPosition);
+        "BerryBots engine init failed", wxOK | wxICON_EXCLAMATION);
     errorMessage.ShowModal();
     delete engine_;
     engine_ = 0;
@@ -424,7 +425,7 @@ void GuiManager::runCurrentMatch() {
     }
   } catch (EngineException *e) {
     wxMessageDialog errorMessage(NULL, e->what(),
-        "BerryBots encountered an error", wxOK, wxDefaultPosition);
+        "BerryBots encountered an error", wxOK | wxICON_EXCLAMATION);
     errorMessage.ShowModal();
     newMatchDialog_->Show();
     return;
@@ -455,6 +456,7 @@ void GuiManager::resumeMatch() {
       hideNewMatchDialog();
       hidePackageShipDialog();
       hidePackageStageDialog();
+      hidePackagingConsole();
       runCurrentMatch();
     }
     while (restarting_) {
@@ -531,18 +533,25 @@ void GuiManager::processMainWindowEvents() {
 
 void GuiManager::showNewMatchDialog() {
   interrupted_ = true;
+  packagingConsole_->Hide();
   newMatchDialog_->Show();
   newMatchDialog_->Raise();
 }
 
 void GuiManager::showPackageShipDialog() {
   interrupted_ = true;
+  if (!packageShipDialog_->IsShown()) {
+    packagingConsole_->Hide();
+  }
   packageShipDialog_->Show();
   packageShipDialog_->Raise();
 }
 
 void GuiManager::showPackageStageDialog() {
   interrupted_ = true;
+  if (!packageStageDialog_->IsShown()) {
+    packagingConsole_->Hide();
+  }
   packageStageDialog_->Show();
   packageStageDialog_->Raise();
 }
@@ -581,6 +590,10 @@ void GuiManager::hidePackageShipDialog() {
 
 void GuiManager::hidePackageStageDialog() {
   packageStageDialog_->Hide();
+}
+
+void GuiManager::hidePackagingConsole() {
+  packagingConsole_->Hide();
 }
 
 void GuiManager::saveCurrentMatchSettings(
@@ -706,8 +719,23 @@ void ShipPackager::package(const char *botName, const char *version,
   sprintf(botsPath, "%s%s%s", botsDir_, BB_DIRSEP, botName);
   char *cacheDir = guiManager_->getCacheDirCopy();
   char *tmpDir = guiManager_->getTmpDirCopy();
+  bool refresh = true;
   try {
-    fileManager_->packageBot(botsPath, version, cacheDir, tmpDir, nosrc);
+    fileManager_->packageBot(botsPath, version, cacheDir, tmpDir, nosrc, false);
+  } catch (FileExistsException *e) {
+    std::stringstream overwriteStream;
+    overwriteStream << "File already exists: " << e->what() << std::endl
+                    << std::endl << "OK to overwrite it?";
+    wxMessageDialog errorMessage(NULL, overwriteStream.str(), "Are you sure?",
+                                 wxOK | wxCANCEL | wxICON_QUESTION);
+    int r = errorMessage.ShowModal();
+    if (r == wxID_OK) {
+      fileManager_->packageBot(botsPath, version, cacheDir, tmpDir, nosrc,
+                               true);
+      fileManager_->deleteFromCache(cacheDir, e->what());
+    } else {
+      refresh = false;
+    }
   } catch (std::exception *e) {
     packagingConsole_->clear();
     packagingConsole_->Show();
@@ -718,7 +746,9 @@ void ShipPackager::package(const char *botName, const char *version,
   delete botsPath;
   delete cacheDir;
   delete tmpDir;
-  guiManager_->loadBots();
+  if (refresh) {
+    guiManager_->loadBots();
+  }
 }
 
 void ShipPackager::cancel() {
@@ -747,8 +777,23 @@ void StagePackager::package(const char *stageName, const char *version,
   sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
   char *cacheDir = guiManager_->getCacheDirCopy();
   char *tmpDir = guiManager_->getTmpDirCopy();
+  bool refresh = true;
   try {
-    fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc);
+    fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc, false);
+  } catch (FileExistsException *e) {
+    std::stringstream overwriteStream;
+    overwriteStream << "File already exists: " << e->what() << std::endl
+                    << std::endl << "OK to overwrite it?";
+    wxMessageDialog errorMessage(NULL, overwriteStream.str(), "Are you sure?",
+                                 wxOK | wxCANCEL | wxICON_QUESTION);
+    int r = errorMessage.ShowModal();
+    if (r == wxID_OK) {
+      fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc,
+                                 true);
+      fileManager_->deleteFromCache(cacheDir, e->what());
+    } else {
+      refresh = false;
+    }
   } catch (std::exception *e) {
     packagingConsole_->clear();
     packagingConsole_->Show();
@@ -759,7 +804,9 @@ void StagePackager::package(const char *stageName, const char *version,
   delete stagePath;
   delete cacheDir;
   delete tmpDir;
-  guiManager_->loadStages();
+  if (refresh) {
+    guiManager_->loadStages();
+  }
 }
 
 void StagePackager::cancel() {
@@ -790,6 +837,7 @@ void PackageReporter::packagingComplete(
   packagingConsole_->println();
   packagingConsole_->print("Saved to: ");
   packagingConsole_->println(destinationFile);
+  packagingConsole_->Raise();
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {
