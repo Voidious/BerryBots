@@ -67,7 +67,7 @@ void GuiZipper::packageSingleFile(const char *absFilename, const char *filename,
   int fd;
   stat(absFilename, &st);
   struct archive_entry *entry = archive_entry_new();
-  archive_entry_set_size(entry, st.st_size);
+  archive_entry_copy_stat(entry, &st);
   archive_entry_set_filetype(entry, AE_IFREG);
   archive_entry_set_pathname(entry, filename);
   archive_entry_set_perm(entry, 0644);
