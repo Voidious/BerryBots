@@ -153,13 +153,13 @@ int PackageEventFilter::FilterEvent(wxEvent& event) {
   if (type == wxEVT_KEY_DOWN && packageDialog_->IsActive()) {
     wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
     int keyCode = keyEvent->GetKeyCode();
-    if (keyCode == WXK_ESCAPE) {
+    if (keyCode == WXK_ESCAPE
+        || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       packageDialog_->onEscape();
+      return Event_Processed;
     } else if (keyEvent->GetUnicodeKey() == 'P' && keyEvent->ControlDown()) {
       packageDialog_->packageSelectedItem();
-    }
-    if (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown()) {
-      packageDialog_->onEscape();
+      return Event_Processed;
     }
   }
   return Event_Skip;

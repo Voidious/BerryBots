@@ -284,22 +284,21 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
   if (type == wxEVT_KEY_DOWN && newMatchDialog_->IsActive()) {
     wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
     int keyCode = keyEvent->GetKeyCode();
-    if (keyCode == WXK_ESCAPE) {
+    if (keyCode == WXK_ESCAPE
+        || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       newMatchDialog_->onEscape();
+      return Event_Processed;
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_RETURN)
                && newMatchDialog_->botsSelectHasFocus()) {
       newMatchDialog_->addSelectedBots();
+      return Event_Processed;
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_BACK)
                && (newMatchDialog_->loadedBotsSelectHasFocus())) {
       newMatchDialog_->removeSelectedLoadedBots();
     } else if (keyEvent->GetUnicodeKey() == 'M' && keyEvent->ControlDown()) {
       newMatchDialog_->startMatch();
+      return Event_Processed;
     }
-#ifdef __WXOSX__
-    if (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown()) {
-      newMatchDialog_->onEscape();
-    }
-#endif
   }
   return Event_Skip;
 }

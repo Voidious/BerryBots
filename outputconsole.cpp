@@ -94,14 +94,11 @@ int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
   wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
   int keyCode = keyEvent->GetKeyCode();
   if (type == wxEVT_KEY_DOWN && outputConsole_->IsActive()) {
-    if (keyCode == WXK_ESCAPE) {
+    if (keyCode == WXK_ESCAPE
+        || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       outputConsole_->Hide();
+      return Event_Processed;
     }
-#ifdef __WXOSX__
-    if (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown()) {
-      outputConsole_->Hide();
-    }
-#endif
   }
   return Event_Skip;
 }
