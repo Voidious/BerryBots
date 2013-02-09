@@ -30,13 +30,9 @@ TarZipper::TarZipper() {
 
 }
 
-TarZipper::~TarZipper() {
-
-}
-
 void TarZipper::packageFiles(const char *outputFile, const char *baseDir,
     char **filenames, int numFiles, bool binary, const char *absMetaFilename,
-    const char *metaFilename) {
+    const char *metaFilename) throw (ZipperException*) {
   std::stringstream cmdStream;
   cmdStream << "cd \"" << baseDir << "\"; "
             << "cp \"" << absMetaFilename << "\" ./" << metaFilename << "; "
@@ -45,13 +41,20 @@ void TarZipper::packageFiles(const char *outputFile, const char *baseDir,
     cmdStream << " \"" << filenames[x] << "\"";
   }
   cmdStream << " " << metaFilename << "; rm ./" << metaFilename;
-  system(cmdStream.str().c_str());
+  int r = system(cmdStream.str().c_str());
+  if (r != 0) {
+    throw new ZipperException("Error packaging files with 'tar'.");
+  }
 }
 
-void TarZipper::unpackFile(const char *zipFile, const char *outputDir) {
+void TarZipper::unpackFile(const char *zipFile, const char *outputDir)
+    throw (ZipperException*) {
   int extractCmdLen = (int) (8 + strlen(zipFile) + 4 + strlen(outputDir));
   char *extractCmd = new char[extractCmdLen + 1];
   sprintf(extractCmd, "tar xfv %s -C %s", zipFile, outputDir);
-  system(extractCmd);
+  int r = system(extractCmd);
   delete extractCmd;
+  if (r != 0) {
+    throw new ZipperException("Error packaging files with 'tar'.");
+  }
 }

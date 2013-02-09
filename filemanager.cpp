@@ -233,7 +233,7 @@ void FileManager::packageCommon(lua_State *userState, char *userDir,
     char *userFilename, char *luaCwd, const char *version,
     const char *metaFilename, int prevFiles, int numFiles, int filesCmdLen,
     char **packFilenames, const char *tmpDir, bool nosrc)
-throw (InvalidLuaFilenameException*, LuaException*) {
+    throw (InvalidLuaFilenameException*, LuaException*, ZipperException*) {
   int x = prevFiles;
   lua_pushnil(userState);
   while (lua_next(userState, -2) != 0) {
@@ -245,7 +245,7 @@ throw (InvalidLuaFilenameException*, LuaException*) {
     x++;
     lua_pop(userState, 1);
   }
-  lua_pop(userState, 1);
+  lua_close(userState);
 
   char *absMetaFilename;
   createDirectoryIfNecessary(tmpDir);
@@ -253,6 +253,7 @@ throw (InvalidLuaFilenameException*, LuaException*) {
   getcwd(cwd, 4096);
   char *absTmpDir = getAbsoluteFilename(cwd, tmpDir);
   absMetaFilename = getAbsoluteFilename(absTmpDir, metaFilename);
+  delete absTmpDir;
   std::ofstream fout(absMetaFilename);
   fout << userFilename;
   fout.flush();
@@ -274,7 +275,6 @@ throw (InvalidLuaFilenameException*, LuaException*) {
           saveBytecode(packFilenames[x], outputFilename, userDir);
         } catch (LuaException *e) {
           delete outputFilename;
-          delete absTmpDir;
           throw e;
         }
         
@@ -308,6 +308,8 @@ throw (InvalidLuaFilenameException*, LuaException*) {
     strcpy(filesDir, srcDir);
   }
   char *destFilename = getAbsoluteFilename(srcDir, outputFilename);
+  delete srcDir;
+  delete outputFilename;
 
   int numInputFiles = numFiles;
   for (int x = 0; x < numFiles; x++) {
@@ -322,8 +324,16 @@ throw (InvalidLuaFilenameException*, LuaException*) {
       inputFiles[z++] = packFilenames[x];
     }
   }
-  zipper_->packageFiles(destFilename, filesDir, inputFiles, numInputFiles,
-                        nosrc, absMetaFilename, metaFilename);
+  try {
+    zipper_->packageFiles(destFilename, filesDir, inputFiles, numInputFiles,
+                          nosrc, absMetaFilename, metaFilename);
+  } catch (ZipperException *e) {
+    delete filesDir;
+    delete destFilename;
+    delete inputFiles;
+    delete absMetaFilename;
+    throw e;
+  }
 
   if (packagingListener_ != 0) {
     packagingListener_->packagingComplete(packFilenames, numFiles, nosrc,
@@ -334,13 +344,10 @@ throw (InvalidLuaFilenameException*, LuaException*) {
     // TODO: rm <tmpDir>
   }
 
-  lua_close(userState);
-  delete srcDir;
   delete filesDir;
-  delete absTmpDir;
   delete destFilename;
   delete inputFiles;
-  delete outputFilename;
+  delete absMetaFilename;
 }
 
 void FileManager::crawlFiles(lua_State *L, const char *startFile)
@@ -371,7 +378,7 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile)
 void FileManager::packageStage(const char *stageArg, const char *version,
     const char *cacheDir, const char *tmpDir, bool nosrc)
     throw (FileNotFoundException*, InvalidLuaFilenameException*,
-           LuaException*) {
+           LuaException*, ZipperException*) {
   lua_State *stageState;
   char *stageDir;
   char *stageFilename;
@@ -449,6 +456,14 @@ void FileManager::packageStage(const char *stageArg, const char *version,
     delete packFilenames;
     
     throw e;
+  } catch (ZipperException *e) {
+    delete stage;
+    for (int x = 0; x < numFiles; x++) {
+      delete packFilenames[x];
+    }
+    delete packFilenames;
+    
+    throw e;
   }
   
   delete stage;
@@ -461,7 +476,7 @@ void FileManager::packageStage(const char *stageArg, const char *version,
 void FileManager::packageBot(char *botArg, const char *version,
     const char *cacheDir, const char *tmpDir, bool nosrc)
     throw (FileNotFoundException*, InvalidLuaFilenameException*,
-           LuaException*) {
+           LuaException*, ZipperException*) {
   lua_State *shipState;
   char *shipDir;
   char *shipFilename;
@@ -486,6 +501,13 @@ void FileManager::packageBot(char *botArg, const char *version,
 
     throw e;
   } catch (LuaException *e) {
+    for (int x = 0; x < numFiles; x++) {
+      delete packFilenames[x];
+    }
+    delete packFilenames;
+    
+    throw e;
+  } catch (ZipperException *e) {
     for (int x = 0; x < numFiles; x++) {
       delete packFilenames[x];
     }

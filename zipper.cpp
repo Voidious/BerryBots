@@ -18,26 +18,19 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef ZIPPER_H
-#define ZIPPER_H
+#include <stdio.h>
+#include <string.h>
+#include "zipper.h"
 
-#include <exception>
+ZipperException::ZipperException(const char *details) {
+  message_ = new char[strlen(details) + 41];
+  sprintf(message_, "Zip processing failure: %s", details);
+}
 
-class ZipperException : public std::exception {
-  char *message_;
-  public:
-    ZipperException(const char *details);
-    ~ZipperException() throw();
-    virtual const char* what() const throw();
-};
+const char* ZipperException::what() const throw() {
+  return message_;
+}
 
-class Zipper {
-  public:
-    virtual void packageFiles(const char *outputFile, const char *baseDir,
-        char **filenames, int numFiles, bool binary,
-        const char *absMetaFilename, const char *metaFilename) = 0;
-    virtual void unpackFile(const char *zipFile, const char *outputDir) = 0;
-    virtual ~Zipper() {};
-};
-
-#endif
+ZipperException::~ZipperException() throw() {
+  delete message_;
+}

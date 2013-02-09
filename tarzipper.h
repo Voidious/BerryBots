@@ -26,11 +26,12 @@
 class TarZipper : public Zipper {
   public:
     TarZipper();
-    ~TarZipper();
     virtual void packageFiles(const char *outputFile, const char *baseDir,
         char **filenames, int numFiles, bool binary,
-        const char *absMetaFilename, const char *metaFilename);
-    virtual void unpackFile(const char *zipFile, const char *outputDir);
+        const char *absMetaFilename, const char *metaFilename)
+        throw (ZipperException*);
+    virtual void unpackFile(const char *zipFile, const char *outputDir)
+        throw (ZipperException*);
 };
 
 #endif

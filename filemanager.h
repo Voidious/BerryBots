@@ -56,10 +56,10 @@ class InvalidLuaFilenameException : public std::exception {
 
 class LuaException : public std::exception {
   char *message_;
-public:
-  LuaException(const char *details);
-  ~LuaException() throw();
-  virtual const char* what() const throw();
+  public:
+    LuaException(const char *details);
+    ~LuaException() throw();
+    virtual const char* what() const throw();
 };
 
 class FileManager {
@@ -79,11 +79,11 @@ class FileManager {
     void packageStage(const char *stageArg, const char *version,
         const char *cacheDir, const char *tmpDir, bool nosrc)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
-               LuaException*);
+               LuaException*, ZipperException*);
     void packageBot(char *botArg, const char *version, const char *cacheDir,
         const char *tmpDir, bool nosrc)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
-               LuaException*);
+               LuaException*, ZipperException*);
     void saveBytecode(char *srcFile, char *outputFile, char *luaCwd)
         throw (LuaException*);
     static char* getAbsoluteFilename(const char *dir, const char *filename);
@@ -100,7 +100,7 @@ class FileManager {
         char *luaCwd, const char *version, const char *metaFilename,
         int prevFiles, int numFiles, int filesCmdLen, char **packFilenames,
         const char *tmpDir, bool nosrc)
-        throw (InvalidLuaFilenameException*, LuaException*);
+        throw (InvalidLuaFilenameException*, LuaException*, ZipperException*);
     void crawlFiles(lua_State *L, const char *startFile)
         throw (InvalidLuaFilenameException*, LuaException*);
     bool fileExists(const char *filename);
