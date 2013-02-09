@@ -47,11 +47,11 @@ void GuiZipper::packageFiles(const char *outputFile, const char *baseDir,
     packageSingleFile(absMetaFilename, metaFilename, a, false);
     for (int x = 0; x < numFiles; x++) {
       char *filename = filenames[x];
-      char *absFilename = FileManager::getAbsoluteFilename(baseDir, filename);
+      char *filePath = FileManager::getFilePath(baseDir, filename);
       try {
-        packageSingleFile(absFilename, filename, a, binary);
+        packageSingleFile(filePath, filename, a, binary);
       } catch (ZipperException *ze) {
-        delete absFilename;
+        delete filePath;
         throw ze;
       }
     }
@@ -106,7 +106,7 @@ void GuiZipper::unpackFile(const char *zipFile, const char *outputDir)
   // TODO: use archive_write_disk_open instead (if/when it exists)
   char cwd[4096];
   getcwd(cwd, 4096);
-  char *absZipFile = FileManager::getAbsoluteFilename(cwd, zipFile);
+  char *absZipFile = FileManager::getFilePath(cwd, zipFile);
   platformstl::filesystem_traits<char> traits;
   traits.set_current_directory(outputDir);
   

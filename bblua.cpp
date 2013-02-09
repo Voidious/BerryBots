@@ -44,8 +44,7 @@ void luaSrand(lua_State *L) {
   delete luaSrand;
 }
 
-void initStageState(
-    lua_State **stageState, char *stageCwd, char *stageFilename) {
+void initStageState(lua_State **stageState, const char *stageCwd) {
   *stageState = luaL_newstate();
   lua_setcwd(*stageState, stageCwd);
   luaL_openlibs(*stageState);
@@ -58,8 +57,7 @@ void initStageState(
   registerStageGlobals(*stageState);
 }
 
-void initShipState(
-    lua_State **shipState, char *shipCwd, char *shipFilename) {
+void initShipState(lua_State **shipState, const char *shipCwd) {
   *shipState = luaL_newstate();
   lua_setcwd(*shipState, shipCwd);
   luaL_openlibs(*shipState);
@@ -68,7 +66,6 @@ void initShipState(
   registerSensors(*shipState);
   registerWorld(*shipState);
   registerShipGlobals(*shipState);
-  lua_pushstring(*shipState, shipFilename);
 }
 
 void setField(lua_State *L, const char *key, double value) {

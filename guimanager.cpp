@@ -140,10 +140,9 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
     char *cacheDir = getCacheDirCopy();
     char *stageDir = 0;
     char *stageFilename = 0;
-    char *stageCwd = 0;
     try {
-      fileManager_->loadStageFile(
-          stagePath, &stageDir, &stageFilename, &stageCwd, cacheDir);
+      fileManager_->loadStageFile(stagePath, &stageDir, &stageFilename,
+                                  cacheDir);
     } catch (FileNotFoundException *fnfe) {
       // Only possible if user deletes file from disk after we find it on disk
       // but before we validate it. Seems safe to fail silently.
@@ -155,22 +154,18 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
       if (stageFilename != 0) {
         delete stageFilename;
       }
-      if (stageCwd != 0) {
-        delete stageCwd;
-      }
       return false;
     }
     delete stagePath;
     delete cacheDir;
     lua_State *stageState;
-    initStageState(&stageState, stageCwd, stageFilename);
+    initStageState(&stageState, stageDir);
     
     if (luaL_loadfile(stageState, stageFilename)
         || lua_pcall(stageState, 0, 0, 0)) {
       lua_close(stageState);
       delete stageDir;
       delete stageFilename;
-      delete stageCwd;
       return false;
     }
     
@@ -179,14 +174,12 @@ bool GuiManager::isValidStageFile(const char *baseDir, char *stageFilename) {
       lua_close(stageState);
       delete stageDir;
       delete stageFilename;
-      delete stageCwd;
       return false;
     }
 
     lua_close(stageState);
     delete stageDir;
     delete stageFilename;
-    delete stageCwd;
     return true;
   }
   return false;
@@ -211,17 +204,12 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *origFilename) {
   // TODO: Move this out of the GUI code.
   if (fileManager_->isLuaFilename(origFilename)
       || fileManager_->isZipFilename(origFilename)) {
-    int botPathLen =
-        (int) (strlen(baseDir) + strlen(BB_DIRSEP) + strlen(origFilename));
-    char *botPath = new char[botPathLen + 1];
-    sprintf(botPath, "%s%s%s", baseDir, BB_DIRSEP, origFilename);
+    char *botPath = FileManager::getFilePath(baseDir, origFilename);
     char *cacheDir = getCacheDirCopy();
     char *botDir = 0;
     char *botFilename = 0;
-    char *botCwd = 0;
     try {
-      fileManager_->loadBotFile(
-          botPath, &botDir, &botFilename, &botCwd, cacheDir);
+      fileManager_->loadBotFile(botPath, &botDir, &botFilename, cacheDir);
     } catch (FileNotFoundException *fnfe) {
       // Only possible if user deletes file from disk after we find it on disk
       // but before we validate it. Seems safe to fail silently.
@@ -233,22 +221,18 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *origFilename) {
       if (botFilename != 0) {
         delete botFilename;
       }
-      if (botCwd != 0) {
-        delete botCwd;
-      }
       return false;
     }
     delete botPath;
     delete cacheDir;
     lua_State *shipState;
-    initShipState(&shipState, botCwd, botFilename);
+    initShipState(&shipState, botDir);
     
     if (luaL_loadfile(shipState, botFilename)
         || lua_pcall(shipState, 0, 0, 0)) {
       lua_close(shipState);
       delete botDir;
       delete botFilename;
-      delete botCwd;
       return false;
     }
 
@@ -258,14 +242,12 @@ bool GuiManager::isValidBotFile(const char *baseDir, char *origFilename) {
       lua_close(shipState);
       delete botDir;
       delete botFilename;
-      delete botCwd;
       return false;
     }
     
     lua_close(shipState);
     delete botDir;
     delete botFilename;
-    delete botCwd;
     return true;
   }
   return false;
@@ -281,11 +263,11 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
   while (first != last) {
     platformstl::readdir_sequence::const_iterator file = first++;
     char *filename = (char *) *file;
-    char *absFilename = FileManager::getAbsoluteFilename(loadDir, filename);
-    if (FileManager::isDirectory(absFilename)) {
-      loadItemsFromDir(baseDir, absFilename, itemType, packageDialog);
+    char *filePath = FileManager::getFilePath(loadDir, filename);
+    if (FileManager::isDirectory(filePath)) {
+      loadItemsFromDir(baseDir, filePath, itemType, packageDialog);
     } else {
-      char *relativeFilename = &(absFilename[strlen(baseDir) + 1]);
+      char *relativeFilename = &(filePath[strlen(baseDir) + 1]);
       bool valid = false;
       if (itemType == ITEM_BOT && isValidBotFile(loadDir, filename)) {
         newMatchDialog_->addBot(relativeFilename);
@@ -299,7 +281,7 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
         packageDialog->addItem(relativeFilename);
       }
     }
-    delete absFilename;
+    delete filePath;
   }
 }
 
@@ -727,13 +709,12 @@ ShipPackager::~ShipPackager() {
 
 void ShipPackager::package(const char *botName, const char *version,
                            bool nosrc) {
-  char *botsPath = new char[strlen(botsDir_) + strlen(botName) + 2];
-  sprintf(botsPath, "%s%s%s", botsDir_, BB_DIRSEP, botName);
   char *cacheDir = guiManager_->getCacheDirCopy();
   char *tmpDir = guiManager_->getTmpDirCopy();
   bool refresh = true;
   try {
-    fileManager_->packageBot(botsPath, version, cacheDir, tmpDir, nosrc, false);
+    fileManager_->packageBot(botsDir_, botName, version, cacheDir, tmpDir,
+                             nosrc, false);
   } catch (FileExistsException *e) {
     std::stringstream overwriteStream;
     overwriteStream << "File already exists: " << e->what() << std::endl
@@ -742,8 +723,8 @@ void ShipPackager::package(const char *botName, const char *version,
                                  wxOK | wxCANCEL | wxICON_QUESTION);
     int r = errorMessage.ShowModal();
     if (r == wxID_OK) {
-      fileManager_->packageBot(botsPath, version, cacheDir, tmpDir, nosrc,
-                               true);
+      fileManager_->packageBot(botsDir_, botName, version, cacheDir, tmpDir,
+                               nosrc, true);
       fileManager_->deleteFromCache(cacheDir, e->what());
     } else {
       refresh = false;
@@ -755,7 +736,6 @@ void ShipPackager::package(const char *botName, const char *version,
     packagingConsole_->print("  ");
     packagingConsole_->println(e->what());
   }
-  delete botsPath;
   delete cacheDir;
   delete tmpDir;
   if (refresh) {
@@ -785,13 +765,12 @@ StagePackager::~StagePackager() {
 
 void StagePackager::package(const char *stageName, const char *version,
                             bool nosrc) {
-  char *stagePath = new char[strlen(stageDir_) + strlen(stageName) + 2];
-  sprintf(stagePath, "%s%s%s", stageDir_, BB_DIRSEP, stageName);
   char *cacheDir = guiManager_->getCacheDirCopy();
   char *tmpDir = guiManager_->getTmpDirCopy();
   bool refresh = true;
   try {
-    fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc, false);
+    fileManager_->packageStage(stageDir_, stageName, version, cacheDir, tmpDir,
+                               nosrc, false);
   } catch (FileExistsException *e) {
     std::stringstream overwriteStream;
     overwriteStream << "File already exists: " << e->what() << std::endl
@@ -800,8 +779,8 @@ void StagePackager::package(const char *stageName, const char *version,
                                  wxOK | wxCANCEL | wxICON_QUESTION);
     int r = errorMessage.ShowModal();
     if (r == wxID_OK) {
-      fileManager_->packageStage(stagePath, version, cacheDir, tmpDir, nosrc,
-                                 true);
+      fileManager_->packageStage(stageDir_, stageName, version, cacheDir,
+                                 tmpDir, nosrc, true);
       fileManager_->deleteFromCache(cacheDir, e->what());
     } else {
       refresh = false;
@@ -813,7 +792,6 @@ void StagePackager::package(const char *stageName, const char *version,
     packagingConsole_->print("  ");
     packagingConsole_->println(e->what());
   }
-  delete stagePath;
   delete cacheDir;
   delete tmpDir;
   if (refresh) {

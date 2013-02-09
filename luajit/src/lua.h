@@ -244,8 +244,8 @@ LUA_API lua_Alloc (lua_getallocf) (lua_State *L, void **ud);
 LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
 
 // @Voidious: Added for BerryBots security checks.
-LUA_API void  (lua_setcwd) (lua_State *L, char *cwd);
-LUA_API char *(lua_getcwd) (lua_State *L);
+LUA_API void        (lua_setcwd) (lua_State *L, const char *cwd);
+LUA_API const char *(lua_getcwd) (lua_State *L);
 
 
 

@@ -67,8 +67,12 @@ int main(int argc, char *argv[]) {
     }
     bool nosrc = flagExists(argc, argv, "nosrc");
     try {
-      fileManager->packageStage(
-          stageInfo[0], stageInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
+      char *stageDir = FileManager::parseDir(stageInfo[0]);
+      char *stageName = FileManager::parseFilename(stageInfo[0]);
+      fileManager->packageStage(stageDir, stageName, stageInfo[1],
+                                CACHE_SUBDIR, TMP_SUBDIR, nosrc, true);
+      delete stageDir;
+      delete stageName;
     } catch (std::exception *e) {
       std::cout << "BerryBots encountered an error:" << std::endl;
       std::cout << "  " << e->what() << std::endl;
@@ -85,8 +89,12 @@ int main(int argc, char *argv[]) {
     }
     bool nosrc = flagExists(argc, argv, "nosrc");
     try {
-      fileManager->packageBot(
-          botInfo[0], botInfo[1], CACHE_SUBDIR, TMP_SUBDIR, nosrc);
+      char *botDir = FileManager::parseDir(botInfo[0]);
+      char *botName = FileManager::parseFilename(botInfo[0]);
+      fileManager->packageBot(botDir, botName, botInfo[1], CACHE_SUBDIR,
+                              TMP_SUBDIR, nosrc, true);
+      delete botDir;
+      delete botName;
     } catch (std::exception *e) {
       std::cout << "BerryBots encountered an error:" << std::endl;
       std::cout << "  " << e->what() << std::endl;

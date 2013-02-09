@@ -43,10 +43,8 @@ extern int registerAdmin(lua_State *L);
 extern int registerShipGlobals(lua_State *L);
 extern int registerStageGlobals(lua_State *L);
 
-extern void initStageState(
-    lua_State **stageState, char *stageCwd, char *stageFilename);
-extern void initShipState(
-    lua_State **shipState, char *shipCwd, char *shipFilename);
+extern void initStageState(lua_State **stageState, const char *stageCwd);
+extern void initShipState(lua_State **shipState, const char *shipCwd);
 extern Ship* pushShip(lua_State *L);
 extern void pushVisibleEnemyShips(
     lua_State *L, bool *teamVision, int teamIndex, Ship **ships, int numShips);

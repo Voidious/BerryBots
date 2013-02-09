@@ -113,14 +113,14 @@ LUA_API void lua_xmove(lua_State *from, lua_State *to, int n)
 
 // @Voidious: Set working directory so BerryBots can restrict file access to
 //            anything beneath that directory.
-LUA_API void lua_setcwd (lua_State *L, char *cwd)
+LUA_API void lua_setcwd (lua_State *L, const char *cwd)
 {
   global_State *g = G(L);
   g->cwd = cwd;
 }
 
 // @Voidious: Get working directory.
-LUA_API char *lua_getcwd (lua_State *L)
+LUA_API const char *lua_getcwd (lua_State *L)
 {
   global_State *g = G(L);
   return g->cwd;

@@ -78,38 +78,42 @@ class FileManager {
     ~FileManager();
     void setListener(PackagingListener *packagingListener);
     void loadStageFile(const char *filename, char **stageDir,
-        char **stageDirFilename, char **stageCwd, const char *cacheDir)
+        char **stageDirFilename, const char *cacheDir)
         throw (FileNotFoundException*);
     void loadBotFile(const char *filename, char **botDir, char **botDirFilename,
-        char **botCwd, const char *cacheDir) throw (FileNotFoundException*);
+        const char *cacheDir) throw (FileNotFoundException*);
     bool isLuaFilename(const char *filename);
     bool isZipFilename(const char *filename);
-    void packageStage(const char *stageArg, const char *version,
-        const char *cacheDir, const char *tmpDir, bool nosrc, bool force)
+    void packageStage(const char *stageBaseDir, const char *stageName,
+                      const char *version, const char *cacheDir,
+                      const char *tmpDir, bool nosrc, bool force)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
                LuaException*, ZipperException*, FileExistsException*);
-    void packageBot(char *botArg, const char *version, const char *cacheDir,
-        const char *tmpDir, bool nosrc, bool force)
+    void packageBot(const char *botsBaseDir, const char *botName,
+                    const char *version, const char *cacheDir,
+                    const char *tmpDir, bool nosrc, bool force)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
                LuaException*, ZipperException*, FileExistsException*);
-    void saveBytecode(char *srcFile, char *outputFile, char *luaCwd)
+    void saveBytecode(const char *srcFile, const char *outputFile,
+                      const char *luaCwd)
         throw (LuaException*);
     void deleteFromCache(const char *cacheDir, const char *filename);
-    static char* getAbsoluteFilename(const char *dir, const char *filename);
+    static char* getFilePath(const char *dir, const char *filename);
     static char* parseDir(const char *dirAndFilename);
+    static char* parseFilename(const char *dirAndFilename);
     static bool isDirectory(const char *filePath);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);
     static void sliceString(char *filename, long start, long rest);
     void loadUserFile(const char *srcFilename, char **userDir,
-        char **userFilename, char **userCwd, const char *metaFilename,
+        char **userFilename, const char *metaFilename,
         const char *cacheDir) throw (FileNotFoundException*);
     bool hasExtension(const char *filename, const char *extension);
-    void packageCommon(lua_State *userState, char *userDir, char *userFilename,
-        char *luaCwd, const char *version, const char *metaFilename,
-        int prevFiles, int numFiles, int filesCmdLen, char **packFilenames,
-        const char *tmpDir, bool nosrc, bool force)
+    void packageCommon(lua_State *userState, const char *userDir,
+        const char *userFilename, const char *version, const char *metaFilename,
+        int prevFiles, int numFiles, char **packFilenames, const char *tmpDir,
+        bool nosrc, bool force)
         throw (InvalidLuaFilenameException*, LuaException*, ZipperException*,
                FileExistsException*);
     void crawlFiles(lua_State *L, const char *startFile)
@@ -117,7 +121,6 @@ class FileManager {
     bool fileExists(const char *filename);
     void createDirectory(const char *filename);
     void createDirectoryIfNecessary(const char *dir);
-    char* parseFilename(const char *dirAndFilename);
     void recursiveDelete(const char *fileToDelete);
     void checkLuaFilename(const char *filename)
         throw (InvalidLuaFilenameException*);

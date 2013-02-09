@@ -539,7 +539,7 @@ typedef struct global_State {
   MRef jit_base;	/* Current JIT code L->base. */
   MRef ctype_state;	/* Pointer to C type state. */
   GCRef gcroot[GCROOT_MAX];  /* GC roots. */
-  char *cwd; /* @Voidious: working directory for BerryBots security checks */
+  const char *cwd; /* @Voidious: working directory for BerryBots security checks */
 } global_State;
 
 #define mainthread(g)	(&gcref(g->mainthref)->th)

@@ -154,16 +154,15 @@ void BerryBotsEngine::initStage(char *stagePath, const char *cacheDir)
     throw new EngineException("Already initialized stage for this engine.");
   }
 
-  char *stageCwd;
   try {
     fileManager_->loadStageFile(
-        stagePath, &stageDir_, &stageFilename_, &stageCwd, cacheDir);
+        stagePath, &stageDir_, &stageFilename_, cacheDir);
   } catch (FileNotFoundException *fnfe) {
     EngineException *eie = new EngineException(fnfe->what());
     delete fnfe;
     throw eie;
   }
-  initStageState(&stageState_, stageCwd, stageFilename_);
+  initStageState(&stageState_, stageDir_);
 
   if (luaL_loadfile(stageState_, stageFilename_)
       || lua_pcall(stageState_, 0, 0, 0)) {
@@ -212,10 +211,8 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
     lua_State *teamState;
     char *shipDir = 0;
     char *shipFilename = 0;
-    char *shipCwd;
     try {
-      fileManager_->loadBotFile(filename, &shipDir, &shipFilename, &shipCwd,
-                                cacheDir);
+      fileManager_->loadBotFile(filename, &shipDir, &shipFilename, cacheDir);
     } catch (FileNotFoundException *fnfe) {
       if (deleteFilename) {
         delete filename;
@@ -231,7 +228,7 @@ void BerryBotsEngine::initShips(char **teamPaths, int numTeams,
       delete fnfe;
       throw eie;
     }
-    initShipState(&teamState, shipCwd, shipFilename);
+    initShipState(&teamState, shipDir);
 
     int numStateShips = (stageShip ? 1 : teamSize_);
     Ship **stateShips = new Ship*[numStateShips];

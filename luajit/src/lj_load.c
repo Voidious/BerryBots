@@ -99,7 +99,7 @@ const char *sliceString(
 //            dofile/loadfile. Leaves new string on top of stack.
 //            Lightly based on luaL_where.
 const char *getBaseDir(lua_State *L) {
-  char *luaCwd = lua_getcwd(L);
+  const char *luaCwd = lua_getcwd(L);
   lua_Debug ar;
   if (lua_getstack(L, 1, &ar)) {
     lua_getinfo(L, "Sl", &ar);
@@ -185,7 +185,7 @@ const char *getAbsoluteFilename(
 }
 
 // @Voidious: BerryBots file security enforcement.
-int allowFilename(lua_State *L, char *luaCwd, const char *absFilename) {
+int allowFilename(lua_State *L, const char *luaCwd, const char *absFilename) {
   if (luaCwd == 0) {
     // @Voidious: I don't think this is possible within BerryBots, but if
     //            someone does manage to create a new global_State with no cwd,
@@ -205,7 +205,7 @@ LUALIB_API int luaL_loadfilex(lua_State *L, const char *filename,
     return luaL_error(L, "not allowed to read from stdin");
   }
 
-  char *luaCwd = lua_getcwd(L);
+  const char *luaCwd = lua_getcwd(L);
   const char *baseDir = getBaseDir(L);
   const char *absFilename = getAbsoluteFilename(L, baseDir, filename);
   L->top--; // baseDir
