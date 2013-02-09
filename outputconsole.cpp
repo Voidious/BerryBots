@@ -22,10 +22,10 @@
 
 #include <wx/wx.h>
 
-OutputConsole::OutputConsole(wxWindowID id, const char *title)
-    : wxFrame(NULL, id, title, wxPoint(50, 50), wxSize(600, 450),
+OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
+    : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxSize(600, 450),
               wxDEFAULT_FRAME_STYLE) {
-  output_ = new wxTextCtrl(this, id + 1, "", wxPoint(0, 0), wxSize(400, 350),
+  output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0), wxSize(400, 350),
                           wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator);
 #ifdef __WINDOWS__
   output_->SetFont(wxFont(10, wxFONTFAMILY_TELETYPE));
@@ -33,7 +33,12 @@ OutputConsole::OutputConsole(wxWindowID id, const char *title)
   output_->SetFont(wxFont(12, wxFONTFAMILY_TELETYPE));
 #endif
 
-  Connect(id, wxEVT_CLOSE_WINDOW,
+  menuBarMaker_ = menuBarMaker;
+  menusInitialized_ = false;
+
+  Connect(this->GetId(), wxEVT_ACTIVATE,
+          wxActivateEventHandler(OutputConsole::onActivate));
+  Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(OutputConsole::onClose));
   eventFilter_ = new OutputConsoleEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
@@ -43,6 +48,15 @@ OutputConsole::~OutputConsole() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
   delete output_;
+}
+
+void OutputConsole::onActivate(wxActivateEvent &event) {
+#ifndef __WINDOWS__
+  if (!menusInitialized_) {
+    this->SetMenuBar(menuBarMaker_->getNewMenuBar());
+    menusInitialized_ = true;
+  }
+#endif
 }
 
 void OutputConsole::print(const char *text) {

@@ -22,6 +22,7 @@
 #include <exception>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
+#include <wx/wx.h>
 #include <platformstl/filesystem/readdir_sequence.hpp>
 #include "ResourcePath.hpp"
 
@@ -54,17 +55,17 @@ GuiManager::GuiManager(GuiListener *listener, char *stageDir, char *botsDir) {
   consoleId_ = 1000;
   zipper_ = new GuiZipper();
   fileManager_ = new FileManager(zipper_);
-  packagingConsole_ =
-      new OutputConsole(this->nextConsoleId(), "Packaging Details");
+  menuBarMaker_ = new MenuBarMaker();
+  packagingConsole_ = new OutputConsole("Packaging Details", menuBarMaker_);
   packagingConsole_->SetPosition(wxPoint(150, 100));
-  newMatchDialog_ =
-      new NewMatchDialog(new MatchRunner(this, stageBaseDir_, botsBaseDir_));
-  shipPackager_ = new ShipPackager(
-      this, fileManager_, packagingConsole_, botsBaseDir_);
-  stagePackager_ = new StagePackager(
-      this, fileManager_, packagingConsole_, stageBaseDir_, botsBaseDir_);
-  packageShipDialog_ = new PackageShipDialog(shipPackager_);
-  packageStageDialog_ = new PackageStageDialog(stagePackager_);
+  newMatchListener_ = new MatchRunner(this, stageBaseDir_, botsBaseDir_);
+  newMatchDialog_ = new NewMatchDialog(newMatchListener_, menuBarMaker_);
+  shipPackager_ = new ShipPackager(this, fileManager_, packagingConsole_,
+                                   botsBaseDir_);
+  packageShipDialog_ = new PackageShipDialog(shipPackager_, menuBarMaker_);
+  stagePackager_ = new StagePackager(this, fileManager_, packagingConsole_,
+                                     stageBaseDir_, botsBaseDir_);
+  packageStageDialog_ = new PackageStageDialog(stagePackager_, menuBarMaker_);
   loadStages();
   loadBots();
 
@@ -94,6 +95,7 @@ GuiManager::~GuiManager() {
   delete packageShipDialog_;
   delete packageStageDialog_;
   delete packagingConsole_;
+  delete menuBarMaker_;
   delete stageBaseDir_;
   delete botsBaseDir_;
   if (engine_ != 0) {
@@ -106,6 +108,7 @@ GuiManager::~GuiManager() {
   delete viewListener_;
   delete zipper_;
   delete fileManager_;
+  delete newMatchListener_;
   delete shipPackager_;
   delete stagePackager_;
   delete packageReporter_;
@@ -370,12 +373,12 @@ void GuiManager::runNewMatch(char *stagePath, char **teamPaths, int numTeams) {
                         gfxHandler_, false, false);
   window->display();
 
-  stageConsole_ = new OutputConsole(this->nextConsoleId(), stage->getName());
+  stageConsole_ = new OutputConsole(stage->getName(), menuBarMaker_);
   stageConsole_->Hide();
   teamConsoles_ = new OutputConsole*[numTeams];
   for (int x = 0; x < numTeams; x++) {
     OutputConsole *teamConsole =
-        new OutputConsole(this->nextConsoleId(), engine_->getTeam(x)->name);
+        new OutputConsole(engine_->getTeam(x)->name, menuBarMaker_);
     teamConsole->Hide();
     teamConsoles_[x] = teamConsole;
   }
@@ -552,12 +555,6 @@ void GuiManager::showTeamConsole(int teamIndex) {
   teamConsoles_[teamIndex]->Show();
 }
 
-unsigned int GuiManager::nextConsoleId() {
-  unsigned int nextId = consoleId_;
-  consoleId_ += 100;
-  return nextId;
-}
-
 void GuiManager::deleteMatchConsoles() {
   if (stageConsole_ != 0) {
     stageConsole_->Hide();
@@ -584,16 +581,6 @@ void GuiManager::hidePackageShipDialog() {
 
 void GuiManager::hidePackageStageDialog() {
   packageStageDialog_->Hide();
-}
-
-wxMenuBar* GuiManager::getNewMenuBar() {
-  wxMenu *fileMenu = new wxMenu();
-  fileMenu->Insert(0, NEW_MATCH_MENU_ID, "New Match...", 0);
-  fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package Ship...", 0);
-  fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package Stage...", 0);
-  wxMenuBar *menuBar = new wxMenuBar();
-  menuBar->Insert(0, fileMenu, "File");
-  return menuBar;
 }
 
 void GuiManager::saveCurrentMatchSettings(
@@ -673,10 +660,6 @@ MatchRunner::~MatchRunner() {
   delete botsDir_;
 }
 
-wxMenuBar* MatchRunner::getNewMenuBar() {
-  return guiManager_->getNewMenuBar();
-}
-
 void MatchRunner::startMatch(const char *stageName, char **teamNames,
                              int numTeams) {
   unsigned long stagePathLen =
@@ -715,10 +698,6 @@ ShipPackager::ShipPackager(GuiManager *guiManager, FileManager *fileManager,
 
 ShipPackager::~ShipPackager() {
   delete botsDir_;
-}
-
-wxMenuBar* ShipPackager::getNewMenuBar() {
-  return guiManager_->getNewMenuBar();
 }
 
 void ShipPackager::package(const char *botName, const char *version,
@@ -760,10 +739,6 @@ StagePackager::StagePackager(GuiManager *guiManager, FileManager *fileManager,
 StagePackager::~StagePackager() {
   delete stageDir_;
   delete botsDir_;
-}
-
-wxMenuBar* StagePackager::getNewMenuBar() {
-  return guiManager_->getNewMenuBar();
 }
 
 void StagePackager::package(const char *stageName, const char *version,

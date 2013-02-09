@@ -29,6 +29,7 @@
 #include "packageship.h"
 #include "packagestage.h"
 #include "outputconsole.h"
+#include "menubarmaker.h"
 
 class GuiListener {
   public:
@@ -45,10 +46,12 @@ class GuiManager {
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
   OutputConsole *packagingConsole_;
+  MenuBarMaker *menuBarMaker_;
   GfxManager *gfxManager_;
   GfxViewListener *viewListener_;
   Zipper *zipper_;
   FileManager *fileManager_;
+  NewMatchListener *newMatchListener_;
   PackageDialogListener *shipPackager_;
   PackageDialogListener *stagePackager_;
   PackagingListener *packageReporter_;
@@ -91,7 +94,6 @@ class GuiManager {
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
-    wxMenuBar* getNewMenuBar();
     void togglePause();
     void restartMatch();
     void quit();
@@ -103,7 +105,6 @@ class GuiManager {
     sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
-    unsigned int nextConsoleId();
     void deleteMatchConsoles();
     void saveCurrentMatchSettings(
         char *stagePath, char **teamPaths, int numTeams);
@@ -118,7 +119,6 @@ class MatchRunner : public NewMatchListener {
   public:
     MatchRunner(GuiManager *guiManager, char *stageDir, char *botsDir);
     ~MatchRunner();
-    virtual wxMenuBar* getNewMenuBar();
     virtual void startMatch(const char *stageName, char **teamNames,
                             int numTeams);
     virtual void refreshFiles();
@@ -135,7 +135,6 @@ class ShipPackager : public PackageDialogListener {
     ShipPackager(GuiManager *guiManager, FileManager *fileManager,
                  OutputConsole *packagingConsole, char *botsDir);
     ~ShipPackager();
-    virtual wxMenuBar* getNewMenuBar();
     virtual void package(const char *botName, const char *version, bool nosrc);
     virtual void cancel();
 };
@@ -151,7 +150,6 @@ class StagePackager : public PackageDialogListener {
     StagePackager(GuiManager *guiManager, FileManager *fileManager,
         OutputConsole *packagingConsole, char *stageDir, char *botsDir);
     ~StagePackager();
-    virtual wxMenuBar* getNewMenuBar();
     virtual void package(const char *stageName, const char *version,
                          bool nosrc);
     virtual void cancel();

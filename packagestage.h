@@ -22,10 +22,12 @@
 #define PACKAGE_STAGE_H
 
 #include "packagedialog.h"
+#include "menubarmaker.h"
 
 class PackageStageDialog : public PackageDialog {
   public:
-    PackageStageDialog(PackageDialogListener *listener);
+    PackageStageDialog(PackageDialogListener *listener,
+                       MenuBarMaker *menuBarMaker);
     ~PackageStageDialog();
 };
 

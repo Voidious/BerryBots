@@ -22,10 +22,12 @@
 #define PACKAGE_SHIP_H
 
 #include "packagedialog.h"
+#include "menubarmaker.h"
 
 class PackageShipDialog : public PackageDialog {
   public:
-    PackageShipDialog(PackageDialogListener *listener);
+    PackageShipDialog(PackageDialogListener *listener,
+                      MenuBarMaker *menuBarMaker);
     ~PackageShipDialog();
 };
 

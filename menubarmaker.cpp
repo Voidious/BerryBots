@@ -18,19 +18,24 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BBWX_H
-#define BBWX_H
+#include <wx/wx.h>
+#include "bbwx.h"
+#include "menubarmaker.h"
 
-#define NEW_MATCH_ID             1
-#define ADD_BUTTON_ID            2
-#define REMOVE_BUTTON_ID         3
-#define CLEAR_BUTTON_ID          4
-#define START_BUTTON_ID          5
-#define SELECT_BOTS_ID           6
-#define LOADED_BOTS_ID           7
-#define NEW_MATCH_MENU_ID        8
-#define PACKAGE_SHIP_MENU_ID     9
-#define PACKAGE_STAGE_MENU_ID    10
-#define FILE_QUIT_MENU_ID        11
+MenuBarMaker::MenuBarMaker() {
+  
+}
 
+wxMenuBar* MenuBarMaker::getNewMenuBar() {
+  wxMenu *fileMenu = new wxMenu();
+  fileMenu->Insert(0, NEW_MATCH_MENU_ID, "&New Match...", 0);
+  fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package S&hip...", 0);
+  fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package S&tage...", 0);
+#ifndef __WXOSX__
+  fileMenu->InsertSeparator(3);
+  fileMenu->Insert(4, FILE_QUIT_MENU_ID, "&Quit");
 #endif
+  wxMenuBar *menuBar = new wxMenuBar();
+  menuBar->Insert(0, fileMenu, "&File");
+  return menuBar;
+}

@@ -22,10 +22,10 @@
 #define PACKAGE_DIALOG_H
 
 #include <wx/wx.h>
+#include "menubarmaker.h"
 
 class PackageDialogListener {
   public:
-    virtual wxMenuBar* getNewMenuBar() = 0;
     virtual void package(const char *name, const char *version,
                          bool nosrc) = 0;
     virtual void cancel() = 0;
@@ -44,11 +44,13 @@ class PackageDialog : public wxFrame {
   wxButton *packageButton_;
   unsigned int numItems_;
   PackageDialogListener *listener_;
+  MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
   wxEventFilter *eventFilter_;
 
   public:
-    PackageDialog(const char *title, PackageDialogListener *listener);
+    PackageDialog(const char *title, PackageDialogListener *listener,
+                  MenuBarMaker *menuBarMaker);
     ~PackageDialog();
     void clearItems();
     void addItem(char *name);

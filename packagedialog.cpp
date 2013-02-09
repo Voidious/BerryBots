@@ -22,12 +22,14 @@
 #include "packagedialog.h"
 #include "bbwx.h"
 
-PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener)
-    : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxDefaultSize,
-              wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
+PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
+    MenuBarMaker *menuBarMaker) : wxFrame(NULL, wxID_ANY, title,
+        wxPoint(50, 50), wxDefaultSize,
+        wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
-  numItems_ = 0;
+  menuBarMaker_ = menuBarMaker;
   menusInitialized_ = false;
+  numItems_ = 0;
   
   borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
   gridSizer_ = new wxFlexGridSizer(2, 5, 5);
@@ -94,7 +96,7 @@ void PackageDialog::addItem(char *name) {
 
 void PackageDialog::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
-    this->SetMenuBar(listener_->getNewMenuBar());
+    this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
     SetSizerAndFit(borderSizer_);
   }

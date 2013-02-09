@@ -18,19 +18,15 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef BBWX_H
-#define BBWX_H
+#ifndef MENUBAR_MAKER_H
+#define MENUBAR_MAKER_H
 
-#define NEW_MATCH_ID             1
-#define ADD_BUTTON_ID            2
-#define REMOVE_BUTTON_ID         3
-#define CLEAR_BUTTON_ID          4
-#define START_BUTTON_ID          5
-#define SELECT_BOTS_ID           6
-#define LOADED_BOTS_ID           7
-#define NEW_MATCH_MENU_ID        8
-#define PACKAGE_SHIP_MENU_ID     9
-#define PACKAGE_STAGE_MENU_ID    10
-#define FILE_QUIT_MENU_ID        11
+#include <wx/wx.h>
+
+class MenuBarMaker {
+  public:
+    MenuBarMaker();
+    wxMenuBar* getNewMenuBar();
+};
 
 #endif

@@ -89,6 +89,10 @@ bool BerryBotsApp::OnInit() {
           wxCommandEventHandler(BerryBotsApp::OnPackageShip));
   Connect(PACKAGE_STAGE_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::OnPackageStage));
+#ifndef __WXOSX__
+  Connect(FILE_QUIT_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::OnQuit));
+#endif
 
   return true;
 }

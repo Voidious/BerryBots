@@ -22,10 +22,12 @@
 #include "newmatch.h"
 #include "bbwx.h"
 
-NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
-    NEW_MATCH_ID, "New Match", wxPoint(50, 50), wxDefaultSize,
-    wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
+NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
+    MenuBarMaker *menuBarMaker) : wxFrame(NULL, NEW_MATCH_ID, "New Match",
+        wxPoint(50, 50), wxDefaultSize,
+        wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
+  menuBarMaker_ = menuBarMaker;
   borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
   gridSizer_ = new wxFlexGridSizer(3, 5, 5);
   stageSizer_ = new wxBoxSizer(wxVERTICAL);
@@ -107,7 +109,6 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener) : wxFrame(NULL,
 NewMatchDialog::~NewMatchDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
-  delete listener_;
   delete stageLabel_;
   delete stageSelect_;
   delete botsLabel_;
@@ -148,7 +149,7 @@ void NewMatchDialog::addBot(char *bot) {
 
 void NewMatchDialog::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
-    this->SetMenuBar(listener_->getNewMenuBar());
+    this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
     SetSizerAndFit(borderSizer_);
   }

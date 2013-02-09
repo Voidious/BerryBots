@@ -22,10 +22,10 @@
 #define BB_NEW_MATCH
 
 #include <wx/wx.h>
+#include "menubarmaker.h"
 
 class NewMatchListener {
   public:
-    virtual wxMenuBar* getNewMenuBar() = 0;
     virtual void startMatch(const char *stagePath, char **teamPaths,
                             int numTeams) = 0;
     virtual void refreshFiles() = 0;
@@ -54,11 +54,12 @@ class NewMatchDialog : public wxFrame {
   unsigned int numBots_;
   unsigned int numLoadedBots_;
   NewMatchListener *listener_;
+  MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
   wxEventFilter *eventFilter_;
 
   public:
-    NewMatchDialog(NewMatchListener *listener);
+    NewMatchDialog(NewMatchListener *listener, MenuBarMaker *menuBarMaker);
     ~NewMatchDialog();
     void clearStages();
     void addStage(char *stage);

@@ -22,14 +22,18 @@
 #define OUTPUT_CONSOLE_H
 
 #include <wx/wx.h>
+#include "menubarmaker.h"
 
 class OutputConsole : public wxFrame {
   wxTextCtrl *output_;
+  MenuBarMaker *menuBarMaker_;
+  bool menusInitialized_;
   wxEventFilter *eventFilter_;
 
   public:
-    OutputConsole(wxWindowID id, const char *title);
+    OutputConsole(const char *title, MenuBarMaker *menuBarMaker);
     ~OutputConsole();
+    void onActivate(wxActivateEvent &event);
     void print(const char *text);
     void println(const char *text);
     void println();
