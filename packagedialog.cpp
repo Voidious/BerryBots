@@ -47,17 +47,25 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
   versionSizer_->Add(versionText_, 0, wxALIGN_CENTER_VERTICAL);
   settingsSizer_->AddStretchSpacer(1);
   settingsSizer_->Add(versionSizer_, 0, wxALIGN_LEFT);
-  includeSrcCheckBox_ = new wxCheckBox(this, wxID_ANY, "&Include source code");
+  includeSrcCheckBox_ = new wxCheckBox(this, wxID_ANY,
+                                       "&Include source code    ");
   includeSrcCheckBox_->SetValue(true);
   settingsSizer_->AddSpacer(5);
   settingsSizer_->Add(includeSrcCheckBox_, 0, wxALIGN_LEFT);
   settingsSizer_->AddSpacer(5);
-  refreshButton_ = new wxButton(this, wxID_REFRESH, "&Refresh");
-  wxString buttonLabel = "&";
-  buttonLabel.Append(title);
-  buttonLabel.Append("!");
-  packageButton_ = new wxButton(this, wxID_ANY, buttonLabel, wxDefaultPosition,
-                                wxDefaultSize, wxBU_EXACTFIT);
+  refreshButton_ = new wxButton(this, wxID_REFRESH, "    &Refresh    ");
+  packageLabel_.Append("    &");
+  packageLabel_.Append(title);
+  packageLabel_.Append("!    ");
+  modifiedPackageLabel_.Append("&");
+  modifiedPackageLabel_.Append(title);
+#ifdef __WXOSX__
+  modifiedPackageLabel_.Append("! \u2318P");
+#else
+  modifiedPackageLabel_.Append("!  alt-P");
+#endif
+  packageButton_ = new wxButton(this, wxID_ANY, packageLabel_,
+      wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   gridSizer_->Add(settingsSizer_, 0, wxEXPAND);
   gridSizer_->Add(refreshButton_, 0, wxALIGN_LEFT);
   gridSizer_->Add(packageButton_, 0, wxALIGN_RIGHT);
@@ -157,6 +165,26 @@ void PackageDialog::onEscape() {
   listener_->cancel();
 }
 
+void PackageDialog::setMnemonicLabels(bool modifierDown) {
+  // TODO: I'd rather it look like the button was pressed when you hit the
+  //       shortcut, if possible. For now having trouble figuring out the
+  //       wxButton::Command() call.
+  if (modifierDown) {
+#ifdef __WXOSX__
+    refreshButton_->SetLabel("&Refresh \u2318R");
+    includeSrcCheckBox_->SetLabel("&Include source \u2318I");
+#else
+    refreshButton_->SetLabel("&Refresh  alt-R");
+    includeSrcCheckBox_->SetLabel("&Include source  alt-I");
+#endif
+    packageButton_->SetLabel(modifiedPackageLabel_);
+  } else {
+    refreshButton_->SetLabel("    &Refresh    ");
+    packageButton_->SetLabel(packageLabel_);
+    includeSrcCheckBox_->SetLabel("&Include source code");
+  }
+}
+
 PackageEventFilter::PackageEventFilter(PackageDialog *dialog) {
   packageDialog_ = dialog;
 }
@@ -166,27 +194,43 @@ PackageEventFilter::~PackageEventFilter() {
 }
 
 int PackageEventFilter::FilterEvent(wxEvent& event) {
+  bool modifierDown = false;
+  wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+#if defined(__WXOSX__)
+  modifierDown = keyEvent->ControlDown();
+#elif defined(__WINDOWS__)
+  modifierDown = keyEvent->AltDown();
+#endif
+
   const wxEventType type = event.GetEventType();
   if (type == wxEVT_KEY_DOWN && packageDialog_->IsActive()) {
-    wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+    packageDialog_->setMnemonicLabels(modifierDown);
     int keyCode = keyEvent->GetKeyCode();
     if (keyCode == WXK_ESCAPE
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       packageDialog_->onEscape();
       return Event_Processed;
-#ifdef __WXOSX__
+#if defined(__WXOSX__) || defined(__WINDOWS__)
       // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
-    } else if (keyEvent->GetUnicodeKey() == 'P' && keyEvent->ControlDown()) {
+      // Tab navigation within window and mnemonics are also broken for me on
+      // Windows 8 right now, so enable them there too.
+    } else if (keyEvent->GetUnicodeKey() == 'P' && modifierDown) {
       packageDialog_->packageSelectedItem();
       return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'R' && keyEvent->ControlDown()) {
+    } else if (keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
       packageDialog_->refreshFiles();
       return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'I' && keyEvent->ControlDown()) {
+    } else if (keyEvent->GetUnicodeKey() == 'I' && modifierDown) {
       packageDialog_->toggleIncludeSrc();
       return Event_Processed;
 #endif
     }
   }
+
+  if (type == wxEVT_KEY_UP) {
+    packageDialog_->setMnemonicLabels(modifierDown);
+  }
+  // TODO: Do we need to handle tab navigation manually on Windows? Nothing
+  //       working at all on Windows 8 for me right now.
   return Event_Skip;
 }

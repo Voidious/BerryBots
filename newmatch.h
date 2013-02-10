@@ -81,6 +81,7 @@ class NewMatchDialog : public wxFrame {
     void onEscape();
     bool botsSelectHasFocus();
     bool loadedBotsSelectHasFocus();
+    void setMnemonicLabels(bool modifierDown);
 };
 
 class NewMatchEventFilter : public wxEventFilter {

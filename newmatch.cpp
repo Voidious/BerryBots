@@ -55,11 +55,11 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   gridSizer_->Add(botsSizer_, 0, wxALIGN_LEFT);
 
   addArrow_ = new wxButton(this, ADD_BUTTON_ID, ">>", wxDefaultPosition,
-                           wxDefaultSize, wxBU_EXACTFIT);
+                           wxDefaultSize);
   removeArrow_ = new wxButton(this, REMOVE_BUTTON_ID, "<<", wxDefaultPosition,
-                              wxDefaultSize, wxBU_EXACTFIT);
+                              wxDefaultSize);
   clearButton_ = new wxButton(this, CLEAR_BUTTON_ID, "&Clear", wxDefaultPosition,
-                              wxDefaultSize, wxBU_EXACTFIT);
+                              wxDefaultSize);
   botButtonsSizer_->Add(addArrow_, 0, wxALIGN_CENTER);
   botButtonsSizer_->AddSpacer(5);
   botButtonsSizer_->Add(removeArrow_, 0, wxALIGN_CENTER);
@@ -71,11 +71,11 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
                                     wxSize(275, 225), 0, NULL, wxLB_EXTENDED);
   gridSizer_->Add(loadedBotsSelect_, 0, wxALIGN_BOTTOM | wxALIGN_RIGHT);
 
-  refreshButton_ = new wxButton(this, wxID_REFRESH, "&Refresh");
+  refreshButton_ = new wxButton(this, wxID_REFRESH, "    &Refresh    ");
   gridSizer_->Add(refreshButton_, 0, wxALIGN_LEFT);
   gridSizer_->AddSpacer(0);
-  startButton_ = new wxButton(this, START_BUTTON_ID, "Start &Match!",
-                              wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
+  startButton_ = new wxButton(this, START_BUTTON_ID, "    Start &Match!    ",
+                              wxDefaultPosition, wxDefaultSize);
   gridSizer_->Add(startButton_, 0, wxALIGN_RIGHT);
   borderSizer_->Add(gridSizer_, 0, wxALL, 12);
   SetSizerAndFit(borderSizer_);
@@ -279,6 +279,27 @@ bool NewMatchDialog::loadedBotsSelectHasFocus() {
   return loadedBotsSelect_->HasFocus();
 }
 
+void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
+  // TODO: I'd rather it look like the button was pressed when you hit the
+  //       shortcut, if possible. For now having trouble figuring out the
+  //       wxButton::Command() call.
+  if (modifierDown) {
+#ifdef __WXOSX__
+    clearButton_->SetLabel("&Clear \u2318C");
+    refreshButton_->SetLabel("&Refresh \u2318R");
+    startButton_->SetLabel("Start &Match \u2318M");
+#else
+    clearButton_->SetLabel("&Clear  alt-C");
+    refreshButton_->SetLabel("&Refresh  alt-R");
+    startButton_->SetLabel("Start &Match!  alt-M");
+#endif
+  } else {
+    clearButton_->SetLabel("&Clear");
+    refreshButton_->SetLabel("    &Refresh    ");
+    startButton_->SetLabel("    Start &Match!    ");
+  }
+}
+
 NewMatchEventFilter::NewMatchEventFilter(NewMatchDialog *newMatchDialog) {
   newMatchDialog_ = newMatchDialog;
 }
@@ -288,9 +309,17 @@ NewMatchEventFilter::~NewMatchEventFilter() {
 }
 
 int NewMatchEventFilter::FilterEvent(wxEvent& event) {
+  bool modifierDown = false;
+  wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+#if defined(__WXOSX__)
+  modifierDown = keyEvent->ControlDown();
+#elif defined(__WINDOWS__)
+  modifierDown = keyEvent->AltDown();
+#endif
+
   const wxEventType type = event.GetEventType();
   if (type == wxEVT_KEY_DOWN && newMatchDialog_->IsActive()) {
-    wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+    newMatchDialog_->setMnemonicLabels(modifierDown);
     int keyCode = keyEvent->GetKeyCode();
     if (keyCode == WXK_ESCAPE
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
@@ -303,19 +332,26 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_BACK)
                && (newMatchDialog_->loadedBotsSelectHasFocus())) {
       newMatchDialog_->removeSelectedLoadedBots();
-#ifdef __WXOSX__
+#if defined(__WXOSX__) || defined(__WINDOWS__)
     // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
-    } else if (keyEvent->GetUnicodeKey() == 'M' && keyEvent->ControlDown()) {
+    // Tab navigation and mnemonics are also broken for me on Windows 8 right
+    // now, though I think they're supposd to work. So enable them there too.
+    } else if (keyEvent->GetUnicodeKey() == 'M' && modifierDown) {
       newMatchDialog_->startMatch();
       return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'R' && keyEvent->ControlDown()) {
+    } else if (keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
       newMatchDialog_->refreshFiles();
       return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'C' && keyEvent->ControlDown()) {
+    } else if (keyEvent->GetUnicodeKey() == 'C' && modifierDown) {
       newMatchDialog_->clearLoadedBots();
       return Event_Processed;
 #endif
     }
   }
+  if (type == wxEVT_KEY_UP) {
+    newMatchDialog_->setMnemonicLabels(modifierDown);
+  }
+  // TODO: Do we need to handle tab navigation manually on Windows? Nothing
+  //       working at all on Windows 8 for me right now.
   return Event_Skip;
 }

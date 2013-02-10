@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <algorithm>
+#include <string.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/RectangleShape.hpp>

@@ -49,6 +49,8 @@ class PackageDialog : public wxFrame {
   MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
   wxEventFilter *eventFilter_;
+  wxString packageLabel_;
+  wxString modifiedPackageLabel_;
 
   public:
     PackageDialog(const char *title, PackageDialogListener *listener,
@@ -64,6 +66,7 @@ class PackageDialog : public wxFrame {
     void refreshFiles();
     void toggleIncludeSrc();
     void onEscape();
+    void setMnemonicLabels(bool modifierDown);
 };
 
 class PackageEventFilter : public wxEventFilter {
