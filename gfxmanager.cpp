@@ -367,7 +367,7 @@ void GfxManager::setListener(GfxViewListener *listener) {
 // TODO: move all these args to class level?
 void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
                           int numShips, int time, GfxEventHandler *gfxHandler,
-                          bool paused, bool gameOver) {
+                          bool paused, bool gameOver, char *winnerName) {
   if (showDock_) {
     drawDock(window, stage, paused);
     window->setView(stageView);
@@ -387,6 +387,9 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   drawLasers(window, stage);
   drawShips(window, ships, numShips, time);
   drawStageTexts(window, stage, paused, gameOver);
+  if (gameOver) {
+    drawGameOver(window, stage, winnerName);
+  }
 }
 
 void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
@@ -697,6 +700,37 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
       stage->updateTextTimers();
     }
   }
+}
+
+void GfxManager::drawGameOver(sf::RenderWindow *window, Stage *stage,
+                              char *winnerName) {
+  sf::Text text;
+  sf::RectangleShape borderShape;
+  text.setFont(font);
+  text.setCharacterSize(48);
+  if (winnerName != 0 && strlen(winnerName) > 0) {
+    text.setColor(sf::Color::Green);
+    borderShape.setOutlineColor(sf::Color::Green);
+    std::string winsText(winnerName);
+    winsText.append(" wins!");
+    text.setString(winsText);
+  } else {
+    text.setColor(sf::Color::Red);
+    borderShape.setOutlineColor(sf::Color::Red);
+    text.setString("Game Over");
+  }
+  sf::FloatRect textRect = text.getLocalBounds();
+  text.setPosition(adjustX((stage->getWidth() - textRect.width) / 2),
+                   adjustY(((stage->getHeight()) / 2) + 33));
+  int borderWidth = textRect.width + 50;
+  int borderHeight = textRect.height + 50;
+  borderShape.setSize(sf::Vector2f(borderWidth, borderHeight));
+  borderShape.setPosition(adjustX((stage->getWidth() - borderWidth) / 2),
+                          adjustY((stage->getHeight() - borderHeight) / 2, borderHeight));
+  borderShape.setOutlineThickness(4);
+  borderShape.setFillColor(sf::Color::Black);
+  window->draw(borderShape);
+  window->draw(text);
 }
 
 void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {

@@ -325,6 +325,10 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     delete engine_;
     engine_ = 0;
   }
+  if (printHandler != 0) {
+    delete printHandler;
+    printHandler = 0;
+  }
   srand((unsigned int) time(NULL));
   engine_ = new BerryBotsEngine(fileManager_);
   Stage *stage = engine_->getStage();
@@ -381,7 +385,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   window->clear();
   gfxManager_->drawGame(window, stage, engine_->getShips(),
                         engine_->getNumShips(), engine_->getGameTime(),
-                        gfxHandler_, false, false);
+                        gfxHandler_, false, false, engine_->getWinnerName());
   window->display();
 
   stageConsole_ = new OutputConsole(stage->getName(), menuBarMaker_);
@@ -392,9 +396,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
         new OutputConsole(engine_->getTeam(x)->name, menuBarMaker_);
     teamConsole->Hide();
     teamConsoles_[x] = teamConsole;
-  }
-  if (printHandler != 0) {
-    delete printHandler;
   }
   printHandler = new GuiPrintHandler(stageConsole_, teamConsoles_,
                                      engine_->getTeams(), numTeams);
@@ -428,7 +429,8 @@ void GuiManager::runCurrentMatch() {
         window->clear();
         gfxManager_->drawGame(window, engine_->getStage(), engine_->getShips(),
                               engine_->getNumShips(), engine_->getGameTime(),
-                              gfxHandler_, paused_, engine_->isGameOver());
+                              gfxHandler_, paused_, engine_->isGameOver(),
+                              engine_->getWinnerName());
         window->display();
         
       }

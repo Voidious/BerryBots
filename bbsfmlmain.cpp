@@ -183,7 +183,8 @@ int main(int argc, char *argv[]) {
         std::string(".") + std::string(BB_DIRSEP));
     window->clear();
     gfxManager->drawGame(window, stage, engine->getShips(),
-        engine->getNumShips(), engine->getGameTime(), gfxHandler, false, false);
+        engine->getNumShips(), engine->getGameTime(), gfxHandler, false, false,
+        0);
     window->display();
   }
   
@@ -216,7 +217,7 @@ int main(int argc, char *argv[]) {
         window->clear();
         gfxManager->drawGame(window, stage, engine->getShips(),
             engine->getNumShips(), engine->getGameTime(), gfxHandler, false,
-            false);
+            false, 0);
         window->display();
       }
   

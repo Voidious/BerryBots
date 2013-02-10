@@ -95,7 +95,7 @@ class GfxManager {
     void setListener(GfxViewListener *listener);
     void drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
                   int numShips, int time, GfxEventHandler *gfxHandler,
-                  bool paused, bool gameOver);
+                  bool paused, bool gameOver, char *winnerName);
     void updateView(sf::RenderWindow *window, unsigned int viewWidth,
                     unsigned int viewHeight);
     void processMouseClick(int x, int y);
@@ -129,6 +129,7 @@ class GfxManager {
                         bool gameOver);
     void drawDock(sf::RenderWindow *window, Stage *stage, bool paused);
     void drawDockItem(sf::RenderWindow *window, DockItem *dockItem);
+    void drawGameOver(sf::RenderWindow *window, Stage *stage, char *winnerName);
     double adjustX(double x);
     double adjustY(double x, double height);
     double adjustY(double x);
