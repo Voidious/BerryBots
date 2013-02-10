@@ -45,12 +45,10 @@
 
 extern PrintHandler *printHandler;
 
-GuiManager::GuiManager(GuiListener *listener, char *stageDir, char *botsDir) {
+GuiManager::GuiManager(GuiListener *listener) {
   listener_ = listener;
-  stageBaseDir_ = new char[strlen(stageDir) + 1];
-  strcpy(stageBaseDir_, stageDir);
-  botsBaseDir_ = new char[strlen(botsDir) + 1];
-  strcpy(botsBaseDir_, botsDir);
+  stageBaseDir_ = botsBaseDir_ = 0;
+  reloadBaseDirs();
 
   window_ = 0;
   consoleId_ = 1000;
@@ -113,6 +111,25 @@ GuiManager::~GuiManager() {
   delete shipPackager_;
   delete stagePackager_;
   delete packageReporter_;
+}
+
+void GuiManager::setBaseDirs(const char *stagesBaseDir,
+                             const char *botsBaseDir) {
+  if (stageBaseDir_ != 0) {
+    delete stageBaseDir_;
+  }
+  stageBaseDir_ = new char[strlen(stagesBaseDir) + 1];
+  strcpy(stageBaseDir_, stagesBaseDir);
+
+  if (botsBaseDir_ != 0) {
+    delete botsBaseDir_;
+  }
+  botsBaseDir_ = new char[strlen(botsBaseDir) + 1];
+  strcpy(botsBaseDir_, botsBaseDir);
+}
+
+void GuiManager::reloadBaseDirs() {
+  setBaseDirs(getStageDir().c_str(), getBotsDir().c_str());
 }
 
 void GuiManager::loadStages() {
@@ -704,6 +721,11 @@ void MatchRunner::refreshFiles() {
 
 void MatchRunner::cancel() {
   guiManager_->resumeMatch();
+}
+
+void MatchRunner::reloadBaseDirs() {
+  guiManager_->reloadBaseDirs();
+  refreshFiles();
 }
 
 ShipPackager::ShipPackager(GuiManager *guiManager, FileManager *fileManager,

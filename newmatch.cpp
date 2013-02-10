@@ -19,8 +19,10 @@
 */
 
 #include <wx/wx.h>
-#include "newmatch.h"
+#include <wx/artprov.h>
 #include "bbwx.h"
+#include "basedir.h"
+#include "newmatch.h"
 
 NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
     MenuBarMaker *menuBarMaker) : wxFrame(NULL, NEW_MATCH_ID, "New Match",
@@ -43,7 +45,20 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   stageSizer_->Add(stageSelect_, 0, wxALIGN_LEFT);
   gridSizer_->Add(stageSizer_, 0, wxALIGN_LEFT);
   gridSizer_->AddSpacer(0);
+
+#ifdef __WXOSX__
+  // Using cwd as base dir on other platforms, so only support changing base dir
+  // on Mac for now.
+  folderButton_ = new wxButton(this, wxID_FILEDLGG, "Base &Dir    ");
+  folderButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
+  gridSizer_->Add(folderButton_, 0, wxALIGN_RIGHT, wxALIGN_TOP);
+
+  Connect(folderButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(NewMatchDialog::onChangeBaseDir));
+#else
+  folderButton_ = 0;
   gridSizer_->AddSpacer(0);
+#endif
 
   botsLabel_ = new wxStaticText(this, -1, "Ships:");
   botsSelect_ = new wxListBox(this, SELECT_BOTS_ID, wxDefaultPosition,
@@ -113,6 +128,9 @@ NewMatchDialog::~NewMatchDialog() {
   delete stageSelect_;
   delete botsLabel_;
   delete botsSelect_;
+  if (folderButton_ != 0) {
+    delete folderButton_;
+  }
   delete addArrow_;
   delete removeArrow_;
   delete clearButton_;
@@ -267,6 +285,15 @@ void NewMatchDialog::refreshFiles() {
   listener_->refreshFiles();
 }
 
+void NewMatchDialog::onChangeBaseDir(wxCommandEvent &event) {
+  changeBaseDir();
+}
+
+void NewMatchDialog::changeBaseDir() {
+  chooseNewRootDir();
+  listener_->reloadBaseDirs();
+}
+
 void NewMatchDialog::onEscape() {
   listener_->cancel();
 }
@@ -285,6 +312,7 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
   //       wxButton::Command() call.
   if (modifierDown) {
 #ifdef __WXOSX__
+    folderButton_->SetLabel("Base \u2318D");
     clearButton_->SetLabel("&Clear \u2318C");
     refreshButton_->SetLabel("&Refresh \u2318R");
     startButton_->SetLabel("Start &Match \u2318M");
@@ -294,6 +322,9 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
     startButton_->SetLabel("Start &Match!  alt-M");
 #endif
   } else {
+#ifdef __WXOSX__
+    folderButton_->SetLabel("Base &Dir");
+#endif
     clearButton_->SetLabel("&Clear");
     refreshButton_->SetLabel("    &Refresh    ");
     startButton_->SetLabel("    Start &Match!    ");
@@ -346,11 +377,20 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
       newMatchDialog_->clearLoadedBots();
       return Event_Processed;
 #endif
+#ifdef __WXOSX__
+    } else if (keyEvent->GetUnicodeKey() == 'D' && modifierDown) {
+      newMatchDialog_->changeBaseDir();
+      return Event_Processed;
+#endif
     }
   }
+
   if (type == wxEVT_KEY_UP) {
     newMatchDialog_->setMnemonicLabels(modifierDown);
+  } else if (type == wxEVT_KILL_FOCUS) {
+    newMatchDialog_->setMnemonicLabels(false);
   }
+
   // TODO: Do we need to handle tab navigation manually on Windows? Nothing
   //       working at all on Windows 8 for me right now.
   return Event_Skip;

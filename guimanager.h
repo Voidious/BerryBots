@@ -80,8 +80,10 @@ class GuiManager {
   bool quitting_;
   
   public:
-    GuiManager(GuiListener *listener, char *stageDir, char *botsDir);
+    GuiManager(GuiListener *listener);
     ~GuiManager();
+    void setBaseDirs(const char *stagesBaseDir, const char *botsBaseDir);
+    void reloadBaseDirs();
     void loadStages();
     bool isValidStageFile(const char *srcFilename);
     void loadBots();
@@ -131,6 +133,7 @@ class MatchRunner : public NewMatchListener {
                             int numTeams);
     virtual void refreshFiles();
     virtual void cancel();
+    virtual void reloadBaseDirs();
 };
 
 class ShipPackager : public PackageDialogListener {

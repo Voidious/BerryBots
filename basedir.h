@@ -8,5 +8,7 @@ extern std::string getStageDir(void);
 extern std::string getBotsDir(void);
 extern std::string getCacheDir(void);
 extern std::string getTmpDir(void);
+extern void setRootDir(std::string newRootDir);
+extern void chooseNewRootDir();
 
 #endif

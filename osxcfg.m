@@ -87,50 +87,57 @@ bool fileExists(const char *filename) {
       }
     }
     if (selectRoot) {
-      NSOpenPanel* openDlg = [NSOpenPanel openPanel];
-      [openDlg setCanChooseFiles:NO];
-      [openDlg setCanChooseDirectories:YES];
-      [openDlg setCanCreateDirectories:YES];
-      [openDlg setAllowsMultipleSelection:NO];
-      [openDlg setTitle:@"Select a BerryBots base directory"];
-      if ( [openDlg runModal] == NSOKButton ) {
-        NSArray *files = [openDlg URLs];
-        for( int i = 0; i < [files count]; i++ ) {
-          NSLog(@"File path: %@", [[files objectAtIndex:i] path]);
-        }
-        self.stageDir = [NSString stringWithFormat:@"%@/%@",
-                         [[files objectAtIndex:0] path], @"stages"];
-        self.botsDir = [NSString stringWithFormat:@"%@/%@",
-                        [[files objectAtIndex:0] path], @"bots"];
-        self.cacheDir = [NSString stringWithFormat:@"%@/%@",
-                         [[files objectAtIndex:0] path], @CACHE_SUBDIR];
-        self.tmpDir = [NSString stringWithFormat:@"%@/%@",
-                       [[files objectAtIndex:0] path], @TMP_SUBDIR];
-        [self save];
-
-        NSString *srcPath = [[NSBundle mainBundle] resourcePath];
-        if ([fileManager isReadableFileAtPath:srcPath]) {
-          NSError *dError;
-          NSString *stagesSrc =
-              [NSString stringWithFormat:@"%@/stages", srcPath];
-          int success = [fileManager
-                         copyItemAtPath:stagesSrc toPath:self.stageDir
-                         error:&dError];
-          if (success != YES) {
-            NSLog(@"Error: %@", dError);
-          }
-
-          NSString *botsSrc = [NSString stringWithFormat:@"%@/bots", srcPath];
-          success = [fileManager
-                     copyItemAtPath:botsSrc toPath:self.botsDir error:&dError];
-          if (success != YES) {
-            NSLog(@"Error: %@", dError);
-          }
-        }
-      } else {
-        exit(1);
-      }
+      [self chooseNewRootDir];
     }
+  }
+}
+
+- (void) setRootDir:(NSString *) newRootDir {
+  self.stageDir = [NSString stringWithFormat:@"%@/%@",
+                   newRootDir, @"stages"];
+  self.botsDir = [NSString stringWithFormat:@"%@/%@",
+                  newRootDir, @"bots"];
+  self.cacheDir = [NSString stringWithFormat:@"%@/%@",
+                   newRootDir, @CACHE_SUBDIR];
+  self.tmpDir = [NSString stringWithFormat:@"%@/%@",
+                 newRootDir, @TMP_SUBDIR];
+  [self save];
+
+  NSString *srcPath = [[NSBundle mainBundle] resourcePath];
+  NSFileManager *fileManager = [NSFileManager defaultManager];
+  if ([fileManager isReadableFileAtPath:srcPath]) {
+    NSError *dError;
+    NSString *stagesSrc =
+        [NSString stringWithFormat:@"%@/stages", srcPath];
+    int success = [fileManager
+                   copyItemAtPath:stagesSrc toPath:self.stageDir
+                   error:&dError];
+    if (success != YES) {
+      NSLog(@"Error: %@", dError);
+    }
+
+    NSString *botsSrc = [NSString stringWithFormat:@"%@/bots", srcPath];
+    success = [fileManager
+               copyItemAtPath:botsSrc toPath:self.botsDir error:&dError];
+    if (success != YES) {
+      NSLog(@"Error: %@", dError);
+    }
+  }
+}
+
+- (void) chooseNewRootDir {
+  NSOpenPanel* openDlg = [NSOpenPanel openPanel];
+  [openDlg setCanChooseFiles:NO];
+  [openDlg setCanChooseDirectories:YES];
+  [openDlg setCanCreateDirectories:YES];
+  [openDlg setAllowsMultipleSelection:NO];
+  [openDlg setTitle:@"Select a BerryBots base directory"];
+  if ([openDlg runModal] == NSOKButton) {
+    NSArray *files = [openDlg URLs];
+    for( int i = 0; i < [files count]; i++ ) {
+      NSLog(@"File path: %@", [[files objectAtIndex:i] path]);
+    }
+    [self setRootDir:[[files objectAtIndex:0] path]];
   }
 }
 

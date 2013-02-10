@@ -19,6 +19,7 @@
 */
 
 #include <unistd.h>
+#include <string.h>
 #include "filemanager.h"
 #include "basedir.h"
 
@@ -47,4 +48,12 @@ std::string getCacheDir() {
 
 std::string getTmpDir() {
   return getFullPath(".tmp");
+}
+
+void setRootDir(std::string newRootDir) {
+  // no-op
+}
+
+void chooseNewRootDir() {
+  // no-op
 }

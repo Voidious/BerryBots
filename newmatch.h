@@ -30,6 +30,7 @@ class NewMatchListener {
                             int numTeams) = 0;
     virtual void refreshFiles() = 0;
     virtual void cancel() = 0;
+    virtual void reloadBaseDirs() = 0;
     virtual ~NewMatchListener() {};
 };
 
@@ -50,6 +51,7 @@ class NewMatchDialog : public wxFrame {
   wxListBox *loadedBotsSelect_;
   wxButton *startButton_;
   wxButton *refreshButton_;
+  wxButton *folderButton_;
   unsigned int numStages_;
   unsigned int numBots_;
   unsigned int numLoadedBots_;
@@ -78,6 +80,8 @@ class NewMatchDialog : public wxFrame {
     void startMatch();
     void onRefreshFiles(wxCommandEvent &event);
     void refreshFiles();
+    void onChangeBaseDir(wxCommandEvent &event);
+    void changeBaseDir();
     void onEscape();
     bool botsSelectHasFocus();
     bool loadedBotsSelectHasFocus();

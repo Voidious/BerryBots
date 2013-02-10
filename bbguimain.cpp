@@ -105,12 +105,8 @@ bool BerryBotsApp::OnInit() {
   }
 #endif
 
-  char *stageDir = guiManager_->getStageDirCopy();
-  char *botsDir = guiManager_->getBotsDirCopy();
   guiListener_ = new AppGuiListener(this);
-  guiManager_ = new GuiManager(guiListener_, stageDir, botsDir);
-  delete stageDir;
-  delete botsDir;
+  guiManager_ = new GuiManager(guiListener_);
 
   Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::OnQuit));

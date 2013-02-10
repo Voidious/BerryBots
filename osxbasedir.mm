@@ -58,3 +58,13 @@ std::string getTmpDir(void) {
   loadCfg();
   return [cfg.tmpDir UTF8String];
 }
+
+void setRootDir(std::string newRootDir) {
+  loadCfg();
+  [cfg setRootDir:[NSString stringWithUTF8String:newRootDir.c_str()]];
+}
+
+void chooseNewRootDir(void) {
+  loadCfg();
+  [cfg chooseNewRootDir];
+}
