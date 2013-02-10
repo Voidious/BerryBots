@@ -22,6 +22,10 @@
 #include "filemanager.h"
 #include "basedir.h"
 
+bool isConfigured() {
+  return true;
+}
+
 std::string getFullPath(const char *relativePath) {
   char *absFilename = FileManager::getAbsFilePath(relativePath);
   std::string fullPath = std::string(absFilename);

@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <sstream>
 #include <math.h>
 #include <SFML/Graphics.hpp>
 #include <wx/wx.h>
@@ -32,6 +33,7 @@
 #include "printhandler.h"
 #include "guimanager.h"
 #include "bbutil.h"
+#include "basedir.h"
 
 using namespace std;
 
@@ -72,6 +74,35 @@ bool BerryBotsApp::OnInit() {
       sf::VideoMode(800, 600), "BerryBots", sf::Style::Default,
       sf::ContextSettings(0, 0, 0, 2, 0));
   delete window;
+
+  // On OS X, if base directory has not been selected yet on OS, throw up an
+  // informational dialog with wxWidgets before the file open dialog.
+  if (!isConfigured()) {
+    std::stringstream configInfo;
+    configInfo << "TLDR: Before you can use BerryBots, you need to select a "
+               << "base directory. This is where BerryBots will read and write "
+               << "files like ships and stages."
+               << std::endl << std::endl
+               << "Home > Documents > BerryBots is a reasonable choice."
+               << std::endl << std::endl
+               << "---"
+               << std::endl << std::endl
+               << "After selecting a directory, subdirectories will be created "
+               << "for ships (bots/) and stages (stages/) and the sample ships "
+               << "and stages will be copied into them. Place your own ships "
+               << "and stages there, too."
+               << std::endl << std::endl
+               << "As needed, BerryBots will also create a cache (cache/) "
+               << "subdirectory for extracting packaged ships and stages, as "
+               << "well as a temp (.tmp) subdirectory for working files used "
+               << "to package ships and stages."
+               << std::endl << std::endl
+               << "Have fun!";
+    
+    wxMessageDialog selectBaseDirMessage(NULL, configInfo.str(),
+                                        "BerryBots Setup", wxOK);
+    selectBaseDirMessage.ShowModal();
+  }
 #endif
 
   char *stageDir = guiManager_->getStageDirCopy();

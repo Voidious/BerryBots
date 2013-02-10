@@ -29,6 +29,14 @@ void loadCfg() {
   if (cfg == 0) {
     cfg = [[OsxCfg alloc] init];
   }
+  [cfg loadPlist];
+}
+
+bool isConfigured() {
+  if (cfg == 0) {
+    cfg = [[OsxCfg alloc] init];
+  }
+  return cfg.hasPlist;
 }
 
 std::string getStageDir(void) {

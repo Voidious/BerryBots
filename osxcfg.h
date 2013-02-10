@@ -29,6 +29,8 @@
 }
 
 - (void) save;
+- (Boolean) hasPlist;
+- (void) loadPlist;
 @property (copy, nonatomic) NSString *stageDir;
 @property (copy, nonatomic) NSString *botsDir;
 @property (copy, nonatomic) NSString *cacheDir;

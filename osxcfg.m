@@ -39,6 +39,22 @@ bool fileExists(const char *filename) {
 
 - (id) init {
   self = [super init];
+  return self;
+}
+
+- (Boolean) hasPlist {
+  NSString *plistPath;
+  NSString *rootPath = [[NSSearchPathForDirectoriesInDomains(
+      NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0]
+          stringByAppendingPathComponent:@"BerryBots"];
+  plistPath = [rootPath stringByAppendingPathComponent:@"config.plist"];
+  if ([[NSFileManager defaultManager] fileExistsAtPath:plistPath]) {
+    return true;
+  }
+  return false;
+}
+
+- (void) loadPlist {
   if (self) {
     NSString *errorDesc = nil;
     NSPropertyListFormat format;
@@ -76,8 +92,7 @@ bool fileExists(const char *filename) {
       [openDlg setCanChooseDirectories:YES];
       [openDlg setCanCreateDirectories:YES];
       [openDlg setAllowsMultipleSelection:NO];
-      [openDlg setTitle:
-          @"Select a BerryBots base directory - for bots, stages, and cache files"];
+      [openDlg setTitle:@"Select a BerryBots base directory"];
       if ( [openDlg runModal] == NSOKButton ) {
         NSArray *files = [openDlg URLs];
         for( int i = 0; i < [files count]; i++ ) {
@@ -117,7 +132,6 @@ bool fileExists(const char *filename) {
       }
     }
   }
-  return self;
 }
 
 - (void) save {
