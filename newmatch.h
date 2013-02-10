@@ -36,11 +36,6 @@ class NewMatchListener {
 
 class NewMatchDialog : public wxFrame {
   wxBoxSizer *borderSizer_;
-  wxFlexGridSizer *gridSizer_;
-  wxBoxSizer *stageSizer_;
-  wxBoxSizer *botsSizer_;
-  wxBoxSizer *botButtonsSizer_;
-  wxBoxSizer *loadedBotsSizer_;
   wxStaticText *stageLabel_;
   wxListBox *stageSelect_;
   wxStaticText *botsLabel_;
@@ -52,6 +47,8 @@ class NewMatchDialog : public wxFrame {
   wxButton *startButton_;
   wxButton *refreshButton_;
   wxButton *folderButton_;
+  wxStaticText *stageBaseDirLabel_;
+  wxStaticText *botsBaseDirLabel_;
   unsigned int numStages_;
   unsigned int numBots_;
   unsigned int numLoadedBots_;
@@ -86,6 +83,8 @@ class NewMatchDialog : public wxFrame {
     bool botsSelectHasFocus();
     bool loadedBotsSelectHasFocus();
     void setMnemonicLabels(bool modifierDown);
+  private:
+    void updateBaseDirLabels();
 };
 
 class NewMatchEventFilter : public wxEventFilter {
