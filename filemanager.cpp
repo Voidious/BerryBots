@@ -23,6 +23,7 @@
 #include <fstream>
 #include <unistd.h>
 #include <fcntl.h>
+#include <dirent.h>
 #include <platformstl/filesystem/filesystem_traits.hpp>
 #include <platformstl/filesystem/readdir_sequence.hpp>
 #include "bbconst.h"

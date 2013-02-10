@@ -419,11 +419,6 @@ void GuiManager::runCurrentMatch() {
       }
       
       processMainWindowEvents();
-      // TODO: Leaking a bit per bot per match on my MacBook Pro (10.8, Cocoa).
-      //       SFML folks seem to think it's in the video drivers.
-      //       http://en.sfml-dev.org/forums/index.php?topic=8609.0
-      //       Really need to investigate more and/or find a work-around. Also
-      //       seeing it under Linux/GTK, to a lesser extent.
       
       if (!interrupted_ && !restarting_ && !quitting_) {
         window->clear();
