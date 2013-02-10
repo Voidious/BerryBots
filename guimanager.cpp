@@ -543,15 +543,14 @@ void GuiManager::processMainWindowEvents() {
       window->setVerticalSyncEnabled(true);
       window->setFramerateLimit(0);
     }
-
-    // On Linux/GTK and Windows, the wxWidgets windows freeze while running a
-    // match presumably because they only listen for events on the same thread
-    // that we're currently occupying to run/draw. Works fine on Mac/Cocoa for
-    // whatever reason.
-#ifndef __WXOSX__
-    wxYield();
-#endif
   }
+
+  // On Linux/GTK and Windows, the wxWidgets windows don't get events while
+  // this thread has control unless we manually wxYield each frame. Seems to be
+  // unnecessary on Mac/Cocoa.
+#ifndef __WXOSX__
+  wxYield();
+#endif
 }
 
 void GuiManager::showNewMatchDialog() {

@@ -42,6 +42,7 @@ OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
           wxActivateEventHandler(OutputConsole::onActivate));
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(OutputConsole::onClose));
+  
   eventFilter_ = new OutputConsoleEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
 }
@@ -59,6 +60,10 @@ void OutputConsole::onActivate(wxActivateEvent &event) {
     menusInitialized_ = true;
   }
 #endif
+}
+
+void OutputConsole::OnEraseBackground(wxEraseEvent&) {
+
 }
 
 void OutputConsole::print(const char *text) {

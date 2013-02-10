@@ -44,6 +44,7 @@ class OutputConsole : public wxFrame {
     void increaseTextSize();
     void decreaseTextSize();
     void defaultTextSize();
+    virtual void OnEraseBackground(wxEraseEvent&);
 };
 
 class OutputConsoleEventFilter : public wxEventFilter {
