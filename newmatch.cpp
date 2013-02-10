@@ -36,9 +36,9 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   wxBoxSizer *botsSizer = new wxBoxSizer(wxVERTICAL);
   wxBoxSizer *botButtonsSizer = new wxBoxSizer(wxVERTICAL);
 
-  stageLabel_ = new wxStaticText(this, -1, "Stage:");
-  stageSelect_ = new wxListBox(this, -1, wxDefaultPosition, wxSize(275, 225), 0,
-                               NULL, wxLB_SORT);
+  stageLabel_ = new wxStaticText(this, wxID_ANY, "Stage:");
+  stageSelect_ = new wxListBox(this, wxID_ANY, wxDefaultPosition,
+                               wxSize(275, 225), 0, NULL, wxLB_SORT);
   stageSizer->Add(stageLabel_, 0, wxALIGN_LEFT);
   stageSizer->AddSpacer(3);
   stageSizer->Add(stageSelect_, 0, wxALIGN_LEFT);
@@ -49,17 +49,24 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   stageBaseDirLabel_ = new wxStaticText(this, wxID_ANY, wxEmptyString);
   botsBaseDirLabel_ = new wxStaticText(this, wxID_ANY, wxEmptyString);
   updateBaseDirLabels();
-  dirsSizer->AddSpacer(20);
+  browseStagesButton_ = new wxButton(this, wxID_ANY, "Open");
+  browseStagesButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
+  browseShipsButton_ = new wxButton(this, wxID_ANY, "Open");
+  browseShipsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
   dirsSizer->Add(stageBaseDirLabel_);
-  dirsSizer->AddSpacer(5);
+  dirsSizer->AddSpacer(3);
+  dirsSizer->Add(browseStagesButton_);
+  dirsSizer->AddSpacer(12);
   dirsSizer->Add(botsBaseDirLabel_);
+  dirsSizer->AddSpacer(3);
+  dirsSizer->Add(browseShipsButton_);
 #ifdef __WXOSX__
   // Using cwd as base dir on other platforms, so only support changing base dir
   // on Mac for now.
-  folderButton_ = new wxButton(this, wxID_FILEDLGG, "Change &Base Dir      ");
-  folderButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
-  dirsSizer->AddSpacer(5);
-  dirsSizer->Add(folderButton_);
+  folderButton_ = new wxButton(this, wxID_ANY, "Change &Base Dir  ");
+  folderButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER));
+  dirsSizer->AddStretchSpacer(1);
+  dirsSizer->Add(folderButton_, 0, wxALIGN_BOTTOM);
 
   Connect(folderButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onChangeBaseDir));
@@ -67,10 +74,10 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   folderButton_ = 0;
 #endif
   dirsBorderSizer->AddSpacer(12);
-  dirsBorderSizer->Add(dirsSizer);
-  gridSizer->Add(dirsBorderSizer, 0, wxALIGN_LEFT | wxALIGN_TOP);
+  dirsBorderSizer->Add(dirsSizer, 0, wxEXPAND);
+  gridSizer->Add(dirsBorderSizer, 0, wxEXPAND | wxALIGN_LEFT | wxALIGN_TOP);
 
-  botsLabel_ = new wxStaticText(this, -1, "Ships:");
+  botsLabel_ = new wxStaticText(this, wxID_ANY, "Ships:");
   botsSelect_ = new wxListBox(this, SELECT_BOTS_ID, wxDefaultPosition,
                               wxSize(275, 225), 0, NULL,
                               wxLB_EXTENDED | wxLB_SORT);
@@ -129,6 +136,10 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
           wxCommandEventHandler(NewMatchDialog::onRemoveBots));
   Connect(wxID_REFRESH, wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onRefreshFiles));
+  Connect(browseStagesButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(NewMatchDialog::onBrowseStages));
+  Connect(browseShipsButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(NewMatchDialog::onBrowseShips));
   
   eventFilter_ = new NewMatchEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
@@ -151,7 +162,9 @@ NewMatchDialog::~NewMatchDialog() {
   delete startButton_;
   delete refreshButton_;
   delete stageBaseDirLabel_;
+  delete browseStagesButton_;
   delete botsBaseDirLabel_;
+  delete browseShipsButton_;
 }
 
 void NewMatchDialog::clearStages() {
@@ -300,6 +313,28 @@ void NewMatchDialog::refreshFiles() {
   listener_->refreshFiles();
 }
 
+void NewMatchDialog::onBrowseStages(wxCommandEvent &event) {
+  openFile(getStageDir().c_str());
+}
+
+void NewMatchDialog::onBrowseShips(wxCommandEvent &event) {
+  openFile(getBotsDir().c_str());
+}
+
+void NewMatchDialog::openFile(const char *file) {
+#if defined(__WXOSX__)
+  ::wxExecute(wxString::Format("open %s", file), wxEXEC_ASYNC, NULL);
+#elif defined(__LINUX__)
+  ::wxExecute(wxString::Format("nautilus %s", file), wxEXEC_ASYNC, NULL);
+#elif defined(__WINDOWS__)
+  ::wxExecute(wxString::Format("explorer %s", file), wxEXEC_ASYNC, NULL);
+#else
+  wxMessageDialog cantBrowseMessage(this,
+      "Sorry, don't know how to open/browse files on your platform.", wxOK);
+  cantBrowseMessage.ShowModal();
+#endif
+}
+
 void NewMatchDialog::onChangeBaseDir(wxCommandEvent &event) {
   changeBaseDir();
 }
@@ -311,10 +346,10 @@ void NewMatchDialog::changeBaseDir() {
 }
 
 void NewMatchDialog::updateBaseDirLabels() {
-  wxString stageBaseDirLabelText("Stages:\t");
+  wxString stageBaseDirLabelText("Stages:  ");
   stageBaseDirLabelText.Append(getStageDir());
   stageBaseDirLabel_->SetLabelText(stageBaseDirLabelText);
-  wxString botsBaseDirLabelText("Ships:  \t");
+  wxString botsBaseDirLabelText("Ships:  ");
   botsBaseDirLabelText.Append(getBotsDir());
   botsBaseDirLabel_->SetLabelText(botsBaseDirLabelText);
 }
@@ -348,7 +383,7 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
 #endif
   } else {
 #ifdef __WXOSX__
-    folderButton_->SetLabel("Change &Base Dir      ");
+    folderButton_->SetLabel("Change &Base Dir  ");
 #endif
     clearButton_->SetLabel("&Clear");
     refreshButton_->SetLabel("    &Refresh    ");

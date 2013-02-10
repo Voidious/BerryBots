@@ -47,6 +47,8 @@ class NewMatchDialog : public wxFrame {
   wxButton *startButton_;
   wxButton *refreshButton_;
   wxButton *folderButton_;
+  wxButton *browseStagesButton_;
+  wxButton *browseShipsButton_;
   wxStaticText *stageBaseDirLabel_;
   wxStaticText *botsBaseDirLabel_;
   unsigned int numStages_;
@@ -77,6 +79,9 @@ class NewMatchDialog : public wxFrame {
     void startMatch();
     void onRefreshFiles(wxCommandEvent &event);
     void refreshFiles();
+    void onBrowseStages(wxCommandEvent &event);
+    void onBrowseShips(wxCommandEvent &event);
+    void openFile(const char *dir);
     void onChangeBaseDir(wxCommandEvent &event);
     void changeBaseDir();
     void onEscape();
