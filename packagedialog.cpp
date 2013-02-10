@@ -47,13 +47,14 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
   versionSizer_->Add(versionText_, 0, wxALIGN_CENTER_VERTICAL);
   settingsSizer_->AddStretchSpacer(1);
   settingsSizer_->Add(versionSizer_, 0, wxALIGN_LEFT);
-  includeSrcCheckBox_ = new wxCheckBox(this, wxID_ANY, "Include source code");
+  includeSrcCheckBox_ = new wxCheckBox(this, wxID_ANY, "&Include source code");
   includeSrcCheckBox_->SetValue(true);
   settingsSizer_->AddSpacer(5);
   settingsSizer_->Add(includeSrcCheckBox_, 0, wxALIGN_LEFT);
   settingsSizer_->AddSpacer(5);
-  refreshButton_ = new wxButton(this, wxID_REFRESH, "Refresh");
-  wxString buttonLabel = wxString(title);
+  refreshButton_ = new wxButton(this, wxID_REFRESH, "&Refresh");
+  wxString buttonLabel = "&";
+  buttonLabel.Append(title);
   buttonLabel.Append("!");
   packageButton_ = new wxButton(this, wxID_ANY, buttonLabel, wxDefaultPosition,
                                 wxDefaultSize, wxBU_EXACTFIT);
@@ -141,7 +142,15 @@ void PackageDialog::packageSelectedItem() {
 }
 
 void PackageDialog::onRefreshFiles(wxCommandEvent &event) {
+  refreshFiles();
+}
+
+void PackageDialog::refreshFiles() {
   listener_->refreshFiles();
+}
+
+void PackageDialog::toggleIncludeSrc() {
+  includeSrcCheckBox_->SetValue(!includeSrcCheckBox_->GetValue());
 }
 
 void PackageDialog::onEscape() {
@@ -165,9 +174,18 @@ int PackageEventFilter::FilterEvent(wxEvent& event) {
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       packageDialog_->onEscape();
       return Event_Processed;
+#ifdef __WXOSX__
+      // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
     } else if (keyEvent->GetUnicodeKey() == 'P' && keyEvent->ControlDown()) {
       packageDialog_->packageSelectedItem();
       return Event_Processed;
+    } else if (keyEvent->GetUnicodeKey() == 'R' && keyEvent->ControlDown()) {
+      packageDialog_->refreshFiles();
+      return Event_Processed;
+    } else if (keyEvent->GetUnicodeKey() == 'I' && keyEvent->ControlDown()) {
+      packageDialog_->toggleIncludeSrc();
+      return Event_Processed;
+#endif
     }
   }
   return Event_Skip;

@@ -507,8 +507,14 @@ void GuiManager::processMainWindowEvents() {
         case sf::Keyboard::BackSpace:
           restartMatch();
           break;
-        case sf::Keyboard::N:
         case sf::Keyboard::Escape:
+          showNewMatchDialog();
+          break;
+#ifndef __WXOSX__
+        // On Mac OS X, the menu bar and its keybaord shortcuts are still
+        // intact in the main window. On other platforms, specifically handle
+        // keyboard shortcuts.
+        case sf::Keyboard::N:
           showNewMatchDialog();
           break;
         case sf::Keyboard::H:
@@ -517,6 +523,7 @@ void GuiManager::processMainWindowEvents() {
         case sf::Keyboard::T:
           showPackageStageDialog();
           break;
+#endif
         default:
           break;
       }

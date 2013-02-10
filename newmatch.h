@@ -73,9 +73,11 @@ class NewMatchDialog : public wxFrame {
     void removeSelectedLoadedBots();
     void removeStaleLoadedBots();
     void onClearLoadedBots(wxCommandEvent &event);
+    void clearLoadedBots();
     void onStartMatch(wxCommandEvent &event);
     void startMatch();
     void onRefreshFiles(wxCommandEvent &event);
+    void refreshFiles();
     void onEscape();
     bool botsSelectHasFocus();
     bool loadedBotsSelectHasFocus();

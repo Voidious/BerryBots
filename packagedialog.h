@@ -61,6 +61,8 @@ class PackageDialog : public wxFrame {
     void onPackage(wxCommandEvent &event);
     void packageSelectedItem();
     void onRefreshFiles(wxCommandEvent &event);
+    void refreshFiles();
+    void toggleIncludeSrc();
     void onEscape();
 };
 

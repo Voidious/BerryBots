@@ -58,7 +58,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
                            wxDefaultSize, wxBU_EXACTFIT);
   removeArrow_ = new wxButton(this, REMOVE_BUTTON_ID, "<<", wxDefaultPosition,
                               wxDefaultSize, wxBU_EXACTFIT);
-  clearButton_ = new wxButton(this, CLEAR_BUTTON_ID, "Clear", wxDefaultPosition,
+  clearButton_ = new wxButton(this, CLEAR_BUTTON_ID, "&Clear", wxDefaultPosition,
                               wxDefaultSize, wxBU_EXACTFIT);
   botButtonsSizer_->Add(addArrow_, 0, wxALIGN_CENTER);
   botButtonsSizer_->AddSpacer(5);
@@ -71,10 +71,10 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
                                     wxSize(275, 225), 0, NULL, wxLB_EXTENDED);
   gridSizer_->Add(loadedBotsSelect_, 0, wxALIGN_BOTTOM | wxALIGN_RIGHT);
 
-  refreshButton_ = new wxButton(this, wxID_REFRESH);
+  refreshButton_ = new wxButton(this, wxID_REFRESH, "&Refresh");
   gridSizer_->Add(refreshButton_, 0, wxALIGN_LEFT);
   gridSizer_->AddSpacer(0);
-  startButton_ = new wxButton(this, START_BUTTON_ID, "Start Match!",
+  startButton_ = new wxButton(this, START_BUTTON_ID, "Start &Match!",
                               wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   gridSizer_->Add(startButton_, 0, wxALIGN_RIGHT);
   borderSizer_->Add(gridSizer_, 0, wxALL, 12);
@@ -208,6 +208,10 @@ void NewMatchDialog::removeStaleLoadedBots() {
 }
 
 void NewMatchDialog::onClearLoadedBots(wxCommandEvent &event) {
+  clearLoadedBots();
+}
+
+void NewMatchDialog::clearLoadedBots() {
   loadedBotsSelect_->Clear();
   numLoadedBots_ = 0;
 }
@@ -256,6 +260,10 @@ void NewMatchDialog::startMatch() {
 }
 
 void NewMatchDialog::onRefreshFiles(wxCommandEvent &event) {
+  refreshFiles();
+}
+
+void NewMatchDialog::refreshFiles() {
   listener_->refreshFiles();
 }
 
@@ -295,9 +303,18 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_BACK)
                && (newMatchDialog_->loadedBotsSelectHasFocus())) {
       newMatchDialog_->removeSelectedLoadedBots();
+#ifdef __WXOSX__
+    // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
     } else if (keyEvent->GetUnicodeKey() == 'M' && keyEvent->ControlDown()) {
       newMatchDialog_->startMatch();
       return Event_Processed;
+    } else if (keyEvent->GetUnicodeKey() == 'R' && keyEvent->ControlDown()) {
+      newMatchDialog_->refreshFiles();
+      return Event_Processed;
+    } else if (keyEvent->GetUnicodeKey() == 'C' && keyEvent->ControlDown()) {
+      newMatchDialog_->clearLoadedBots();
+      return Event_Processed;
+#endif
     }
   }
   return Event_Skip;
