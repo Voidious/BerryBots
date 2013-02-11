@@ -56,6 +56,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   fileManager_ = new FileManager(zipper_);
   menuBarMaker_ = new MenuBarMaker();
   packagingConsole_ = new OutputConsole("Packaging Details", menuBarMaker_);
+  errorConsole_ = new OutputConsole("Error Console", menuBarMaker_);
   packagingConsole_->SetPosition(wxPoint(150, 100));
   newMatchListener_ = new MatchRunner(this, stageBaseDir_, botsBaseDir_);
   newMatchDialog_ = new NewMatchDialog(newMatchListener_, menuBarMaker_);
@@ -175,6 +176,7 @@ bool GuiManager::isValidStageFile(const char *srcFilename) {
       if (stageFilename != 0) {
         delete stageFilename;
       }
+      errorConsole_->println(ze->what());
       wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
                                    wxOK | wxICON_EXCLAMATION);
       errorMessage.ShowModal();
@@ -186,12 +188,13 @@ bool GuiManager::isValidStageFile(const char *srcFilename) {
     
     if (luaL_loadfile(stageState, stageFilename)
         || lua_pcall(stageState, 0, 0, 0)) {
+      logErrorMessage(stageState, "Problem loading stage: %s");
       lua_close(stageState);
       delete stageDir;
       delete stageFilename;
       return false;
     }
-    
+
     lua_getglobal(stageState, "configure");
     if (lua_isnil(stageState, -1)) {
       lua_close(stageState);
@@ -252,6 +255,7 @@ bool GuiManager::isValidBotFile(const char *srcFilename) {
       if (botFilename != 0) {
         delete botFilename;
       }
+      errorConsole_->println(ze->what());
       wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
                                    wxOK | wxICON_EXCLAMATION);
       errorMessage.ShowModal();
@@ -263,6 +267,7 @@ bool GuiManager::isValidBotFile(const char *srcFilename) {
     
     if (luaL_loadfile(shipState, botFilename)
         || lua_pcall(shipState, 0, 0, 0)) {
+      logErrorMessage(shipState, "Problem loading ship: %s");
       lua_close(shipState);
       delete botDir;
       delete botFilename;
@@ -354,6 +359,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     engine_->initStage(stageBaseDir_, stageName, cacheDir);
     engine_->initShips(botsBaseDir_, teamNames, numTeams, cacheDir);
   } catch (EngineException *e) {
+    errorConsole_->println(e->what());
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots engine init failed", wxOK | wxICON_EXCLAMATION);
     errorMessage.ShowModal();
@@ -448,6 +454,7 @@ void GuiManager::runCurrentMatch() {
       }
     }
   } catch (EngineException *e) {
+    errorConsole_->println(e->what());
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots encountered an error", wxOK | wxICON_EXCLAMATION);
     errorMessage.ShowModal();
@@ -459,7 +466,7 @@ void GuiManager::runCurrentMatch() {
     listener_->onAllWindowsClosed();
   }
 
-  // TODO: Display winner / CPU usage in GUI
+  // TODO: Display CPU usage in GUI
 
   if (!interrupted_) {
     gfxManager_->destroyBbGfx();
@@ -481,6 +488,7 @@ void GuiManager::resumeMatch() {
       hidePackageShipDialog();
       hidePackageStageDialog();
       hidePackagingConsole();
+      hideErrorConsole();
       runCurrentMatch();
     }
     while (restarting_) {
@@ -594,10 +602,17 @@ void GuiManager::showPackageStageDialog() {
 
 void GuiManager::showStageConsole() {
   stageConsole_->Show();
+  stageConsole_->Raise();
 }
 
 void GuiManager::showTeamConsole(int teamIndex) {
   teamConsoles_[teamIndex]->Show();
+  teamConsoles_[teamIndex]->Raise();
+}
+
+void GuiManager::showErrorConsole() {
+  errorConsole_->Show();
+  errorConsole_->Raise();
 }
 
 void GuiManager::deleteMatchConsoles() {
@@ -630,6 +645,10 @@ void GuiManager::hidePackageStageDialog() {
 
 void GuiManager::hidePackagingConsole() {
   packagingConsole_->Hide();
+}
+
+void GuiManager::hideErrorConsole() {
+  errorConsole_->Hide();
 }
 
 void GuiManager::saveCurrentMatchSettings(
@@ -669,6 +688,15 @@ void GuiManager::restartMatch() {
 
 void GuiManager::quit() {
   quitting_ = true;
+}
+
+void GuiManager::logErrorMessage(lua_State *L, const char *formatString) {
+  const char *luaMessage = lua_tostring(L, -1);
+  int messageLen = (int) (strlen(formatString) + strlen(luaMessage) - 2);
+  char *errorMessage = new char[messageLen + 1];
+  sprintf(errorMessage, formatString, luaMessage);
+  errorConsole_->println(errorMessage);
+  delete errorMessage;
 }
 
 char* GuiManager::getStageDirCopy() {

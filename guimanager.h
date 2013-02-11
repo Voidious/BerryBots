@@ -49,6 +49,7 @@ class GuiManager {
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
   OutputConsole *packagingConsole_;
+  OutputConsole *errorConsole_;
   MenuBarMaker *menuBarMaker_;
   GfxManager *gfxManager_;
   GfxViewListener *viewListener_;
@@ -96,10 +97,12 @@ class GuiManager {
     void showPackageStageDialog();
     void showStageConsole();
     void showTeamConsole(int teamIndex);
+    void showErrorConsole();
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
     void hidePackagingConsole();
+    void hideErrorConsole();
     void togglePause();
     void restartMatch();
     void quit();
@@ -119,6 +122,7 @@ class GuiManager {
     void loadBotsFromDir(const char *loadDir);
     void loadItemsFromDir(const char *baseDir, const char *loadDir,
                           int itemType, PackageDialog *packageDialog);
+    void logErrorMessage(lua_State *L, const char *formatString);
 };
 
 class MatchRunner : public NewMatchListener {

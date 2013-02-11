@@ -50,6 +50,7 @@ class BerryBotsApp: public wxApp {
     virtual void OnNewMatch(wxCommandEvent &event);
     virtual void OnPackageShip(wxCommandEvent &event);
     virtual void OnPackageStage(wxCommandEvent &event);
+    virtual void OnErrorConsole(wxCommandEvent &event);
     virtual void MacReopenApp();
 };
 
@@ -116,6 +117,8 @@ bool BerryBotsApp::OnInit() {
           wxCommandEventHandler(BerryBotsApp::OnPackageShip));
   Connect(PACKAGE_STAGE_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::OnPackageStage));
+  Connect(ERROR_CONSOLE_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::OnErrorConsole));
 #ifndef __WXOSX__
   Connect(FILE_QUIT_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::OnQuit));
@@ -151,6 +154,10 @@ void BerryBotsApp::OnPackageStage(wxCommandEvent &event) {
   guiManager_->showPackageStageDialog();
   guiManager_->hideNewMatchDialog();
   guiManager_->hidePackageShipDialog();
+}
+
+void BerryBotsApp::OnErrorConsole(wxCommandEvent &event) {
+  guiManager_->showErrorConsole();
 }
 
 void BerryBotsApp::MacReopenApp() {

@@ -60,6 +60,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   dirsSizer->Add(botsBaseDirLabel_);
   dirsSizer->AddSpacer(3);
   dirsSizer->Add(browseShipsButton_);
+
 #ifdef __WXOSX__
   // Using cwd as base dir on other platforms, so only support changing base dir
   // on Mac for now.
