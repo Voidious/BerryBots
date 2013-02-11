@@ -1367,7 +1367,6 @@ int registerAdmin(lua_State *L) {
 int ShipGlobals_print(lua_State *L) {
   int top = lua_gettop(L);
   const char *str = luaL_optstring(L, 1, "");
-  // TODO: don't send init prints into a vortex
   if (printHandler != 0) {
     printHandler->shipPrint(L, str);
   }
@@ -1389,7 +1388,6 @@ int registerShipGlobals(lua_State *L) {
 int StageGlobals_print(lua_State *L) {
   int top = lua_gettop(L);
   const char *str = luaL_optstring(L, 1, "");
-  // TODO: don't send init prints into a vortex
   if (printHandler != 0) {
     printHandler->stagePrint(str);
   }

@@ -34,6 +34,12 @@ extern "C" {
   #include "lauxlib.h"
 }
 
+class NewTeamStateListener {
+  public:
+    virtual void newTeamState(lua_State *teamState, const char *name) = 0;
+    virtual ~NewTeamStateListener() {};
+};
+
 class EngineException : public std::exception {
   char *message_;
   
@@ -50,6 +56,7 @@ class BerryBotsEngine {
   char *stageDir_;
   char *stageFilename_;
   World *stageWorld_;
+  NewTeamStateListener *listener_;
 
   Team **teams_;
   Ship **ships_;
@@ -77,6 +84,7 @@ class BerryBotsEngine {
     BerryBotsEngine(FileManager *manager);
     ~BerryBotsEngine();
 
+    void setListener(NewTeamStateListener *listener);
     bool isConfigureComplete();
     bool isInitComplete();
     void setBattleMode(bool battleMode);

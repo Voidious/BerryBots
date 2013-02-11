@@ -25,19 +25,26 @@ extern "C" {
   #include "lua.h"
 }
 
-#include "printhandler.h"
+#include "menubarmaker.h"
 #include "outputconsole.h"
+#include "printhandler.h"
 
 class GuiPrintHandler : public PrintHandler {
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
-  Team **teams_;
+  lua_State **teamStates_;
   int numTeams_;
+  int nextTeamIndex_;
+  MenuBarMaker *menuBarMaker_;
+
   public:
-    GuiPrintHandler(OutputConsole *stageConsole, OutputConsole **teamConsoles,
-                    Team **teams, int numTeams);
+    GuiPrintHandler(OutputConsole *stageConsole, int numTeams,
+                    MenuBarMaker *menuBarMaker);
+    ~GuiPrintHandler();
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
+    void registerTeam(lua_State *L, const char *name);
+    OutputConsole **getTeamConsoles();
 };
 
 #endif

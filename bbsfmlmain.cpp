@@ -121,6 +121,10 @@ int main(int argc, char *argv[]) {
   engine = new BerryBotsEngine(fileManager);
   stage = engine->getStage();
 
+  CliPrintHandler *cliPrintHandler = new CliPrintHandler();
+  printHandler = (PrintHandler*) cliPrintHandler;
+  CliStateListener *cliStateListener = new CliStateListener(cliPrintHandler);
+
   char *stageAbsName = FileManager::getAbsFilePath(argv[nodisplay ? 2 : 1]);
   char *stageName =
       FileManager::parseRelativeFilePath(stagesBaseDir, stageAbsName);
@@ -147,6 +151,8 @@ int main(int argc, char *argv[]) {
     delete teamAbsName;
   }
 
+  cliPrintHandler->setNumTeams(numTeams);
+  engine->setListener(cliStateListener);
   try {
     engine->initShips(botsBaseDir, teams, numTeams, CACHE_SUBDIR);
   } catch (EngineException *e) {
@@ -154,8 +160,7 @@ int main(int argc, char *argv[]) {
     std::cout << "  " << e->what() << std::endl;
     exit(0);
   }
-
-  printHandler = new CliPrintHandler(engine->getTeams(), numTeams);
+  cliPrintHandler->updateTeams(engine->getTeams());
 
   GfxManager *gfxManager;
   sf::RenderWindow *window = 0;

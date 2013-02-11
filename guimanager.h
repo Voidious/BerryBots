@@ -30,6 +30,7 @@
 #include "packagestage.h"
 #include "outputconsole.h"
 #include "menubarmaker.h"
+#include "guiprinthandler.h"
 
 #define ITEM_STAGE  1
 #define ITEM_BOT    2
@@ -38,6 +39,15 @@ class GuiListener {
   public:
     virtual void onAllWindowsClosed() = 0;
     virtual ~GuiListener() {};
+};
+
+class PrintStateListener : public NewTeamStateListener {
+  GuiPrintHandler *guiPrintHandler_;
+  
+  public:
+    PrintStateListener(GuiPrintHandler *guiPrintHandler);
+    virtual void newTeamState(lua_State *teamState, const char *filename);
+    OutputConsole** getTeams();
 };
 
 class GuiManager {
@@ -59,6 +69,7 @@ class GuiManager {
   PackageDialogListener *shipPackager_;
   PackageDialogListener *stagePackager_;
   PackagingListener *packageReporter_;
+  PrintStateListener *printStateListener_;
   BerryBotsEngine *engine_;
   char *stageBaseDir_;
   char *botsBaseDir_;

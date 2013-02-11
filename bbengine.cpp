@@ -33,6 +33,7 @@ extern PrintHandler *printHandler;
 
 BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   stage_ = new Stage(DEFAULT_STAGE_WIDTH, DEFAULT_STAGE_HEIGHT);
+  listener_ = 0;
   gameTime_ = 0;
   numTeams_ = 0;
   teamSize_ = 1;
@@ -59,6 +60,63 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   teamVision_ = 0;
   sensorHandler_ = 0;
   fileManager_ = fileManager;
+}
+
+BerryBotsEngine::~BerryBotsEngine() {
+  if (stageDir_ != 0) {
+    delete stageDir_;
+  }
+  if (stageFilename_ != 0) {
+    delete stageFilename_;
+  }
+
+  for (int x = 0; x < numShips_; x++) {
+    Ship *ship = ships_[x];
+    if (ship->properties->doa) {
+      delete ship->properties;
+      delete ship;
+    } else {
+      delete ship->properties;
+    }
+  }
+  delete ships_;
+  delete shipProperties_;
+  if (oldShips_ != 0) {
+    for (int x = 0; x < numShips_; x++) {
+      delete oldShips_[x];
+    }
+    delete oldShips_;
+  }
+
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    if (!team->doa) {
+      lua_close(team->state);
+    }
+    delete team;
+  }
+  delete teams_;
+  if (stageState_ != 0) {
+    lua_close(stageState_);
+  }
+
+  if (worlds_ != 0) {
+    delete worlds_;
+  }
+  for (int x = 0; x < numTeams_; x++) {
+    delete teamVision_[x];
+  }
+  if (teamVision_ != 0) {
+    delete teamVision_;
+  }
+  delete stage_;
+  if (sensorHandler_ != 0) {
+    delete sensorHandler_;
+  }
+}
+
+void BerryBotsEngine::setListener(NewTeamStateListener *listener) {
+  listener_ = listener;
 }
 
 Stage* BerryBotsEngine::getStage() {
@@ -266,6 +324,9 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
       throw eie;
     }
     initShipState(&teamState, shipDir);
+    if (listener_ != 0) {
+      listener_->newTeamState(teamState, filename);
+    }
 
     int numStateShips = (stageShip ? 1 : teamSize_);
     Ship **stateShips = new Ship*[numStateShips];
@@ -629,15 +690,11 @@ void BerryBotsEngine::copyShips(
 //       GUI or CLI display them appropriately.
 void BerryBotsEngine::printLuaErrorToShipConsole(lua_State *L,
                                              const char *formatString) {
-  // TODO: Initialize GUI PrintHandler before configure/init so we don't miss
-  //       those error messages.
-  char *errorMessage = formatLuaError(L, formatString);
-  if (printHandler == 0) {
-    std::cout << errorMessage << std::endl;
-  } else {
+  if (printHandler != 0) {
+    char *errorMessage = formatLuaError(L, formatString);
     printHandler->shipPrint(L, errorMessage);
+    delete errorMessage;
   }
-  delete errorMessage;
 }
 
 void BerryBotsEngine::throwForLuaError(lua_State *L, const char *formatString)
@@ -654,59 +711,6 @@ char* BerryBotsEngine::formatLuaError(lua_State *L, const char *formatString) {
   char *errorMessage = new char[messageLen + 1];
   sprintf(errorMessage, formatString, luaMessage);
   return errorMessage;
-}
-
-BerryBotsEngine::~BerryBotsEngine() {
-  if (stageDir_ != 0) {
-    delete stageDir_;
-  }
-  if (stageFilename_ != 0) {
-    delete stageFilename_;
-  }
-
-  for (int x = 0; x < numShips_; x++) {
-    Ship *ship = ships_[x];
-    if (ship->properties->doa) {
-      delete ship->properties;
-      delete ship;
-    } else {
-      delete ship->properties;
-    }
-  }
-  delete ships_;
-  delete shipProperties_;
-  if (oldShips_ != 0) {
-    for (int x = 0; x < numShips_; x++) {
-      delete oldShips_[x];
-    }
-    delete oldShips_;
-  }
-
-  for (int x = 0; x < numTeams_; x++) {
-    Team *team = teams_[x];
-    if (!team->doa) {
-      lua_close(team->state);
-    }
-    delete team;
-  }
-  delete teams_;
-  if (stageState_ != 0) {
-    lua_close(stageState_);
-  }
-
-  if (worlds_ != 0) {
-    delete worlds_;
-  }
-  for (int x = 0; x < numTeams_; x++) {
-    delete teamVision_[x];
-  }
-  if (teamVision_ != 0) {
-    delete teamVision_;
-  }
-  delete stage_;
-  if (sensorHandler_ != 0) {
-    delete sensorHandler_;
-  }
 }
 
 EngineException::EngineException(const char *details) {

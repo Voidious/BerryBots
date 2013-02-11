@@ -76,6 +76,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   gfxManager_->setListener(viewListener_);
   packageReporter_ = new PackageReporter(packagingConsole_);
   fileManager_->setListener(packageReporter_);
+  printStateListener_ = 0;
   newMatchDialog_->Show();
   newMatchDialog_->SetFocus();
   engine_ = 0;
@@ -112,6 +113,10 @@ GuiManager::~GuiManager() {
   delete shipPackager_;
   delete stagePackager_;
   delete packageReporter_;
+  if (printStateListener_ != 0) {
+    delete printStateListener_;
+    printStateListener_ = 0;
+  }
 }
 
 void GuiManager::setBaseDirs(const char *stagesBaseDir,
@@ -323,7 +328,7 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
 }
 
 sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
-                                         unsigned int height) {
+                                             unsigned int height) {
   if (window_ != 0) {
     delete window_;
   }
@@ -347,22 +352,41 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     delete engine_;
     engine_ = 0;
   }
+
+  stageConsole_ = new OutputConsole(stageName, menuBarMaker_);
+  stageConsole_->Hide();
+  
   if (printHandler != 0) {
     delete printHandler;
     printHandler = 0;
   }
+  if (printStateListener_ != 0) {
+    delete printStateListener_;
+    printStateListener_ = 0;
+  }
+  GuiPrintHandler *guiPrintHandler =
+      new GuiPrintHandler(stageConsole_, numTeams, menuBarMaker_);
+  printStateListener_ = new PrintStateListener(guiPrintHandler);
+  printHandler = guiPrintHandler;
+
   srand((unsigned int) time(NULL));
   engine_ = new BerryBotsEngine(fileManager_);
+  engine_->setListener(printStateListener_);
   Stage *stage = engine_->getStage();
   char *cacheDir = getCacheDirCopy();
   try {
     engine_->initStage(stageBaseDir_, stageName, cacheDir);
     engine_->initShips(botsBaseDir_, teamNames, numTeams, cacheDir);
+    teamConsoles_ = guiPrintHandler->getTeamConsoles();
   } catch (EngineException *e) {
     errorConsole_->println(e->what());
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots engine init failed", wxOK | wxICON_EXCLAMATION);
     errorMessage.ShowModal();
+    delete printHandler;
+    printHandler = 0;
+    delete printStateListener_;
+    printStateListener_ = 0;
     delete engine_;
     engine_ = 0;
     delete cacheDir;
@@ -371,14 +395,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     return;
   }
   delete cacheDir;
-
-  interrupted_ = false;
-  paused_ = false;
-  newMatchDialog_->Hide();
-  packageStageDialog_->Hide();
-  packageShipDialog_->Hide();
-  gfxHandler_ = new GfxEventHandler();
-  stage->addEventHandler((EventHandler*) gfxHandler_);
 
   viewWidth_ = stage->getWidth() + (STAGE_MARGIN * 2);
   viewHeight_ = stage->getHeight() + (STAGE_MARGIN * 2);
@@ -390,6 +406,14 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   unsigned int targetWidth = floor(windowScale * viewWidth_) + DOCK_SIZE;
   unsigned int targetHeight = floor(windowScale * viewHeight_);
   sf::RenderWindow *window = initMainWindow(targetWidth, targetHeight);
+
+  interrupted_ = false;
+  paused_ = false;
+  newMatchDialog_->Hide();
+  packageStageDialog_->Hide();
+  packageShipDialog_->Hide();
+  gfxHandler_ = new GfxEventHandler();
+  stage->addEventHandler((EventHandler*) gfxHandler_);
 
   // TODO: If/when SFML getPosition() works, adjust the window position to
   //       keep the whole window on the screen (if necessary). Might be worth
@@ -410,18 +434,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                         engine_->getNumShips(), engine_->getGameTime(),
                         gfxHandler_, false, false, engine_->getWinnerName());
   window->display();
-
-  stageConsole_ = new OutputConsole(stage->getName(), menuBarMaker_);
-  stageConsole_->Hide();
-  teamConsoles_ = new OutputConsole*[numTeams];
-  for (int x = 0; x < numTeams; x++) {
-    OutputConsole *teamConsole =
-        new OutputConsole(engine_->getTeam(x)->name, menuBarMaker_);
-    teamConsole->Hide();
-    teamConsoles_[x] = teamConsole;
-  }
-  printHandler = new GuiPrintHandler(stageConsole_, teamConsoles_,
-                                     engine_->getTeams(), numTeams);
 
   runCurrentMatch();
 
@@ -472,6 +484,8 @@ void GuiManager::runCurrentMatch() {
     gfxManager_->destroyBbGfx();
     delete printHandler;
     printHandler = 0;
+    delete printStateListener_;
+    printStateListener_ = 0;
     delete engine_;
     engine_ = 0;
     delete gfxHandler_;
@@ -620,14 +634,6 @@ void GuiManager::deleteMatchConsoles() {
     stageConsole_->Hide();
     delete stageConsole_;
     stageConsole_ = 0;
-  }
-  if (teamConsoles_ != 0) {
-    for (int x = 0; x < currentNumTeams_; x++) {
-      teamConsoles_[x]->Hide();
-      delete teamConsoles_[x];
-    }
-    delete teamConsoles_;
-    teamConsoles_ = 0;
   }
 }
 
@@ -900,6 +906,15 @@ void PackageReporter::packagingComplete(
   packagingConsole_->print("Saved to: ");
   packagingConsole_->println(destinationFile);
   packagingConsole_->Raise();
+}
+
+PrintStateListener::PrintStateListener(GuiPrintHandler *guiPrintHandler) {
+  guiPrintHandler_ = guiPrintHandler;
+}
+
+void PrintStateListener::newTeamState(lua_State *teamState,
+                                      const char *filename) {
+  guiPrintHandler_->registerTeam(teamState, filename);
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

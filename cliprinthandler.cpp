@@ -19,25 +19,66 @@
 */
 
 #include <iostream>
-using namespace std;
-#include "cliprinthandler.h"
+#include <string.h>
 #include "bbutil.h"
+#include "cliprinthandler.h"
 
-CliPrintHandler::CliPrintHandler(Team **teams, int numTeams) {
-  teams_ = teams;
+CliPrintHandler::CliPrintHandler() {
+  numTeams_ = 0;
+  nextTeamIndex_ = 0;
+}
+
+CliPrintHandler::~CliPrintHandler() {
+  delete teamStates_;
+  for (int x = 0; x < nextTeamIndex_; x++) {
+    delete teamNames_[x];
+  }
+  delete teamNames_;
+}
+
+void CliPrintHandler::setNumTeams(int numTeams) {
   numTeams_ = numTeams;
+  teamStates_ = new lua_State*[numTeams];
+  teamNames_ = new char*[numTeams];
 }
 
 void CliPrintHandler::stagePrint(const char *text) {
-  cout << "Stage: " << text << endl;
+  std::cout << "Stage: " << text << std::endl;
 }
 
 void CliPrintHandler::shipPrint(lua_State *L, const char *text) {
   for (int x = 0; x < numTeams_; x++) {
-    Team *team = teams_[x];
-    if (team->state == L) {
-      cout << "Ship: " << team->name << ": " << text << endl;
+    lua_State *teamState = teamStates_[x];
+    if (teamState == L) {
+      std::cout << "Ship: " << teamNames_[x] << ": " << text << std::endl;
       break;
     }
   }
+}
+
+void CliPrintHandler::registerTeam(lua_State *L, const char *name) {
+  if (nextTeamIndex_ < numTeams_) {
+    teamStates_[nextTeamIndex_] = L;
+    teamNames_[nextTeamIndex_] = new char[strlen(name) + 1];
+    strcpy(teamNames_[nextTeamIndex_], name);
+    nextTeamIndex_++;
+  }
+}
+
+void CliPrintHandler::updateTeams(Team** teams) {
+  for (int x = 0; x < nextTeamIndex_; x++) {
+    Team *team = teams[x];
+    delete teamNames_[x];
+    teamNames_[x] = new char[strlen(team->name) + 1];
+    strcpy(teamNames_[x], team->name);
+  }
+}
+
+CliStateListener::CliStateListener(CliPrintHandler* cliPrintHandler) {
+  cliPrintHandler_ = cliPrintHandler;
+}
+
+void CliStateListener::newTeamState(lua_State *teamState,
+                                    const char *filename) {
+  cliPrintHandler_->registerTeam(teamState, filename);
 }

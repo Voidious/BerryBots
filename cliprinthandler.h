@@ -26,15 +26,31 @@ extern "C" {
 }
 
 #include "bbutil.h"
+#include "bbengine.h"
 #include "printhandler.h"
 
 class CliPrintHandler : public PrintHandler {
-  Team **teams_;
+  lua_State **teamStates_;
+  char **teamNames_;
   int numTeams_;
+  int nextTeamIndex_;
+
   public:
-    CliPrintHandler(Team **teams, int numTeams);
+    CliPrintHandler();
+    ~CliPrintHandler();
+    void setNumTeams(int numTeams);
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
+    void registerTeam(lua_State *L, const char *name);
+    void updateTeams(Team** teams);
+};
+
+class CliStateListener : public NewTeamStateListener {
+  CliPrintHandler *cliPrintHandler_;
+  
+  public:
+    CliStateListener(CliPrintHandler *cliPrintHandler);
+    virtual void newTeamState(lua_State *teamState, const char *filename);
 };
 
 #endif

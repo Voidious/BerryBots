@@ -19,14 +19,27 @@
 */
 
 #include "bbutil.h"
+#include "menubarmaker.h"
+#include "outputconsole.h"
 #include "guiprinthandler.h"
 
-GuiPrintHandler::GuiPrintHandler(OutputConsole *stageConsole,
-    OutputConsole **teamConsoles, Team **teams, int numTeams) {
+GuiPrintHandler::GuiPrintHandler(OutputConsole *stageConsole, int numTeams,
+                                 MenuBarMaker *menuBarMaker) {
   stageConsole_ = stageConsole;
-  teamConsoles_ = teamConsoles;
-  teams_ = teams;
+  teamConsoles_ = new OutputConsole*[numTeams];
+  teamStates_ = new lua_State*[numTeams];
   numTeams_ = numTeams;
+  nextTeamIndex_ = 0;
+  menuBarMaker_ = menuBarMaker;
+}
+
+GuiPrintHandler::~GuiPrintHandler() {
+  for (int x = 0; x < nextTeamIndex_; x++) {
+    teamConsoles_[x]->Hide();
+    delete teamConsoles_[x];
+  }
+  delete teamConsoles_;
+  delete teamStates_;
 }
 
 void GuiPrintHandler::stagePrint(const char *text) {
@@ -34,11 +47,25 @@ void GuiPrintHandler::stagePrint(const char *text) {
 }
 
 void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
-  for (int x = 0; x < numTeams_; x++) {
-    Team *team = teams_[x];
-    if (!team->doa && team->state == L) {
+  for (int x = 0; x < nextTeamIndex_; x++) {
+    lua_State *state = teamStates_[x];
+    if (state == L) {
       teamConsoles_[x]->println(text);
       break;
     }
   }
+}
+
+void GuiPrintHandler::registerTeam(lua_State *L, const char *name) {
+  if (nextTeamIndex_ < numTeams_) {
+    teamStates_[nextTeamIndex_] = L;
+    OutputConsole *teamConsole = new OutputConsole(name, menuBarMaker_);
+    teamConsole->Hide();
+    teamConsoles_[nextTeamIndex_] = teamConsole;
+    nextTeamIndex_++;
+  }
+}
+
+OutputConsole** GuiPrintHandler::getTeamConsoles() {
+  return teamConsoles_;
 }
