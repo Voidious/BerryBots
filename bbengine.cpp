@@ -18,14 +18,18 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <algorithm>
 #include <platformstl/performance/performance_counter.hpp>
 #include "bbconst.h"
 #include "bblua.h"
+#include "printhandler.h"
 #include "zipper.h"
 #include "bbengine.h"
+
+extern PrintHandler *printHandler;
 
 BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   stage_ = new Stage(DEFAULT_STAGE_WIDTH, DEFAULT_STAGE_HEIGHT);
@@ -268,8 +272,7 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     bool doa;
     if (luaL_loadfile(teamState, shipFilename)
         || lua_pcall(teamState, 0, 0, 0)) {
-      // TODO: where should this display in GUI?
-      printf("cannot load file: %s\n", lua_tostring(teamState, -1));
+      printLuaErrorToShipConsole(teamState, "Error loading file: %s");
       doa = true;
     } else {
       lua_getglobal(teamState, "init");
@@ -361,9 +364,8 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
       worlds_[x] = pushWorld(teamState, stage_, numShips_, teamSize_);
       worlds_[x]->engine = this;
       if (lua_pcall(teamState, 2, 0, 0) != 0) {
-        // TODO: where should this display in GUI?
-        printf("error calling ship (%s) function: 'init': %s\n",
-               shipFilename, lua_tostring(teamState, -1));
+        printLuaErrorToShipConsole(teamState,
+                                   "Error calling ship function: 'init': %s");
         for (int y = 0; y < numStateShips; y++) {
           stateShips[y]->alive = false;
         }
@@ -485,9 +487,8 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
       Sensors *sensors = pushSensors(team, sensorHandler_, shipProperties_);
       team->counter.start();
       if (lua_pcall(team->state, 2, 0, 0) != 0) {
-        // TODO: where should this display in GUI?
-        printf("error calling ship (%s) function: 'run': %s\n",
-               team->name, lua_tostring(team->state, -1));
+        printLuaErrorToShipConsole(team->state,
+                                   "Error calling ship function: 'run': %s");
       }
       team->counter.stop();
       team->totalCpuTime += team->cpuTime[cpuTimeSlot_] =
@@ -531,9 +532,8 @@ void BerryBotsEngine::processRoundOver() {
       lua_getglobal(team->state, "roundOver");
       team->counter.start();
       if (lua_pcall(team->state, 0, 0, 0) != 0) {
-        // TODO: where should this display in GUI?
-        printf("error calling ship (%s) function: 'roundOver': %s\n",
-               team->name, lua_tostring(team->state, -1));
+        printLuaErrorToShipConsole(
+            team->state, "Error calling ship function: 'roundOver': %s");
       }
       team->counter.stop();
       team->totalCpuTime += team->cpuTime[cpuTimeSlot_] =
@@ -557,9 +557,8 @@ void BerryBotsEngine::processGameOver() {
       lua_getglobal(team->state, "gameOver");
       team->counter.start();
       if (lua_pcall(team->state, 0, 0, 0) != 0) {
-        // TODO: where should this display in GUI?
-        printf("error calling ship (%s) function: 'gameOver': %s\n",
-               team->name, lua_tostring(team->state, -1));
+        printLuaErrorToShipConsole(
+            team->state, "Error calling ship function: 'gameOver': %s");
       }
       team->counter.stop();
       team->totalCpuTime += team->cpuTime[cpuTimeSlot_] =
@@ -625,16 +624,36 @@ void BerryBotsEngine::copyShips(
   }
 }
 
+// Note: We don't have to log stage errors to the output console because they
+//       are considered fatal. We throw exceptions from the engine and the
+//       GUI or CLI display them appropriately.
+void BerryBotsEngine::printLuaErrorToShipConsole(lua_State *L,
+                                             const char *formatString) {
+  // TODO: Initialize GUI PrintHandler before configure/init so we don't miss
+  //       those error messages.
+  char *errorMessage = formatLuaError(L, formatString);
+  if (printHandler == 0) {
+    std::cout << errorMessage << std::endl;
+  } else {
+    printHandler->shipPrint(L, errorMessage);
+  }
+  delete errorMessage;
+}
+
 void BerryBotsEngine::throwForLuaError(lua_State *L, const char *formatString)
     throw (EngineException*) {
+  char *errorMessage = formatLuaError(L, formatString);
+  EngineException *e = new EngineException(errorMessage);
+  delete errorMessage;
+  throw e;
+}
+
+char* BerryBotsEngine::formatLuaError(lua_State *L, const char *formatString) {
   const char *luaMessage = lua_tostring(L, -1);
   int messageLen = (int) (strlen(formatString) + strlen(luaMessage) - 2);
   char *errorMessage = new char[messageLen + 1];
   sprintf(errorMessage, formatString, luaMessage);
-  EngineException *e = new EngineException(errorMessage);
-  delete errorMessage;
-
-  throw e;
+  return errorMessage;
 }
 
 BerryBotsEngine::~BerryBotsEngine() {

@@ -118,8 +118,10 @@ class BerryBotsEngine {
     void uniqueShipNames(Ship** ships, int numShips);
     void uniqueTeamNames(Team** teams, int numTeams);
     void copyShips(Ship **srcShips, Ship **destShips, int numShips);
+    void printLuaErrorToShipConsole(lua_State *L, const char *formatString);
     void throwForLuaError(lua_State *L, const char *formatString)
         throw (EngineException*);
+    char* formatLuaError(lua_State *L, const char *formatString);
 };
 
 #endif

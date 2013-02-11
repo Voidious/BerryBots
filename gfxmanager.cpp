@@ -258,7 +258,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   teamButtons_ = new DockItem*[numShips_];
   for (int x = 0; x < numShips_; x++) {
     teamButtons_[x] = new DockItem(ships_[x]->properties->name, &font, 16,
-                                   0, 120 + (x * 30), DOCK_SIZE, 30);
+                                   0, 120 + (x * 35), DOCK_SIZE, 30);
   }
 
   sf::Shape** pauseShapes = new sf::Shape*[2];
