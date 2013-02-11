@@ -344,6 +344,10 @@ sf::RenderWindow* GuiManager::getMainWindow() {
 
 void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                              int numTeams) {
+  sf::RenderWindow *window;
+#ifdef __WXOSX__
+  window = initMainWindow(1200, 800);
+#endif
   deleteMatchConsoles();
   if (!restarting_) {
     saveCurrentMatchSettings(stageName, teamNames, numTeams);
@@ -379,6 +383,10 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     engine_->initShips(botsBaseDir_, teamNames, numTeams, cacheDir);
     teamConsoles_ = guiPrintHandler->getTeamConsoles();
   } catch (EngineException *e) {
+#ifdef __WXOSX__
+    delete window_;
+    window_ = 0;
+#endif
     errorConsole_->println(e->what());
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots engine init failed", wxOK | wxICON_EXCLAMATION);
@@ -405,7 +413,15 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                              ((double) screenHeight) / viewHeight_));
   unsigned int targetWidth = floor(windowScale * viewWidth_) + DOCK_SIZE;
   unsigned int targetHeight = floor(windowScale * viewHeight_);
-  sf::RenderWindow *window = initMainWindow(targetWidth, targetHeight);
+#ifdef __WXOSX__
+  window->setSize(sf::Vector2u(targetWidth, targetHeight));
+  sf::Vector2i pos = window->getPosition();
+  int x = std::max(0, std::min((int) (screenWidth - targetWidth), pos.x));
+  int y = std::max(0, std::min((int) (screenHeight - targetHeight), pos.y));
+  window->setPosition(sf::Vector2i(x, y));
+#else
+  window = initMainWindow(targetWidth, targetHeight);
+#endif
 
   interrupted_ = false;
   paused_ = false;

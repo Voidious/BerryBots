@@ -54,7 +54,7 @@ OutputConsole::~OutputConsole() {
 }
 
 void OutputConsole::onActivate(wxActivateEvent &event) {
-#ifndef __WINDOWS__
+#ifdef __WXGTK__
   if (!menusInitialized_) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
