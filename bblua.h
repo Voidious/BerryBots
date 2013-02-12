@@ -26,6 +26,17 @@
 #include "stage.h"
 #include "sensorhandler.h"
 
+// Time limit allotted to Lua calls, in microseconds. These are hard limits to
+// deal with misbehaving user code. CPU usage limits for fairness and
+// competitive reasons will be added later, and will be much more robust.
+#ifdef __ARM_ARCH_6__     // Raspberry Pi
+#define INIT_TIME_LIMIT   10000000 // 10.0s
+#define RUN_TIME_LIMIT     2000000 //  2.0s
+#else
+#define INIT_TIME_LIMIT    5000000 //  5.0s
+#define RUN_TIME_LIMIT      500000 //  0.5s
+#endif
+
 extern "C" {
   #include "lua.h"
   #include "lualib.h"
@@ -43,6 +54,7 @@ extern int registerAdmin(lua_State *L);
 extern int registerShipGlobals(lua_State *L);
 extern int registerStageGlobals(lua_State *L);
 
+extern void killHook(lua_State *L, lua_Debug *ar);
 extern void initStageState(lua_State **stageState, const char *stageCwd);
 extern void initShipState(lua_State **shipState, const char *shipCwd);
 extern Ship* pushShip(lua_State *L);

@@ -6,6 +6,10 @@
 #define lj_record_c
 #define LUA_CORE
 
+// @Voidious: BerryBots needs to be able to set hooks on compiled code to stop
+//            misbehaving/CPU hungry ships and stages or infinite loops.
+#define LUAJIT_ENABLE_CHECKHOOK
+
 #include "lj_obj.h"
 
 #if LJ_HASJIT

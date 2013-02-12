@@ -19,10 +19,13 @@
 */
 
 #include <iostream>
+#include <sstream>
 #include <stdio.h>
 #include <string.h>
 #include <algorithm>
+#include <pthread.h>
 #include <platformstl/performance/performance_counter.hpp>
+#include <platformstl/synch/sleep_functions.h>
 #include "bbconst.h"
 #include "bblua.h"
 #include "printhandler.h"
@@ -211,13 +214,77 @@ int BerryBotsEngine::getNumTeams() {
   return numTeams_;
 }
 
+int BerryBotsEngine::callUserLuaCode(lua_State *L, int nargs,
+    unsigned int timeLimit, const char *errorMsg, bool isStage)
+    throw (EngineException*) {
+  TimerArgs args;
+  args.L = L;
+  args.timeLimit = timeLimit;
+  args.running = true;
+  args.timedOut = false;
+  int created = pthread_create(&timerThread_, 0, BerryBotsEngine::timerThread,
+                               (void*) &args);
+  int r = 0;
+  if (created == 0) {
+    int pcallValue = lua_pcall(L, nargs, 0, 0);
+    if (args.timedOut) {
+      std::stringstream errorStream;
+      errorStream << errorMsg;
+      errorStream << ": used too much CPU time (more than ";
+      errorStream << (timeLimit / 1000);
+      errorStream << " ms)";
+      if (isStage) {
+        throw new EngineException(errorStream.str().c_str());
+      } else {
+        // TODO: kill this team and its ships, mark it doa/disabled
+        if (printHandler != 0) {
+          printHandler->shipPrint(L, errorStream.str().c_str());
+        }
+        lua_sethook(L, NULL, 0, 0);
+        r = -1;
+      }
+    } else {
+      args.running = false;
+      if (pcallValue != 0) {
+        std::string errorString(errorMsg);
+        errorString.append(": %s");
+        if (isStage) {
+          throwForLuaError(L, errorString.c_str());
+        } else {
+          printLuaErrorToShipConsole(L, errorString.c_str());
+        }
+      }
+    }
+  } else {
+    std::string errorString(errorMsg);
+    errorString.append(": Failed to create timer thread.");
+    throw new EngineException(errorString.c_str());
+  }
+
+  int joinValue;
+  pthread_join(timerThread_, (void**) &joinValue);
+  return r;
+}
+
+void *BerryBotsEngine::timerThread(void *vargs) {
+  TimerArgs *args = (TimerArgs*) vargs;
+  unsigned int sleepTime = args->timeLimit;
+  for (unsigned int time = 0; args->running && time < sleepTime; time += 50) {
+    platformstl::micro_sleep(50);
+  }
+  if (args->running) {
+    lua_sethook(args->L, killHook, LUA_MASKCOUNT, 1);
+    args->timedOut = true;
+  }
+  return 0;
+}
+
 // Loads the stage in the file stageName, which may include a relative path,
 // from the root directory stageBaseDir. Note that the file may be either a .lua
 // file, in which case we just load it directly; or a stage packaged as a
 // .tar.gz file, in which case we extract it to the cache and load from there.
 void BerryBotsEngine::initStage(const char *stageBaseDir, const char *stageName,
-                                const char *cacheDir)
-    throw (EngineException*) {
+                                const char *cacheDir) throw (EngineException*) {
   if (stageDir_ != 0 || stageFilename_ != 0) {
     throw new EngineException("Already initialized stage for this engine.");
   }
@@ -236,18 +303,18 @@ void BerryBotsEngine::initStage(const char *stageBaseDir, const char *stageName,
   }
   initStageState(&stageState_, stageDir_);
 
-  if (luaL_loadfile(stageState_, stageFilename_)
-      || lua_pcall(stageState_, 0, 0, 0)) {
+  if (luaL_loadfile(stageState_, stageFilename_)) {
     throwForLuaError(stageState_, "Cannot load stage file: %s");
   }
+  callUserLuaCode(stageState_, 0, INIT_TIME_LIMIT, "Cannot load stage file",
+                  true);
 
   lua_getglobal(stageState_, "configure");
   StageBuilder *stageBuilder = pushStageBuilder(stageState_);
   stageBuilder->engine = this;
-  if (lua_pcall(stageState_, 1, 0, 0) != 0) {
-    throwForLuaError(stageState_,
-                     "Error calling stage function: 'configure': %s");
-  }
+  callUserLuaCode(stageState_, 1, INIT_TIME_LIMIT,
+                  "Error calling stage function: 'configure'", true);
+
   stage_->buildBaseWalls();
   char *stageDisplayName = FileManager::stripExtension(stageFilename_);
   stage_->setName(stageDisplayName); // TODO: let stage set name like ship
@@ -331,9 +398,11 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     int numStateShips = (stageShip ? 1 : teamSize_);
     Ship **stateShips = new Ship*[numStateShips];
     bool doa;
-    if (luaL_loadfile(teamState, shipFilename)
-        || lua_pcall(teamState, 0, 0, 0)) {
+    if (luaL_loadfile(teamState, shipFilename)) {
       printLuaErrorToShipConsole(teamState, "Error loading file: %s");
+      doa = true;
+    } else if (callUserLuaCode(teamState, 0, INIT_TIME_LIMIT,
+                               "Error loading file", false)) {
       doa = true;
     } else {
       lua_getglobal(teamState, "init");
@@ -424,9 +493,10 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     if (!doa) {
       worlds_[x] = pushWorld(teamState, stage_, numShips_, teamSize_);
       worlds_[x]->engine = this;
-      if (lua_pcall(teamState, 2, 0, 0) != 0) {
-        printLuaErrorToShipConsole(teamState,
-                                   "Error calling ship function: 'init': %s");
+
+      int r = callUserLuaCode(teamState, 2, INIT_TIME_LIMIT,
+                              "Error calling ship function: 'init'", false);
+      if (r != 0) {
         for (int y = 0; y < numStateShips; y++) {
           stateShips[y]->alive = false;
         }
@@ -461,9 +531,8 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     stageWorld_->engine = this;
     Admin *admin = pushAdmin(stageState_);
     admin->engine = this;
-    if (lua_pcall(stageState_, 3, 0, 0) != 0) {
-      throwForLuaError(stageState_, "Error calling stage function: 'init': %s");
-    }
+    callUserLuaCode(stageState_, 3, INIT_TIME_LIMIT,
+                    "Error calling stage function: 'init'", true);
   }
 
   copyShips(stageShips_, ships_, numShips_);
@@ -547,9 +616,13 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
           team->state, teamVision_[x], x, oldShips_, numShips_);
       Sensors *sensors = pushSensors(team, sensorHandler_, shipProperties_);
       team->counter.start();
-      if (lua_pcall(team->state, 2, 0, 0) != 0) {
-        printLuaErrorToShipConsole(team->state,
-                                   "Error calling ship function: 'run': %s");
+      int r = callUserLuaCode(team->state, 2, RUN_TIME_LIMIT,
+                              "Error calling ship function: 'run'", false);
+      if (r != 0) {
+        for (int y = 0; y < team->numShips; y++) {
+          int shipIndex = y + team->firstShipIndex;
+          ships_[shipIndex]->alive = false;
+        }
       }
       team->counter.stop();
       team->totalCpuTime += team->cpuTime[cpuTimeSlot_] =
@@ -576,9 +649,8 @@ void BerryBotsEngine::processStageRun() throw (EngineException*) {
   lua_getglobal(stageState_, "run");
   StageSensors *stageSensors = pushStageSensors(
       stageState_, sensorHandler_, stageShips_, shipProperties_);
-  if (lua_pcall(stageState_, 1, 0, 0) != 0) {
-    throwForLuaError(stageState_, "Error calling stage function: 'run': %s");
-  }
+  callUserLuaCode(stageState_, 1, RUN_TIME_LIMIT,
+                  "Error calling stage function: 'run'", true);
   cleanupStageSensorsTables(stageState_, stageSensors);
   lua_settop(stageState_, 0);
   copyShips(stageShips_, ships_, numShips_);
@@ -592,10 +664,8 @@ void BerryBotsEngine::processRoundOver() {
     if (team->hasRoundOver) {
       lua_getglobal(team->state, "roundOver");
       team->counter.start();
-      if (lua_pcall(team->state, 0, 0, 0) != 0) {
-        printLuaErrorToShipConsole(
-            team->state, "Error calling ship function: 'roundOver': %s");
-      }
+      callUserLuaCode(team->state, 0, RUN_TIME_LIMIT,
+                      "Error calling ship function: 'roundOver'", false);
       team->counter.stop();
       team->totalCpuTime += team->cpuTime[cpuTimeSlot_] =
           team->counter.get_microseconds();
@@ -617,10 +687,8 @@ void BerryBotsEngine::processGameOver() {
     if (team->hasGameOver) {
       lua_getglobal(team->state, "gameOver");
       team->counter.start();
-      if (lua_pcall(team->state, 0, 0, 0) != 0) {
-        printLuaErrorToShipConsole(
-            team->state, "Error calling ship function: 'gameOver': %s");
-      }
+      callUserLuaCode(team->state, 0, RUN_TIME_LIMIT,
+                      "Error calling ship function: 'gameOver'", false);
       team->counter.stop();
       team->totalCpuTime += team->cpuTime[cpuTimeSlot_] =
           team->counter.get_microseconds();

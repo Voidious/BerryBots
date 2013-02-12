@@ -49,6 +49,13 @@ class EngineException : public std::exception {
     virtual const char* what() const throw();
 };
 
+typedef struct {
+  lua_State *L;
+  unsigned int timeLimit;
+  volatile bool running;
+  volatile bool timedOut;
+} TimerArgs;
+
 class BerryBotsEngine {
   Stage *stage_;
   FileManager *fileManager_;
@@ -68,6 +75,7 @@ class BerryBotsEngine {
   int numShips_;
   World **worlds_;
   bool** teamVision_;
+  pthread_t timerThread_;
 
   int gameTime_;
   SensorHandler *sensorHandler_;
@@ -120,6 +128,9 @@ class BerryBotsEngine {
     bool touchedAnyZone(Ship *ship);
     void destroyShip(Ship *ship);
   private:
+    static void *timerThread(void *vargs);
+    int callUserLuaCode(lua_State *L,int nargs, unsigned int timeLimit,
+        const char *errorMsg, bool isStage) throw (EngineException*);
     void initShipRound(Ship *ship);
     void updateTeamShipsAlive();
     void processStageRun() throw (EngineException*);
