@@ -116,6 +116,12 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   borderSizer_->Add(gridSizer, 0, wxALL, 12);
   SetSizerAndFit(borderSizer_);
 
+  browseStagesButton_->MoveAfterInTabOrder(startButton_);
+  browseShipsButton_->MoveAfterInTabOrder(browseStagesButton_);
+#ifdef __WXOSX__
+  folderButton_->MoveAfterInTabOrder(browseShipsButton_);
+#endif
+
   numStages_ = numBots_ = numLoadedBots_ = 0;
   menusInitialized_ = false;
 
