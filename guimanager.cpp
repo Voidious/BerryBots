@@ -792,13 +792,13 @@ ShipPackager::~ShipPackager() {
 }
 
 void ShipPackager::package(const char *botName, const char *version,
-                           bool nosrc) {
+                           bool obfuscate) {
   char *cacheDir = guiManager_->getCacheDirCopy();
   char *tmpDir = guiManager_->getTmpDirCopy();
   bool refresh = true;
   try {
     fileManager_->packageBot(botsDir_, botName, version, cacheDir, tmpDir,
-                             nosrc, false);
+                             obfuscate, false);
   } catch (FileExistsException *e) {
     std::stringstream overwriteStream;
     overwriteStream << "File already exists: " << e->what() << std::endl
@@ -808,7 +808,7 @@ void ShipPackager::package(const char *botName, const char *version,
     int r = errorMessage.ShowModal();
     if (r == wxID_OK) {
       fileManager_->packageBot(botsDir_, botName, version, cacheDir, tmpDir,
-                               nosrc, true);
+                               obfuscate, true);
       fileManager_->deleteFromCache(cacheDir, e->what());
     } else {
       refresh = false;
@@ -853,13 +853,13 @@ StagePackager::~StagePackager() {
 }
 
 void StagePackager::package(const char *stageName, const char *version,
-                            bool nosrc) {
+                            bool obfuscate) {
   char *cacheDir = guiManager_->getCacheDirCopy();
   char *tmpDir = guiManager_->getTmpDirCopy();
   bool refresh = true;
   try {
     fileManager_->packageStage(stageDir_, stageName, version, cacheDir, tmpDir,
-                               nosrc, false);
+                               obfuscate, false);
   } catch (FileExistsException *e) {
     std::stringstream overwriteStream;
     overwriteStream << "File already exists: " << e->what() << std::endl
@@ -869,7 +869,7 @@ void StagePackager::package(const char *stageName, const char *version,
     int r = errorMessage.ShowModal();
     if (r == wxID_OK) {
       fileManager_->packageStage(stageDir_, stageName, version, cacheDir,
-                                 tmpDir, nosrc, true);
+                                 tmpDir, obfuscate, true);
       fileManager_->deleteFromCache(cacheDir, e->what());
     } else {
       refresh = false;
@@ -901,13 +901,13 @@ PackageReporter::PackageReporter(OutputConsole *packagingConsole) {
   packagingConsole_ = packagingConsole;
 }
 
-void PackageReporter::packagingComplete(
-    char **sourceFiles, int numFiles, bool nosrc, const char *destinationFile) {
+void PackageReporter::packagingComplete(char **sourceFiles, int numFiles,
+    bool obfuscate, const char *destinationFile) {
   packagingConsole_->clear();
   packagingConsole_->Show();
-  if (nosrc) {
+  if (obfuscate) {
     packagingConsole_->println(
-        "The following files were compiled and packaged as Lua bytecode:");
+        "The following files were packaged as obfuscated source code:");
   } else {
     packagingConsole_->println(
         "The following files were packaged as source code:");

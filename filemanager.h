@@ -31,8 +31,8 @@ extern "C" {
 
 class PackagingListener {
   public:
-    virtual void packagingComplete(char **sourceFiles, int numFiles, bool nosrc,
-                                   const char *destinationFile) = 0;
+    virtual void packagingComplete(char **sourceFiles, int numFiles,
+        bool obfuscate, const char *destinationFile) = 0;
     virtual ~PackagingListener() {};
 };
 
@@ -87,12 +87,12 @@ class FileManager {
     bool isZipFilename(const char *filename);
     void packageStage(const char *stageBaseDir, const char *stageName,
                       const char *version, const char *cacheDir,
-                      const char *tmpDir, bool nosrc, bool force)
+                      const char *tmpDir, bool obfuscate, bool force)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
                LuaException*, ZipperException*, FileExistsException*);
     void packageBot(const char *botBaseDir, const char *botName,
                     const char *version, const char *cacheDir,
-                    const char *tmpDir, bool nosrc, bool force)
+                    const char *tmpDir, bool obfuscate, bool force)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
                LuaException*, ZipperException*, FileExistsException*);
     void saveBytecode(const char *srcFile, const char *outputFile,
@@ -120,7 +120,7 @@ class FileManager {
     void packageCommon(lua_State *userState, const char *userAbsBaseDir,
         const char *userFilename, const char *version, const char *metaFilename,
         int prevFiles, int numFiles, char **packFilenames, const char *tmpDir,
-        bool nosrc, bool force)
+        bool obfuscate, bool force)
         throw (InvalidLuaFilenameException*, LuaException*, ZipperException*,
                FileExistsException*);
     void crawlFiles(lua_State *L, const char *startFile)

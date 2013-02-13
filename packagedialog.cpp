@@ -31,29 +31,25 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
   menusInitialized_ = false;
   numItems_ = 0;
   
-  borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
-  gridSizer_ = new wxFlexGridSizer(2, 5, 5);
-  versionSizer_ = new wxBoxSizer(wxHORIZONTAL);
-  settingsSizer_ = new wxBoxSizer(wxVERTICAL);
+  wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
 
   selectListBox_ = new wxListBox(this, wxID_ANY, wxDefaultPosition,
                                  wxSize(275, 225), 0, NULL, wxLB_SORT);
-  gridSizer_->Add(selectListBox_);
+  topSizer->Add(selectListBox_);
+  topSizer->AddSpacer(5);
+
+  wxBoxSizer *rightSizer = new wxBoxSizer(wxVERTICAL);
   versionLabel_ = new wxStaticText(this, wxID_ANY, "Version:");
   versionText_ = new wxTextCtrl(this, wxID_ANY, "1.0", wxDefaultPosition,
                                 wxSize(70, 23));
-  versionSizer_->Add(versionLabel_, 0, wxALIGN_CENTER_VERTICAL);
-  versionSizer_->AddSpacer(5);
-  versionSizer_->Add(versionText_, 0, wxALIGN_CENTER_VERTICAL);
-  settingsSizer_->AddStretchSpacer(1);
-  settingsSizer_->Add(versionSizer_, 0, wxALIGN_LEFT);
-  includeSrcCheckBox_ = new wxCheckBox(this, wxID_ANY,
-                                       "&Include source code    ");
-  includeSrcCheckBox_->SetValue(true);
-  settingsSizer_->AddSpacer(5);
-  settingsSizer_->Add(includeSrcCheckBox_, 0, wxALIGN_LEFT);
-  settingsSizer_->AddSpacer(5);
   refreshButton_ = new wxButton(this, wxID_REFRESH, "    &Refresh    ");
+  rightSizer->Add(refreshButton_, 0, wxEXPAND | wxALIGN_CENTER);
+  rightSizer->AddStretchSpacer(1);
+  wxBoxSizer *versionSizer = new wxBoxSizer(wxHORIZONTAL);
+  versionSizer->Add(versionLabel_, 0, wxALIGN_CENTER);
+  versionSizer->AddSpacer(5);
+  versionSizer->Add(versionText_, 0, wxALIGN_CENTER);
+  rightSizer->Add(versionSizer);
   packageLabel_.Append("    &");
   packageLabel_.Append(title);
   packageLabel_.Append("!    ");
@@ -66,10 +62,12 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
 #endif
   packageButton_ = new wxButton(this, wxID_ANY, packageLabel_,
       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
-  gridSizer_->Add(settingsSizer_, 0, wxEXPAND);
-  gridSizer_->Add(refreshButton_, 0, wxALIGN_LEFT);
-  gridSizer_->Add(packageButton_, 0, wxALIGN_RIGHT);
-  borderSizer_->Add(gridSizer_, 0, wxALL, 12);
+  rightSizer->AddSpacer(5);
+  rightSizer->Add(packageButton_, 0, wxEXPAND | wxALIGN_BOTTOM);
+  topSizer->Add(rightSizer, 0, wxEXPAND);
+
+  borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
+  borderSizer_->Add(topSizer, 0, wxALL, 12);
   SetSizerAndFit(borderSizer_);
 
   Connect(this->GetId(), wxEVT_ACTIVATE,
@@ -89,7 +87,6 @@ PackageDialog::~PackageDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
   delete selectListBox_;
-  delete includeSrcCheckBox_;
   delete versionLabel_;
   delete versionText_;
 }
@@ -145,7 +142,7 @@ void PackageDialog::packageSelectedItem() {
     strcpy(version, versionString.fn_str());
  #endif
 
-    listener_->package(name, version, !includeSrcCheckBox_->IsChecked());
+    listener_->package(name, version, false);
   }
 }
 
@@ -155,10 +152,6 @@ void PackageDialog::onRefreshFiles(wxCommandEvent &event) {
 
 void PackageDialog::refreshFiles() {
   listener_->refreshFiles();
-}
-
-void PackageDialog::toggleIncludeSrc() {
-  includeSrcCheckBox_->SetValue(!includeSrcCheckBox_->GetValue());
 }
 
 void PackageDialog::onEscape() {
@@ -172,16 +165,13 @@ void PackageDialog::setMnemonicLabels(bool modifierDown) {
   if (modifierDown) {
 #ifdef __WXOSX__
     refreshButton_->SetLabel("&Refresh \u2318R");
-    includeSrcCheckBox_->SetLabel("&Include source \u2318I");
 #else
     refreshButton_->SetLabel("&Refresh  alt-R");
-    includeSrcCheckBox_->SetLabel("&Include source  alt-I");
 #endif
     packageButton_->SetLabel(modifiedPackageLabel_);
   } else {
     refreshButton_->SetLabel("    &Refresh    ");
     packageButton_->SetLabel(packageLabel_);
-    includeSrcCheckBox_->SetLabel("&Include source code");
   }
 }
 
@@ -219,9 +209,6 @@ int PackageEventFilter::FilterEvent(wxEvent& event) {
       return Event_Processed;
     } else if (keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
       packageDialog_->refreshFiles();
-      return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'I' && modifierDown) {
-      packageDialog_->toggleIncludeSrc();
       return Event_Processed;
 #endif
     }

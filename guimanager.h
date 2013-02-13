@@ -161,7 +161,8 @@ class ShipPackager : public PackageDialogListener {
     ShipPackager(GuiManager *guiManager, FileManager *fileManager,
                  OutputConsole *packagingConsole, char *botsDir);
     ~ShipPackager();
-    virtual void package(const char *botName, const char *version, bool nosrc);
+    virtual void package(const char *botName, const char *version,
+                         bool obfuscate);
     virtual void refreshFiles();
     virtual void cancel();
 };
@@ -178,7 +179,7 @@ class StagePackager : public PackageDialogListener {
         OutputConsole *packagingConsole, char *stageDir, char *botsDir);
     ~StagePackager();
     virtual void package(const char *stageName, const char *version,
-                         bool nosrc);
+                         bool obfuscate);
     virtual void refreshFiles();
     virtual void cancel();
 };
@@ -188,8 +189,8 @@ class PackageReporter : public PackagingListener {
 
   public:
     PackageReporter(OutputConsole *packagingConsole);
-    virtual void packagingComplete(char **sourceFiles, int numFiles, bool nosrc,
-                                   const char *destinationFile);
+    virtual void packagingComplete(char **sourceFiles, int numFiles,
+                                   bool obfuscate, const char *destinationFile);
 };
 
 class ViewListener : public GfxViewListener {

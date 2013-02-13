@@ -17,12 +17,9 @@
 */
 #define LUA_LDIR	"!\\lua\\"
 #define LUA_CDIR	"!\\"
-// @Voidious: use ~ to be replaced by cwd
-#define LUA_PATH_DEFAULT \
-  "~\\?.lua;" LUA_LDIR"?.lua;" LUA_LDIR"?\\init.lua;"
-// @Voidious: use ~ to be replaced by cwd
-#define LUA_CPATH_DEFAULT \
-  "~\\?.dll;" LUA_CDIR"?.dll;" LUA_CDIR"loadall.dll"
+// @Voidious: use ~ to be replaced by cwd, don't load any outside packages
+#define LUA_PATH_DEFAULT  "~\\?.lua;"
+#define LUA_CPATH_DEFAULT "~\\?.dll;"
 #else
 /*
 ** Note to distribution maintainers: do NOT patch the following line!
@@ -41,12 +38,9 @@
 #define LUA_XPATH
 #define LUA_XCPATH
 #endif
-// @Voidious: use ~ to be replaced by cwd
-#define LUA_PATH_DEFAULT \
-  "~/?.lua;" LUA_JDIR"?.lua;" LUA_LDIR"?.lua;" LUA_LDIR"?/init.lua" LUA_XPATH
-// @Voidious: use ~ to be replaced by cwd
-#define LUA_CPATH_DEFAULT \
-  "~/?.so;" LUA_CDIR"?.so;" LUA_XCPATH LUA_CDIR"loadall.so"
+// @Voidious: use ~ to be replaced by cwd, don't load any outside packages
+#define LUA_PATH_DEFAULT  "~/?.lua;"
+#define LUA_CPATH_DEFAULT "~/?.so;"
 #endif
 
 /* Environment variable names for path overrides and initialization code. */

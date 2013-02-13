@@ -274,7 +274,7 @@ bool FileManager::isZipFilename(const char *filename) {
 void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir,
     const char *userFilename, const char *version, const char *metaFilename,
     int prevFiles, int numFiles, char **packFilenames, const char *tmpDir,
-    bool nosrc, bool force)
+    bool obfuscate, bool force)
     throw (InvalidLuaFilenameException*, LuaException*, ZipperException*,
            FileExistsException*) {
 
@@ -307,7 +307,8 @@ void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir
   }
 
   char *filesDir;
-  if (nosrc) {
+      
+  if (obfuscate) {
     filesDir = new char[strlen(tmpDir) + 1];
     strcpy(filesDir, tmpDir);
   } else {
@@ -334,7 +335,7 @@ void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir
   fout.flush();
   fout.close();
   
-  if (nosrc) {
+  if (obfuscate) {
     for (int x = 0; x < numFiles; x++) {
       if (packFilenames[x] != 0) {
         int outputFilenameLen = (int)
@@ -345,7 +346,8 @@ void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir
         char *outputDir = parseDir(outputFilename);
         createDirectoryIfNecessary(outputDir);
         try {
-          saveBytecode(packFilenames[x], outputFilename, userAbsBaseDir);
+          // TODO: Obfuscate Lua source code and save to outputFilename
+//          saveBytecode(packFilenames[x], outputFilename, userAbsBaseDir);
         } catch (LuaException *e) {
           delete outputFilename;
           throw e;
@@ -373,7 +375,7 @@ void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir
   }
   try {
     zipper_->packageFiles(destFilename, filesDir, inputFiles, numInputFiles,
-                          nosrc, absMetaFilename, metaFilename);
+                          obfuscate, absMetaFilename, metaFilename);
   } catch (ZipperException *e) {
     delete filesDir;
     delete destFilename;
@@ -383,11 +385,11 @@ void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir
   }
 
   if (packagingListener_ != 0) {
-    packagingListener_->packagingComplete(packFilenames, numFiles, nosrc,
+    packagingListener_->packagingComplete(packFilenames, numFiles, obfuscate,
                                           destFilename);
   }
   
-  if (nosrc) {
+  if (obfuscate) {
     // TODO: rm <tmpDir>
   }
 
@@ -423,9 +425,10 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile)
 }
 
 void FileManager::packageStage(const char *stageBaseDir, const char *stageName,
-    const char *version, const char *cacheDir, const char *tmpDir, bool nosrc,
-    bool force) throw (FileNotFoundException*, InvalidLuaFilenameException*,
-                       LuaException*, ZipperException*, FileExistsException*) {
+    const char *version, const char *cacheDir, const char *tmpDir,
+    bool obfuscate, bool force)
+    throw (FileNotFoundException*, InvalidLuaFilenameException*,
+           LuaException*, ZipperException*, FileExistsException*) {
   checkLuaFilename(stageName);
   char *stageAbsBaseDir = getAbsFilePath(stageBaseDir);
   lua_State *stageState;
@@ -488,8 +491,8 @@ void FileManager::packageStage(const char *stageBaseDir, const char *stageName,
 
   try {
     packageCommon(stageState, stageAbsBaseDir, stageName, version,
-        STAGE_METAFILE, numStageShips, numFiles, packFilenames, tmpDir, nosrc,
-        force);
+        STAGE_METAFILE, numStageShips, numFiles, packFilenames, tmpDir,
+        obfuscate, force);
   } catch (InvalidLuaFilenameException *e) {
     // TODO: find a way to combine these catches
     delete stageAbsBaseDir;
@@ -545,9 +548,10 @@ void FileManager::packageStage(const char *stageBaseDir, const char *stageName,
 //     "bots/voidious/zero.lua" and require the "battlebot" module in
 //     "bots/battlebot.lua". In this case, botName would be "voidious/zero.lua".
 void FileManager::packageBot(const char *botBaseDir, const char *botName,
-    const char *version, const char *cacheDir, const char *tmpDir, bool nosrc,
-    bool force) throw (FileNotFoundException*, InvalidLuaFilenameException*,
-                       LuaException*, ZipperException*, FileExistsException*) {
+    const char *version, const char *cacheDir, const char *tmpDir,
+    bool obfuscate, bool force)
+    throw (FileNotFoundException*, InvalidLuaFilenameException*,
+           LuaException*, ZipperException*, FileExistsException*) {
   checkLuaFilename(botName);
   char *botAbsBaseDir = getAbsFilePath(botBaseDir);
   lua_State *shipState;
@@ -560,7 +564,7 @@ void FileManager::packageBot(const char *botBaseDir, const char *botName,
 
   try {
     packageCommon(shipState, botAbsBaseDir, botName, version,
-                  BOT_METAFILE, 0, numFiles, packFilenames, tmpDir, nosrc,
+                  BOT_METAFILE, 0, numFiles, packFilenames, tmpDir, obfuscate,
                   force);
   } catch (InvalidLuaFilenameException *e) {
     // TODO: find a way to combine these catches

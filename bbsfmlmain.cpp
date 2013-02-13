@@ -49,10 +49,10 @@ void printUsage() {
   std::cout << "  berrybots.sh [-nodisplay] <stage.lua> <bot1.lua> [<bot2.lua> ...]"
             << std::endl;
   std::cout << "  OR" << std::endl;
-  std::cout << "  berrybots.sh [-nosrc] -packstage <stage.lua> <version>"
+  std::cout << "  berrybots.sh -packstage <stage.lua> <version>"
             << std::endl;
   std::cout << "  OR" << std::endl;
-  std::cout << "  berrybots.sh [-nosrc] -packbot <bot.lua> <version>"
+  std::cout << "  berrybots.sh -packbot <bot.lua> <version>"
             << std::endl;
   exit(0);
 }
@@ -71,13 +71,14 @@ int main(int argc, char *argv[]) {
     if (argc < 4) {
       printUsage();
     }
-    bool nosrc = flagExists(argc, argv, "nosrc");
+    // TODO: add a new flag for obfuscating source code
+    bool obfuscate = false;
     try {
       char *stageAbsName = FileManager::getAbsFilePath(stageInfo[0]);
       char *stageName =
           FileManager::parseRelativeFilePath(stagesBaseDir, stageAbsName);
       fileManager->packageStage(stagesBaseDir, stageName, stageInfo[1],
-                                CACHE_SUBDIR, TMP_SUBDIR, nosrc, true);
+                                CACHE_SUBDIR, TMP_SUBDIR, obfuscate, true);
       delete stageAbsName;
       delete stageName;
     } catch (std::exception *e) {
@@ -94,13 +95,14 @@ int main(int argc, char *argv[]) {
     if (argc < 4) {
       printUsage();
     }
-    bool nosrc = flagExists(argc, argv, "nosrc");
+    // TODO: add a new flag for obfuscating source code
+    bool obfuscate = false;
     try {
       char *botAbsName = FileManager::getAbsFilePath(botInfo[0]);
       char *botName =
          FileManager::parseRelativeFilePath(botsBaseDir, botAbsName);
       fileManager->packageBot(botsBaseDir, botName, botInfo[1], CACHE_SUBDIR,
-                              TMP_SUBDIR, nosrc, true);
+                              TMP_SUBDIR, obfuscate, true);
       delete botAbsName;
       delete botName;
     } catch (std::exception *e) {

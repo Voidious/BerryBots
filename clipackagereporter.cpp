@@ -25,14 +25,14 @@ CliPackageReporter::CliPackageReporter() {
 
 }
 
-void CliPackageReporter::packagingComplete(
-    char **sourceFiles, int numFiles, bool nosrc, const char *destinationFile) {
-  if (nosrc) {
-    std::cout << "The following files were compiled and packaged as Lua "
-        << "bytecode:" << std::endl;
+void CliPackageReporter::packagingComplete(char **sourceFiles, int numFiles,
+    bool obfuscate, const char *destinationFile) {
+  if (obfuscate) {
+    std::cout << "The following files were packaged as obfuscated source code:"
+              << std::endl;
   } else {
     std::cout << "The following files were packaged as source code:"
-        << std::endl;
+              << std::endl;
   }
   for (int x = 0; x < numFiles; x++) {
     if (sourceFiles[x] != 0) {

@@ -27,7 +27,7 @@
 class PackageDialogListener {
   public:
     virtual void package(const char *name, const char *version,
-                         bool nosrc) = 0;
+                         bool obfuscate) = 0;
     virtual void refreshFiles() = 0;
     virtual void cancel() = 0;
     virtual ~PackageDialogListener() {};
@@ -35,13 +35,9 @@ class PackageDialogListener {
 
 class PackageDialog : public wxFrame {
   wxBoxSizer *borderSizer_;
-  wxFlexGridSizer *gridSizer_;
-  wxBoxSizer *versionSizer_;
-  wxBoxSizer *settingsSizer_;
   wxListBox *selectListBox_;
   wxStaticText *versionLabel_;
   wxTextCtrl *versionText_;
-  wxCheckBox *includeSrcCheckBox_;
   wxButton *refreshButton_;
   wxButton *packageButton_;
   unsigned int numItems_;
@@ -64,7 +60,6 @@ class PackageDialog : public wxFrame {
     void packageSelectedItem();
     void onRefreshFiles(wxCommandEvent &event);
     void refreshFiles();
-    void toggleIncludeSrc();
     void onEscape();
     void setMnemonicLabels(bool modifierDown);
 };
