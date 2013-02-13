@@ -30,11 +30,9 @@
 // deal with misbehaving user code. CPU usage limits for fairness and
 // competitive reasons will be added later, and will be much more robust.
 #ifdef __ARM_ARCH_6__     // Raspberry Pi
-#define INIT_TIME_LIMIT   10000000 // 10.0s
-#define RUN_TIME_LIMIT     2000000 //  2.0s
+#define PCALL_TIME_LIMIT  10000000 // 10.0s
 #else
-#define INIT_TIME_LIMIT    5000000 //  5.0s
-#define RUN_TIME_LIMIT      500000 //  0.5s
+#define PCALL_TIME_LIMIT    500000 //  0.5s
 #endif
 
 extern "C" {
