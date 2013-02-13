@@ -399,9 +399,11 @@ void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir
   delete absMetaFilename;
 }
 
-void FileManager::crawlFiles(lua_State *L, const char *startFile)
+void FileManager::crawlFiles(lua_State *L, const char *startFile,
+    BerryBotsEngine *engine)
     throw (InvalidLuaFilenameException*, LuaException*) {
-  if (luaL_loadfile(L, startFile) || lua_pcall(L, 0, 0, 0)) {
+  if (luaL_loadfile(L, startFile)
+      || engine->callUserLuaCode(L, 0, "", PCALL_VALIDATE)) {
     throwForLuaError(L, "Failed to load file for crawling: %s ");
   }
   
@@ -414,7 +416,8 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile)
     while (lua_next(L, -2) != 0) {
       const char *loadedFilename = lua_tostring(L, -1);
       checkLuaFilename(loadedFilename);
-      if (luaL_loadfile(L, loadedFilename) || lua_pcall(L, 0, 0, 0)) {
+      if (luaL_loadfile(L, loadedFilename)
+          || engine->callUserLuaCode(L, 0, "", PCALL_VALIDATE)) {
         throwForLuaError(L, "Failed to load file for crawling: %s ");
       }
       lua_pop(L, 1);
@@ -434,32 +437,29 @@ void FileManager::packageStage(const char *stageBaseDir, const char *stageName,
   lua_State *stageState;
   initStageState(&stageState, stageAbsBaseDir);
   
-  BerryBotsEngine *engine = new BerryBotsEngine(this);
-  Stage *stage = engine->getStage();
-  if (luaL_loadfile(stageState, stageName) || lua_pcall(stageState, 0, 0, 0)) {
-    delete engine;
+  BerryBotsEngine engine(this);
+  Stage *stage = engine.getStage();
+  if (luaL_loadfile(stageState, stageName)
+      || engine.callUserLuaCode(stageState, 0, "", PCALL_VALIDATE)) {
     delete stageAbsBaseDir;
     throwForLuaError(stageState, "Failed to load file for crawling: %s");
   }
   lua_getglobal(stageState, "configure");
   StageBuilder *stageBuilder = pushStageBuilder(stageState);
-  stageBuilder->engine = engine;
-  if (lua_pcall(stageState, 1, 0, 0) != 0) {
-    delete engine;
+  stageBuilder->engine = &engine;
+  if (engine.callUserLuaCode(stageState, 1, "", PCALL_VALIDATE)) {
     delete stageAbsBaseDir;
     throwForLuaError(stageState,
                      "Error calling stage function: 'configure': %s");
   }
 
   try {
-    crawlFiles(stageState, stageName);
+    crawlFiles(stageState, stageName, &engine);
   } catch (InvalidLuaFilenameException *e) {
-    delete engine;
     lua_close(stageState);
     delete stageAbsBaseDir;
     throw e;
   } catch (LuaException *e) {
-    delete engine;
     delete stageAbsBaseDir;
     lua_close(stageState);
     throw e;
@@ -487,7 +487,6 @@ void FileManager::packageStage(const char *stageBaseDir, const char *stageName,
       strcpy(packFilenames[x], shipRelativePath);
     }
   }
-  delete stage;
 
   try {
     packageCommon(stageState, stageAbsBaseDir, stageName, version,
@@ -556,7 +555,8 @@ void FileManager::packageBot(const char *botBaseDir, const char *botName,
   char *botAbsBaseDir = getAbsFilePath(botBaseDir);
   lua_State *shipState;
   initShipState(&shipState, botAbsBaseDir);
-  crawlFiles(shipState, botName);
+  BerryBotsEngine engine(this);
+  crawlFiles(shipState, botName, &engine);
 
   lua_getfield(shipState, LUA_REGISTRYINDEX, "__FILES");
   int numFiles = (int) lua_objlen(shipState, -1);

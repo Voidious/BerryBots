@@ -145,10 +145,13 @@ void GuiManager::loadStages() {
 }
 
 void GuiManager::loadStagesFromDir(const char *loadDir) {
-  loadItemsFromDir(stageBaseDir_, loadDir, ITEM_STAGE, packageStageDialog_);
+  BerryBotsEngine engine(fileManager_);
+  loadItemsFromDir(stageBaseDir_, loadDir, ITEM_STAGE, packageStageDialog_,
+                   &engine);
 }
 
-bool GuiManager::isValidStageFile(const char *srcFilename) {
+bool GuiManager::isValidStageFile(const char *srcFilename,
+                                  BerryBotsEngine *engine) {
   // TODO: Is this too slow? Should we keep this list in the cache so we don't
   //       have to do this on every startup / refresh - at least for packaged
   //       stages? In fact, just the presence in the cache could be considered
@@ -190,9 +193,9 @@ bool GuiManager::isValidStageFile(const char *srcFilename) {
     delete cacheDir;
     lua_State *stageState;
     initStageState(&stageState, stageDir);
-    
+
     if (luaL_loadfile(stageState, stageFilename)
-        || lua_pcall(stageState, 0, 0, 0)) {
+        || engine->callUserLuaCode(stageState, 0, "", PCALL_VALIDATE)) {
       logErrorMessage(stageState, "Problem loading stage: %s");
       lua_close(stageState);
       delete stageDir;
@@ -224,10 +227,13 @@ void GuiManager::loadBots() {
 }
 
 void GuiManager::loadBotsFromDir(const char *loadDir) {
-  loadItemsFromDir(botsBaseDir_, loadDir, ITEM_BOT, packageShipDialog_);
+  BerryBotsEngine engine(fileManager_);
+  loadItemsFromDir(botsBaseDir_, loadDir, ITEM_BOT, packageShipDialog_,
+                   &engine);
 }
 
-bool GuiManager::isValidBotFile(const char *srcFilename) {
+bool GuiManager::isValidBotFile(const char *srcFilename,
+                                BerryBotsEngine *engine) {
   // TODO: Is this too slow? Should we keep this list in the cache so we don't
   //       have to do this on every startup / refresh - at least for packaged
   //       ships? In fact, just the presence in the cache could be considered
@@ -269,9 +275,9 @@ bool GuiManager::isValidBotFile(const char *srcFilename) {
     delete cacheDir;
     lua_State *shipState;
     initShipState(&shipState, botDir);
-    
+
     if (luaL_loadfile(shipState, botFilename)
-        || lua_pcall(shipState, 0, 0, 0)) {
+        || engine->callUserLuaCode(shipState, 0, "", PCALL_VALIDATE)) {
       logErrorMessage(shipState, "Problem loading ship: %s");
       lua_close(shipState);
       delete botDir;
@@ -297,7 +303,7 @@ bool GuiManager::isValidBotFile(const char *srcFilename) {
 }
 
 void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
-    int itemType, PackageDialog *packageDialog) {
+    int itemType, PackageDialog *packageDialog, BerryBotsEngine *engine) {
   platformstl::readdir_sequence dir(loadDir,
       platformstl::readdir_sequence::files
           | platformstl::readdir_sequence::directories);
@@ -308,14 +314,15 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
     char *filename = (char *) *file;
     char *filePath = FileManager::getFilePath(loadDir, filename);
     if (FileManager::isDirectory(filePath)) {
-      loadItemsFromDir(baseDir, filePath, itemType, packageDialog);
+      loadItemsFromDir(baseDir, filePath, itemType, packageDialog, engine);
     } else {
       char *relativeFilename = &(filePath[strlen(baseDir) + 1]);
       bool valid = false;
-      if (itemType == ITEM_BOT && isValidBotFile(relativeFilename)) {
+      if (itemType == ITEM_BOT && isValidBotFile(relativeFilename, engine)) {
         newMatchDialog_->addBot(relativeFilename);
         valid = true;
-      } else if (itemType == ITEM_STAGE && isValidStageFile(relativeFilename)) {
+      } else if (itemType == ITEM_STAGE && isValidStageFile(relativeFilename,
+                                                            engine)) {
         newMatchDialog_->addStage(relativeFilename);
         valid = true;
       }

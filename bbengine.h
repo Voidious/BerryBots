@@ -28,6 +28,10 @@
 #include "filemanager.h"
 #include "sensorhandler.h"
 
+#define PCALL_STAGE     1
+#define PCALL_SHIP      2
+#define PCALL_VALIDATE  3
+
 extern "C" {
   #include "lua.h"
   #include "lualib.h"
@@ -128,10 +132,10 @@ class BerryBotsEngine {
     bool touchedZone(Ship *ship, const char *zoneTag);
     bool touchedAnyZone(Ship *ship);
     void destroyShip(Ship *ship);
-  private:
     static void *timerThread(void *vargs);
     int callUserLuaCode(lua_State *L,int nargs, const char *errorMsg,
-                        bool isStage) throw (EngineException*);
+                        int callStyle) throw (EngineException*);
+  private:
     void initShipRound(Ship *ship);
     void updateTeamShipsAlive();
     void processStageRun() throw (EngineException*);

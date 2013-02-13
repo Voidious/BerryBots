@@ -123,8 +123,9 @@ class FileManager {
         bool obfuscate, bool force)
         throw (InvalidLuaFilenameException*, LuaException*, ZipperException*,
                FileExistsException*);
-    void crawlFiles(lua_State *L, const char *startFile)
-        throw (InvalidLuaFilenameException*, LuaException*);
+    void crawlFiles(lua_State *L, const char *startFile,
+                    BerryBotsEngine *engine)
+                    throw (InvalidLuaFilenameException*, LuaException*);
     bool fileExists(const char *filename);
     void createDirectory(const char *filename);
     void createDirectoryIfNecessary(const char *dir);

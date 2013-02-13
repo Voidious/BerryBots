@@ -97,9 +97,9 @@ class GuiManager {
     void setBaseDirs(const char *stagesBaseDir, const char *botsBaseDir);
     void reloadBaseDirs();
     void loadStages();
-    bool isValidStageFile(const char *srcFilename);
+    bool isValidStageFile(const char *srcFilename, BerryBotsEngine *engine);
     void loadBots();
-    bool isValidBotFile(const char *srcFilename);
+    bool isValidBotFile(const char *srcFilename, BerryBotsEngine *engine);
     void runNewMatch(const char *stageName, char **teamNames, int numTeams);
     void resumeMatch();
     void processMainWindowEvents();
@@ -132,7 +132,7 @@ class GuiManager {
     void loadStagesFromDir(const char *loadDir);
     void loadBotsFromDir(const char *loadDir);
     void loadItemsFromDir(const char *baseDir, const char *loadDir,
-                          int itemType, PackageDialog *packageDialog);
+        int itemType, PackageDialog *packageDialog, BerryBotsEngine *engine);
     void logErrorMessage(lua_State *L, const char *formatString);
 };
 
