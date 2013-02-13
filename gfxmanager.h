@@ -27,17 +27,20 @@
 #include "gfxeventhandler.h"
 #include "dockitem.h"
 
+#define DRAW_SHIP_RADIUS        (SHIP_RADIUS - .7)
+#define SHIP_OUTLINE_THICKNESS  1.7
+
 #define STAGE_MARGIN             25
 #define DOCK_SIZE                159
-#define SHIP_DOT_POSITION        SHIP_RADIUS * .45
-#define SHIP_DOT_RADIUS          SHIP_RADIUS * .2
+#define SHIP_DOT_POSITION        DRAW_SHIP_RADIUS * .45
+#define SHIP_DOT_RADIUS          DRAW_SHIP_RADIUS * .2
 #define SHIP_DOT_FRAMES          240
 #define LASER_THICKNESS          2
 #define THRUSTER_THICKNESS       6
-#define THRUSTER_LENGTH          SHIP_SIZE
+#define THRUSTER_LENGTH          12
 #define ENERGY_THICKNESS         2
-#define ENERGY_LENGTH            (SHIP_SIZE * 2)
-#define THRUSTER_ZERO            (SHIP_RADIUS + 1.0) / (SHIP_RADIUS + THRUSTER_LENGTH)
+#define ENERGY_LENGTH            (DRAW_SHIP_RADIUS * 4)
+#define THRUSTER_ZERO            (DRAW_SHIP_RADIUS + 1.0) / (DRAW_SHIP_RADIUS + THRUSTER_LENGTH)
 #define TORPEDO_RADIUS           4
 #define TORPEDO_SIZE             TORPEDO_RADIUS * 2
 #define SHIP_DEATH_FRAMES        16

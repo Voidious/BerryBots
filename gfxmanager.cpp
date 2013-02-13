@@ -32,20 +32,20 @@
 
 // TODO: make these member vars instead of globals
 
-sf::CircleShape shipShape(SHIP_RADIUS);
+sf::CircleShape shipShape(DRAW_SHIP_RADIUS);
 sf::CircleShape shipDotShape(SHIP_DOT_RADIUS);
 sf::Vector2f shipDotPoint(SHIP_DOT_POSITION, 0);
 sf::CircleShape destroyedShape(SHIP_DEATH_RADIUS);
 sf::RectangleShape sparkShape(
     sf::Vector2f(LASER_SPARK_LENGTH, LASER_SPARK_THICKNESS));
-sf::Vector2f sparkPoint(SHIP_RADIUS, -0.5);
+sf::Vector2f sparkPoint(DRAW_SHIP_RADIUS, -0.5);
 sf::RectangleShape laserShape(sf::Vector2f(LASER_SPEED, LASER_THICKNESS));
 sf::Vector2f laserPoint(0, LASER_THICKNESS / 2);
 sf::CircleShape torpedoCircleShape(TORPEDO_RADIUS, TORPEDO_RADIUS);
 sf::RectangleShape torpedoRay(sf::Vector2f(TORPEDO_SIZE * 2, 1));
 sf::Vector2f torpedoRayPoint(TORPEDO_SIZE, .5);
 sf::CircleShape torpedoBlastShape(TORPEDO_BLAST_RADIUS, TORPEDO_BLAST_RADIUS);
-sf::RectangleShape thrusterShape(sf::Vector2f(SHIP_RADIUS + THRUSTER_LENGTH,
+sf::RectangleShape thrusterShape(sf::Vector2f(DRAW_SHIP_RADIUS + THRUSTER_LENGTH,
                                               THRUSTER_THICKNESS));
 sf::Vector2f thrusterPoint(0, THRUSTER_THICKNESS / 2);
 sf::RectangleShape energyShape(sf::Vector2f(ENERGY_LENGTH, ENERGY_THICKNESS));
@@ -149,7 +149,7 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
     shipDotDirections[x] = (rand() % 10 < 5) ? true : false;
   }
   
-  shipShape.setOutlineThickness(SHIP_RADIUS * .25);
+  shipShape.setOutlineThickness(SHIP_OUTLINE_THICKNESS);
   shipShape.setFillColor(sf::Color::Black);
   shipDotShape.setOutlineThickness(0);
   destroyedShape.setOutlineThickness(2);
@@ -588,8 +588,8 @@ void GfxManager::drawShips(sf::RenderWindow *window, Ship **ships, int numShips,
     Ship *ship = ships[x];
     if (ship->alive) {
       shipShape.setOutlineColor(shipColors[x]);
-      shipShape.setPosition(adjustX(ship->x - SHIP_RADIUS),
-                            adjustY(ship->y - SHIP_RADIUS, SHIP_SIZE));
+      shipShape.setPosition(adjustX(ship->x - DRAW_SHIP_RADIUS),
+                            adjustY(ship->y - DRAW_SHIP_RADIUS, DRAW_SHIP_RADIUS * 2));
       window->draw(shipShape);
 
       shipDotShape.setFillColor(laserColors[x]);
@@ -609,7 +609,7 @@ void GfxManager::drawShips(sf::RenderWindow *window, Ship **ships, int numShips,
     Ship *ship = ships[x];
     if (ship->alive && ship->energyEnabled) {
       energyShape.setPosition(adjustX(ship->x - (ENERGY_LENGTH / 2)),
-                              adjustY(ship->y - SHIP_RADIUS - 8));
+                              adjustY(ship->y - DRAW_SHIP_RADIUS - 8));
       energyShape.setScale(ship->energy / DEFAULT_ENERGY, 1);
       window->draw(energyShape);
     }
