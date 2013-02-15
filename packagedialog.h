@@ -40,6 +40,7 @@ class PackageDialog : public wxFrame {
   wxTextCtrl *versionText_;
   wxButton *refreshButton_;
   wxButton *packageButton_;
+  wxStaticText *keyboardLabel_;
   unsigned int numItems_;
   PackageDialogListener *listener_;
   MenuBarMaker *menuBarMaker_;

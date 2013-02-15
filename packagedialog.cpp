@@ -45,6 +45,15 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
   refreshButton_ = new wxButton(this, wxID_REFRESH, "    &Refresh    ");
   rightSizer->Add(refreshButton_, 0, wxEXPAND | wxALIGN_CENTER);
   rightSizer->AddStretchSpacer(1);
+#ifdef __WXOSX__
+  keyboardLabel_ = new wxStaticText(this, wxID_ANY,
+                                    "\u2318 hotkeys");
+#else
+  keyboardLabel_ = new wxStaticText(this, wxID_ANY,
+                                    "ALT hotkeys");
+#endif
+  rightSizer->Add(keyboardLabel_, 0, wxALIGN_CENTER);
+  rightSizer->AddStretchSpacer(1);
   wxBoxSizer *versionSizer = new wxBoxSizer(wxHORIZONTAL);
   versionSizer->Add(versionLabel_, 0, wxALIGN_CENTER);
   versionSizer->AddSpacer(5);
@@ -89,6 +98,7 @@ PackageDialog::~PackageDialog() {
   delete selectListBox_;
   delete versionLabel_;
   delete versionText_;
+  delete keyboardLabel_;
 }
 
 void PackageDialog::clearItems() {

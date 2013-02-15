@@ -33,9 +33,6 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
   wxFlexGridSizer *gridSizer = new wxFlexGridSizer(2, 5, 5);
   wxBoxSizer *stageSizer = new wxBoxSizer(wxVERTICAL);
-  wxBoxSizer *botsSizer = new wxBoxSizer(wxVERTICAL);
-  wxBoxSizer *botButtonsSizer = new wxBoxSizer(wxVERTICAL);
-
   stageLabel_ = new wxStaticText(this, wxID_ANY, "Stage:");
   stageSelect_ = new wxListBox(this, wxID_ANY, wxDefaultPosition,
                                wxSize(275, 225), 0, NULL, wxLB_SORT);
@@ -82,6 +79,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   botsSelect_ = new wxListBox(this, SELECT_BOTS_ID, wxDefaultPosition,
                               wxSize(275, 225), 0, NULL,
                               wxLB_EXTENDED | wxLB_SORT);
+  wxBoxSizer *botsSizer = new wxBoxSizer(wxVERTICAL);
   botsSizer->Add(botsLabel_, 0, wxALIGN_LEFT);
   botsSizer->AddSpacer(3);
   botsSizer->Add(botsSelect_, 0, wxALIGN_LEFT);
@@ -94,12 +92,24 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
                               wxDefaultSize);
   clearButton_ = new wxButton(this, CLEAR_BUTTON_ID, "&Clear", wxDefaultPosition,
                               wxDefaultSize);
+
+  wxBoxSizer *botButtonsSizer = new wxBoxSizer(wxVERTICAL);
+  botButtonsSizer->AddStretchSpacer(1);
   botButtonsSizer->Add(addArrow_, 0, wxALIGN_CENTER);
   botButtonsSizer->AddSpacer(5);
   botButtonsSizer->Add(removeArrow_, 0, wxALIGN_CENTER);
   botButtonsSizer->AddSpacer(5);
   botButtonsSizer->Add(clearButton_, 0, wxALIGN_CENTER);
-  buttonsLoadedBotsSizer->Add(botButtonsSizer, 0, wxALIGN_CENTER);
+  botButtonsSizer->AddStretchSpacer(1);
+#ifdef __WXOSX__
+  keyboardLabel_ = new wxStaticText(this, wxID_ANY,
+                                    "\u2318 hotkeys");
+#else
+  keyboardLabel_ = new wxStaticText(this, wxID_ANY,
+                                    "ALT hotkeys");
+#endif
+  botButtonsSizer->Add(keyboardLabel_, 0, wxALIGN_CENTER | wxALIGN_BOTTOM);
+  buttonsLoadedBotsSizer->Add(botButtonsSizer, 0, wxALIGN_CENTER | wxEXPAND);
 
   loadedBotsSelect_ = new wxListBox(this, LOADED_BOTS_ID, wxDefaultPosition,
                                     wxSize(275, 225), 0, NULL, wxLB_EXTENDED);
@@ -110,6 +120,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 
   refreshButton_ = new wxButton(this, wxID_REFRESH, "    &Refresh    ");
   gridSizer->Add(refreshButton_, 0, wxALIGN_LEFT);
+
   startButton_ = new wxButton(this, START_BUTTON_ID, "    Start &Match!    ",
                               wxDefaultPosition, wxDefaultSize);
   gridSizer->Add(startButton_, 0, wxALIGN_RIGHT);
@@ -172,6 +183,7 @@ NewMatchDialog::~NewMatchDialog() {
   delete browseStagesButton_;
   delete botsBaseDirLabel_;
   delete browseShipsButton_;
+  delete keyboardLabel_;
 }
 
 void NewMatchDialog::clearStages() {

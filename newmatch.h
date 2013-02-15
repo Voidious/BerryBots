@@ -51,6 +51,7 @@ class NewMatchDialog : public wxFrame {
   wxButton *browseShipsButton_;
   wxStaticText *stageBaseDirLabel_;
   wxStaticText *botsBaseDirLabel_;
+  wxStaticText *keyboardLabel_;
   unsigned int numStages_;
   unsigned int numBots_;
   unsigned int numLoadedBots_;
