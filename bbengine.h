@@ -22,6 +22,7 @@
 #define BBENGINE_H
 
 #include <exception>
+#include <pthread.h>
 #include "bbconst.h"
 #include "bbutil.h"
 #include "stage.h"

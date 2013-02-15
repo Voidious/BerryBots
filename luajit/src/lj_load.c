@@ -35,7 +35,7 @@ static TValue *cpparser(lua_State *L, lua_CFunction dummy, void *ud)
   cframe_errfunc(L->cframe) = -1;  /* Inherit error function. */
   bc = lj_lex_setup(L, ls);
   // @Voidious: Totally disable loading bytecode for BerryBots.
-  if (bc || ls->mode && !strchr(ls->mode, bc ? 'b' : 't')) {
+  if (bc || (ls->mode && !strchr(ls->mode, bc ? 'b' : 't'))) {
     setstrV(L, L->top++, lj_err_str(L, LJ_ERR_XMODE));
     lj_err_throw(L, LUA_ERRSYNTAX);
   }

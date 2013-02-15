@@ -741,7 +741,7 @@ void BerryBotsEngine::copyShips(
 
 // Note: We don't have to log stage errors to the output console because they
 //       are considered fatal. We throw exceptions from the engine and the
-//       GUI or CLI display them appropriately.
+//       GUI or CLI displays them appropriately.
 void BerryBotsEngine::printLuaErrorToShipConsole(lua_State *L,
                                              const char *formatString) {
   if (printHandler != 0) {
