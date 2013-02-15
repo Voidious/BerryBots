@@ -114,6 +114,7 @@ typedef struct {
 
 typedef struct {
   unsigned short shipIndex;
+  unsigned int fireTime;
   double x;
   double y;
   double heading;
@@ -142,7 +143,7 @@ typedef struct {
   unsigned short height;
   unsigned short numShips;
   unsigned short teamSize;
-  int time;
+  unsigned int time;
   int wallsRef;
   int zonesRef;
   int constantsRef;

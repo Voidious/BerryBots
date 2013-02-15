@@ -405,14 +405,6 @@ void Stage::moveAndCheckCollisions(
     }
   }
 
-  // Move lasers one whole tick.
-  for (int x = 0; x < numLasers_; x++) {
-    Laser *laser = lasers_[x];
-    laser->x += laser->dx;
-    laser->y += laser->dy;
-    laserLines_[x]->shift(laser->dx, laser->dy);
-  }
-
   for (int x = 0; x < intervals; x++) {
     // Move ships one interval and check for wall collisions.
     for (int y = 0; y < numShips; y++) {
@@ -625,36 +617,23 @@ void Stage::moveAndCheckCollisions(
     }
   }
   bool *wasAlive = new bool[numShips];
-  for (int x = 0; x < numShips; x++) {
-    Ship *ship = ships[x];
-    wasAlive[x] = ship->alive;
-    if (ship->alive) {
-      for (int y = 0; y < numLasers_; y++) {
-        if (shipData[x].shipCircle->intersects(laserLines_[y])) {
-          Laser *laser = lasers_[y];
-          int firingShipIndex = laser->shipIndex;
-          laserHits[firingShipIndex][x] = true;
-          double laserDamage = (ship->energyEnabled ? LASER_DAMAGE : 0);
-          double damageScore = (laserDamage / DEFAULT_ENERGY);
-          if (ship->teamIndex == ships[firingShipIndex]->teamIndex) {
-            ships[firingShipIndex]->friendlyDamage += damageScore;
-          } else {
-            ships[firingShipIndex]->damage += damageScore;
-          }
-          ship->energy -= laserDamage;
-          for (int z = 0; z < numEventHandlers_; z++) {
-            eventHandlers_[z]->handleLaserHitShip(ships[laser->shipIndex],
-                ship, laser->x, laser->y, laser->heading, gameTime);
-          }
 
-          if (ship->energy <= 0) {
-            ship->alive = false;
-          }
-          laser->dead = true;
-        }
-      }
-    }
+  // For lasers fired this tick, check if they intersect any other ships at
+  // their initial position (0-25 from origin) before moving the first time.
+  checkLaserShipCollisions(ships, shipData, numShips, wasAlive, laserHits,
+                           numLasers_, gameTime, true);
+
+  // Move lasers one whole tick.
+  for (int x = 0; x < numLasers_; x++) {
+    Laser *laser = lasers_[x];
+    laser->x += laser->dx;
+    laser->y += laser->dy;
+    laserLines_[x]->shift(laser->dx, laser->dy);
   }
+  
+  checkLaserShipCollisions(ships, shipData, numShips, wasAlive, laserHits,
+                           numLasers_, gameTime, false);
+
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
     if (wasAlive[x] && !ship->alive) {
@@ -824,6 +803,44 @@ void Stage::moveAndCheckCollisions(
   delete shipData;
 }
 
+void Stage::checkLaserShipCollisions(Ship **ships, ShipMoveData *shipData,
+    int numShips, bool *wasAlive, bool **laserHits, int numLasers,
+    int gameTime, bool firstTickLasers) {
+  for (int x = 0; x < numShips; x++) {
+    Ship *ship = ships[x];
+    wasAlive[x] = ship->alive;
+    if (ship->alive) {
+      for (int y = 0; y < numLasers; y++) {
+        Laser *laser = lasers_[y];
+        if (((firstTickLasers && laser->fireTime == gameTime
+                 && laser->shipIndex != ship->index)
+            || !firstTickLasers)
+            && shipData[x].shipCircle->intersects(laserLines_[y])) {
+          int firingShipIndex = laser->shipIndex;
+          laserHits[firingShipIndex][x] = true;
+          double laserDamage = (ship->energyEnabled ? LASER_DAMAGE : 0);
+          double damageScore = (laserDamage / DEFAULT_ENERGY);
+          if (ship->teamIndex == ships[firingShipIndex]->teamIndex) {
+            ships[firingShipIndex]->friendlyDamage += damageScore;
+          } else {
+            ships[firingShipIndex]->damage += damageScore;
+          }
+          ship->energy -= laserDamage;
+          for (int z = 0; z < numEventHandlers_; z++) {
+            eventHandlers_[z]->handleLaserHitShip(ships[laser->shipIndex],
+                ship, laser->x, laser->y, laser->heading, gameTime);
+          }
+
+          if (ship->energy <= 0) {
+            ship->alive = false;
+          }
+          laser->dead = true;
+        }
+      }
+    }
+  }
+}
+
 void Stage::setSpeedAndHeading(
     Ship *oldShip, Ship *ship, ShipMoveData *shipDatum) {
   ship->speed = sqrt(square(shipDatum->xSpeed) + square(shipDatum->ySpeed));
@@ -910,6 +927,7 @@ int Stage::fireLaser(Ship *ship, double heading, int gameTime) {
     if (hasVision(&laserStartLine)) {
       Laser *laser = new Laser;
       laser->shipIndex = ship->index;
+      laser->fireTime = gameTime;
       double dx = cosHeading * LASER_SPEED;
       double dy = sinHeading * LASER_SPEED;
       laser->x = laserX;

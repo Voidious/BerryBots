@@ -145,6 +145,9 @@ class Stage {
     int addEventHandler(EventHandler *eventHandler);
     void reset();
   private:
+    void checkLaserShipCollisions(Ship **ships, ShipMoveData *shipData,
+        int numShips, bool *wasAlive, bool **laserHits, int numLasers,
+        int gameTime, bool firstTickLasers);
     bool isShipInWall(double x, double y);
     bool isShipInShip(int shipIndex, double x, double y);
     void setSpeedAndHeading(Ship *oldShip, Ship *ship, ShipMoveData *shipData);
