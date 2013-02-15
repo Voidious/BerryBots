@@ -114,6 +114,9 @@ class GuiManager {
     void hidePackageStageDialog();
     void hidePackagingConsole();
     void hideErrorConsole();
+    void newMatchInitialFocus();
+    void packageShipInitialFocus();
+    void packageStageInitialFocus();
     void togglePause();
     void restartMatch();
     void quit();

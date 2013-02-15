@@ -30,11 +30,15 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
         wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
   menuBarMaker_ = menuBarMaker;
+
+  mainPanel_ = new wxPanel(this);
+  mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
+  mainSizer_->Add(mainPanel_);
   borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
   wxFlexGridSizer *gridSizer = new wxFlexGridSizer(2, 5, 5);
   wxBoxSizer *stageSizer = new wxBoxSizer(wxVERTICAL);
-  stageLabel_ = new wxStaticText(this, wxID_ANY, "Stage:");
-  stageSelect_ = new wxListBox(this, wxID_ANY, wxDefaultPosition,
+  stageLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Stage:");
+  stageSelect_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
                                wxSize(275, 225), 0, NULL, wxLB_SORT);
   stageSizer->Add(stageLabel_, 0, wxALIGN_LEFT);
   stageSizer->AddSpacer(3);
@@ -43,12 +47,12 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 
   wxBoxSizer *dirsBorderSizer = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *dirsSizer = new wxBoxSizer(wxVERTICAL);
-  stageBaseDirLabel_ = new wxStaticText(this, wxID_ANY, wxEmptyString);
-  botsBaseDirLabel_ = new wxStaticText(this, wxID_ANY, wxEmptyString);
+  stageBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
+  botsBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
   updateBaseDirLabels();
-  browseStagesButton_ = new wxButton(this, wxID_ANY, "Open");
+  browseStagesButton_ = new wxButton(mainPanel_, wxID_ANY, "Open");
   browseStagesButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
-  browseShipsButton_ = new wxButton(this, wxID_ANY, "Open");
+  browseShipsButton_ = new wxButton(mainPanel_, wxID_ANY, "Open");
   browseShipsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
   dirsSizer->Add(stageBaseDirLabel_);
   dirsSizer->AddSpacer(3);
@@ -61,7 +65,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 #ifdef __WXOSX__
   // Using cwd as base dir on other platforms, so only support changing base dir
   // on Mac for now.
-  folderButton_ = new wxButton(this, wxID_ANY, "Change &Base Dir  ");
+  folderButton_ = new wxButton(mainPanel_, wxID_ANY, "Change &Base Dir  ");
   folderButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER));
   dirsSizer->AddStretchSpacer(1);
   dirsSizer->Add(folderButton_, 0, wxALIGN_BOTTOM);
@@ -75,8 +79,8 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   dirsBorderSizer->Add(dirsSizer, 0, wxEXPAND);
   gridSizer->Add(dirsBorderSizer, 0, wxEXPAND | wxALIGN_LEFT | wxALIGN_TOP);
 
-  botsLabel_ = new wxStaticText(this, wxID_ANY, "Ships:");
-  botsSelect_ = new wxListBox(this, SELECT_BOTS_ID, wxDefaultPosition,
+  botsLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Ships:");
+  botsSelect_ = new wxListBox(mainPanel_, SELECT_BOTS_ID, wxDefaultPosition,
                               wxSize(275, 225), 0, NULL,
                               wxLB_EXTENDED | wxLB_SORT);
   wxBoxSizer *botsSizer = new wxBoxSizer(wxVERTICAL);
@@ -86,12 +90,12 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   gridSizer->Add(botsSizer, 0, wxALIGN_LEFT);
 
   wxBoxSizer *buttonsLoadedBotsSizer = new wxBoxSizer(wxHORIZONTAL);
-  addArrow_ = new wxButton(this, ADD_BUTTON_ID, ">>", wxDefaultPosition,
-                           wxDefaultSize);
-  removeArrow_ = new wxButton(this, REMOVE_BUTTON_ID, "<<", wxDefaultPosition,
-                              wxDefaultSize);
-  clearButton_ = new wxButton(this, CLEAR_BUTTON_ID, "&Clear", wxDefaultPosition,
-                              wxDefaultSize);
+  addArrow_ = new wxButton(mainPanel_, ADD_BUTTON_ID, ">>",
+                           wxDefaultPosition, wxDefaultSize);
+  removeArrow_ = new wxButton(mainPanel_, REMOVE_BUTTON_ID, "<<",
+                              wxDefaultPosition, wxDefaultSize);
+  clearButton_ = new wxButton(mainPanel_, CLEAR_BUTTON_ID, "&Clear",
+                              wxDefaultPosition, wxDefaultSize);
 
   wxBoxSizer *botButtonsSizer = new wxBoxSizer(wxVERTICAL);
   botButtonsSizer->AddStretchSpacer(1);
@@ -102,30 +106,31 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   botButtonsSizer->Add(clearButton_, 0, wxALIGN_CENTER);
   botButtonsSizer->AddStretchSpacer(1);
 #ifdef __WXOSX__
-  keyboardLabel_ = new wxStaticText(this, wxID_ANY,
+  keyboardLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
                                     "\u2318 hotkeys");
 #else
-  keyboardLabel_ = new wxStaticText(this, wxID_ANY,
+  keyboardLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
                                     "ALT hotkeys");
 #endif
   botButtonsSizer->Add(keyboardLabel_, 0, wxALIGN_CENTER | wxALIGN_BOTTOM);
   buttonsLoadedBotsSizer->Add(botButtonsSizer, 0, wxALIGN_CENTER | wxEXPAND);
 
-  loadedBotsSelect_ = new wxListBox(this, LOADED_BOTS_ID, wxDefaultPosition,
-                                    wxSize(275, 225), 0, NULL, wxLB_EXTENDED);
+  loadedBotsSelect_ = new wxListBox(mainPanel_, LOADED_BOTS_ID,
+      wxDefaultPosition, wxSize(275, 225), 0, NULL, wxLB_EXTENDED);
   buttonsLoadedBotsSizer->AddSpacer(5);
   buttonsLoadedBotsSizer->Add(loadedBotsSelect_, 0,
                               wxALIGN_BOTTOM | wxALIGN_RIGHT);
   gridSizer->Add(buttonsLoadedBotsSizer, 0, wxALIGN_BOTTOM);
 
-  refreshButton_ = new wxButton(this, wxID_REFRESH, "    &Refresh    ");
+  refreshButton_ = new wxButton(mainPanel_, wxID_REFRESH, "    &Refresh    ");
   gridSizer->Add(refreshButton_, 0, wxALIGN_LEFT);
 
-  startButton_ = new wxButton(this, START_BUTTON_ID, "    Start &Match!    ",
-                              wxDefaultPosition, wxDefaultSize);
+  startButton_ = new wxButton(mainPanel_, START_BUTTON_ID,
+      "    Start &Match!    ", wxDefaultPosition, wxDefaultSize);
   gridSizer->Add(startButton_, 0, wxALIGN_RIGHT);
   borderSizer_->Add(gridSizer, 0, wxALL, 12);
-  SetSizerAndFit(borderSizer_);
+  mainPanel_->SetSizerAndFit(borderSizer_);
+  SetSizerAndFit(mainSizer_);
 
   browseStagesButton_->MoveAfterInTabOrder(startButton_);
   browseShipsButton_->MoveAfterInTabOrder(browseStagesButton_);
@@ -138,6 +143,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 
   Connect(NEW_MATCH_ID, wxEVT_ACTIVATE,
           wxActivateEventHandler(NewMatchDialog::onActivate));
+  Connect(NEW_MATCH_ID, wxEVT_SHOW, wxShowEventHandler(NewMatchDialog::onShow));
   Connect(NEW_MATCH_ID, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(NewMatchDialog::onClose));
   Connect(ADD_BUTTON_ID, wxEVT_COMMAND_BUTTON_CLICKED,
@@ -184,6 +190,7 @@ NewMatchDialog::~NewMatchDialog() {
   delete botsBaseDirLabel_;
   delete browseShipsButton_;
   delete keyboardLabel_;
+  delete mainPanel_;
 }
 
 void NewMatchDialog::clearStages() {
@@ -217,7 +224,11 @@ void NewMatchDialog::onActivate(wxActivateEvent &event) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
   }
-  SetSizerAndFit(borderSizer_);
+  SetSizerAndFit(mainSizer_);
+}
+
+void NewMatchDialog::onShow(wxShowEvent &event) {
+  initialFocus();
 }
 
 void NewMatchDialog::onClose(wxCommandEvent &event) {
@@ -410,6 +421,10 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
   }
 }
 
+void NewMatchDialog::initialFocus() {
+  stageSelect_->SetFocus();
+}
+
 NewMatchEventFilter::NewMatchEventFilter(NewMatchDialog *newMatchDialog) {
   newMatchDialog_ = newMatchDialog;
 }
@@ -442,10 +457,8 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_BACK)
                && (newMatchDialog_->loadedBotsSelectHasFocus())) {
       newMatchDialog_->removeSelectedLoadedBots();
-#if defined(__WXOSX__) || defined(__WINDOWS__)
+#ifdef __WXOSX__
     // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
-    // Tab navigation and mnemonics are also broken for me on Windows 8 right
-    // now, though I think they're supposd to work. So enable them there too.
     } else if (keyEvent->GetUnicodeKey() == 'M' && modifierDown) {
       newMatchDialog_->startMatch();
       return Event_Processed;
@@ -455,8 +468,6 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
     } else if (keyEvent->GetUnicodeKey() == 'C' && modifierDown) {
       newMatchDialog_->clearLoadedBots();
       return Event_Processed;
-#endif
-#ifdef __WXOSX__
     } else if (keyEvent->GetUnicodeKey() == 'B' && modifierDown) {
       newMatchDialog_->changeBaseDir();
       return Event_Processed;

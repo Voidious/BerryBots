@@ -34,6 +34,8 @@ class PackageDialogListener {
 };
 
 class PackageDialog : public wxFrame {
+  wxPanel *mainPanel_;
+  wxBoxSizer *mainSizer_;
   wxBoxSizer *borderSizer_;
   wxListBox *selectListBox_;
   wxStaticText *versionLabel_;
@@ -56,6 +58,7 @@ class PackageDialog : public wxFrame {
     void clearItems();
     void addItem(char *name);
     void onActivate(wxActivateEvent &event);
+    void onShow(wxShowEvent &event);
     void onClose(wxCommandEvent &event);
     void onPackage(wxCommandEvent &event);
     void packageSelectedItem();
@@ -63,6 +66,7 @@ class PackageDialog : public wxFrame {
     void refreshFiles();
     void onEscape();
     void setMnemonicLabels(bool modifierDown);
+    void initialFocus();
 };
 
 class PackageEventFilter : public wxEventFilter {

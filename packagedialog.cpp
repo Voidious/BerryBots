@@ -31,26 +31,26 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
   menusInitialized_ = false;
   numItems_ = 0;
   
+  mainPanel_ = new wxPanel(this);
+  mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
+  mainSizer_->Add(mainPanel_);
   wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
-
-  selectListBox_ = new wxListBox(this, wxID_ANY, wxDefaultPosition,
+  selectListBox_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
                                  wxSize(275, 225), 0, NULL, wxLB_SORT);
   topSizer->Add(selectListBox_);
   topSizer->AddSpacer(5);
 
   wxBoxSizer *rightSizer = new wxBoxSizer(wxVERTICAL);
-  versionLabel_ = new wxStaticText(this, wxID_ANY, "Version:");
-  versionText_ = new wxTextCtrl(this, wxID_ANY, "1.0", wxDefaultPosition,
+  versionLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Version:");
+  versionText_ = new wxTextCtrl(mainPanel_, wxID_ANY, "1.0", wxDefaultPosition,
                                 wxSize(70, 23));
-  refreshButton_ = new wxButton(this, wxID_REFRESH, "    &Refresh    ");
+  refreshButton_ = new wxButton(mainPanel_, wxID_REFRESH, "    &Refresh    ");
   rightSizer->Add(refreshButton_, 0, wxEXPAND | wxALIGN_CENTER);
   rightSizer->AddStretchSpacer(1);
 #ifdef __WXOSX__
-  keyboardLabel_ = new wxStaticText(this, wxID_ANY,
-                                    "\u2318 hotkeys");
+  keyboardLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "\u2318 hotkeys");
 #else
-  keyboardLabel_ = new wxStaticText(this, wxID_ANY,
-                                    "ALT hotkeys");
+  keyboardLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "ALT hotkeys");
 #endif
   rightSizer->Add(keyboardLabel_, 0, wxALIGN_CENTER);
   rightSizer->AddStretchSpacer(1);
@@ -69,7 +69,7 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
 #else
   modifiedPackageLabel_.Append("!  alt-P");
 #endif
-  packageButton_ = new wxButton(this, wxID_ANY, packageLabel_,
+  packageButton_ = new wxButton(mainPanel_, wxID_ANY, packageLabel_,
       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   rightSizer->AddSpacer(5);
   rightSizer->Add(packageButton_, 0, wxEXPAND | wxALIGN_BOTTOM);
@@ -77,10 +77,17 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
 
   borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
   borderSizer_->Add(topSizer, 0, wxALL, 12);
-  SetSizerAndFit(borderSizer_);
+  mainPanel_->SetSizerAndFit(borderSizer_);
+  SetSizerAndFit(mainSizer_);
+
+  versionText_->MoveAfterInTabOrder(selectListBox_);
+  packageButton_->MoveAfterInTabOrder(versionText_);
+  refreshButton_->MoveAfterInTabOrder(packageButton_);
+  selectListBox_->MoveAfterInTabOrder(refreshButton_);
 
   Connect(this->GetId(), wxEVT_ACTIVATE,
           wxActivateEventHandler(PackageDialog::onActivate));
+  Connect(this->GetId(), wxEVT_SHOW, wxShowEventHandler(PackageDialog::onShow));
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(PackageDialog::onClose));
   Connect(packageButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
@@ -98,7 +105,9 @@ PackageDialog::~PackageDialog() {
   delete selectListBox_;
   delete versionLabel_;
   delete versionText_;
+  delete refreshButton_;
   delete keyboardLabel_;
+  delete mainPanel_;
 }
 
 void PackageDialog::clearItems() {
@@ -119,8 +128,11 @@ void PackageDialog::onActivate(wxActivateEvent &event) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
   }
-  SetSizerAndFit(borderSizer_);
-  selectListBox_->SetFocus();
+  SetSizerAndFit(mainSizer_);
+}
+
+void PackageDialog::onShow(wxShowEvent &event) {
+  initialFocus();
 }
 
 void PackageDialog::onClose(wxCommandEvent &event) {
@@ -185,6 +197,10 @@ void PackageDialog::setMnemonicLabels(bool modifierDown) {
   }
 }
 
+void PackageDialog::initialFocus() {
+  selectListBox_->SetFocus();
+}
+
 PackageEventFilter::PackageEventFilter(PackageDialog *dialog) {
   packageDialog_ = dialog;
 }
@@ -210,10 +226,8 @@ int PackageEventFilter::FilterEvent(wxEvent& event) {
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       packageDialog_->onEscape();
       return Event_Processed;
-#if defined(__WXOSX__) || defined(__WINDOWS__)
-      // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
-      // Tab navigation within window and mnemonics are also broken for me on
-      // Windows 8 right now, so enable them there too.
+#ifdef __WXOSX__
+    // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
     } else if (keyEvent->GetUnicodeKey() == 'P' && modifierDown) {
       packageDialog_->packageSelectedItem();
       return Event_Processed;

@@ -705,6 +705,18 @@ void GuiManager::hideErrorConsole() {
   errorConsole_->Hide();
 }
 
+void GuiManager::newMatchInitialFocus() {
+  newMatchDialog_->initialFocus();
+}
+
+void GuiManager::packageShipInitialFocus() {
+  packageShipDialog_->initialFocus();
+}
+
+void GuiManager::packageStageInitialFocus() {
+  packageStageDialog_->initialFocus();
+}
+
 void GuiManager::saveCurrentMatchSettings(
     const char *stagePath, char **teamPaths, int numTeams) {
   deleteCurrentMatchSettings();

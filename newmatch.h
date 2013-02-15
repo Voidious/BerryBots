@@ -35,6 +35,8 @@ class NewMatchListener {
 };
 
 class NewMatchDialog : public wxFrame {
+  wxPanel *mainPanel_;
+  wxBoxSizer *mainSizer_;
   wxBoxSizer *borderSizer_;
   wxStaticText *stageLabel_;
   wxListBox *stageSelect_;
@@ -68,6 +70,7 @@ class NewMatchDialog : public wxFrame {
     void clearBots();
     void addBot(char *bot);
     void onActivate(wxActivateEvent &event);
+    void onShow(wxShowEvent &event);
     void onClose(wxCommandEvent &event);
     void onAddBots(wxCommandEvent &event);
     void addSelectedBots();
@@ -89,6 +92,7 @@ class NewMatchDialog : public wxFrame {
     bool botsSelectHasFocus();
     bool loadedBotsSelectHasFocus();
     void setMnemonicLabels(bool modifierDown);
+    void initialFocus();
   private:
     void updateBaseDirLabels();
 };
