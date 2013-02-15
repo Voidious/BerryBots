@@ -57,6 +57,8 @@
 
 #define NEW_MATCH_DOCK_TEXT      "New Match..."
 #define DOCK_ENERGY_LENGTH       DOCK_SIZE - 40
+#define DOCK_BUTTON_FONT_SIZE     20
+#define DOCK_SHORTCUT_FONT_SIZE   16
 
 class GfxViewListener {
   public:
@@ -103,6 +105,8 @@ class GfxManager {
                     unsigned int viewHeight);
     void processMouseClick(int x, int y);
     void processMouseMoved(int x, int y);
+    void showKeyboardShortcuts();
+    void hideKeyboardShortcuts();
   private:
     void initDockItems(sf::RenderWindow *window);
     void reinitDockItems(sf::RenderWindow *window);

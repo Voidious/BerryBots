@@ -26,26 +26,34 @@
 
 #define DEFAULT_COLOR      sf::Color(255, 255, 255, 255)
 #define HIGHLIGHTED_COLOR  sf::Color(0, 255, 0, 255)
+#define SHORTCUT_COLOR     sf::Color(255, 255, 0, 255)
 
 class DockItem : public Rectangle {
   int top_;
   bool highlighted_;
+  bool showShortcut_;
   sf::Text *drawableText_;
   sf::Shape **drawableShapes_;
   sf::Drawable **drawables_;
   sf::Drawable **highlightedDrawables_;
+  sf::Drawable **shortcutDrawables_;
   sf::Text *hoverText_;
+  sf::Text *shortcutText_;
   int numDrawables_;
-  int numHighlightedDrawables_;
+  int numAltDrawables_;
 
   public:
+    // TODO: split these use cases into subclasses
     DockItem(const char *text, sf::Font *font, int fontSize, int left, int top,
              int width, int height);
     DockItem(sf::Shape **shapes, int numShapes, int left, int top, int width,
              int height, const char *hoverText, sf::Font *font, int fontSize,
-             int textLeft, int textTop);
+             int textLeft, int textTop, const char *shortcut,
+             int shortcutFontSize);
     ~DockItem();
     void setHighlights(int mouseX, int mouseY);
+    void showShortcut();
+    void hideShortcut();
     sf::Drawable** getDrawables();
     int getNumDrawables();
     bool contains(int x, int y);

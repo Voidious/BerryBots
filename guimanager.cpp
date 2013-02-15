@@ -521,6 +521,7 @@ void GuiManager::resumeMatch() {
     listener_->onAllWindowsClosed();
   } else {
     if (interrupted_) {
+      gfxManager_->hideKeyboardShortcuts();
       hideNewMatchDialog();
       hidePackageShipDialog();
       hidePackageStageDialog();
@@ -569,10 +570,17 @@ void GuiManager::processMainWindowEvents() {
         case sf::Keyboard::Escape:
           showNewMatchDialog();
           break;
-#ifndef __WXOSX__
-        // On Mac OS X, the menu bar and its keybaord shortcuts are still
-        // intact in the main window. On other platforms, specifically handle
-        // keyboard shortcuts.
+#ifdef __WXOSX__
+        case sf::Keyboard::LSystem:
+        case sf::Keyboard::RSystem:
+          gfxManager_->showKeyboardShortcuts();
+          break;
+#else
+        case sf::Keyboard::LAlt:
+        case sf::Keyboard::RAlt:
+          gfxManager_->showKeyboardShortcuts();
+          break;
+#endif
         case sf::Keyboard::N:
           showNewMatchDialog();
           break;
@@ -581,6 +589,23 @@ void GuiManager::processMainWindowEvents() {
           break;
         case sf::Keyboard::T:
           showPackageStageDialog();
+          break;
+        default:
+          break;
+      }
+    }
+
+    if (event.type == sf::Event::KeyReleased) {
+      switch (event.key.code) {
+#ifdef __WXOSX__
+        case sf::Keyboard::LSystem:
+        case sf::Keyboard::RSystem:
+          gfxManager_->hideKeyboardShortcuts();
+          break;
+#else
+        case sf::Keyboard::LAlt:
+        case sf::Keyboard::RAlt:
+          gfxManager_->hideKeyboardShortcuts();
           break;
 #endif
         default:

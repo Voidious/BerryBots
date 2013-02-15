@@ -27,27 +27,32 @@ DockItem::DockItem(const char *text, sf::Font *font, int fontSize, int left,
     int top, int width, int height) : Rectangle(left, top, width, height) {
   top_ = bottom_; // SFML draws from top to bottom, unlike BerryBots coordinates
   highlighted_ = false;
+  showShortcut_ = false;
   drawableText_ = new sf::Text(text, *font, fontSize);
   drawableText_->setPosition(10, top_ + (height / 2) - fontSize);
   drawableText_->setColor(DEFAULT_COLOR);
   drawables_ = new sf::Drawable*[1];
   drawables_[0] = drawableText_;
-  numDrawables_ = numHighlightedDrawables_ = 1;
+  numDrawables_ = numAltDrawables_ = 1;
   highlightedDrawables_ = new sf::Drawable*[1];
-  highlightedDrawables_[0] = drawableText_;
+  shortcutDrawables_ = new sf::Drawable*[1];
+  shortcutDrawables_[0] = highlightedDrawables_[0] = drawableText_;
   hoverText_ = 0;
+  shortcutText_ = 0;
 }
 
 DockItem::DockItem(sf::Shape **shapes, int numShapes, int left, int top,
     int width, int height, const char *hoverText, sf::Font *font, int fontSize,
-    int textLeft, int textTop) : Rectangle(left, top, width, height) {
+    int textLeft, int textTop, const char *shortcut, int shortcutFontSize)
+        : Rectangle(left, top, width, height) {
   top_ = bottom_; // SFML draws from top to bottom, unlike BerryBots coordinates
   highlighted_ = false;
+  showShortcut_ = false;
   drawableText_ = 0;
   drawableShapes_ = shapes;
   drawables_ = (sf::Drawable**) shapes;
   numDrawables_ = numShapes;
-  numHighlightedDrawables_ = numDrawables_ + 1;
+  numAltDrawables_ = numDrawables_ + 1;
   sf::Vector2f newOrigin(left + (width / 2), top + (height / 2));
   for (int x = 0; x < numDrawables_; x++) {
     sf::Shape *shape = drawableShapes_[x];
@@ -57,11 +62,23 @@ DockItem::DockItem(sf::Shape **shapes, int numShapes, int left, int top,
   hoverText_ = new sf::Text(hoverText, *font, fontSize);
   hoverText_->setPosition(textLeft, textTop);
   hoverText_->setColor(HIGHLIGHTED_COLOR);
+  shortcutText_ = new sf::Text(shortcut, *font, shortcutFontSize);
+  sf::FloatRect shortcutRect = shortcutText_->getLocalBounds();
+  shortcutText_->setPosition(newOrigin.x - (shortcutRect.width / 2),
+                             top + height);
+  shortcutText_->setColor(SHORTCUT_COLOR);
+    
   highlightedDrawables_ = new sf::Drawable*[numDrawables_ + 1];
   for (int x = 0; x < numDrawables_; x++) {
     highlightedDrawables_[x] = drawables_[x];
   }
   highlightedDrawables_[numDrawables_] = hoverText_;
+
+  shortcutDrawables_ = new sf::Drawable*[numDrawables_ + 1];
+  for (int x = 0; x < numDrawables_; x++) {
+    shortcutDrawables_[x] = drawables_[x];
+  }
+  shortcutDrawables_[numDrawables_] = shortcutText_;
 }
 
 DockItem::~DockItem() {
@@ -72,6 +89,10 @@ DockItem::~DockItem() {
   delete highlightedDrawables_;
   if (hoverText_ != 0) {
     delete hoverText_;
+  }
+  delete shortcutDrawables_;
+  if (shortcutText_ != 0) {
+    delete shortcutText_;
   }
 }
 
@@ -90,17 +111,29 @@ void DockItem::setHighlights(int mouseX, int mouseY) {
           shape->setOutlineColor(highlight ? HIGHLIGHTED_COLOR : DEFAULT_COLOR);
         }
       }
+      shortcutText_->setColor(highlight ? HIGHLIGHTED_COLOR : SHORTCUT_COLOR);
     }
     highlighted_ = highlight;
   }
 }
 
+void DockItem::showShortcut() {
+  if (shortcutText_ != 0) {
+    showShortcut_ = true;
+  }
+}
+
+void DockItem::hideShortcut() {
+  showShortcut_ = false;
+}
+
 sf::Drawable** DockItem::getDrawables() {
-  return (highlighted_ ? highlightedDrawables_ : drawables_);
+  return (showShortcut_ ? shortcutDrawables_
+          : highlighted_ ? highlightedDrawables_ : drawables_);
 }
 
 int DockItem::getNumDrawables() {
-  return (highlighted_ ? numHighlightedDrawables_ : numDrawables_);
+  return (highlighted_ || showShortcut_) ? numAltDrawables_ : numDrawables_;
 }
 
 bool DockItem::contains(int x, int y) {
