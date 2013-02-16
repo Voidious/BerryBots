@@ -257,9 +257,9 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
 
   stageButton_ =
       new DockItem(stage_->getName(), &font, 16, 10, 80, DOCK_SIZE, 40);
-  teamButtons_ = new DockItem*[numShips_];
-  for (int x = 0; x < numShips_; x++) {
-    teamButtons_[x] = new DockItem(ships_[x]->properties->name, &font, 16,
+  teamButtons_ = new DockItem*[numTeams_];
+  for (int x = 0; x < numTeams_; x++) {
+    teamButtons_[x] = new DockItem(teams_[x]->name, &font, 16,
                                    0, 125 + (x * 35), DOCK_SIZE, 30);
   }
 
@@ -346,7 +346,7 @@ void GfxManager::destroyDockItems() {
     stageButton_ = 0;
   }
   if (teamButtons_ != 0) {
-    for (int x = 0; x < numShips_; x++) {
+    for (int x = 0; x < numTeams_; x++) {
       delete teamButtons_[x];
     }
     delete teamButtons_;

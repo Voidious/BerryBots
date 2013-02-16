@@ -48,21 +48,31 @@ void GuiPrintHandler::stagePrint(const char *text) {
 
 void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
   for (int x = 0; x < nextTeamIndex_; x++) {
-    lua_State *state = teamStates_[x];
-    if (state == L) {
+    if (teamStates_[x] == L) {
       teamConsoles_[x]->println(text);
       break;
     }
   }
 }
 
-void GuiPrintHandler::registerTeam(lua_State *L, const char *name) {
+void GuiPrintHandler::registerTeam(lua_State *L, const char *filename) {
   if (nextTeamIndex_ < numTeams_) {
     teamStates_[nextTeamIndex_] = L;
-    OutputConsole *teamConsole = new OutputConsole(name, menuBarMaker_);
+    OutputConsole *teamConsole = new OutputConsole(filename, menuBarMaker_);
+    teamConsole->print("Ship control program loaded: ");
+    teamConsole->println(filename);
     teamConsole->Hide();
     teamConsoles_[nextTeamIndex_] = teamConsole;
     nextTeamIndex_++;
+  }
+}
+
+void GuiPrintHandler::setTeamName(lua_State *L, const char *name) {
+  for (int x = 0; x < nextTeamIndex_; x++) {
+    if (teamStates_[x] == L) {
+      teamConsoles_[x]->SetTitle(name);
+      break;
+    }
   }
 }
 

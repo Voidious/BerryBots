@@ -43,8 +43,8 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   teamSize_ = 1;
   numShips_ = 0;
   stageRun_ = false;
-  configureComplete_ = false;
-  initComplete_ = false;
+  stageConfigureComplete_ = false;
+  shipInitComplete_ = false;
   battleMode_ = false;
   roundOver_ = false;
   gameOver_ = false;
@@ -157,12 +157,12 @@ int BerryBotsEngine::getTeamSize() {
   return teamSize_;
 }
 
-bool BerryBotsEngine::isConfigureComplete() {
-  return configureComplete_;
+bool BerryBotsEngine::isStageConfigureComplete() {
+  return stageConfigureComplete_;
 }
 
-bool BerryBotsEngine::isInitComplete() {
-  return initComplete_;
+bool BerryBotsEngine::isShipInitComplete() {
+  return shipInitComplete_;
 }
 
 void BerryBotsEngine::setBattleMode(bool battleMode) {
@@ -303,7 +303,7 @@ void BerryBotsEngine::initStage(const char *stageBaseDir, const char *stageName,
   char *stageDisplayName = FileManager::stripExtension(stageFilename_);
   stage_->setName(stageDisplayName); // TODO: let stage set name like ship
   delete stageDisplayName;
-  configureComplete_ = true;
+  stageConfigureComplete_ = true;
 }
 
 // Loads the teams in the files specified in teamNames from the root directory
@@ -485,6 +485,10 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
           stateShips[y]->alive = false;
         }
       }
+
+      if (listener_ != 0) {
+        listener_->setTeamName(teamState, team->name);
+      }
     }
 
     if (deleteFilename) {
@@ -497,6 +501,7 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     delete stateShips;
   }
 
+  // TODO: print to output console if ship or team name changes
   uniqueShipNames(ships_, numShips_);
   uniqueTeamNames(teams_, numTeams_);
   teamVision_ = new bool*[numTeams_];
@@ -533,7 +538,7 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     shipProperties_[x] = ships_[x]->properties;
   }
 
-  initComplete_ = true;
+  shipInitComplete_ = true;
 }
 
 void BerryBotsEngine::initShipRound(Ship *ship) {

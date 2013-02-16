@@ -365,6 +365,8 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   }
 
   stageConsole_ = new OutputConsole(stageName, menuBarMaker_);
+  stageConsole_->print("Stage control program loaded: ");
+  stageConsole_->println(stageName);
   stageConsole_->Hide();
   
   if (printHandler != 0) {
@@ -389,6 +391,11 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     engine_->initStage(stageBaseDir_, stageName, cacheDir);
     engine_->initShips(botsBaseDir_, teamNames, numTeams, cacheDir);
     teamConsoles_ = guiPrintHandler->getTeamConsoles();
+
+    for (int x = 0; x < numTeams; x++) {
+      teamConsoles_[x]->println();
+    }
+    stageConsole_->println();
   } catch (EngineException *e) {
 #ifdef __WXOSX__
     delete window_;
@@ -975,6 +982,11 @@ PrintStateListener::PrintStateListener(GuiPrintHandler *guiPrintHandler) {
 void PrintStateListener::newTeamState(lua_State *teamState,
                                       const char *filename) {
   guiPrintHandler_->registerTeam(teamState, filename);
+}
+
+void PrintStateListener::setTeamName(lua_State *teamState,
+                                     const char *filename) {
+  guiPrintHandler_->setTeamName(teamState, filename);
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

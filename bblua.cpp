@@ -21,7 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <algorithm>
-
+#include <sstream>
 #include "stage.h"
 #include "sensorhandler.h"
 #include "bbengine.h"
@@ -244,12 +244,22 @@ int Ship_setName(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   const char *shipName = luaL_checkstring(L, 2);
   BerryBotsEngine *engine = ship->properties->engine;
-  if (!engine->isInitComplete()) {
+  if (!engine->isShipInitComplete()) {
     strncpy(ship->properties->name, shipName, MAX_NAME_LENGTH);
     ship->properties->name[MAX_NAME_LENGTH] = '\0';
     Team *team = engine->getTeam(ship->teamIndex);
     if (team->numShips == 1) {
       setTeamName(team, shipName);
+    }
+    if (printHandler != 0) {
+      std::stringstream ss;
+      if (team->numShips == 1) {
+        ss << "Set";
+      } else {
+        ss << "Ship " << (ship->index - team->firstShipIndex + 1) << " set";
+      }
+      ss << " name: " << shipName;
+      printHandler->shipPrint(L, ss.str().c_str());
     }
   }
   lua_settop(L, 1);
@@ -260,8 +270,14 @@ int Ship_setTeamName(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   const char *teamName = luaL_checkstring(L, 2);
   BerryBotsEngine *engine = ship->properties->engine;
-  if (!engine->isInitComplete()) {
-    setTeamName(engine->getTeam(ship->teamIndex), teamName);
+  if (!engine->isShipInitComplete()) {
+    Team *team = engine->getTeam(ship->teamIndex);
+    setTeamName(team, teamName);
+    if (printHandler != 0) {
+      std::stringstream ss;
+      ss << "Set team name: " << teamName;
+      printHandler->shipPrint(L, ss.str().c_str());
+    }
   }
   lua_settop(L, 1);
   return 1;
@@ -269,10 +285,24 @@ int Ship_setTeamName(lua_State *L) {
 
 int Ship_setShipColor(lua_State *L) {
   Ship *ship = checkShip(L, 1);
-  if (!ship->properties->engine->isInitComplete()) {
-    ship->properties->shipR = limit(0, luaL_checkint(L, 2), 255);
-    ship->properties->shipG = limit(0, luaL_checkint(L, 3), 255);
-    ship->properties->shipB = limit(0, luaL_checkint(L, 4), 255);
+  if (!ship->properties->engine->isShipInitComplete()) {
+    int r = limit(0, luaL_checkint(L, 2), 255);
+    int g = limit(0, luaL_checkint(L, 3), 255);
+    int b = limit(0, luaL_checkint(L, 4), 255);
+    ship->properties->shipR = r;
+    ship->properties->shipG = g;
+    ship->properties->shipB = b;
+    Team *team = ship->properties->engine->getTeam(ship->teamIndex);
+    if (printHandler != 0) {
+      std::stringstream ss;
+      if (team->numShips == 1) {
+        ss << "Set";
+      } else {
+        ss << "Ship " << (ship->index - team->firstShipIndex + 1) << " set";
+      }
+      ss << " ship color: (" << r << ", " << g << ", " << b << ")";
+      printHandler->shipPrint(L, ss.str().c_str());
+    }
   }
   lua_settop(L, 1);
   return 1;
@@ -280,10 +310,24 @@ int Ship_setShipColor(lua_State *L) {
 
 int Ship_setLaserColor(lua_State *L) {
   Ship *ship = checkShip(L, 1);
-  if (!ship->properties->engine->isInitComplete()) {
-    ship->properties->laserR = limit(0, luaL_checkint(L, 2), 255);
-    ship->properties->laserG = limit(0, luaL_checkint(L, 3), 255);
-    ship->properties->laserB = limit(0, luaL_checkint(L, 4), 255);
+  if (!ship->properties->engine->isShipInitComplete()) {
+    int r = limit(0, luaL_checkint(L, 2), 255);
+    int g = limit(0, luaL_checkint(L, 3), 255);
+    int b = limit(0, luaL_checkint(L, 4), 255);
+    ship->properties->laserR = r;
+    ship->properties->laserG = g;
+    ship->properties->laserB = b;
+    Team *team = ship->properties->engine->getTeam(ship->teamIndex);
+    if (printHandler != 0) {
+      std::stringstream ss;
+      if (team->numShips == 1) {
+        ss << "Set";
+      } else {
+        ss << "Ship " << (ship->index - team->firstShipIndex + 1) << " set";
+      }
+      ss << " laser color: (" << r << ", " << g << ", " << b << ")";
+      printHandler->shipPrint(L, ss.str().c_str());
+    }
   }
   lua_settop(L, 1);
   return 1;
@@ -291,10 +335,24 @@ int Ship_setLaserColor(lua_State *L) {
 
 int Ship_setThrusterColor(lua_State *L) {
   Ship *ship = checkShip(L, 1);
-  if (!ship->properties->engine->isInitComplete()) {
-    ship->properties->thrusterR = limit(0, luaL_checkint(L, 2), 255);
-    ship->properties->thrusterG = limit(0, luaL_checkint(L, 3), 255);
-    ship->properties->thrusterB = limit(0, luaL_checkint(L, 4), 255);
+  if (!ship->properties->engine->isShipInitComplete()) {
+    int r = limit(0, luaL_checkint(L, 2), 255);
+    int g = limit(0, luaL_checkint(L, 3), 255);
+    int b = limit(0, luaL_checkint(L, 4), 255);
+    ship->properties->thrusterR = r;
+    ship->properties->thrusterG = g;
+    ship->properties->thrusterB = b;
+    Team *team = ship->properties->engine->getTeam(ship->teamIndex);
+    if (printHandler != 0) {
+      std::stringstream ss;
+      if (team->numShips == 1) {
+        ss << "Set";
+      } else {
+        ss << "Ship " << (ship->index - team->firstShipIndex + 1) << " set";
+      }
+      ss << " thruster color: (" << r << ", " << g << ", " << b << ")";
+      printHandler->shipPrint(L, ss.str().c_str());
+    }
   }
   lua_settop(L, 1);
   return 1;
@@ -844,10 +902,15 @@ int StageBuilder_setSize(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int width = luaL_checkint(L, 2);
   int height = luaL_checkint(L, 3);
-  if (stageBuilder->engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isStageConfigureComplete()) {
     luaL_error(L, "Can't set stage size outside of 'configure' function.");
   } else {
     stageBuilder->engine->getStage()->setSize(width, height);
+    if (printHandler != 0) {
+      std::stringstream ss;
+      ss << "Set stage size: " << width << " x " << height;
+      printHandler->stagePrint(ss.str().c_str());
+    }
   }
   return 1;
 }
@@ -855,10 +918,15 @@ int StageBuilder_setSize(lua_State *L) {
 int StageBuilder_setBattleMode(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   bool battleMode = lua_toboolean(L, 2);
-  if (stageBuilder->engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isStageConfigureComplete()) {
     luaL_error(L, "Can't set battle mode outside of 'configure' function.");
   } else {
     stageBuilder->engine->setBattleMode(battleMode);
+    if (printHandler != 0) {
+      std::stringstream ss;
+      ss << "Set battle mode: " << (battleMode ? "true" : "false");
+      printHandler->stagePrint(ss.str().c_str());
+    }
   }
   return 1;
 }
@@ -870,11 +938,17 @@ int StageBuilder_addWall(lua_State *L) {
   int width = luaL_checkint(L, 4);
   int height = luaL_checkint(L, 5);
   Stage *stage = stageBuilder->engine->getStage();
-  if (stageBuilder->engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isStageConfigureComplete()) {
     luaL_error(L, "Can't add walls outside of 'configure' function.");
   } else if (!stage->addWall(left, bottom, width, height, true)) {
     luaL_error(L, "Failed to add wall - is %i too many?",
                stage->getWallCount());
+  }
+  if (printHandler != 0) {
+    std::stringstream ss;
+    ss << "Added wall: bottom left (" << left << ", " << bottom << "), "
+       << "dimensions " << width << " x " << height;
+    printHandler->stagePrint(ss.str().c_str());
   }
   return 1;
 }
@@ -884,11 +958,16 @@ int StageBuilder_addStart(lua_State *L) {
   int x = luaL_checkint(L, 2);
   int y = luaL_checkint(L, 3);
   Stage *stage = stageBuilder->engine->getStage();
-  if (stageBuilder->engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isStageConfigureComplete()) {
     luaL_error(L, "Can't add starts outside of 'configure' function.");
   } else if (!stage->addStart(x, y)) {
     luaL_error(L, "Failed to add start - is %i too many?",
                stage->getStartCount());
+  }
+  if (printHandler != 0) {
+    std::stringstream ss;
+    ss << "Added start position: (" << x << ", " << y << ")";
+    printHandler->stagePrint(ss.str().c_str());
   }
   return 1;
 }
@@ -901,11 +980,17 @@ int StageBuilder_addZone(lua_State *L) {
   int height = luaL_checkint(L, 5);
   const char *zoneTag = luaL_optstring(L, 6, "");
   Stage *stage = stageBuilder->engine->getStage();
-  if (stageBuilder->engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isStageConfigureComplete()) {
     luaL_error(L, "Can't add zones outside of 'configure' function.");
   } else if (!stage->addZone(left, bottom, width, height, zoneTag)) {
     luaL_error(L, "Failed to add zone - is %i too many?",
                stage->getZoneCount());
+  }
+  if (printHandler != 0) {
+    std::stringstream ss;
+    ss << "Added zone: bottom left (" << left << ", " << bottom << "), "
+       << "dimensions: " << width << " x " << height;
+    printHandler->stagePrint(ss.str().c_str());
   }
   return 1;
 }
@@ -914,11 +999,16 @@ int StageBuilder_addShip(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   const char *stageShipFilename = luaL_checkstring(L, 2);
   Stage *stage = stageBuilder->engine->getStage();
-  if (stageBuilder->engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isStageConfigureComplete()) {
     luaL_error(L, "Can't add stage ships outside of 'configure' function.");
   } else if (!stage->addStageShip(stageShipFilename)) {
     luaL_error(L, "Failed to add stage ship - is %i too many?",
                stage->getStageShipCount());
+  }
+  if (printHandler != 0) {
+    std::stringstream ss;
+    ss << "Added stage ship: " << stageShipFilename;
+    printHandler->stagePrint(ss.str().c_str());
   }
   return 1;
 }
@@ -926,10 +1016,15 @@ int StageBuilder_addShip(lua_State *L) {
 int StageBuilder_setTeamSize(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int teamSize = luaL_checkint(L, 2);
-  if (stageBuilder->engine->isConfigureComplete()) {
+  if (stageBuilder->engine->isStageConfigureComplete()) {
     luaL_error(L, "Can't set team size outside of 'configure' function.");
   } else {
     stageBuilder->engine->setTeamSize(teamSize);
+    if (printHandler != 0) {
+      std::stringstream ss;
+      ss << "Set team size: " << teamSize;
+      printHandler->stagePrint(ss.str().c_str());
+    }
   }
   return 1;
 }

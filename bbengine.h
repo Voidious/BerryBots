@@ -42,6 +42,7 @@ extern "C" {
 class NewTeamStateListener {
   public:
     virtual void newTeamState(lua_State *teamState, const char *name) = 0;
+    virtual void setTeamName(lua_State *teamState, const char *name) = 0;
     virtual ~NewTeamStateListener() {};
 };
 
@@ -86,8 +87,8 @@ class BerryBotsEngine {
   int gameTime_;
   SensorHandler *sensorHandler_;
   bool stageRun_;
-  bool configureComplete_;
-  bool initComplete_;
+  bool stageConfigureComplete_;
+  bool shipInitComplete_;
   bool battleMode_;
   bool roundOver_;
   bool gameOver_;
@@ -99,8 +100,8 @@ class BerryBotsEngine {
     ~BerryBotsEngine();
 
     void setListener(NewTeamStateListener *listener);
-    bool isConfigureComplete();
-    bool isInitComplete();
+    bool isStageConfigureComplete();
+    bool isShipInitComplete();
     void setBattleMode(bool battleMode);
     bool isBattleMode();
     void nextRound();
