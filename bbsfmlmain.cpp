@@ -260,7 +260,7 @@ int main(int argc, char *argv[]) {
             << std::endl;
   for (int x = 0; x < engine->getNumTeams(); x++) {
     Team *team = engine->getTeam(x);
-    if (!team->stageShip && !team->doa) {
+    if (!team->stageShip && !team->disabled) {
       std::cout << "  " << team->name << ": "
                 << (team->totalCpuTime / team->totalCpuTicks) << std::endl;
     }

@@ -92,7 +92,6 @@ class BerryBotsEngine {
   bool battleMode_;
   bool roundOver_;
   bool gameOver_;
-  int cpuTimeSlot_;
   char winnerName_[MAX_NAME_LENGTH + 1];
 
   public:
@@ -119,6 +118,7 @@ class BerryBotsEngine {
     void processTick() throw (EngineException*);
     void processRoundOver();
     void processGameOver();
+    void monitorCpuTimer(Team *team, int pcallValue);
 
     Stage* getStage();
     Team **getTeams();

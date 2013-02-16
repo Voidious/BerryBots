@@ -53,10 +53,12 @@ typedef struct {
   unsigned long long cpuTime[CPU_TIME_TICKS];
   unsigned long long totalCpuTime;
   unsigned int totalCpuTicks;
-  bool doa;
   bool stageShip;
+  bool disabled;
+  bool ownedByLua;
 } Team;
 
+// Static ship properties that we don't need to copy around.
 typedef struct {
   char name[MAX_NAME_LENGTH + 1];
   unsigned short shipR;
@@ -68,8 +70,9 @@ typedef struct {
   unsigned short thrusterR;
   unsigned short thrusterG;
   unsigned short thrusterB;
-  bool doa;
   bool stageShip;
+  bool disabled;
+  bool ownedByLua;
   BerryBotsEngine *engine;
 } ShipProperties;
 

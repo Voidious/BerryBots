@@ -48,7 +48,6 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   battleMode_ = false;
   roundOver_ = false;
   gameOver_ = false;
-  cpuTimeSlot_ = 0;
   winnerName_[0] = '\0';
 
   stageState_ = 0;
@@ -86,11 +85,11 @@ BerryBotsEngine::~BerryBotsEngine() {
 
   for (int x = 0; x < numShips_; x++) {
     Ship *ship = ships_[x];
-    if (ship->properties->doa) {
+    if (ship->properties->ownedByLua) {
       delete ship->properties;
-      delete ship;
     } else {
       delete ship->properties;
+      delete ship;
     }
   }
   delete ships_;
@@ -104,7 +103,7 @@ BerryBotsEngine::~BerryBotsEngine() {
 
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
-    if (!team->doa) {
+    if (team->ownedByLua) {
       lua_close(team->state);
     }
     delete team;
@@ -381,19 +380,19 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
 
     int numStateShips = (stageShip ? 1 : teamSize_);
     Ship **stateShips = new Ship*[numStateShips];
-    bool doa;
+    bool disabled;
     if (luaL_loadfile(teamState, shipFilename)) {
       printLuaErrorToShipConsole(teamState, "Error loading file: %s");
-      doa = true;
+      disabled = true;
     } else if (callUserLuaCode(teamState, 0, "Error loading file",
                                PCALL_SHIP)) {
-      doa = true;
+      disabled = true;
     } else {
       lua_getglobal(teamState, "init");
-      doa = false;
+      disabled = false;
     }
 
-    if (!doa && numStateShips > 1) {
+    if (!disabled && numStateShips > 1) {
       // If it's a team, pass a table of ships instead of a single ship.
       lua_newtable(teamState);
     }
@@ -410,7 +409,7 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     }
     team->totalCpuTime = 0;
     team->totalCpuTicks = 0;
-    team->doa = doa;
+    team->disabled = disabled;
 
     lua_getglobal(teamState, "roundOver");
     team->hasRoundOver = (strcmp(luaL_typename(teamState, -1), "nil") != 0);
@@ -427,17 +426,19 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
 
     for (int y = 0; y < numStateShips; y++) {
       Ship *ship;
-      if (doa) {
+      if (disabled) {
         ship = new Ship;
         ship->properties = new ShipProperties;
-        ship->properties->doa = true;
+        ship->properties->disabled = true;
+        ship->properties->ownedByLua = false;
         ship->alive = false;
       } else {
         ship = pushShip(teamState);
         if (numStateShips > 1) {
           lua_rawseti(teamState, -2, y + 1);
         }
-        ship->properties->doa = false;
+        ship->properties->disabled = false;
+        ship->properties->ownedByLua = true;
         ship->alive = true;
       }
       ship->teamIndex = x;
@@ -474,15 +475,17 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
       ships_[ship->index] = ship;
     }
 
-    if (!doa) {
+    if (!disabled) {
       worlds_[x] = pushWorld(teamState, stage_, numShips_, teamSize_);
       worlds_[x]->engine = this;
 
       int r = callUserLuaCode(teamState, 2,
           "Error calling ship function: 'init'", PCALL_SHIP);
       if (r != 0) {
+        team->disabled = true;
         for (int y = 0; y < numStateShips; y++) {
           stateShips[y]->alive = false;
+          stateShips[y]->properties->disabled = true;
         }
       }
 
@@ -542,7 +545,7 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
 }
 
 void BerryBotsEngine::initShipRound(Ship *ship) {
-  if (!ship->properties->doa) {
+  if (!ship->properties->disabled) {
     ship->alive = true;
   }
   ship->speed = ship->heading = ship->thrusterAngle = ship->thrusterForce = 0;
@@ -583,7 +586,6 @@ void BerryBotsEngine::updateTeamShipsAlive() {
 }
 
 void BerryBotsEngine::processTick() throw (EngineException*) {
-  cpuTimeSlot_ = gameTime_ % CPU_TIME_TICKS;
   gameTime_++;
   updateTeamShipsAlive();    
   stage_->updateTeamVision(teams_, numTeams_, ships_, numShips_, teamVision_);
@@ -607,18 +609,7 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
       team->counter.start();
       int r = callUserLuaCode(team->state, 2,
                               "Error calling ship function: 'run'", PCALL_SHIP);
-      if (r != 0) {
-        for (int y = 0; y < team->numShips; y++) {
-          int shipIndex = y + team->firstShipIndex;
-          destroyShip(ships_[shipIndex]);
-          // TODO: disable ship so it's not spawned/destroyed at start of rounds
-          // TODO: only disable for too much CPU time, other errors non-fatal
-        }
-      }
-      team->counter.stop();
-      team->totalCpuTime += team->cpuTime[cpuTimeSlot_] =
-          team->counter.get_microseconds();
-      team->totalCpuTicks++;
+      monitorCpuTimer(team, r);
       cleanupSensorsTables(team->state, sensors);
       lua_settop(team->state, 0);
     }
@@ -655,16 +646,14 @@ void BerryBotsEngine::processRoundOver() {
     if (team->hasRoundOver) {
       lua_getglobal(team->state, "roundOver");
       team->counter.start();
-      callUserLuaCode(team->state, 0,
-                      "Error calling ship function: 'roundOver'", PCALL_SHIP);
-      team->counter.stop();
-      team->totalCpuTime += team->cpuTime[cpuTimeSlot_] =
-          team->counter.get_microseconds();
+      int r = callUserLuaCode(team->state, 0,
+          "Error calling ship function: 'roundOver'", PCALL_SHIP);
+      monitorCpuTimer(team, r);
     }
     for (int y = 0; y < team->numShips; y++) {
       Ship *ship = ships_[team->firstShipIndex + y];
-      if (!ship->properties->stageShip) {
-        initShipRound(ships_[team->firstShipIndex + y]);
+      if (!ship->properties->stageShip && !ship->properties->disabled) {
+        initShipRound(ship);
       }
     }
   }
@@ -678,14 +667,30 @@ void BerryBotsEngine::processGameOver() {
     if (team->hasGameOver) {
       lua_getglobal(team->state, "gameOver");
       team->counter.start();
-      callUserLuaCode(team->state, 0, "Error calling ship function: 'gameOver'",
-                      PCALL_SHIP);
-      team->counter.stop();
-      team->totalCpuTime += team->cpuTime[cpuTimeSlot_] =
-          team->counter.get_microseconds();
+      int r = callUserLuaCode(team->state, 0,
+          "Error calling ship function: 'gameOver'", PCALL_SHIP);
+      monitorCpuTimer(team, r);
     }
   }
   copyShips(ships_, stageShips_, numShips_);
+}
+
+void BerryBotsEngine::monitorCpuTimer(Team *team, int pcallValue) {
+  unsigned int cpuTimeSlot = team->totalCpuTicks % CPU_TIME_TICKS;
+  team->counter.stop();
+  team->totalCpuTime +=
+  (team->cpuTime[cpuTimeSlot] = team->counter.get_microseconds());
+  team->totalCpuTicks++;
+
+  if (pcallValue != 0) {
+    team->disabled = true;
+    for (int x = 0; x < team->numShips; x++) {
+      Ship *ship = ships_[x + team->firstShipIndex];
+      destroyShip(ship);
+      ship->properties->disabled = true;
+      // TODO: only disable for too much CPU time, other errors non-fatal
+    }
+  }
 }
 
 bool BerryBotsEngine::touchedZone(Ship *ship, const char *zoneTag) {
