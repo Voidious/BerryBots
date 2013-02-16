@@ -390,7 +390,7 @@ void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir
   }
   
   if (obfuscate) {
-    // TODO: rm <tmpDir>
+    recursiveDelete(tmpDir);
   }
 
   delete filesDir;

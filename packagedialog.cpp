@@ -35,9 +35,9 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
   mainSizer_->Add(mainPanel_);
   wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
-  selectListBox_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
-                                 wxSize(275, 225), 0, NULL, wxLB_SORT);
-  topSizer->Add(selectListBox_);
+  itemSelect_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
+                              wxSize(275, 225), 0, NULL, wxLB_SORT);
+  topSizer->Add(itemSelect_);
   topSizer->AddSpacer(5);
 
   wxBoxSizer *rightSizer = new wxBoxSizer(wxVERTICAL);
@@ -79,10 +79,10 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
   mainPanel_->SetSizerAndFit(borderSizer_);
   SetSizerAndFit(mainSizer_);
 
-  versionText_->MoveAfterInTabOrder(selectListBox_);
+  versionText_->MoveAfterInTabOrder(itemSelect_);
   packageButton_->MoveAfterInTabOrder(versionText_);
   refreshButton_->MoveAfterInTabOrder(packageButton_);
-  selectListBox_->MoveAfterInTabOrder(refreshButton_);
+  itemSelect_->MoveAfterInTabOrder(refreshButton_);
 
   Connect(this->GetId(), wxEVT_ACTIVATE,
           wxActivateEventHandler(PackageDialog::onActivate));
@@ -93,6 +93,10 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
           wxCommandEventHandler(PackageDialog::onPackage));
   Connect(wxID_REFRESH, wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(PackageDialog::onRefreshFiles));
+  Connect(itemSelect_->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(PackageDialog::onSelectItem));
+  Connect(versionText_->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(PackageDialog::onUpdateVersion));
 
   eventFilter_ = new PackageEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
@@ -101,7 +105,7 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
 PackageDialog::~PackageDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
-  delete selectListBox_;
+  delete itemSelect_;
   delete versionLabel_;
   delete versionText_;
   delete refreshButton_;
@@ -110,15 +114,15 @@ PackageDialog::~PackageDialog() {
 }
 
 void PackageDialog::clearItems() {
-  selectListBox_->Clear();
+  itemSelect_->Clear();
   numItems_ = 0;
 }
 
 void PackageDialog::addItem(char *name) {
-  selectListBox_->Append(wxString(name));
+  itemSelect_->Append(wxString(name));
   numItems_++;
-  if (selectListBox_->GetCount() > 0) {
-    selectListBox_->SetFirstItem(0);
+  if (itemSelect_->GetCount() > 0) {
+    itemSelect_->SetFirstItem(0);
   }
 }
 
@@ -144,10 +148,10 @@ void PackageDialog::onPackage(wxCommandEvent &event) {
 
 void PackageDialog::packageSelectedItem() {
   wxArrayInt selectedIndex;
-  selectListBox_->GetSelections(selectedIndex);
+  itemSelect_->GetSelections(selectedIndex);
   wxString versionString = versionText_->GetValue();
   if (selectedIndex.Count() != 0 && versionString.length() > 0) {
-    wxString selectedItem = selectListBox_->GetString(*(selectedIndex.begin()));
+    wxString selectedItem = itemSelect_->GetString(*(selectedIndex.begin()));
     char *name = new char[selectedItem.length() + 1];
 
 #ifdef __WINDOWS__
@@ -179,6 +183,33 @@ void PackageDialog::onEscape() {
   listener_->cancel();
 }
 
+void PackageDialog::onSelectItem(wxUpdateUIEvent &event) {
+  validateButtons();
+}
+
+void PackageDialog::onUpdateVersion(wxUpdateUIEvent &event) {
+  validateButtons();
+}
+
+void PackageDialog::validateButtons() {
+  if (versionText_->GetValue().size() > 0) {
+    validateButtonSelectedListBox(packageButton_, itemSelect_);
+  } else {
+    packageButton_->Disable();
+  }
+}
+
+void PackageDialog::validateButtonSelectedListBox(wxButton *button,
+                                                  wxListBox *listBox) {
+  wxArrayInt selectedIndex;
+  listBox->GetSelections(selectedIndex);
+  if (selectedIndex.Count() > 0) {
+    button->Enable();
+  } else {
+    button->Disable();
+  }
+}
+
 void PackageDialog::setMnemonicLabels(bool modifierDown) {
   // TODO: I'd rather it look like the button was pressed when you hit the
   //       shortcut, if possible. For now having trouble figuring out the
@@ -197,7 +228,7 @@ void PackageDialog::setMnemonicLabels(bool modifierDown) {
 }
 
 void PackageDialog::initialFocus() {
-  selectListBox_->SetFocus();
+  itemSelect_->SetFocus();
 }
 
 PackageEventFilter::PackageEventFilter(PackageDialog *dialog) {
@@ -240,7 +271,6 @@ int PackageEventFilter::FilterEvent(wxEvent& event) {
   if (type == wxEVT_KEY_UP) {
     packageDialog_->setMnemonicLabels(modifierDown);
   }
-  // TODO: Do we need to handle tab navigation manually on Windows? Nothing
-  //       working at all on Windows 8 for me right now.
+
   return Event_Skip;
 }

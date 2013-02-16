@@ -22,16 +22,10 @@
 #define BBWX_H
 
 #define NEW_MATCH_ID             1
-#define ADD_BUTTON_ID            2
-#define REMOVE_BUTTON_ID         3
-#define CLEAR_BUTTON_ID          4
-#define START_BUTTON_ID          5
-#define SELECT_BOTS_ID           6
-#define LOADED_BOTS_ID           7
-#define NEW_MATCH_MENU_ID        8
-#define PACKAGE_SHIP_MENU_ID     9
-#define PACKAGE_STAGE_MENU_ID    10
-#define ERROR_CONSOLE_MENU_ID    11
-#define FILE_QUIT_MENU_ID        12
+#define NEW_MATCH_MENU_ID        2
+#define PACKAGE_SHIP_MENU_ID     3
+#define PACKAGE_STAGE_MENU_ID    4
+#define ERROR_CONSOLE_MENU_ID    5
+#define FILE_QUIT_MENU_ID        6
 
 #endif

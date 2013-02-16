@@ -37,7 +37,7 @@ class PackageDialog : public wxFrame {
   wxPanel *mainPanel_;
   wxBoxSizer *mainSizer_;
   wxBoxSizer *borderSizer_;
-  wxListBox *selectListBox_;
+  wxListBox *itemSelect_;
   wxStaticText *versionLabel_;
   wxTextCtrl *versionText_;
   wxButton *refreshButton_;
@@ -65,6 +65,10 @@ class PackageDialog : public wxFrame {
     void onRefreshFiles(wxCommandEvent &event);
     void refreshFiles();
     void onEscape();
+    void onSelectItem(wxUpdateUIEvent &event);
+    void onUpdateVersion(wxUpdateUIEvent &event);
+    void validateButtons();
+    void validateButtonSelectedListBox(wxButton *button, wxListBox *listBox);
     void setMnemonicLabels(bool modifierDown);
     void initialFocus();
 };

@@ -89,8 +89,14 @@ class NewMatchDialog : public wxFrame {
     void onChangeBaseDir(wxCommandEvent &event);
     void changeBaseDir();
     void onEscape();
+    void onSelectStage(wxUpdateUIEvent &event);
+    void onSelectBot(wxUpdateUIEvent &event);
+    void onSelectLoadedBot(wxUpdateUIEvent &event);
     bool botsSelectHasFocus();
     bool loadedBotsSelectHasFocus();
+    void validateButtons();
+    void validateButtonNonEmptyListBox(wxButton *button, wxListBox *listBox);
+    void validateButtonSelectedListBox(wxButton *button, wxListBox *listBox);
     void setMnemonicLabels(bool modifierDown);
     void initialFocus();
   private:
