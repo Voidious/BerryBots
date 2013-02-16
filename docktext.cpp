@@ -18,40 +18,28 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef DOCK_ITEM_H
-#define DOCK_ITEM_H
-
+#include <string.h>
 #include <SFML/Graphics.hpp>
-#include "rectangle.h"
+#include "dockitem.h"
+#include "docktext.h"
 
-#define DEFAULT_COLOR      sf::Color(255, 255, 255, 255)
-#define HIGHLIGHTED_COLOR  sf::Color(0, 255, 0, 255)
-#define SHORTCUT_COLOR     sf::Color(255, 255, 0, 255)
+DockText::DockText(const char *text, sf::Font *font, int fontSize, int left,
+    int top, int width, int height) : DockItem(left, top, width, height) {
+  drawableText_ = new sf::Text(text, *font, fontSize);
+  drawableText_->setPosition(left_, top_ + (height / 2) - fontSize);
+  drawableText_->setColor(DEFAULT_COLOR);
+  drawables_ = new sf::Drawable*[1];
+  drawables_[0] = drawableText_;
+  numDrawables_ = numAltDrawables_ = 1;
+  highlightedDrawables_ = new sf::Drawable*[1];
+  shortcutDrawables_ = new sf::Drawable*[1];
+  shortcutDrawables_[0] = highlightedDrawables_[0] = drawableText_;
+}
 
-class DockItem : public Rectangle {
-  protected:
-    int top_;
-    bool highlighted_;
-    bool showShortcut_;
-    sf::Drawable **drawables_;
-    sf::Drawable **highlightedDrawables_;
-    sf::Drawable **shortcutDrawables_;
-    sf::Text *hoverText_;
-    sf::Text *shortcutText_;
-    int numDrawables_;
-    int numAltDrawables_;
+DockText::~DockText() {
 
-    DockItem(int left, int top, int width, int height);
+}
 
-  public:
-    virtual ~DockItem();
-    virtual void setHighlighted(bool highlighted) = 0;
-    void setHighlights(int mouseX, int mouseY);
-    void showShortcut();
-    void hideShortcut();
-    sf::Drawable** getDrawables();
-    int getNumDrawables();
-    bool contains(int x, int y);
-};
-
-#endif
+void DockText::setHighlighted(bool highlighted) {
+  drawableText_->setColor(highlighted ? HIGHLIGHTED_COLOR : DEFAULT_COLOR);
+}

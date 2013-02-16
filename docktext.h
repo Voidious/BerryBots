@@ -18,40 +18,20 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef DOCK_ITEM_H
-#define DOCK_ITEM_H
+#ifndef DOCK_TEXT_H
+#define DOCK_TEXT_H
 
 #include <SFML/Graphics.hpp>
 #include "rectangle.h"
 
-#define DEFAULT_COLOR      sf::Color(255, 255, 255, 255)
-#define HIGHLIGHTED_COLOR  sf::Color(0, 255, 0, 255)
-#define SHORTCUT_COLOR     sf::Color(255, 255, 0, 255)
-
-class DockItem : public Rectangle {
-  protected:
-    int top_;
-    bool highlighted_;
-    bool showShortcut_;
-    sf::Drawable **drawables_;
-    sf::Drawable **highlightedDrawables_;
-    sf::Drawable **shortcutDrawables_;
-    sf::Text *hoverText_;
-    sf::Text *shortcutText_;
-    int numDrawables_;
-    int numAltDrawables_;
-
-    DockItem(int left, int top, int width, int height);
+class DockText : public DockItem {
+  sf::Text *drawableText_;
 
   public:
-    virtual ~DockItem();
-    virtual void setHighlighted(bool highlighted) = 0;
-    void setHighlights(int mouseX, int mouseY);
-    void showShortcut();
-    void hideShortcut();
-    sf::Drawable** getDrawables();
-    int getNumDrawables();
-    bool contains(int x, int y);
+    DockText(const char *text, sf::Font *font, int fontSize, int left, int top,
+             int width, int height);
+    ~DockText();
+    virtual void setHighlighted(bool highlighted);
 };
 
 #endif
