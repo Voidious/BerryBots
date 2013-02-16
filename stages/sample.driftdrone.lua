@@ -1,3 +1,5 @@
+-- Drone ship loaded and managed by the sample.drift stage.
+
 ship = nil
 world = nil
 

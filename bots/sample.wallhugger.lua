@@ -1,7 +1,10 @@
--- A ship that moves to a wall and then follows the wall without hitting it,
--- and (if battle mode is enabled) shoots at the nearest visible ship. Can
--- naively solve some mazes (such as the samples), and is also a reasonable
--- free-for-all battle strategy. Also supports teams.
+-- A ship that moves to a wall and then follows the wall without hitting it. If
+-- battle mode is enabled, also shoots at the nearest visible ship.
+--
+-- Can naively solve some mazes (such as the samples), and it's also a
+-- reasonable free-for-all battle strategy. Can also be initialized as a team of
+-- any size, controlling each ship with the same logic and totally ignoring
+-- teammates.
 
 require "battlebot"
 
@@ -23,6 +26,9 @@ function init(shipsArg, worldArg)
 
   for i, ship in pairs(ships) do
     ship:setName("WallHugger")
+    ship:setShipColor(0, 255, 0)
+    ship:setLaserColor(255, 255, 255)
+    ship:setThrusterColor(0, 255, 0)
     local shipState = { heading=randomDirection(),
                         started = false, wasAgainstWall = true }
     shipStates[ship] = shipState

@@ -1,5 +1,4 @@
--- A module that defines some common functions required by BerryBots battle
--- bots.
+-- A module that defines some common functions required by battle ships.
 
 module("battlebot", package.seeall);
 

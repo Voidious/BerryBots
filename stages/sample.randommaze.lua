@@ -36,6 +36,9 @@ function init(shipsArg, worldArg, adminArg)
 end
 
 function run()
+  if (# ships > 1) then
+    admin:drawText(20, 26, "WARNING: This stage is only designed for 1 ship.")
+  end
   for i,ship in pairs(ships) do
     if (world:touchedAnyZone(ship)) then
       admin:setWinner(ship:name())

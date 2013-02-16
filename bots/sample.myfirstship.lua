@@ -1,4 +1,4 @@
--- A simple bot that just moves back and forth and shoots at any enemy it sees.
+-- A battle ship that just moves back and forth and shoots at any enemy it sees.
 
 ship = nil
 world = nil

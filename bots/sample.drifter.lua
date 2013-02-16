@@ -1,4 +1,4 @@
--- A bot designed for the sample.drifter stage. Takes a very naive approach,
+-- A ship designed for the sample.drifter stage. Takes a very naive approach,
 -- so isn't likely to get through on the first try, but usually does eventually.
 
 ship = nil

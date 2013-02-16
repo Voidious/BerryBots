@@ -1,5 +1,7 @@
--- A sample robot that can move through most mazes fairly efficiently, albeit
+-- A sample ship that can move through most mazes fairly efficiently, albeit
 -- somewhat awkwardly.
+--
+-- This is the only sample ship with any real pathfinding for navigating walls.
 
 ship = nil
 world = nil
@@ -21,6 +23,9 @@ function init(shipArg, world)
   width = world:width()
   height = world:height()
   ship:setName("Snail")
+  ship:setShipColor(0, 0, 255)
+  ship:setLaserColor(0, 0, 0)
+  ship:setThrusterColor(0, 0, 255)
 
   if (# zones == 0) then
     print("No target set, nothing to do.")

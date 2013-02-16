@@ -1,6 +1,6 @@
 -- A "fixed shooter" arcade style game, sort of like Galaga or Space Invaders.
--- User bot can only move from side to side along the bottom of the stage and
--- gains points by killing the drone bots loaded and managed by the stage.
+-- User ship can only move from side to side along the bottom of the stage and
+-- gains points by destroying the drone ship loaded and managed by the stage.
 
 function configure(stageBuilder)
   stageBuilder:setSize(600, 700)

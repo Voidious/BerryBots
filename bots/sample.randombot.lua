@@ -1,6 +1,6 @@
--- A bot that moves around randomly, tries not to get stuck on walls, and
--- shoots at a random enemy. Can also be initialized as a team of any size
--- with the same behavior (totally ignoring teammates).
+-- A battle ship that moves around randomly, tries not to get stuck on walls,
+-- and shoots at a random enemy. Can also be initialized as a team of any size,
+-- controlling each ship with the same logic and totally ignoring teammates.
 
 ships = { }
 dests = { }

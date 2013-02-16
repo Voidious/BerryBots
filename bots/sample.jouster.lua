@@ -1,7 +1,6 @@
--- A jousting bot with a slightly intelligent strategy. Starts the battle by
--- strafing to the side to avoid the initial collision, then tries to stay away
--- from the dangerous edges of the stage and otherwise move directly at the
--- enemy.
+-- A jousting ship. Starts the battle by strafing to the side to avoid the
+-- initial collision, then tries to stay away from the dangerous edges of the
+-- stage while otherwise move directly at the enemy.
 
 ship = nil
 world = nil
@@ -14,6 +13,9 @@ function init(shipRef, worldArg)
   width = world:width()
   height = world:height()
   ship:setName("Jouster")
+  ship:setShipColor(255, 0, 0)
+  ship:setLaserColor(100, 100, 100)
+  ship:setThrusterColor(255, 0, 0)
 end
 
 above = nil

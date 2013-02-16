@@ -1,5 +1,6 @@
--- An oval race track. Bots need to cross each zone in a counter-clockwise
--- pattern. The bot with the most laps is displayed as the leader on screen.
+-- An oval race track. Ships need to cross each zone in a counter-clockwise
+-- pattern. The ship with the most laps is displayed as the leader on screen,
+-- along with the fastest lap.
 
 function configure(stageBuilder)
   stageBuilder:setSize(1000, 700)

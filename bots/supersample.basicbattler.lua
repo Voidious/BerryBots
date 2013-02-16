@@ -1,4 +1,4 @@
--- A basic battle bot that tries to move to a safe spot on the battle field
+-- A basic battle ship that tries to move to a safe spot on the battle field
 -- and aims with random linear targeting.
 
 require "battlebot"

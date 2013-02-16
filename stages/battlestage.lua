@@ -1,9 +1,10 @@
--- A module that defines some common functions required by BerryBots battle
--- stages.
+-- A module that defines some common functions required by battle stages.
 
 module("battlestage", package.seeall);
 
 local currentRound = 1
+local lastRoundPrinted = 0
+local printRoundTimer = 0
 local numRounds = 9
 local teamScores = { }
 
@@ -35,15 +36,29 @@ function teamsAlive(ships)
   return teamsAlive
 end
 
+local function drawRound()
+  if (lastRoundPrinted < currentRound) then
+    printRoundTimer = 90
+    lastRoundPrinted = currentRound
+  end
+
+  if (printRoundTimer > 0) then
+    admin:drawText(20, 26, "Round " .. currentRound)
+    printRoundTimer = printRoundTimer - 1
+  end
+end
+
 -- In free-for-all (more than 2 teams), scoring is based on kills + damage.
 -- In 1v1 (or 2 teams), scoring is based on survival - the last team standing at
 -- the end of each round scores a point.
+-- For just 1 team, do nothing.
 function basicScoring(ships, admin)
-  local numTeams = numTeams(ships)
+  drawRound()
 
+  local numTeams = numTeams(ships)
   if (numTeams > 2) then
     battlestage.ffaKillsPlusDamage(ships, admin)
-  else
+  elseif (numTeams == 2) then
     battlestage.duelSurvival(ships, admin)
   end
 end

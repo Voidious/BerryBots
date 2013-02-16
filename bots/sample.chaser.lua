@@ -1,5 +1,7 @@
--- A simple bot that moves directly at any bot it sees and fires at them. Just
--- moves back and forth if it doesn't see anyone.
+-- A battle ship that moves directly at any ship it sees and fires at them. This
+-- also works as a basic strategy ofr sample.joust.
+--
+-- If it doesn't see anyone, it just moves back and forth.
 
 ship = nil
 world = nil
@@ -9,6 +11,9 @@ function init(shipRef, worldArg)
   ship = shipRef
   world = worldArg
   ship:setName("Chaser")
+  ship:setShipColor(0, 0, 255)
+  ship:setLaserColor(255, 255, 255)
+  ship:setThrusterColor(255, 255, 255)
 end
 
 angle = math.random() * 2 * math.pi

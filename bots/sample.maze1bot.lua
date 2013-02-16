@@ -1,4 +1,4 @@
--- A sample bot to navigate sample.maze1.lua. Path is developed through trial
+-- A ship designed to navigate sample.maze1.lua. Path is developed through trial
 -- and error, hard coded and not doing anything intelligent.
 
 ship = nil

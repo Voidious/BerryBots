@@ -1,6 +1,6 @@
--- A bot designed to play sample.arcadeshooter stage. Moves back and forth at a
--- steady rate and shoots directly at the drone with some combination of low
--- energy and nearby location.
+-- A ship designed to play the sample.arcadeshooter stage. Moves back and forth
+-- at a steady rate and shoots directly at the drone with some combination of
+-- low energy and nearby location.
 
 ship = nil
 world = nil

@@ -1,5 +1,5 @@
--- A reasonably complex maze. Bot starts in middle left and needs
--- to get to top right corner without hitting any walls.
+-- A reasonably complex maze. Ship starts in middle left and needs to get to top
+-- right corner without hitting any walls.
 
 function configure(stageBuilder)
   stageBuilder:setSize(1200, 600)
@@ -44,6 +44,9 @@ function init(shipsArg, worldArg, adminArg)
 end
 
 function run()
+  if (# ships > 1) then
+    admin:drawText(20, 26, "WARNING: This stage is only designed for 1 ship.")
+  end
   for i,ship in pairs(ships) do
     if (world:touchedAnyZone(ship)) then
       admin:setWinner(ship:name())

@@ -1,5 +1,5 @@
--- A very simple racing bot designed for the sample.racetrack stage. Has a hard
--- coded path and no intelligence for quick adaptation to collisions or
+-- A simple racing ship designed for the sample.racetrack stage. Has a hard
+-- coded path and no intelligence for quick adaptation to collisions or finding
 -- optimal paths.
 
 ship = nil
@@ -9,6 +9,9 @@ function init(shipArg, worldArg)
   ship = shipArg
   world = worldArg
   ship:setName("Racer")
+  ship:setShipColor(255, 0, 0)
+  ship:setLaserColor(0, 0, 0)
+  ship:setThrusterColor(255, 255, 0)
 end
 
 lastHitWall = false

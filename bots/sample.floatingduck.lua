@@ -1,4 +1,4 @@
--- A bot that does nothing at all.
+-- A ship that does nothing at all.
 
 function init(ship, world)
   ship:setName("FloatingDuck")

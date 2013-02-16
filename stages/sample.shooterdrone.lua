@@ -1,6 +1,6 @@
--- The drone ship loaded on sample.arcadeshooter stage. Fires lasers at long
--- intervals and moves in a pattern, oriented by the stage to stay in formation
--- with other ships.
+-- The drone ship loaded and managed by sample.arcadeshooter stage. Fires lasers
+-- at long intervals and moves in a pattern, oriented by the stage to stay in
+-- formation with other ships.
 
 ship = nil
 world = nil

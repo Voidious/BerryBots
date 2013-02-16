@@ -1,3 +1,10 @@
+-- A ship designed to play the sample.vortex stage. Tries to get as far away
+-- from the center as possible until it starts getting sucked in, then fires its
+-- thruster perpendicular to try and slingshot around the center.
+--
+-- Its strategy is focused only on surviving, not actually aiming at the target
+-- zones.
+
 ship = nil
 world = nil
 center = nil
