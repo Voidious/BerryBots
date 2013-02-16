@@ -29,7 +29,7 @@ MenuBarMaker::MenuBarMaker() {
 wxMenuBar* MenuBarMaker::getNewMenuBar() {
   wxMenu *fileMenu = new wxMenu();
   fileMenu->Insert(0, NEW_MATCH_MENU_ID, "&New Match...\tCtrl+N", 0);
-  fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "Package S&hip...\tCtrl+H", 0);
+  fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "&Package Ship...\tCtrl+P", 0);
   fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package S&tage...\tCtrl+T", 0);
   fileMenu->Insert(3, ERROR_CONSOLE_MENU_ID, "&Error Console\tCtrl+E", 0);
 #ifndef __WXOSX__

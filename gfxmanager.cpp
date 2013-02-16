@@ -235,7 +235,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   packageShipShapes[3]->move(-SHIP_DOT_RADIUS, -SHIP_DOT_RADIUS);
   adjustShipDotPosition((sf::CircleShape *) packageShipShapes[3], 255);
   packageShipButton_ = new DockItem(packageShipShapes, 4, 59, 10, 40, 40,
-      "Package Ship", &font, DOCK_BUTTON_FONT_SIZE, 17, 50, "H",
+      "Package Ship", &font, DOCK_BUTTON_FONT_SIZE, 17, 50, "P",
       DOCK_SHORTCUT_FONT_SIZE);
 
   sf::Shape** packageStageShapes = new sf::Shape*[5];

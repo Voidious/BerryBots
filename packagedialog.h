@@ -52,8 +52,8 @@ class PackageDialog : public wxFrame {
   wxString modifiedPackageLabel_;
 
   public:
-    PackageDialog(const char *title, PackageDialogListener *listener,
-                  MenuBarMaker *menuBarMaker);
+    PackageDialog(const char *title, const char *buttonLabel,
+                  PackageDialogListener *listener, MenuBarMaker *menuBarMaker);
     ~PackageDialog();
     void clearItems();
     void addItem(char *name);

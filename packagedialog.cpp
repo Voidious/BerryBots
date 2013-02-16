@@ -22,9 +22,9 @@
 #include "packagedialog.h"
 #include "bbwx.h"
 
-PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
-    MenuBarMaker *menuBarMaker) : wxFrame(NULL, wxID_ANY, title,
-        wxPoint(50, 50), wxDefaultSize,
+PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
+    PackageDialogListener *listener, MenuBarMaker *menuBarMaker)
+    : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxDefaultSize,
         wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   listener_ = listener;
   menuBarMaker_ = menuBarMaker;
@@ -59,15 +59,14 @@ PackageDialog::PackageDialog(const char *title, PackageDialogListener *listener,
   versionSizer->AddSpacer(5);
   versionSizer->Add(versionText_, 0, wxALIGN_CENTER);
   rightSizer->Add(versionSizer);
-  packageLabel_.Append("    &");
-  packageLabel_.Append(title);
-  packageLabel_.Append("!    ");
-  modifiedPackageLabel_.Append("&");
-  modifiedPackageLabel_.Append(title);
+  packageLabel_.Append("    ");
+  packageLabel_.Append(buttonLabel);
+  packageLabel_.Append("    ");
+  modifiedPackageLabel_.Append(buttonLabel);
 #ifdef __WXOSX__
-  modifiedPackageLabel_.Append("! \u2318P");
+  modifiedPackageLabel_.Append(" \u2318K");
 #else
-  modifiedPackageLabel_.Append("!  alt-P");
+  modifiedPackageLabel_.Append("  alt-K");
 #endif
   packageButton_ = new wxButton(mainPanel_, wxID_ANY, packageLabel_,
       wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
@@ -228,7 +227,7 @@ int PackageEventFilter::FilterEvent(wxEvent& event) {
       return Event_Processed;
 #ifdef __WXOSX__
     // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
-    } else if (keyEvent->GetUnicodeKey() == 'P' && modifierDown) {
+    } else if (keyEvent->GetUnicodeKey() == 'K' && modifierDown) {
       packageDialog_->packageSelectedItem();
       return Event_Processed;
     } else if (keyEvent->GetUnicodeKey() == 'R' && modifierDown) {

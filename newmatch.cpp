@@ -94,7 +94,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
                            wxDefaultPosition, wxDefaultSize);
   removeArrow_ = new wxButton(mainPanel_, REMOVE_BUTTON_ID, "<<",
                               wxDefaultPosition, wxDefaultSize);
-  clearButton_ = new wxButton(mainPanel_, CLEAR_BUTTON_ID, "&Clear",
+  clearButton_ = new wxButton(mainPanel_, CLEAR_BUTTON_ID, "C&lear",
                               wxDefaultPosition, wxDefaultSize);
 
   wxBoxSizer *botButtonsSizer = new wxBoxSizer(wxVERTICAL);
@@ -403,11 +403,11 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
   if (modifierDown) {
 #ifdef __WXOSX__
     folderButton_->SetLabel("Change &Base \u2318B");
-    clearButton_->SetLabel("&Clear \u2318C");
+    clearButton_->SetLabel("C&lear \u2318L");
     refreshButton_->SetLabel("&Refresh \u2318R");
     startButton_->SetLabel("Start &Match \u2318M");
 #else
-    clearButton_->SetLabel("&Clear  alt-C");
+    clearButton_->SetLabel("C&lear  alt-L");
     refreshButton_->SetLabel("&Refresh  alt-R");
     startButton_->SetLabel("Start &Match!  alt-M");
 #endif
@@ -415,7 +415,7 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
 #ifdef __WXOSX__
     folderButton_->SetLabel("Change &Base Dir  ");
 #endif
-    clearButton_->SetLabel("&Clear");
+    clearButton_->SetLabel("C&lear");
     refreshButton_->SetLabel("    &Refresh    ");
     startButton_->SetLabel("    Start &Match!    ");
   }
@@ -465,7 +465,7 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
     } else if (keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
       newMatchDialog_->refreshFiles();
       return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'C' && modifierDown) {
+    } else if (keyEvent->GetUnicodeKey() == 'L' && modifierDown) {
       newMatchDialog_->clearLoadedBots();
       return Event_Processed;
     } else if (keyEvent->GetUnicodeKey() == 'B' && modifierDown) {

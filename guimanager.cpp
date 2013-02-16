@@ -584,7 +584,7 @@ void GuiManager::processMainWindowEvents() {
         case sf::Keyboard::N:
           showNewMatchDialog();
           break;
-        case sf::Keyboard::H:
+        case sf::Keyboard::P:
           showPackageShipDialog();
           break;
         case sf::Keyboard::T:

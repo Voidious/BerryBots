@@ -22,8 +22,8 @@
 #include "bbwx.h"
 
 PackageShipDialog::PackageShipDialog(PackageDialogListener *listener,
-    MenuBarMaker *menuBarMaker) : PackageDialog("Package Ship", listener,
-                                                menuBarMaker) {
+    MenuBarMaker *menuBarMaker)
+    : PackageDialog("Package Ship", "Pac&kage Ship!", listener, menuBarMaker) {
 
 }
 

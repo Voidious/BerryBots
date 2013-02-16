@@ -22,8 +22,9 @@
 #include "bbwx.h"
 
 PackageStageDialog::PackageStageDialog(PackageDialogListener *listener,
-    MenuBarMaker *menuBarMaker) : PackageDialog("Package Stage", listener,
-                                                menuBarMaker) {
+    MenuBarMaker *menuBarMaker)
+    : PackageDialog("Package Stage", "Pac&kage Stage!", listener,
+                    menuBarMaker) {
 
 }
 

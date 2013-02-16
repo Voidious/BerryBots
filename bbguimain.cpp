@@ -95,7 +95,7 @@ bool BerryBotsApp::OnInit() {
                << std::endl << std::endl
                << "As needed, BerryBots will also create a cache (cache/) "
                << "subdirectory for extracting packaged ships and stages, as "
-               << "well as a temp (.tmp) subdirectory for working files used "
+               << "well as a temp (.tmp/) subdirectory for working files used "
                << "to package ships and stages."
                << std::endl << std::endl
                << "Have fun!";
