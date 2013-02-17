@@ -90,8 +90,9 @@ class GuiManager {
   // paused the game or it ended and they haven't done anything yet.)
   bool paused_;
   bool restarting_;
-  double tpsFactor_;
   bool quitting_;
+  double tpsFactor_;
+  double nextDrawTime_;
   
   public:
     GuiManager(GuiListener *listener);

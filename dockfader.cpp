@@ -28,13 +28,13 @@
 DockFader::DockFader(int left, int top, int width, int height,
     const char *hoverText, sf::Font *font, int fontSize, int textLeft,
     int textTop) : DockItem(left, top, width, height) {
-  faderSlot_ = new sf::RectangleShape(sf::Vector2f(width, 3));
-  faderSlot_->setPosition(left_, top_ + (height / 2) - 2);
-  faderCenter_ = new sf::RectangleShape(sf::Vector2f(3, (height / 2) - 1));
-  faderCenter_->setPosition(left_ + (width / 2) - 2, top_ + (height / 4));
+  faderSlot_ = new sf::RectangleShape(sf::Vector2f(width, 2));
+  faderSlot_->setPosition(left_, top_ + (height / 2) - 1);
+  faderCenter_ = new sf::RectangleShape(sf::Vector2f(2, (height / 2)));
+  faderCenter_->setPosition(left_ + (width / 2) - 1, top_ + (height / 4));
   faderCenter_->setFillColor(sf::Color(125, 125, 125));
   faderCenter_->setOutlineThickness(0);
-  faderKnob_ = new sf::RectangleShape(sf::Vector2f(3, (height / 2) - 1));
+  faderKnob_ = new sf::RectangleShape(sf::Vector2f(4, (height / 2)));
   faderKnob_->setPosition(left_ + (width / 2) - 2, top_ + (height / 4));
 
   drawables_ = new sf::Drawable*[3];
@@ -52,10 +52,10 @@ DockFader::DockFader(int left, int top, int width, int height,
     highlightedDrawables_[x] = drawables_[x];
   }
   highlightedDrawables_[numDrawables_] = hoverText_;
-  numAltDrawables_ = 3;
+  numAltDrawables_ = numDrawables_ + 1;
 
   xMin_ = left_;
-  xMax_ = left_ + width_ - 3;
+  xMax_ = left_ + width_ - 2;
   xZero_ = faderKnob_->getPosition().x;
 }
 
@@ -64,19 +64,20 @@ DockFader::~DockFader() {
 }
 
 void DockFader::setKnob(int x) {
-  int xNew = (abs(x - xZero_) < 6) ? xZero_ : limit(xMin_, x, xMax_);
+  int xNew = (abs(x - 2 - xZero_) < 6) ? xZero_ : limit(xMin_, x - 2, xMax_);
   faderKnob_->setPosition(xNew, top_ + (height_ / 4));
 }
 
 double DockFader::getVolume() {
   int xKnob = faderKnob_->getPosition().x;
-
-  // -MAX_VOLUME to MAX_VOLUME
-  double linearVolume =
-      MAX_VOLUME_EXP * (((double) (xKnob - xZero_)) / (xMax_ - xZero_));
-  double volume = pow(VOLUME_BASE, linearVolume);
-
-  return volume;
+  if (xKnob == xMin_) {
+    return 0;
+  } else {
+    double linearVolume =
+        MAX_VOLUME_EXP * (((double) (xKnob - xZero_)) / (xMax_ - xZero_));
+    double volume = pow(VOLUME_BASE, linearVolume);
+    return volume;
+  }
 }
 
 void DockFader::setHighlighted(bool highlighted) {

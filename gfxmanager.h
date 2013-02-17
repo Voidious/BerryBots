@@ -138,7 +138,7 @@ class GfxManager {
                          GfxEventHandler *gfxHandler, Ship **ships);
     void drawNames(sf::RenderWindow *window, Ship **ships, int numShips);
     void drawStageTexts(sf::RenderWindow *window, Stage *stage, bool paused,
-                        bool gameOver);
+                        bool gameOver, int time);
     void drawDock(sf::RenderWindow *window, Stage *stage, bool paused);
     void drawDockItem(sf::RenderWindow *window, DockItem *dockItem);
     void drawGameOver(sf::RenderWindow *window, Stage *stage, char *winnerName);

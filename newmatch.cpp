@@ -155,7 +155,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
           wxCommandEventHandler(NewMatchDialog::onClearLoadedBots));
   Connect(startButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onStartMatch));
-  Connect(stageSelect_->GetId(), wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
+  Connect(botsSelect_->GetId(), wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
           wxCommandEventHandler(NewMatchDialog::onAddBots));
   Connect(loadedBotsSelect_->GetId(), wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
           wxCommandEventHandler(NewMatchDialog::onRemoveBots));

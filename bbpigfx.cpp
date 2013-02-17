@@ -451,7 +451,8 @@ void drawNames(Ship **ships, int numShips) {
   }
 }
 
-void drawStageTexts(Stage *stage) {
+void drawStageTexts(Stage *stage, int time) {
+  stage->clearStaleTexts(time);
   int numTexts = stage->getTextCount();
   if (numTexts > 0) {
     vgLoadIdentity();
@@ -464,7 +465,6 @@ void drawStageTexts(Stage *stage) {
       SansText(stageLeft + stageText->x, stageBottom + stageText->y,
           stageText->text, 18);
     }
-    stage->updateTextTimers();
   }
 }
 
@@ -490,7 +490,7 @@ void drawGame(int screenWidth, int screenHeight, Stage *stage, Ship **ships,
   drawNames(ships, numShips);
   drawLasers(stage);
   drawShips(ships, numShips, time);
-  drawStageTexts(stage);
+  drawStageTexts(stage, time);
 
   End();
 }

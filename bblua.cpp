@@ -1428,10 +1428,11 @@ int Admin_gameOver(lua_State *L) {
 
 int Admin_drawText(lua_State *L) {
   Admin *admin = checkAdmin(L, 1);
+  BerryBotsEngine *engine = admin->engine;
   int x = luaL_checkint(L, 2);
   int y = luaL_checkint(L, 3);
   const char *text = luaL_checkstring(L, 4);
-  admin->engine->getStage()->addText(x, y, text);
+  admin->engine->getStage()->addText(x, y, text, engine->getGameTime(), 1);
   return 1;
 }
 

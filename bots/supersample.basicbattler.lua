@@ -21,8 +21,8 @@ function init(shipArg, worldArg)
   wallLines = battlebot.initWalls(world:walls())
 
   ship:setName("BasicBattler")
-  ship:setShipColor(100, 200, 240)
-  ship:setLaserColor(255, 255, 255)
+  ship:setShipColor(75, 175, 255)
+  ship:setLaserColor(200, 200, 0)
   ship:setThrusterColor(200, 200, 0)
 end
 

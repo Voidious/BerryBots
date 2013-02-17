@@ -313,8 +313,8 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
       50, 50, "Restart", &font, DOCK_BUTTON_FONT_SIZE, 69,
       window->getSize().y - 55, "Back", DOCK_SHORTCUT_FONT_SIZE);
 
-  tpsFader_ = new DockFader(15, window->getSize().y - 150, DOCK_SIZE - 30, 40,
-      "Speed", &font, DOCK_BUTTON_FONT_SIZE, 48, window->getSize().y - 175);
+  tpsFader_ = new DockFader(15, window->getSize().y - 140, DOCK_SIZE - 30, 40,
+      "Speed", &font, DOCK_BUTTON_FONT_SIZE, 49, window->getSize().y - 165);
 }
 
 void GfxManager::reinitDockItems(sf::RenderWindow *window) {
@@ -402,7 +402,7 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   drawNames(window, ships, numShips);
   drawLasers(window, stage);
   drawShips(window, ships, numShips, time);
-  drawStageTexts(window, stage, paused, gameOver);
+  drawStageTexts(window, stage, paused, gameOver, time);
   if (gameOver) {
     drawGameOver(window, stage, winnerName);
   }
@@ -477,20 +477,18 @@ void GfxManager::processMouseMoved(int x, int y) {
   if (adjustingTps_) {
     tpsFader_->setKnob(x);
     listener_->onTpsChange(tpsFader_->getVolume());
-  }
+  } else {
+    stageButton_->setHighlights(x, y);
+    for (int z = 0; z < numTeams_; z++) {
+      teamButtons_[z]->setHighlights(x, y);
+    }
 
-  stageButton_->setHighlights(x, y);
-  for (int z = 0; z < numTeams_; z++) {
-    teamButtons_[z]->setHighlights(x, y);
-  }
-
-  newMatchButton_->setHighlights(x, y);
-  packageShipButton_->setHighlights(x, y);
-  packageStageButton_->setHighlights(x, y);
-  pauseButton_->setHighlights(x, y);
-  playButton_->setHighlights(x, y);
-  restartButton_->setHighlights(x, y);
-  if (!adjustingTps_) {
+    newMatchButton_->setHighlights(x, y);
+    packageShipButton_->setHighlights(x, y);
+    packageStageButton_->setHighlights(x, y);
+    pauseButton_->setHighlights(x, y);
+    playButton_->setHighlights(x, y);
+    restartButton_->setHighlights(x, y);
     tpsFader_->setHighlights(x, y);
   }
 }
@@ -746,7 +744,8 @@ void GfxManager::drawNames(sf::RenderWindow *window, Ship **ships,
 }
 
 void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
-                                bool paused, bool gameOver) {
+                                bool paused, bool gameOver, int time) {
+  stage->clearStaleTexts(time);
   int numTexts = stage->getTextCount();
   if (numTexts > 0) {
     StageText **stageTexts = stage->getTexts();
@@ -758,9 +757,6 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
       text.setPosition(adjustX(stageText->x),
                        adjustY(stageText->y + textRect.height));
       window->draw(text);
-    }
-    if (!paused && !gameOver) {
-      stage->updateTextTimers();
     }
   }
 }

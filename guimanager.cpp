@@ -86,8 +86,9 @@ GuiManager::GuiManager(GuiListener *listener) {
   interrupted_ = false;
   paused_ = false;
   restarting_ = false;
-  tpsFactor_ = 1;
   quitting_ = false;
+  tpsFactor_ = 1;
+  nextDrawTime_ = 1;
 }
 
 GuiManager::~GuiManager() {
@@ -353,6 +354,7 @@ sf::RenderWindow* GuiManager::getMainWindow() {
 void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                              int numTeams) {
   tpsFactor_ = 1;
+  nextDrawTime_ = 1;
   sf::RenderWindow *window;
 #ifdef __WXOSX__
   window = initMainWindow(1200, 800);
@@ -482,19 +484,23 @@ void GuiManager::runCurrentMatch() {
   try {
     while (window->isOpen() && !interrupted_ && !restarting_ && !quitting_) {
       if (!paused_ && !restarting_ && !engine_->isGameOver()) {
-        engine_->processTick();
+        while (engine_->getGameTime() < nextDrawTime_) {
+          engine_->processTick();
+        }
       }
       
-      processMainWindowEvents();
-      
-      if (!interrupted_ && !restarting_ && !quitting_) {
+      while (!interrupted_ && !restarting_ && !quitting_
+             && nextDrawTime_ <= engine_->getGameTime()) {
+        processMainWindowEvents();
         window->clear();
         gfxManager_->drawGame(window, engine_->getStage(), engine_->getShips(),
                               engine_->getNumShips(), engine_->getGameTime(),
                               gfxHandler_, paused_, engine_->isGameOver(),
                               engine_->getWinnerName());
         window->display();
-        
+        if (!paused_) {
+          nextDrawTime_ += tpsFactor_;
+        }
       }
     }
   } catch (EngineException *e) {
@@ -631,10 +637,10 @@ void GuiManager::processMainWindowEvents() {
     // TODO: Might be better to restrict this to the Space case specifically,
     //       or when window isn't visible to user.
     bool defaultTps = (abs(tpsFactor_ - 1) < 0.001);
-    if (event.type == sf::Event::LostFocus || !defaultTps) {
+    if (event.type == sf::Event::LostFocus) {
       window->setVerticalSyncEnabled(false);
-      window->setFramerateLimit(tpsFactor_ * 60);
-    } else if (event.type == sf::Event::GainedFocus) {
+      window->setFramerateLimit(60);
+    } else if (event.type == sf::Event::GainedFocus && defaultTps) {
       window->setVerticalSyncEnabled(true);
       window->setFramerateLimit(0);
     }
@@ -765,17 +771,17 @@ void GuiManager::restartMatch() {
 
 void GuiManager::setTpsFactor(double tpsFactor) {
   tpsFactor_ = tpsFactor;
+  int newTps = (int) (tpsFactor_ * 72);
+  paused_ = (newTps == 0);
 
   sf::RenderWindow *window = getMainWindow();
-  bool defaultTps = (abs(tpsFactor_ - 1) < 0.001);
-  int newTps = (int) (tpsFactor_ * 60);
-  paused_ = (newTps == 0);
-  if (defaultTps || paused_) {
+  bool defaultTps = (abs(tpsFactor_ - 1) < 0.01);
+  if (defaultTps) {
     window->setVerticalSyncEnabled(true);
     window->setFramerateLimit(0);
   } else {
     window->setVerticalSyncEnabled(false);
-    window->setFramerateLimit(tpsFactor_ * 60);
+    window->setFramerateLimit(60);
   }
 }
 

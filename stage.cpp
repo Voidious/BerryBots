@@ -305,7 +305,8 @@ bool Stage::isShipInShip(int shipIndex, double x, double y) {
   return shipInShip;
 }
 
-int Stage::addText(int x, int y, const char *text) {
+int Stage::addText(int x, int y, const char *text, int gameTime,
+                   int drawTicks) {
   if (numTexts_ >= MAX_STAGE_TEXTS) {
     return 0;
   } else {
@@ -315,25 +316,10 @@ int Stage::addText(int x, int y, const char *text) {
     stageText->x = x;
     stageText->y = y;
     stageText->text = newText;
-    stageText->timer = 1;
+    stageText->startTime = gameTime;
+    stageText->drawTicks = 1;
     stageTexts_[numTexts_++] = stageText;
     return 1;
-  }
-}
-
-void Stage::updateTextTimers() {
-  for (int x = 0; x < numTexts_; x++) {
-    StageText *stageText = stageTexts_[x];
-    stageText->timer--;
-    if (stageText->timer <= 0) {
-      if (numTexts_ > 1) {
-        stageTexts_[x] = stageTexts_[numTexts_ - 1];
-      }
-      delete stageText->text;
-      delete stageText;
-      numTexts_--;
-      x--;
-    }
   }
 }
 
@@ -343,6 +329,21 @@ StageText** Stage::getTexts() {
 
 int Stage::getTextCount() {
   return numTexts_;
+}
+
+void Stage::clearStaleTexts(int gameTime) {
+  for (int x = 0; x < numTexts_; x++) {
+    StageText *stageText = stageTexts_[x];
+    if (gameTime - stageText->startTime > stageText->drawTicks) {
+      if (numTexts_ > 1) {
+        stageTexts_[x] = stageTexts_[numTexts_ - 1];
+      }
+      delete stageText->text;
+      delete stageText;
+      numTexts_--;
+      x--;
+    }
+  }
 }
 
 void Stage::setTeamsAndShips(
