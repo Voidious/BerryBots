@@ -755,13 +755,19 @@ void GuiManager::showStagePreview(const char *stageName) {
   Ship **ships = new Ship*[1];
   Ship *ship = new Ship;
   ShipProperties *properties = new ShipProperties;
-  properties->shipR = properties->shipG = properties->shipB = 0;
-  properties->laserR = properties->laserG = properties->laserB = 0;
-  properties->thrusterR = properties->thrusterG = properties->thrusterB = 0;
+  properties->shipR = properties->shipG = properties->shipB = 255;
+  properties->laserR = properties->laserB = 0;
+  properties->laserG = 255;
+  properties->thrusterR = 255;
+  properties->thrusterG = properties->thrusterB = 0;
   strcpy(properties->name, "PreviewShip");
   ship->properties = properties;
-  ship->thrusterAngle = ship->thrusterForce = ship->x = ship->y = 0;
-  ship->alive = ship->showName = ship->energyEnabled = false;
+  ship->thrusterAngle = ship->thrusterForce = 0;
+  Point2D *start = stage->getStart();
+  ship->x = start->getX();
+  ship->y = start->getY();
+  ship->alive = true;
+  ship->showName = ship->energyEnabled = false;
   ships[0] = ship;
 
   previewGfxManager_->initBbGfx(previewWindow_, viewHeight, stage, teams, 1,
