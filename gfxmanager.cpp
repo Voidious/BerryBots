@@ -239,7 +239,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
 
   stageButton_ =
       new DockText(stage_->getName(), &font_, 16, 10, 80, DOCK_SIZE - 10, 40);
-  teamButtons_ = new DockItem*[numTeams_];
+  teamButtons_ = new DockText*[numTeams_];
   for (int x = 0; x < numTeams_; x++) {
     teamButtons_[x] = new DockText(teams_[x]->name, &font_, 16,
                                    10, 125 + (x * 35), DOCK_SIZE - 10, 30);
@@ -792,16 +792,17 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
         teamEnergyTotal += DEFAULT_ENERGY;
       }
     }
+    teamButtons_[x]->setDisabled(team->disabled);
     if (showTeam && team->shipsAlive > 0 && teamEnergyTotal > 0) {
       dockEnergyShape_.setPosition(10, teamButtons_[x]->getBottom() + 20);
       dockEnergyShape_.setScale(teamEnergy / teamEnergyTotal, 1);
       window->draw(dockEnergyShape_);
     }
-    window->draw(dockLineShape_);
     if (showTeam) {
       drawDockItem(window, teamButtons_[x]);
     }
   }
+  window->draw(dockLineShape_);
   window->draw(dockMarginShape_);
 }
 

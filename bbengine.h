@@ -118,7 +118,7 @@ class BerryBotsEngine {
     void processTick() throw (EngineException*);
     void processRoundOver();
     void processGameOver();
-    void monitorCpuTimer(Team *team, int pcallValue);
+    void monitorCpuTimer(Team *team, bool fatal);
 
     Stage* getStage();
     Team **getTeams();

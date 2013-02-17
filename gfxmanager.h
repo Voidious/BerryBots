@@ -26,6 +26,7 @@
 #include "bbutil.h"
 #include "gfxeventhandler.h"
 #include "dockitem.h"
+#include "docktext.h"
 #include "dockfader.h"
 
 #define DRAW_SHIP_RADIUS        (SHIP_RADIUS - .7)
@@ -85,8 +86,8 @@ class GfxManager {
   DockItem *newMatchButton_;
   DockItem *packageShipButton_;
   DockItem *packageStageButton_;
-  DockItem *stageButton_;
-  DockItem **teamButtons_;
+  DockText *stageButton_;
+  DockText **teamButtons_;
   DockItem *pauseButton_;
   DockItem *playButton_;
   DockItem *restartButton_;

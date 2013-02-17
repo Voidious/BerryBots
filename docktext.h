@@ -24,13 +24,17 @@
 #include <SFML/Graphics.hpp>
 #include "rectangle.h"
 
+#define DISABLED_COLOR  sf::Color(255, 0, 0, 255)
+
 class DockText : public DockItem {
   sf::Text *drawableText_;
+  bool disabled_;
 
   public:
     DockText(const char *text, sf::Font *font, int fontSize, int left, int top,
              int width, int height);
     ~DockText();
+    void setDisabled(bool disabled);
     virtual void setHighlighted(bool highlighted);
 };
 

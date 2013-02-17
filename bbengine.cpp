@@ -609,7 +609,7 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
       team->counter.start();
       int r = callUserLuaCode(team->state, 2,
                               "Error calling ship function: 'run'", PCALL_SHIP);
-      monitorCpuTimer(team, r);
+      monitorCpuTimer(team, (r != 0 && lua_gethookcount(team->state) > 0));
       cleanupSensorsTables(team->state, sensors);
       lua_settop(team->state, 0);
     }
@@ -648,7 +648,7 @@ void BerryBotsEngine::processRoundOver() {
       team->counter.start();
       int r = callUserLuaCode(team->state, 0,
           "Error calling ship function: 'roundOver'", PCALL_SHIP);
-      monitorCpuTimer(team, r);
+      monitorCpuTimer(team, (r != 0 && lua_gethookcount(team->state) > 0));
     }
     for (int y = 0; y < team->numShips; y++) {
       Ship *ship = ships_[team->firstShipIndex + y];
@@ -669,26 +669,25 @@ void BerryBotsEngine::processGameOver() {
       team->counter.start();
       int r = callUserLuaCode(team->state, 0,
           "Error calling ship function: 'gameOver'", PCALL_SHIP);
-      monitorCpuTimer(team, r);
+      monitorCpuTimer(team, (r != 0 && lua_gethookcount(team->state) > 0));
     }
   }
   copyShips(ships_, stageShips_, numShips_);
 }
 
-void BerryBotsEngine::monitorCpuTimer(Team *team, int pcallValue) {
+void BerryBotsEngine::monitorCpuTimer(Team *team, bool fatal) {
   unsigned int cpuTimeSlot = team->totalCpuTicks % CPU_TIME_TICKS;
   team->counter.stop();
   team->totalCpuTime +=
   (team->cpuTime[cpuTimeSlot] = team->counter.get_microseconds());
   team->totalCpuTicks++;
 
-  if (pcallValue != 0) {
+  if (fatal) {
     team->disabled = true;
     for (int x = 0; x < team->numShips; x++) {
       Ship *ship = ships_[x + team->firstShipIndex];
       destroyShip(ship);
       ship->properties->disabled = true;
-      // TODO: only disable for too much CPU time, other errors non-fatal
     }
   }
 }

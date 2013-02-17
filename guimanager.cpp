@@ -497,7 +497,8 @@ void GuiManager::runCurrentMatch() {
       }
       
       while (!interrupted_ && !restarting_ && !quitting_
-             && nextDrawTime_ <= engine_->getGameTime()) {
+             && (nextDrawTime_ <= engine_->getGameTime()
+                 || engine_->isGameOver())) {
         processMainWindowEvents(window, gfxManager_, viewWidth_, viewHeight_);
         window->clear();
         gfxManager_->drawGame(window, engine_->getStage(), engine_->getShips(),
@@ -505,7 +506,7 @@ void GuiManager::runCurrentMatch() {
                               gfxHandler_, paused_, engine_->isGameOver(),
                               engine_->getWinnerName());
         window->display();
-        if (!paused_) {
+        if (!paused_ && !engine_->isGameOver()) {
           nextDrawTime_ += tpsFactor_;
         }
       }
@@ -912,6 +913,8 @@ void GuiManager::logErrorMessage(lua_State *L, const char *formatString) {
   sprintf(errorMessage, formatString, luaMessage);
   errorConsole_->println(errorMessage);
   delete errorMessage;
+  errorConsole_->Show();
+  errorConsole_->Raise();
 }
 
 char* GuiManager::getStageDirCopy() {

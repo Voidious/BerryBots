@@ -34,12 +34,21 @@ DockText::DockText(const char *text, sf::Font *font, int fontSize, int left,
   highlightedDrawables_ = new sf::Drawable*[1];
   shortcutDrawables_ = new sf::Drawable*[1];
   shortcutDrawables_[0] = highlightedDrawables_[0] = drawableText_;
+  disabled_ = false;
 }
 
 DockText::~DockText() {
 
 }
 
+void DockText::setDisabled(bool disabled) {
+  if (disabled && !disabled_) {
+    drawableText_->setColor(DISABLED_COLOR);
+  }
+  disabled_ = disabled;
+}
+
 void DockText::setHighlighted(bool highlighted) {
-  drawableText_->setColor(highlighted ? HIGHLIGHTED_COLOR : DEFAULT_COLOR);
+  drawableText_->setColor(highlighted ? HIGHLIGHTED_COLOR
+                          : disabled_ ? DISABLED_COLOR : DEFAULT_COLOR);
 }
