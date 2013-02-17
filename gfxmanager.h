@@ -56,10 +56,16 @@
 #define TORPEDO_BLAST_TIME       TORPEDO_BLAST_FRAMES
 #define FONT_NAME                "Questrial-Regular.ttf"
 
-#define NEW_MATCH_DOCK_TEXT      "New Match..."
 #define DOCK_ENERGY_LENGTH       DOCK_SIZE - 40
 #define DOCK_BUTTON_FONT_SIZE     20
 #define DOCK_SHORTCUT_FONT_SIZE   16
+
+#define SPARK_COLOR      sf::Color(40, 100, 255, 255);
+#define TORPEDO_COLOR    sf::Color(255, 89, 38, 255);
+#define BLAST_COLOR      sf::Color(255, 128, 51, 255);
+#define ENERGY_COLOR     sf::Color(255, 255, 0, 255);
+#define ZONE_COLOR       sf::Color(100, 68, 68, 255);
+#define DOCK_LINE_COLOR  sf::Color(100, 100, 100);
 
 class GfxViewListener {
   public:
@@ -93,6 +99,48 @@ class GfxManager {
   Stage *stage_;
   bool initialized_;
   bool adjustingTps_;
+  int windowHeight_;
+
+  sf::CircleShape shipShape_;
+  sf::CircleShape shipDotShape_;
+  sf::Vector2f shipDotPoint_;
+  sf::CircleShape destroyedShape_;
+  sf::RectangleShape sparkShape_;
+  sf::Vector2f sparkPoint_;
+  sf::RectangleShape laserShape_;
+  sf::Vector2f laserPoint_;
+  sf::CircleShape torpedoCircleShape_;
+  sf::RectangleShape torpedoRay_;
+  sf::Vector2f torpedoRayPoint_;
+  sf::CircleShape torpedoBlastShape_;
+  sf::RectangleShape thrusterShape_;
+  sf::Vector2f thrusterPoint_;
+  sf::RectangleShape energyShape_;
+  sf::RectangleShape dockEnergyShape_;
+  sf::RectangleShape dockLineShape_;
+  sf::RectangleShape dockMarginShape_;
+
+  sf::RectangleShape **wallShapes_;
+  int numWalls_;
+  sf::RectangleShape **zoneShapes_;
+  int numZones_;
+
+  sf::Color* shipColors_;
+  int* shipDotOffsets_;
+  bool* shipDotDirections_;
+  sf::Color* shipDeathColors_;
+  sf::Color* laserColors_;
+  sf::Color* thrusterColors_;
+  sf::Color sparkColor_;
+  sf::Color torpedoColor_;
+  sf::Color blastColor_;
+  sf::Color energyColor_;
+  sf::Color zoneColor_;
+  sf::Color dockLineColor_;
+
+  sf::View dockView_;
+  sf::View stageView_;
+  sf::Font font_;
 
   public:
     GfxManager(bool showDock);

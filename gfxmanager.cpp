@@ -33,55 +33,6 @@
 #include "dockfader.h"
 #include "gfxmanager.h"
 
-// TODO: make these member vars instead of globals
-
-sf::CircleShape shipShape(DRAW_SHIP_RADIUS);
-sf::CircleShape shipDotShape(SHIP_DOT_RADIUS);
-sf::Vector2f shipDotPoint(SHIP_DOT_POSITION, 0);
-sf::CircleShape destroyedShape(SHIP_DEATH_RADIUS);
-sf::RectangleShape sparkShape(
-    sf::Vector2f(LASER_SPARK_LENGTH, LASER_SPARK_THICKNESS));
-sf::Vector2f sparkPoint(DRAW_SHIP_RADIUS, -0.5);
-sf::RectangleShape laserShape(sf::Vector2f(LASER_SPEED, LASER_THICKNESS));
-sf::Vector2f laserPoint(0, LASER_THICKNESS / 2);
-sf::CircleShape torpedoCircleShape(TORPEDO_RADIUS, TORPEDO_RADIUS);
-sf::RectangleShape torpedoRay(sf::Vector2f(TORPEDO_SIZE * 2, 1));
-sf::Vector2f torpedoRayPoint(TORPEDO_SIZE, .5);
-sf::CircleShape torpedoBlastShape(TORPEDO_BLAST_RADIUS, TORPEDO_BLAST_RADIUS);
-sf::RectangleShape thrusterShape(sf::Vector2f(DRAW_SHIP_RADIUS + THRUSTER_LENGTH,
-                                              THRUSTER_THICKNESS));
-sf::Vector2f thrusterPoint(0, THRUSTER_THICKNESS / 2);
-sf::RectangleShape energyShape(sf::Vector2f(ENERGY_LENGTH, ENERGY_THICKNESS));
-sf::RectangleShape dockEnergyShape(sf::Vector2f(DOCK_ENERGY_LENGTH,
-                                                ENERGY_THICKNESS));
-sf::RectangleShape dockLineShape(sf::Vector2f(1, 4096));
-sf::RectangleShape dockMarginShape(sf::Vector2f(8, 4096));
-
-sf::RectangleShape **wallShapes;
-int numWalls;
-sf::RectangleShape **zoneShapes;
-int numZones;
-
-sf::Color* shipColors;
-int* shipDotOffsets;
-bool* shipDotDirections;
-sf::Color* shipDeathColors;
-sf::Color* laserColors;
-sf::Color* thrusterColors;
-sf::Color sparkColor(40, 100, 255, 255);
-sf::Color torpedoColor(255, 89, 38, 255);
-sf::Color blastColor(255, 128, 51, 255);
-sf::Color energyColor(255, 255, 0, 255);
-sf::Color zoneColor(100, 68, 68, 255);
-sf::Color dockLineColor(100, 100, 100);
-
-sf::View dockView;
-sf::View stageView;
-
-sf::Font font;
-
-int windowHeight;
-
 GfxManager::GfxManager(bool showDock) {
   showDock_ = showDock;
   newMatchButton_ = 0;
@@ -100,6 +51,33 @@ GfxManager::GfxManager(bool showDock) {
   stage_ = 0;
   initialized_ = false;
   adjustingTps_ = false;
+
+  shipShape_.setRadius(DRAW_SHIP_RADIUS);
+  shipDotShape_.setRadius(SHIP_DOT_RADIUS);
+  shipDotPoint_ = sf::Vector2f(SHIP_DOT_POSITION, 0);
+  destroyedShape_.setRadius(SHIP_DEATH_RADIUS);
+  sparkShape_.setSize(sf::Vector2f(LASER_SPARK_LENGTH, LASER_SPARK_THICKNESS));
+  sparkPoint_ = sf::Vector2f(DRAW_SHIP_RADIUS, -0.5);
+  laserShape_.setSize(sf::Vector2f(LASER_SPEED, LASER_THICKNESS));
+  laserPoint_ = sf::Vector2f(0, LASER_THICKNESS / 2);
+  torpedoCircleShape_.setRadius(TORPEDO_RADIUS);
+  torpedoRay_.setSize(sf::Vector2f(TORPEDO_SIZE * 2, 1));
+  torpedoRayPoint_ = sf::Vector2f(TORPEDO_SIZE, .5);
+  torpedoBlastShape_.setRadius(TORPEDO_BLAST_RADIUS);
+  thrusterShape_.setSize(
+      sf::Vector2f(DRAW_SHIP_RADIUS + THRUSTER_LENGTH, THRUSTER_THICKNESS));
+  thrusterPoint_ = sf::Vector2f(0, THRUSTER_THICKNESS / 2);
+  energyShape_.setSize(sf::Vector2f(ENERGY_LENGTH, ENERGY_THICKNESS));
+  dockEnergyShape_.setSize(sf::Vector2f(DOCK_ENERGY_LENGTH, ENERGY_THICKNESS));
+  dockLineShape_.setSize(sf::Vector2f(1, 4096));
+  dockMarginShape_.setSize(sf::Vector2f(8, 4096));
+
+  sparkColor_ = SPARK_COLOR;
+  torpedoColor_ = TORPEDO_COLOR;
+  blastColor_ = BLAST_COLOR;
+  energyColor_ = ENERGY_COLOR;
+  zoneColor_ = ZONE_COLOR;
+  dockLineColor_ = DOCK_LINE_COLOR;
 }
 
 GfxManager::~GfxManager() {
@@ -114,98 +92,98 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
   }
   
   window->setVerticalSyncEnabled(true);
-  windowHeight = viewHeight;
+  windowHeight_ = viewHeight;
   teams_ = teams;
   numTeams_ = numTeams;
   ships_ = ships;
   numShips_ = numShips;
   stage_ = stage;
   
-  if (!font.loadFromFile(resourcePath + FONT_NAME)) {
+  if (!font_.loadFromFile(resourcePath + FONT_NAME)) {
     exit(EXIT_FAILURE);
   }
 
   initDockItems(window);
-  shipColors = new sf::Color[numShips];
-  shipDeathColors = new sf::Color[numShips];
-  laserColors = new sf::Color[numShips];
-  thrusterColors = new sf::Color[numShips];
+  shipColors_ = new sf::Color[numShips];
+  shipDeathColors_ = new sf::Color[numShips];
+  laserColors_ = new sf::Color[numShips];
+  thrusterColors_ = new sf::Color[numShips];
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
-    shipColors[x].r = ship->properties->shipR;
-    shipColors[x].g = ship->properties->shipG;
-    shipColors[x].b = ship->properties->shipB;
-    shipDeathColors[x].r = ship->properties->shipR * 3 / 4;
-    shipDeathColors[x].g = ship->properties->shipG * 3 / 4;
-    shipDeathColors[x].b = ship->properties->shipB * 3 / 4;
-    laserColors[x].r = ship->properties->laserR;
-    laserColors[x].g = ship->properties->laserG;
-    laserColors[x].b = ship->properties->laserB;
-    thrusterColors[x].r = ship->properties->thrusterR;
-    thrusterColors[x].g = ship->properties->thrusterG;
-    thrusterColors[x].b = ship->properties->thrusterB;
-    shipColors[x].a = thrusterColors[x].a = 255;
+    shipColors_[x].r = ship->properties->shipR;
+    shipColors_[x].g = ship->properties->shipG;
+    shipColors_[x].b = ship->properties->shipB;
+    shipDeathColors_[x].r = ship->properties->shipR * 3 / 4;
+    shipDeathColors_[x].g = ship->properties->shipG * 3 / 4;
+    shipDeathColors_[x].b = ship->properties->shipB * 3 / 4;
+    laserColors_[x].r = ship->properties->laserR;
+    laserColors_[x].g = ship->properties->laserG;
+    laserColors_[x].b = ship->properties->laserB;
+    thrusterColors_[x].r = ship->properties->thrusterR;
+    thrusterColors_[x].g = ship->properties->thrusterG;
+    thrusterColors_[x].b = ship->properties->thrusterB;
+    shipColors_[x].a = thrusterColors_[x].a = 255;
   }
-  shipDotOffsets = new int[numShips];
-  shipDotDirections = new bool[numShips];
+  shipDotOffsets_ = new int[numShips];
+  shipDotDirections_ = new bool[numShips];
   for (int x = 0; x < numShips; x++) {
-    shipDotOffsets[x] = rand() % SHIP_DOT_FRAMES;
-    shipDotDirections[x] = (rand() % 10 < 5) ? true : false;
+    shipDotOffsets_[x] = rand() % SHIP_DOT_FRAMES;
+    shipDotDirections_[x] = (rand() % 10 < 5) ? true : false;
   }
   
-  shipShape.setOutlineThickness(SHIP_OUTLINE_THICKNESS);
-  shipShape.setFillColor(sf::Color::Black);
-  shipDotShape.setOutlineThickness(0);
-  destroyedShape.setOutlineThickness(2);
-  destroyedShape.setFillColor(sf::Color::Transparent);
+  shipShape_.setOutlineThickness(SHIP_OUTLINE_THICKNESS);
+  shipShape_.setFillColor(sf::Color::Black);
+  shipDotShape_.setOutlineThickness(0);
+  destroyedShape_.setOutlineThickness(2);
+  destroyedShape_.setFillColor(sf::Color::Transparent);
   
-  sparkShape.setOutlineThickness(0);
-  laserShape.setOutlineThickness(0);
+  sparkShape_.setOutlineThickness(0);
+  laserShape_.setOutlineThickness(0);
   
-  torpedoCircleShape.setOutlineColor(torpedoColor);
-  torpedoCircleShape.setFillColor(torpedoColor);
-  torpedoRay.setOutlineColor(torpedoColor);
-  torpedoRay.setFillColor(torpedoColor);
-  torpedoBlastShape.setOutlineColor(blastColor);
-  torpedoBlastShape.setOutlineThickness(5);
-  torpedoBlastShape.setFillColor(sf::Color::Transparent);
+  torpedoCircleShape_.setOutlineColor(torpedoColor_);
+  torpedoCircleShape_.setFillColor(torpedoColor_);
+  torpedoRay_.setOutlineColor(torpedoColor_);
+  torpedoRay_.setFillColor(torpedoColor_);
+  torpedoBlastShape_.setOutlineColor(blastColor_);
+  torpedoBlastShape_.setOutlineThickness(5);
+  torpedoBlastShape_.setFillColor(sf::Color::Transparent);
   
-  thrusterShape.setOutlineThickness(0);
-  energyShape.setOutlineColor(energyColor);
-  energyShape.setFillColor(energyColor);
-  dockEnergyShape.setOutlineColor(energyColor);
-  dockEnergyShape.setFillColor(energyColor);
-  dockLineShape.setOutlineThickness(0);
-  dockLineShape.setFillColor(dockLineColor);
-  dockLineShape.setPosition(DOCK_SIZE - 1, 0);
-  dockMarginShape.setOutlineThickness(0);
-  dockMarginShape.setFillColor(sf::Color::Black);
-  dockMarginShape.setPosition(DOCK_SIZE - 9, 0);
+  thrusterShape_.setOutlineThickness(0);
+  energyShape_.setOutlineColor(energyColor_);
+  energyShape_.setFillColor(energyColor_);
+  dockEnergyShape_.setOutlineColor(energyColor_);
+  dockEnergyShape_.setFillColor(energyColor_);
+  dockLineShape_.setOutlineThickness(0);
+  dockLineShape_.setFillColor(dockLineColor_);
+  dockLineShape_.setPosition(DOCK_SIZE - 1, 0);
+  dockMarginShape_.setOutlineThickness(0);
+  dockMarginShape_.setFillColor(sf::Color::Black);
+  dockMarginShape_.setPosition(DOCK_SIZE - 9, 0);
   
-  numWalls = stage->getWallCount();
-  wallShapes = new sf::RectangleShape*[numWalls];
+  numWalls_ = stage->getWallCount();
+  wallShapes_ = new sf::RectangleShape*[numWalls_];
   Wall **walls = stage->getWalls();
-  for (int x = 0; x < numWalls; x++) {
+  for (int x = 0; x < numWalls_; x++) {
     Wall *wall = walls[x];
     sf::RectangleShape *wallShape = new sf::RectangleShape(                                                          sf::Vector2f(wall->getWidth(), wall->getHeight()));
     wallShape->setPosition(adjustX(wall->getLeft()),
                            adjustY(wall->getBottom(), wall->getHeight()));
     wallShape->setOutlineColor(sf::Color::White);
     wallShape->setFillColor(sf::Color::White);
-    wallShapes[x] = wallShape;
+    wallShapes_[x] = wallShape;
   }
   
-  numZones = stage->getZoneCount();
-  zoneShapes = new sf::RectangleShape*[numZones];
+  numZones_ = stage->getZoneCount();
+  zoneShapes_ = new sf::RectangleShape*[numZones_];
   Zone **zones = stage->getZones();
-  for (int x = 0; x < numZones; x++) {
+  for (int x = 0; x < numZones_; x++) {
     Zone *zone = zones[x];
     sf::RectangleShape *zoneShape = new sf::RectangleShape(                                                           sf::Vector2f(zone->getWidth(), zone->getHeight()));
     zoneShape->setPosition(adjustX(zone->getLeft()),
                            adjustY(zone->getBottom(), zone->getHeight()));
-    zoneShape->setOutlineColor(zoneColor);
-    zoneShape->setFillColor(zoneColor);
-    zoneShapes[x] = zoneShape;
+    zoneShape->setOutlineColor(zoneColor_);
+    zoneShape->setFillColor(zoneColor_);
+    zoneShapes_[x] = zoneShape;
   }
   
   initialized_ = true;
@@ -222,7 +200,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   newShapes[1]->setOutlineThickness(2);
   newShapes[1]->setFillColor(sf::Color::Black);
   newMatchButton_ = new DockShape(newShapes, 2, 10, 10, 40, 40, "New Match",
-      &font, DOCK_BUTTON_FONT_SIZE, 26, 50, "N", DOCK_SHORTCUT_FONT_SIZE);
+      &font_, DOCK_BUTTON_FONT_SIZE, 26, 50, "N", DOCK_SHORTCUT_FONT_SIZE);
 
   sf::Shape** packageShipShapes = new sf::Shape*[4];
   packageShipShapes[0] = new sf::CircleShape(SHIP_RADIUS);
@@ -239,7 +217,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   packageShipShapes[3]->move(-SHIP_DOT_RADIUS, -SHIP_DOT_RADIUS);
   adjustShipDotPosition((sf::CircleShape *) packageShipShapes[3], 255);
   packageShipButton_ = new DockShape(packageShipShapes, 4, 59, 10, 40, 40,
-      "Package Ship", &font, DOCK_BUTTON_FONT_SIZE, 17, 50, "P",
+      "Package Ship", &font_, DOCK_BUTTON_FONT_SIZE, 17, 50, "P",
       DOCK_SHORTCUT_FONT_SIZE);
 
   sf::Shape** packageStageShapes = new sf::Shape*[5];
@@ -256,14 +234,14 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   packageStageShapes[4] = new sf::RectangleShape(sf::Vector2f(2, 2));
   packageStageShapes[4]->move(5, 3);
   packageStageButton_ = new DockShape(packageStageShapes, 5, 108, 10, 40, 40,
-      "Package Stage", &font, DOCK_BUTTON_FONT_SIZE, 9, 50, "T",
+      "Package Stage", &font_, DOCK_BUTTON_FONT_SIZE, 9, 50, "T",
       DOCK_SHORTCUT_FONT_SIZE);
 
   stageButton_ =
-      new DockText(stage_->getName(), &font, 16, 10, 80, DOCK_SIZE - 10, 40);
+      new DockText(stage_->getName(), &font_, 16, 10, 80, DOCK_SIZE - 10, 40);
   teamButtons_ = new DockItem*[numTeams_];
   for (int x = 0; x < numTeams_; x++) {
-    teamButtons_[x] = new DockText(teams_[x]->name, &font, 16,
+    teamButtons_[x] = new DockText(teams_[x]->name, &font_, 16,
                                    10, 125 + (x * 35), DOCK_SIZE - 10, 30);
   }
 
@@ -275,7 +253,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   pauseShapes[1]->move(5, -10);
   pauseShapes[1]->setOutlineThickness(0);
   pauseButton_ = new DockShape(pauseShapes, 2, 25, window->getSize().y - 100,
-      50, 50, "Pause", &font, DOCK_BUTTON_FONT_SIZE, 21,
+      50, 50, "Pause", &font_, DOCK_BUTTON_FONT_SIZE, 21,
       window->getSize().y - 55, "Space", DOCK_SHORTCUT_FONT_SIZE);
 
   sf::Shape** playShapes = new sf::Shape*[1];
@@ -287,7 +265,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   playShape->move(-7, -10);
   playShapes[0] = playShape;
   playButton_ = new DockShape(playShapes, 1, 25, window->getSize().y - 100, 50,
-      50, "Resume", &font, DOCK_BUTTON_FONT_SIZE, 13, window->getSize().y - 55,
+      50, "Resume", &font_, DOCK_BUTTON_FONT_SIZE, 13, window->getSize().y - 55,
       "Space", DOCK_SHORTCUT_FONT_SIZE);
 
   sf::Shape** restartShapes = new sf::Shape*[4];
@@ -310,11 +288,11 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   restartTriangle2->move(5, 3);
   restartShapes[3] = restartTriangle2;
   restartButton_ = new DockShape(restartShapes, 4, 85, window->getSize().y - 100,
-      50, 50, "Restart", &font, DOCK_BUTTON_FONT_SIZE, 69,
+      50, 50, "Restart", &font_, DOCK_BUTTON_FONT_SIZE, 69,
       window->getSize().y - 55, "Back", DOCK_SHORTCUT_FONT_SIZE);
 
   tpsFader_ = new DockFader(15, window->getSize().y - 140, DOCK_SIZE - 30, 40,
-      "Speed", &font, DOCK_BUTTON_FONT_SIZE, 49, window->getSize().y - 165);
+      "Speed", &font_, DOCK_BUTTON_FONT_SIZE, 49, window->getSize().y - 165);
 }
 
 void GfxManager::reinitDockItems(sf::RenderWindow *window) {
@@ -325,20 +303,20 @@ void GfxManager::reinitDockItems(sf::RenderWindow *window) {
 void GfxManager::destroyBbGfx() {
   if (initialized_) {
     destroyDockItems();
-    for (int x = 0; x < numWalls; x++) {
-      delete wallShapes[x];
+    for (int x = 0; x < numWalls_; x++) {
+      delete wallShapes_[x];
     }
-    delete wallShapes;
-    for (int x = 0; x < numZones; x++) {
-      delete zoneShapes[x];
+    delete wallShapes_;
+    for (int x = 0; x < numZones_; x++) {
+      delete zoneShapes_[x];
     }
-    delete zoneShapes;
-    delete shipColors;
-    delete shipDeathColors;
-    delete laserColors;
-    delete thrusterColors;
-    delete shipDotOffsets;
-    delete shipDotDirections;
+    delete zoneShapes_;
+    delete shipColors_;
+    delete shipDeathColors_;
+    delete laserColors_;
+    delete thrusterColors_;
+    delete shipDotOffsets_;
+    delete shipDotDirections_;
     initialized_ = false;
   }
 }
@@ -380,13 +358,12 @@ void GfxManager::setListener(GfxViewListener *listener) {
   listener_ = listener;
 }
 
-// TODO: move all these args to class level?
 void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
                           int numShips, int time, GfxEventHandler *gfxHandler,
                           bool paused, bool gameOver, char *winnerName) {
   if (showDock_) {
     drawDock(window, stage, paused);
-    window->setView(stageView);
+    window->setView(stageView_);
   }
   gfxHandler->removeShipDeaths(time - SHIP_DEATH_TIME);
   gfxHandler->removeLaserHits(time - LASER_SPARK_TIME);
@@ -422,18 +399,18 @@ void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
   window->setSize(sf::Vector2u(windowWidth, windowHeight));
 
   if (showDock_) {
-    dockView.reset(sf::FloatRect(0, 0, dockSize, windowHeight));
-    stageView.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
+    dockView_.reset(sf::FloatRect(0, 0, dockSize, windowHeight));
+    stageView_.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
     float dockViewportSize = (((double) dockSize) / windowWidth);
     float stageViewportSize = 1 - dockViewportSize;
-    dockView.setViewport(sf::FloatRect(0.f, 0.f, dockViewportSize, 1.f));
-    stageView.setViewport(sf::FloatRect(dockViewportSize, 0.f,
+    dockView_.setViewport(sf::FloatRect(0.f, 0.f, dockViewportSize, 1.f));
+    stageView_.setViewport(sf::FloatRect(dockViewportSize, 0.f,
                                         stageViewportSize, 1.f));
     reinitDockItems(window);
   } else {
-    stageView.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
-    stageView.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
-    window->setView(stageView);
+    stageView_.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
+    stageView_.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
+    window->setView(stageView_);
   }
 }
 
@@ -520,14 +497,14 @@ void GfxManager::hideKeyboardShortcuts() {
 }
 
 void GfxManager::drawWalls(sf::RenderWindow *window) {
-  for (int x = 0; x < numWalls; x++) {
-    window->draw(*(wallShapes[x]));
+  for (int x = 0; x < numWalls_; x++) {
+    window->draw(*(wallShapes_[x]));
   }
 }
 
 void GfxManager::drawZones(sf::RenderWindow *window) {
-  for (int x = 0; x < numZones; x++) {
-    window->draw(*(zoneShapes[x]));
+  for (int x = 0; x < numZones_; x++) {
+    window->draw(*(zoneShapes_[x]));
   }
 }
 
@@ -535,7 +512,7 @@ void GfxManager::adjustTorpedoRayPoint(sf::RectangleShape *rayShape,
                                        double angle) {
   sf::Transform transform;
   transform.rotate(angle);
-  sf::Vector2f rayOffset = transform.transformPoint(torpedoRayPoint);
+  sf::Vector2f rayOffset = transform.transformPoint(torpedoRayPoint_);
   rayShape->move(-rayOffset.x, -rayOffset.y);
 }
 
@@ -544,17 +521,17 @@ void GfxManager::drawTorpedos(sf::RenderWindow *window, Stage *stage) {
   int numTorpedos = stage->getTorpedoCount();
   for (int x = 0; x < numTorpedos; x++) {
     Torpedo *torpedo = torpedos[x];
-    torpedoCircleShape.setPosition(adjustX(torpedo->x - TORPEDO_RADIUS),
+    torpedoCircleShape_.setPosition(adjustX(torpedo->x - TORPEDO_RADIUS),
         adjustY(torpedo->y - TORPEDO_RADIUS, TORPEDO_SIZE));
-    window->draw(torpedoCircleShape);
-    torpedoRay.setPosition(adjustX(torpedo->x), adjustY(torpedo->y));
-    torpedoRay.setRotation(45);
-    adjustTorpedoRayPoint(&torpedoRay, 45);
-    window->draw(torpedoRay);
-    torpedoRay.setRotation(135);
-    torpedoRay.setPosition(adjustX(torpedo->x), adjustY(torpedo->y));
-    adjustTorpedoRayPoint(&torpedoRay, 135);
-    window->draw(torpedoRay);
+    window->draw(torpedoCircleShape_);
+    torpedoRay_.setPosition(adjustX(torpedo->x), adjustY(torpedo->y));
+    torpedoRay_.setRotation(45);
+    adjustTorpedoRayPoint(&torpedoRay_, 45);
+    window->draw(torpedoRay_);
+    torpedoRay_.setRotation(135);
+    torpedoRay_.setPosition(adjustX(torpedo->x), adjustY(torpedo->y));
+    adjustTorpedoRayPoint(&torpedoRay_, 135);
+    window->draw(torpedoRay_);
   }
 }
 
@@ -575,10 +552,10 @@ void GfxManager::drawTorpedoBlasts(sf::RenderWindow *window, int time,
       }
 
       double blastOffset = blastScale * TORPEDO_BLAST_RADIUS;
-      torpedoBlastShape.setRadius(blastScale * TORPEDO_BLAST_RADIUS);
-      torpedoBlastShape.setPosition(adjustX(torpedoBlast->x - blastOffset),
+      torpedoBlastShape_.setRadius(blastScale * TORPEDO_BLAST_RADIUS);
+      torpedoBlastShape_.setPosition(adjustX(torpedoBlast->x - blastOffset),
           adjustY(torpedoBlast->y - blastOffset, blastOffset * 2));
-      window->draw(torpedoBlastShape);
+      window->draw(torpedoBlastShape_);
     }
   }
 }
@@ -587,7 +564,7 @@ void GfxManager::adjustThrusterPosition(sf::RectangleShape *thrusterShape,
                                         double angle) {
   sf::Transform transform;
   transform.rotate(angle);
-  sf::Vector2f thrusterOffset = transform.transformPoint(thrusterPoint);
+  sf::Vector2f thrusterOffset = transform.transformPoint(thrusterPoint_);
   thrusterShape->move(-thrusterOffset.x, -thrusterOffset.y);
 }
 
@@ -598,14 +575,14 @@ void GfxManager::drawThrusters(sf::RenderWindow *window, Ship **ships,
     if (ship->alive && ship->thrusterForce > 0) {
       double forceFactor = ship->thrusterForce / MAX_THRUSTER_FORCE;
       double lengthScale = THRUSTER_ZERO + (forceFactor * (1 - THRUSTER_ZERO));
-      thrusterShape.setFillColor(thrusterColors[z]);
-      thrusterShape.setScale(lengthScale, lengthScale);
+      thrusterShape_.setFillColor(thrusterColors_[z]);
+      thrusterShape_.setScale(lengthScale, lengthScale);
       double rotateAngle =
           toDegrees(-normalAbsoluteAngle(ship->thrusterAngle + M_PI));
-      thrusterShape.setRotation(rotateAngle);
-      thrusterShape.setPosition(adjustX(ship->x), adjustY(ship->y));
-      adjustThrusterPosition(&thrusterShape, rotateAngle);
-      window->draw(thrusterShape);
+      thrusterShape_.setRotation(rotateAngle);
+      thrusterShape_.setPosition(adjustX(ship->x), adjustY(ship->y));
+      adjustThrusterPosition(&thrusterShape_, rotateAngle);
+      window->draw(thrusterShape_);
     }
   }
 }
@@ -615,7 +592,7 @@ void GfxManager::adjustLaserPosition(sf::RectangleShape *laserShape,
                                      double angle) {
   sf::Transform transform;
   transform.rotate(angle);
-  sf::Vector2f laserOffset = transform.transformPoint(laserPoint);
+  sf::Vector2f laserOffset = transform.transformPoint(laserPoint_);
   laserShape->move(-laserOffset.x, -laserOffset.y);
 }
 
@@ -625,12 +602,12 @@ void GfxManager::drawLasers(sf::RenderWindow *window, Stage *stage) {
   for (int x = 0; x < numLasers; x++) {
     Laser *laser = lasers[x];
     double rotateAngle = toDegrees(-normalAbsoluteAngle(laser->heading));
-    laserShape.setRotation(rotateAngle);
-    laserShape.setPosition(adjustX(laser->x - laser->dx),
+    laserShape_.setRotation(rotateAngle);
+    laserShape_.setPosition(adjustX(laser->x - laser->dx),
                            adjustY(laser->y - laser->dy));
-    laserShape.setFillColor(laserColors[laser->shipIndex]);
-    adjustLaserPosition(&laserShape, rotateAngle);
-    window->draw(laserShape);
+    laserShape_.setFillColor(laserColors_[laser->shipIndex]);
+    adjustLaserPosition(&laserShape_, rotateAngle);
+    window->draw(laserShape_);
   }
 }
 
@@ -638,7 +615,7 @@ void GfxManager::adjustShipDotPosition(sf::CircleShape *shipDotShape,
                                        double angle) {
   sf::Transform transform;
   transform.rotate(angle);
-  sf::Vector2f dotOffset = transform.transformPoint(shipDotPoint);
+  sf::Vector2f dotOffset = transform.transformPoint(shipDotPoint_);
   shipDotShape->move(dotOffset.x, dotOffset.y);
 }
 
@@ -647,20 +624,20 @@ void GfxManager::drawShips(sf::RenderWindow *window, Ship **ships, int numShips,
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
     if (ship->alive) {
-      shipShape.setOutlineColor(shipColors[x]);
-      shipShape.setPosition(adjustX(ship->x - DRAW_SHIP_RADIUS),
+      shipShape_.setOutlineColor(shipColors_[x]);
+      shipShape_.setPosition(adjustX(ship->x - DRAW_SHIP_RADIUS),
                             adjustY(ship->y - DRAW_SHIP_RADIUS, DRAW_SHIP_RADIUS * 2));
-      window->draw(shipShape);
+      window->draw(shipShape_);
 
-      shipDotShape.setFillColor(laserColors[x]);
+      shipDotShape_.setFillColor(laserColors_[x]);
       for (int y = 0; y < 3; y++) {
-        shipDotShape.setPosition(adjustX(ship->x - SHIP_DOT_RADIUS),
+        shipDotShape_.setPosition(adjustX(ship->x - SHIP_DOT_RADIUS),
             adjustY(ship->y - SHIP_DOT_RADIUS, SHIP_DOT_RADIUS * 2));
         double angle = (M_PI * 2 * y / 3)
-            + ((((double) ((time + shipDotOffsets[x]) % SHIP_DOT_FRAMES))
-                / SHIP_DOT_FRAMES) * (shipDotDirections[x] ? 2 : -2) * M_PI);
-        adjustShipDotPosition(&shipDotShape, toDegrees(angle));
-        window->draw(shipDotShape);
+            + ((((double) ((time + shipDotOffsets_[x]) % SHIP_DOT_FRAMES))
+                / SHIP_DOT_FRAMES) * (shipDotDirections_[x] ? 2 : -2) * M_PI);
+        adjustShipDotPosition(&shipDotShape_, toDegrees(angle));
+        window->draw(shipDotShape_);
       }
     }
   }
@@ -668,10 +645,10 @@ void GfxManager::drawShips(sf::RenderWindow *window, Ship **ships, int numShips,
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
     if (ship->alive && ship->energyEnabled) {
-      energyShape.setPosition(adjustX(ship->x - (ENERGY_LENGTH / 2)),
+      energyShape_.setPosition(adjustX(ship->x - (ENERGY_LENGTH / 2)),
                               adjustY(ship->y - DRAW_SHIP_RADIUS - 8));
-      energyShape.setScale(ship->energy / DEFAULT_ENERGY, 1);
-      window->draw(energyShape);
+      energyShape_.setScale(ship->energy / DEFAULT_ENERGY, 1);
+      window->draw(energyShape_);
     }
   }
 }
@@ -685,13 +662,13 @@ void GfxManager::drawShipDeaths(sf::RenderWindow *window, int time,
     for (int x = 0; x < numShipDeaths; x++) {
       ShipDeathGraphic *shipDeath = shipDeaths[x];
       int deathTime = (time - shipDeath->time) / SHIP_DEATH_FRAME_LENGTH;
-      destroyedShape.setOutlineColor(shipDeathColors[shipDeath->shipIndex]);
+      destroyedShape_.setOutlineColor(shipDeathColors_[shipDeath->shipIndex]);
       for (int y = std::max(0, deathTime - 3); y < deathTime; y++) {
         double thisRadius = SHIP_DEATH_RADIUS * (1 + y);
-        destroyedShape.setRadius(thisRadius);
-        destroyedShape.setPosition(adjustX(shipDeath->x - thisRadius),
+        destroyedShape_.setRadius(thisRadius);
+        destroyedShape_.setPosition(adjustX(shipDeath->x - thisRadius),
             adjustY(shipDeath->y - thisRadius, thisRadius * 2));
-        window->draw(destroyedShape);
+        window->draw(destroyedShape_);
       }
     }
   }
@@ -703,7 +680,7 @@ void GfxManager::adjustLaserSparkPosition(sf::RectangleShape *sparkShape,
   transform.rotate(angle);
   double scale = 1 + (((double) sparkTime) / 1.25);
   transform.scale(scale, scale);
-  sf::Vector2f sparkOffset = transform.transformPoint(sparkPoint);
+  sf::Vector2f sparkOffset = transform.transformPoint(sparkPoint_);
   sparkShape->move(sparkOffset.x, sparkOffset.y);
 }
 
@@ -717,12 +694,12 @@ void GfxManager::drawLaserSparks(sf::RenderWindow *window, int time,
       LaserHitShipGraphic *laserHit = laserHits[x];
       Ship *ship = ships[laserHit->hitShipIndex];
       int sparkTime = (time - laserHit->time);
-      sparkShape.setFillColor(laserColors[laserHit->srcShipIndex]);
+      sparkShape_.setFillColor(laserColors_[laserHit->srcShipIndex]);
       for (int x = 0; x < 4; x++) {
-        sparkShape.setPosition(adjustX(ship->x), adjustY(ship->y));
-        sparkShape.setRotation(laserHit->offsets[x]);
-        adjustLaserSparkPosition(&sparkShape, laserHit->offsets[x], sparkTime);
-        window->draw(sparkShape);
+        sparkShape_.setPosition(adjustX(ship->x), adjustY(ship->y));
+        sparkShape_.setRotation(laserHit->offsets[x]);
+        adjustLaserSparkPosition(&sparkShape_, laserHit->offsets[x], sparkTime);
+        window->draw(sparkShape_);
       }
     }
   }
@@ -733,7 +710,7 @@ void GfxManager::drawNames(sf::RenderWindow *window, Ship **ships,
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
     if (ship->alive && ship->showName) {
-      sf::Text text(ship->properties->name, font, 20);
+      sf::Text text(ship->properties->name, font_, 20);
       text.setColor(sf::Color::White);
       sf::FloatRect textRect = text.getLocalBounds();
       text.setPosition(adjustX(ship->x - (textRect.width / 2)),
@@ -751,7 +728,7 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
     StageText **stageTexts = stage->getTexts();
     for (int x = 0; x < numTexts; x++) {
       StageText *stageText = stageTexts[x];
-      sf::Text text(stageText->text, font, 28);
+      sf::Text text(stageText->text, font_, 28);
       text.setColor(sf::Color::White);
       sf::FloatRect textRect = text.getLocalBounds();
       text.setPosition(adjustX(stageText->x),
@@ -765,7 +742,7 @@ void GfxManager::drawGameOver(sf::RenderWindow *window, Stage *stage,
                               char *winnerName) {
   sf::Text text;
   sf::RectangleShape borderShape;
-  text.setFont(font);
+  text.setFont(font_);
   text.setCharacterSize(48);
   if (winnerName != 0 && strlen(winnerName) > 0) {
     text.setColor(sf::Color::Green);
@@ -793,7 +770,7 @@ void GfxManager::drawGameOver(sf::RenderWindow *window, Stage *stage,
 }
 
 void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
-  window->setView(dockView);
+  window->setView(dockView_);
   drawDockItem(window, newMatchButton_);
   drawDockItem(window, packageShipButton_);
   drawDockItem(window, packageStageButton_);
@@ -816,16 +793,16 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
       }
     }
     if (showTeam && team->shipsAlive > 0 && teamEnergyTotal > 0) {
-      dockEnergyShape.setPosition(10, teamButtons_[x]->getBottom() + 20);
-      dockEnergyShape.setScale(teamEnergy / teamEnergyTotal, 1);
-      window->draw(dockEnergyShape);
+      dockEnergyShape_.setPosition(10, teamButtons_[x]->getBottom() + 20);
+      dockEnergyShape_.setScale(teamEnergy / teamEnergyTotal, 1);
+      window->draw(dockEnergyShape_);
     }
-    window->draw(dockLineShape);
+    window->draw(dockLineShape_);
     if (showTeam) {
       drawDockItem(window, teamButtons_[x]);
     }
   }
-  window->draw(dockMarginShape);
+  window->draw(dockMarginShape_);
 }
 
 void GfxManager::drawDockItem(sf::RenderWindow *window, DockItem *dockItem) {
@@ -840,9 +817,9 @@ double GfxManager::adjustX(double x) {
 }
 
 double GfxManager::adjustY(double y, double height) {
-  return windowHeight - STAGE_MARGIN - y - height;
+  return windowHeight_ - STAGE_MARGIN - y - height;
 }
 
 double GfxManager::adjustY(double y) {
-  return windowHeight - STAGE_MARGIN - y;
+  return windowHeight_ - STAGE_MARGIN - y;
 }
