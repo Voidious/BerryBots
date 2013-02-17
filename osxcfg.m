@@ -107,20 +107,24 @@ bool fileExists(const char *filename) {
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if ([fileManager isReadableFileAtPath:srcPath]) {
     NSError *dError;
-    NSString *stagesSrc =
-        [NSString stringWithFormat:@"%@/stages", srcPath];
-    int success = [fileManager
-                   copyItemAtPath:stagesSrc toPath:self.stageDir
-                   error:&dError];
-    if (success != YES) {
-      NSLog(@"Error: %@", dError);
+    if (![fileManager isReadableFileAtPath:self.stageDir]) {
+      NSString *stagesSrc =
+          [NSString stringWithFormat:@"%@/stages", srcPath];
+      int success = [fileManager
+                     copyItemAtPath:stagesSrc toPath:self.stageDir
+                     error:&dError];
+      if (success != YES) {
+        NSLog(@"Error: %@", dError);
+      }
     }
 
-    NSString *botsSrc = [NSString stringWithFormat:@"%@/bots", srcPath];
-    success = [fileManager
-               copyItemAtPath:botsSrc toPath:self.botsDir error:&dError];
-    if (success != YES) {
-      NSLog(@"Error: %@", dError);
+    if (![fileManager isReadableFileAtPath:self.botsDir]) {
+      NSString *botsSrc = [NSString stringWithFormat:@"%@/bots", srcPath];
+      int success = [fileManager
+                 copyItemAtPath:botsSrc toPath:self.botsDir error:&dError];
+      if (success != YES) {
+        NSLog(@"Error: %@", dError);
+      }
     }
   }
 }

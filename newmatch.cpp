@@ -55,17 +55,22 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   stageBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
   botsBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
   updateBaseDirLabels();
+  dirsSizer->Add(stageBaseDirLabel_);
+#if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseStagesButton_ = new wxButton(mainPanel_, wxID_ANY, "Open");
   browseStagesButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
-  browseShipsButton_ = new wxButton(mainPanel_, wxID_ANY, "Open");
-  browseShipsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
-  dirsSizer->Add(stageBaseDirLabel_);
   dirsSizer->AddSpacer(3);
   dirsSizer->Add(browseStagesButton_);
+#endif
+
   dirsSizer->AddSpacer(12);
   dirsSizer->Add(botsBaseDirLabel_);
+#if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
+  browseShipsButton_ = new wxButton(mainPanel_, wxID_ANY, "Open");
+  browseShipsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
   dirsSizer->AddSpacer(3);
   dirsSizer->Add(browseShipsButton_);
+#endif
 
 #ifdef __WXOSX__
   // Using cwd as base dir on other platforms, so only support changing base dir
@@ -77,8 +82,6 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 
   Connect(folderButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onChangeBaseDir));
-#else
-  folderButton_ = 0;
 #endif
   dirsBorderSizer->AddSpacer(12);
   dirsBorderSizer->Add(dirsSizer, 0, wxEXPAND);
@@ -137,12 +140,6 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   mainPanel_->SetSizerAndFit(borderSizer_);
   SetSizerAndFit(mainSizer_);
 
-  browseStagesButton_->MoveAfterInTabOrder(startButton_);
-  browseShipsButton_->MoveAfterInTabOrder(browseStagesButton_);
-#ifdef __WXOSX__
-  folderButton_->MoveAfterInTabOrder(browseShipsButton_);
-#endif
-
   numStages_ = numBots_ = numLoadedBots_ = 0;
   menusInitialized_ = false;
   validateButtons();
@@ -166,17 +163,26 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
           wxCommandEventHandler(NewMatchDialog::onRemoveBots));
   Connect(refreshButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onRefreshFiles));
-  Connect(browseStagesButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
-          wxCommandEventHandler(NewMatchDialog::onBrowseStages));
-  Connect(browseShipsButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
-          wxCommandEventHandler(NewMatchDialog::onBrowseShips));
   Connect(stageSelect_->GetId(), wxEVT_UPDATE_UI,
           wxUpdateUIEventHandler(NewMatchDialog::onSelectStage));
   Connect(botsSelect_->GetId(), wxEVT_UPDATE_UI,
           wxUpdateUIEventHandler(NewMatchDialog::onSelectBot));
   Connect(loadedBotsSelect_->GetId(), wxEVT_UPDATE_UI,
           wxUpdateUIEventHandler(NewMatchDialog::onSelectLoadedBot));
-  
+
+#if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
+  browseStagesButton_->MoveAfterInTabOrder(startButton_);
+  browseShipsButton_->MoveAfterInTabOrder(browseStagesButton_);
+  Connect(browseStagesButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(NewMatchDialog::onBrowseStages));
+  Connect(browseShipsButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(NewMatchDialog::onBrowseShips));
+#endif
+
+#ifdef __WXOSX__
+  folderButton_->MoveAfterInTabOrder(browseShipsButton_);
+#endif
+
   eventFilter_ = new NewMatchEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
 }
@@ -188,9 +194,6 @@ NewMatchDialog::~NewMatchDialog() {
   delete stageSelect_;
   delete botsLabel_;
   delete botsSelect_;
-  if (folderButton_ != 0) {
-    delete folderButton_;
-  }
   delete addArrow_;
   delete removeArrow_;
   delete clearButton_;
@@ -198,10 +201,18 @@ NewMatchDialog::~NewMatchDialog() {
   delete startButton_;
   delete refreshButton_;
   delete stageBaseDirLabel_;
-  delete browseStagesButton_;
-  delete botsBaseDirLabel_;
   delete browseShipsButton_;
   delete keyboardLabel_;
+
+#if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
+  delete browseStagesButton_;
+  delete botsBaseDirLabel_;
+#endif
+
+#ifdef __WXOSX__
+  delete folderButton_;
+#endif
+
   delete mainPanel_;
 }
 
