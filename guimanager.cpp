@@ -495,7 +495,7 @@ void GuiManager::runCurrentMatch() {
       
       while (!interrupted_ && !restarting_ && !quitting_
              && nextDrawTime_ <= engine_->getGameTime()) {
-        processMainWindowEvents(window, gfxManager_);
+        processMainWindowEvents(window, gfxManager_, viewWidth_, viewHeight_);
         window->clear();
         gfxManager_->drawGame(window, engine_->getStage(), engine_->getShips(),
                               engine_->getNumShips(), engine_->getGameTime(),
@@ -555,7 +555,7 @@ void GuiManager::resumeMatch() {
 }
 
 void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
-                                         GfxManager *gfxManager) {
+    GfxManager *gfxManager, int viewWidth, int viewHeight) {
   sf::Event event;
   bool resized = false;
   while (window->pollEvent(event)) {
@@ -564,20 +564,20 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
     }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
-      gfxManager_->updateView(window, viewWidth_, viewHeight_);
+      gfxManager->updateView(window, viewWidth, viewHeight);
     }
     if (event.type == sf::Event::MouseButtonPressed) {
-      gfxManager_->processMouseDown(event.mouseButton.x, event.mouseButton.y);
+      gfxManager->processMouseDown(event.mouseButton.x, event.mouseButton.y);
     }
     if (event.type == sf::Event::MouseButtonReleased) {
-      gfxManager_->processMouseUp(event.mouseButton.x, event.mouseButton.y);
+      gfxManager->processMouseUp(event.mouseButton.x, event.mouseButton.y);
     }
     if (event.type == sf::Event::MouseMoved
         || event.type == sf::Event::MouseEntered) {
-      gfxManager_->processMouseMoved(event.mouseMove.x, event.mouseMove.y);
+      gfxManager->processMouseMoved(event.mouseMove.x, event.mouseMove.y);
     }
     if (event.type == sf::Event::MouseLeft) {
-      gfxManager_->processMouseMoved(-1, -1);
+      gfxManager->processMouseMoved(-1, -1);
     }
     if (event.type == sf::Event::KeyPressed) {
       switch (event.key.code) {
@@ -593,12 +593,12 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
 #ifdef __WXOSX__
         case sf::Keyboard::LSystem:
         case sf::Keyboard::RSystem:
-          gfxManager_->showKeyboardShortcuts();
+          gfxManager->showKeyboardShortcuts();
           break;
 #else
         case sf::Keyboard::LAlt:
         case sf::Keyboard::RAlt:
-          gfxManager_->showKeyboardShortcuts();
+          gfxManager->showKeyboardShortcuts();
           break;
 #endif
         case sf::Keyboard::N:
@@ -620,12 +620,12 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
 #ifdef __WXOSX__
         case sf::Keyboard::LSystem:
         case sf::Keyboard::RSystem:
-          gfxManager_->hideKeyboardShortcuts();
+          gfxManager->hideKeyboardShortcuts();
           break;
 #else
         case sf::Keyboard::LAlt:
         case sf::Keyboard::RAlt:
-          gfxManager_->hideKeyboardShortcuts();
+          gfxManager->hideKeyboardShortcuts();
           break;
 #endif
         default:
@@ -659,7 +659,7 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
 }
 
 void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
-                                            GfxManager *gfxManager) {
+    GfxManager *gfxManager, int viewWidth, int viewHeight) {
   sf::Event event;
   bool resized = false;
   while (window->pollEvent(event)) {
@@ -671,7 +671,7 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
     }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
-      gfxManager->updateView(window, viewWidth_, viewHeight_);
+      gfxManager->updateView(window, viewWidth, viewHeight);
     }
   }
 
@@ -769,7 +769,8 @@ void GuiManager::showStagePreview(const char *stageName) {
   previewGfxManager_->updateView(previewWindow_, viewWidth, viewHeight);
 
   while (previewWindow_->isOpen()) {
-    processPreviewWindowEvents(previewWindow_, previewGfxManager_);
+    processPreviewWindowEvents(previewWindow_, previewGfxManager_, viewWidth,
+                               viewHeight);
     previewWindow_->clear();
     previewGfxManager_->drawGame(previewWindow_, stage, ships, 1, 0, gfxHandler,
                                  false, false, 0);

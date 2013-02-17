@@ -107,9 +107,9 @@ class GuiManager {
     void runNewMatch(const char *stageName, char **teamNames, int numTeams);
     void resumeMatch();
     void processMainWindowEvents(sf::RenderWindow *window,
-                                 GfxManager *gfxManager);
+        GfxManager *gfxManager, int viewWidth, int viewHeight);
     void processPreviewWindowEvents(sf::RenderWindow *window,
-                                    GfxManager *gfxManager);
+        GfxManager *gfxManager, int viewWidth, int viewHeight);
     void showNewMatchDialog();
     void showPackageShipDialog();
     void showPackageStageDialog();
