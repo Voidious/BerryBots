@@ -86,6 +86,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   interrupted_ = false;
   paused_ = false;
   restarting_ = false;
+  tpsFactor_ = 1;
   quitting_ = false;
 }
 
@@ -351,6 +352,7 @@ sf::RenderWindow* GuiManager::getMainWindow() {
 
 void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                              int numTeams) {
+  tpsFactor_ = 1;
   sf::RenderWindow *window;
 #ifdef __WXOSX__
   window = initMainWindow(1200, 800);
@@ -555,13 +557,14 @@ void GuiManager::processMainWindowEvents() {
       gfxManager_->updateView(window, viewWidth_, viewHeight_);
     }
     if (event.type == sf::Event::MouseButtonPressed) {
-      gfxManager_->processMouseClick(event.mouseButton.x,
-                                     event.mouseButton.y);
+      gfxManager_->processMouseDown(event.mouseButton.x, event.mouseButton.y);
+    }
+    if (event.type == sf::Event::MouseButtonReleased) {
+      gfxManager_->processMouseUp(event.mouseButton.x, event.mouseButton.y);
     }
     if (event.type == sf::Event::MouseMoved
         || event.type == sf::Event::MouseEntered) {
-      gfxManager_->processMouseMoved(event.mouseMove.x,
-                                     event.mouseMove.y);
+      gfxManager_->processMouseMoved(event.mouseMove.x, event.mouseMove.y);
     }
     if (event.type == sf::Event::MouseLeft) {
       gfxManager_->processMouseMoved(-1, -1);
@@ -627,9 +630,10 @@ void GuiManager::processMainWindowEvents() {
     // TODO: Determine if this is necessary/preferable on Linux/Windows.
     // TODO: Might be better to restrict this to the Space case specifically,
     //       or when window isn't visible to user.
-    if (event.type == sf::Event::LostFocus) {
+    bool defaultTps = (abs(tpsFactor_ - 1) < 0.001);
+    if (event.type == sf::Event::LostFocus || !defaultTps) {
       window->setVerticalSyncEnabled(false);
-      window->setFramerateLimit(60);
+      window->setFramerateLimit(tpsFactor_ * 60);
     } else if (event.type == sf::Event::GainedFocus) {
       window->setVerticalSyncEnabled(true);
       window->setFramerateLimit(0);
@@ -757,6 +761,22 @@ void GuiManager::togglePause() {
 
 void GuiManager::restartMatch() {
   restarting_ = true;
+}
+
+void GuiManager::setTpsFactor(double tpsFactor) {
+  tpsFactor_ = tpsFactor;
+
+  sf::RenderWindow *window = getMainWindow();
+  bool defaultTps = (abs(tpsFactor_ - 1) < 0.001);
+  int newTps = (int) (tpsFactor_ * 60);
+  paused_ = (newTps == 0);
+  if (defaultTps || paused_) {
+    window->setVerticalSyncEnabled(true);
+    window->setFramerateLimit(0);
+  } else {
+    window->setVerticalSyncEnabled(false);
+    window->setFramerateLimit(tpsFactor_ * 60);
+  }
 }
 
 void GuiManager::quit() {
@@ -1019,4 +1039,8 @@ void ViewListener::onPauseUnpause() {
 
 void ViewListener::onRestart() {
   guiManager_->restartMatch();
+}
+
+void ViewListener::onTpsChange(double tpsFactor) {
+  guiManager_->setTpsFactor(tpsFactor);
 }

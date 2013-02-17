@@ -90,6 +90,7 @@ class GuiManager {
   // paused the game or it ended and they haven't done anything yet.)
   bool paused_;
   bool restarting_;
+  double tpsFactor_;
   bool quitting_;
   
   public:
@@ -120,6 +121,7 @@ class GuiManager {
     void packageStageInitialFocus();
     void togglePause();
     void restartMatch();
+    void setTpsFactor(double tpsFactor);
     void quit();
     char* getStageDirCopy();
     char* getBotsDirCopy();
@@ -208,6 +210,7 @@ class ViewListener : public GfxViewListener {
     virtual void onTeamClick(int teamIndex);
     virtual void onPauseUnpause();
     virtual void onRestart();
+    virtual void onTpsChange(double tpsFactor);
 };
 
 #endif

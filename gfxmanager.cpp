@@ -30,6 +30,7 @@
 #include "stage.h"
 #include "dockshape.h"
 #include "docktext.h"
+#include "dockfader.h"
 #include "gfxmanager.h"
 
 // TODO: make these member vars instead of globals
@@ -98,6 +99,7 @@ GfxManager::GfxManager(bool showDock) {
   numShips_ = 0;
   stage_ = 0;
   initialized_ = false;
+  adjustingTps_ = false;
 }
 
 GfxManager::~GfxManager() {
@@ -310,6 +312,9 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   restartButton_ = new DockShape(restartShapes, 4, 85, window->getSize().y - 100,
       50, 50, "Restart", &font, DOCK_BUTTON_FONT_SIZE, 69,
       window->getSize().y - 55, "Back", DOCK_SHORTCUT_FONT_SIZE);
+
+  tpsFader_ = new DockFader(15, window->getSize().y - 150, DOCK_SIZE - 30, 40,
+      "Speed", &font, DOCK_BUTTON_FONT_SIZE, 48, window->getSize().y - 175);
 }
 
 void GfxManager::reinitDockItems(sf::RenderWindow *window) {
@@ -362,6 +367,9 @@ void GfxManager::destroyDockItems() {
   }
   if (restartButton_ != 0) {
     delete restartButton_;
+  }
+  if (tpsFader_ != 0) {
+    delete tpsFader_;
   }
 }
 
@@ -429,7 +437,12 @@ void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
   }
 }
 
-void GfxManager::processMouseClick(int x, int y) {
+void GfxManager::processMouseDown(int x, int y) {
+  if (tpsFader_->contains(x, y)) {
+    adjustingTps_ = true;
+    tpsFader_->setKnob(x);
+  }
+
   if (listener_ != 0) {
     if (newMatchButton_->contains(x, y)) {
       listener_->onNewMatch();
@@ -443,6 +456,8 @@ void GfxManager::processMouseClick(int x, int y) {
       listener_->onPauseUnpause();
     } else if (restartButton_->contains(x, y)) {
       listener_->onRestart();
+    } else if (tpsFader_->contains(x, y)) {
+      listener_->onTpsChange(tpsFader_->getVolume());
     } else {
       for (int z = 0; z < numTeams_; z++) {
         if (teamButtons_[z]->contains(x, y)) {
@@ -453,16 +468,30 @@ void GfxManager::processMouseClick(int x, int y) {
   }
 }
 
+void GfxManager::processMouseUp(int x, int y) {
+  adjustingTps_ = false;
+  tpsFader_->setHighlights(x, y);
+}
+
 void GfxManager::processMouseMoved(int x, int y) {
+  if (adjustingTps_) {
+    tpsFader_->setKnob(x);
+    listener_->onTpsChange(tpsFader_->getVolume());
+  }
+
+  stageButton_->setHighlights(x, y);
+  for (int z = 0; z < numTeams_; z++) {
+    teamButtons_[z]->setHighlights(x, y);
+  }
+
   newMatchButton_->setHighlights(x, y);
   packageShipButton_->setHighlights(x, y);
   packageStageButton_->setHighlights(x, y);
-  stageButton_->setHighlights(x, y);
   pauseButton_->setHighlights(x, y);
   playButton_->setHighlights(x, y);
   restartButton_->setHighlights(x, y);
-  for (int z = 0; z < numTeams_; z++) {
-    teamButtons_[z]->setHighlights(x, y);
+  if (!adjustingTps_) {
+    tpsFader_->setHighlights(x, y);
   }
 }
 
@@ -775,6 +804,7 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
   drawDockItem(window, stageButton_);
   drawDockItem(window, paused ? playButton_ : pauseButton_);
   drawDockItem(window, restartButton_);
+  drawDockItem(window, tpsFader_);
 
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];

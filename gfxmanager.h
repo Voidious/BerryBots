@@ -26,6 +26,7 @@
 #include "bbutil.h"
 #include "gfxeventhandler.h"
 #include "dockitem.h"
+#include "dockfader.h"
 
 #define DRAW_SHIP_RADIUS        (SHIP_RADIUS - .7)
 #define SHIP_OUTLINE_THICKNESS  1.7
@@ -69,6 +70,7 @@ class GfxViewListener {
     virtual void onTeamClick(int teamIndex) = 0;
     virtual void onPauseUnpause() = 0;
     virtual void onRestart() = 0;
+    virtual void onTpsChange(double tpsFactor) = 0;
     virtual ~GfxViewListener() {};
 };
 
@@ -82,6 +84,7 @@ class GfxManager {
   DockItem *pauseButton_;
   DockItem *playButton_;
   DockItem *restartButton_;
+  DockFader *tpsFader_;
   GfxViewListener *listener_;
   Team **teams_;
   int numTeams_;
@@ -89,6 +92,7 @@ class GfxManager {
   int numShips_;
   Stage *stage_;
   bool initialized_;
+  bool adjustingTps_;
 
   public:
     GfxManager(bool showDock);
@@ -103,7 +107,8 @@ class GfxManager {
                   bool paused, bool gameOver, char *winnerName);
     void updateView(sf::RenderWindow *window, unsigned int viewWidth,
                     unsigned int viewHeight);
-    void processMouseClick(int x, int y);
+    void processMouseDown(int x, int y);
+    void processMouseUp(int x, int y);
     void processMouseMoved(int x, int y);
     void showKeyboardShortcuts();
     void hideKeyboardShortcuts();
