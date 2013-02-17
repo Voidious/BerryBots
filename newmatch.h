@@ -40,6 +40,7 @@ class NewMatchDialog : public wxFrame {
   wxBoxSizer *mainSizer_;
   wxBoxSizer *borderSizer_;
   wxStaticText *stageLabel_;
+  wxStaticText *previewLabel_;
   wxListBox *stageSelect_;
   wxStaticText *botsLabel_;
   wxListBox *botsSelect_;

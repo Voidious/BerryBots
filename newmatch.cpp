@@ -36,12 +36,17 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   mainSizer_->Add(mainPanel_);
   borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
   wxFlexGridSizer *gridSizer = new wxFlexGridSizer(2, 5, 5);
-  wxBoxSizer *stageSizer = new wxBoxSizer(wxVERTICAL);
+  wxBoxSizer *stageLabelSizer = new wxBoxSizer(wxHORIZONTAL);
   stageLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Stage:");
+  stageLabelSizer->Add(stageLabel_, 0, wxALIGN_LEFT);
+  stageLabelSizer->AddSpacer(27);
+  previewLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "<space> to preview");
+  stageLabelSizer->Add(previewLabel_);
+  wxBoxSizer *stageSizer = new wxBoxSizer(wxVERTICAL);
+  stageSizer->Add(stageLabelSizer);
+  stageSizer->AddSpacer(3);
   stageSelect_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
                                wxSize(275, 225), 0, NULL, wxLB_SORT);
-  stageSizer->Add(stageLabel_, 0, wxALIGN_LEFT);
-  stageSizer->AddSpacer(3);
   stageSizer->Add(stageSelect_, 0, wxALIGN_LEFT);
   gridSizer->Add(stageSizer, 0, wxALIGN_LEFT);
 

@@ -361,6 +361,8 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   nextDrawTime_ = 1;
   sf::RenderWindow *window;
 #ifdef __WXOSX__
+  // On Mac OS X, we need to initialize before the wxWidgets stuff below to
+  // avoid some weird errors.
   window = initMainWindow(1200, 800);
 #endif
   deleteMatchConsoles();
@@ -406,6 +408,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     stageConsole_->println();
   } catch (EngineException *e) {
 #ifdef __WXOSX__
+    // Since we initialized the window early.
     delete window_;
     window_ = 0;
 #endif
@@ -665,8 +668,10 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
   while (window->pollEvent(event)) {
     if (event.type == sf::Event::Closed
         || (event.type == sf::Event::KeyPressed
-            && event.key.code == sf::Keyboard::Escape)
-        || (event.type == sf::Event::LostFocus)) {
+            && (event.key.code == sf::Keyboard::Escape
+                || event.key.code == sf::Keyboard::Space
+                || (event.key.code == sf::Keyboard::W
+                    && (event.key.control || event.key.system))))) {
       window->close();
     }
     if (event.type == sf::Event::Resized && !resized) {
@@ -724,13 +729,19 @@ void GuiManager::showErrorConsole() {
 }
 
 void GuiManager::showStagePreview(const char *stageName) {
-  // TODO: this is really going to screw up GfxManager until all the globals
-  //       are removed
   GfxEventHandler *gfxHandler = new GfxEventHandler();
-
   BerryBotsEngine *engine = new BerryBotsEngine(fileManager_);
-  char *cacheDir = getCacheDirCopy();
-  engine->initStage(stageBaseDir_, stageName, cacheDir);
+  try {
+    engine->initStage(stageBaseDir_, stageName, getCacheDir().c_str());
+  } catch (EngineException *e) {
+    delete gfxHandler;
+    delete engine;
+    errorConsole_->println(e->what());
+    wxMessageDialog errorMessage(NULL, e->what(), "Preview failure",
+                                 wxOK | wxICON_EXCLAMATION);
+    errorMessage.ShowModal();
+    return;
+  }
   
   Stage *stage = engine->getStage();
   unsigned int viewWidth = stage->getWidth() + (2 * STAGE_MARGIN);
@@ -744,9 +755,12 @@ void GuiManager::showStagePreview(const char *stageName) {
   unsigned int targetHeight = floor(windowScale * viewHeight);
   if (previewWindow_ != 0) {
     delete previewWindow_;
+    previewWindow_ = 0;
   }
+  std::string windowTitle("Preview: ");
+  windowTitle.append(stageName);
   previewWindow_ = new sf::RenderWindow(
-      sf::VideoMode(targetWidth, targetHeight), stageName, sf::Style::Default,
+      sf::VideoMode(targetWidth, targetHeight), windowTitle, sf::Style::Default,
       sf::ContextSettings(0, 0, 16, 2, 0));
 
   Team **teams = new Team*[1];
