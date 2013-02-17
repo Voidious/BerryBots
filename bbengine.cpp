@@ -488,10 +488,6 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
           stateShips[y]->properties->disabled = true;
         }
       }
-
-      if (listener_ != 0) {
-        listener_->setTeamName(teamState, team->name);
-      }
     }
 
     if (deleteFilename) {

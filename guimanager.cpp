@@ -403,6 +403,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     teamConsoles_ = guiPrintHandler->getTeamConsoles();
 
     for (int x = 0; x < numTeams; x++) {
+      teamConsoles_[x]->SetTitle(engine_->getTeam(x)->name);
       teamConsoles_[x]->println();
     }
     stageConsole_->println();
@@ -540,9 +541,7 @@ void GuiManager::runCurrentMatch() {
 }
 
 void GuiManager::resumeMatch() {
-  if (window_ == 0) {
-    listener_->onAllWindowsClosed();
-  } else {
+  if (window_ != 0) {
     if (interrupted_) {
       gfxManager_->hideKeyboardShortcuts();
       hideNewMatchDialog();
@@ -1131,11 +1130,6 @@ PrintStateListener::PrintStateListener(GuiPrintHandler *guiPrintHandler) {
 void PrintStateListener::newTeamState(lua_State *teamState,
                                       const char *filename) {
   guiPrintHandler_->registerTeam(teamState, filename);
-}
-
-void PrintStateListener::setTeamName(lua_State *teamState,
-                                     const char *filename) {
-  guiPrintHandler_->setTeamName(teamState, filename);
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

@@ -47,7 +47,6 @@ class PrintStateListener : public NewTeamStateListener {
   public:
     PrintStateListener(GuiPrintHandler *guiPrintHandler);
     virtual void newTeamState(lua_State *teamState, const char *filename);
-    virtual void setTeamName(lua_State *teamState, const char *filename);
     OutputConsole** getTeams();
 };
 

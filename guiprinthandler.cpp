@@ -67,15 +67,6 @@ void GuiPrintHandler::registerTeam(lua_State *L, const char *filename) {
   }
 }
 
-void GuiPrintHandler::setTeamName(lua_State *L, const char *name) {
-  for (int x = 0; x < nextTeamIndex_; x++) {
-    if (teamStates_[x] == L) {
-      teamConsoles_[x]->SetTitle(name);
-      break;
-    }
-  }
-}
-
 OutputConsole** GuiPrintHandler::getTeamConsoles() {
   return teamConsoles_;
 }

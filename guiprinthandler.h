@@ -44,7 +44,6 @@ class GuiPrintHandler : public PrintHandler {
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
     void registerTeam(lua_State *L, const char *filename);
-    void setTeamName(lua_State *L, const char *name);
     OutputConsole **getTeamConsoles();
 };
 

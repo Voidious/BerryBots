@@ -42,7 +42,6 @@ extern "C" {
 class NewTeamStateListener {
   public:
     virtual void newTeamState(lua_State *teamState, const char *name) = 0;
-    virtual void setTeamName(lua_State *teamState, const char *name) = 0;
     virtual ~NewTeamStateListener() {};
 };
 
