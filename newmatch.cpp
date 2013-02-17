@@ -412,6 +412,27 @@ void NewMatchDialog::onSelectLoadedBot(wxUpdateUIEvent &event) {
   validateButtons();
 }
 
+void NewMatchDialog::previewSelectedStage() {
+  wxArrayInt selectedStageIndex;
+  stageSelect_->GetSelections(selectedStageIndex);
+  if (selectedStageIndex.Count() > 0) {
+    wxString selectedStage =
+    stageSelect_->GetString(*(selectedStageIndex.begin()));
+    char *stage = new char[selectedStage.length() + 1];
+#ifdef __WINDOWS__
+    strcpy(stage, selectedStage.c_str());
+#else
+    strcpy(stage, selectedStage.fn_str());
+#endif
+    listener_->previewStage(stage);
+    delete stage;
+  }
+}
+
+bool NewMatchDialog::stageSelectHasFocus() {
+  return stageSelect_->HasFocus();
+}
+
 bool NewMatchDialog::botsSelectHasFocus() {
   return botsSelect_->HasFocus();
 }
@@ -513,6 +534,9 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_BACK)
                && (newMatchDialog_->loadedBotsSelectHasFocus())) {
       newMatchDialog_->removeSelectedLoadedBots();
+    } else if (keyCode == WXK_SPACE && newMatchDialog_->stageSelectHasFocus()) {
+      newMatchDialog_->previewSelectedStage();
+      return Event_Processed;
 #ifdef __WXOSX__
     // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
     } else if (keyEvent->GetUnicodeKey() == 'M' && modifierDown) {

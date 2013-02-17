@@ -51,7 +51,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   reloadBaseDirs();
 
   window_ = 0;
-  consoleId_ = 1000;
+  previewWindow_ = 0;
   zipper_ = new GuiZipper();
   fileManager_ = new FileManager(zipper_);
   menuBarMaker_ = new MenuBarMaker();
@@ -72,6 +72,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   stageConsole_ = 0;
   teamConsoles_ = 0;
   gfxManager_ = new GfxManager(true);
+  previewGfxManager_ = new GfxManager(false);
   viewListener_ = new ViewListener(this);
   gfxManager_->setListener(viewListener_);
   packageReporter_ = new PackageReporter(packagingConsole_);
@@ -106,6 +107,9 @@ GuiManager::~GuiManager() {
   }
   if (window_ != 0) {
     delete window_;
+  }
+  if (previewWindow_ != 0) {
+    delete previewWindow_;
   }
   delete gfxManager_;
   delete viewListener_;
@@ -491,7 +495,7 @@ void GuiManager::runCurrentMatch() {
       
       while (!interrupted_ && !restarting_ && !quitting_
              && nextDrawTime_ <= engine_->getGameTime()) {
-        processMainWindowEvents();
+        processMainWindowEvents(window, gfxManager_);
         window->clear();
         gfxManager_->drawGame(window, engine_->getStage(), engine_->getShips(),
                               engine_->getNumShips(), engine_->getGameTime(),
@@ -550,8 +554,8 @@ void GuiManager::resumeMatch() {
   }
 }
 
-void GuiManager::processMainWindowEvents() {
-  sf::RenderWindow *window = getMainWindow();
+void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
+                                         GfxManager *gfxManager) {
   sf::Event event;
   bool resized = false;
   while (window->pollEvent(event)) {
@@ -654,6 +658,31 @@ void GuiManager::processMainWindowEvents() {
 #endif
 }
 
+void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
+                                            GfxManager *gfxManager) {
+  sf::Event event;
+  bool resized = false;
+  while (window->pollEvent(event)) {
+    if (event.type == sf::Event::Closed
+        || (event.type == sf::Event::KeyPressed
+            && event.key.code == sf::Keyboard::Escape)
+        || (event.type == sf::Event::LostFocus)) {
+      window->close();
+    }
+    if (event.type == sf::Event::Resized && !resized) {
+      resized = true;
+      gfxManager->updateView(window, viewWidth_, viewHeight_);
+    }
+  }
+
+  // On Linux/GTK and Windows, the wxWidgets windows don't get events while
+  // this thread has control unless we manually wxYield each frame. Seems to be
+  // unnecessary on Mac/Cocoa.
+#ifndef __WXOSX__
+  wxYield();
+#endif
+}
+
 void GuiManager::showNewMatchDialog() {
   interrupted_ = true;
   packagingConsole_->Hide();
@@ -692,6 +721,72 @@ void GuiManager::showTeamConsole(int teamIndex) {
 void GuiManager::showErrorConsole() {
   errorConsole_->Show();
   errorConsole_->Raise();
+}
+
+void GuiManager::showStagePreview(const char *stageName) {
+  // TODO: this is really going to screw up GfxManager until all the globals
+  //       are removed
+  GfxEventHandler *gfxHandler = new GfxEventHandler();
+
+  BerryBotsEngine *engine = new BerryBotsEngine(fileManager_);
+  char *cacheDir = getCacheDirCopy();
+  engine->initStage(stageBaseDir_, stageName, cacheDir);
+  
+  Stage *stage = engine->getStage();
+  unsigned int viewWidth = stage->getWidth() + (2 * STAGE_MARGIN);
+  unsigned int viewHeight = stage->getHeight() + (2 * STAGE_MARGIN);
+  unsigned int screenWidth = 600;
+  unsigned int screenHeight = 600;
+  double windowScale =
+      std::min(1.0, std::min(((double) screenWidth) / viewWidth,
+                             ((double) screenHeight) / viewHeight));
+  unsigned int targetWidth = floor(windowScale * viewWidth);
+  unsigned int targetHeight = floor(windowScale * viewHeight);
+  if (previewWindow_ != 0) {
+    delete previewWindow_;
+  }
+  previewWindow_ = new sf::RenderWindow(
+      sf::VideoMode(targetWidth, targetHeight), stageName, sf::Style::Default,
+      sf::ContextSettings(0, 0, 16, 2, 0));
+
+  Team **teams = new Team*[1];
+  teams[0] = new Team;
+  strcpy(teams[0]->name, "PreviewTeam");
+  Ship **ships = new Ship*[1];
+  Ship *ship = new Ship;
+  ShipProperties *properties = new ShipProperties;
+  properties->shipR = properties->shipG = properties->shipB = 0;
+  properties->laserR = properties->laserG = properties->laserB = 0;
+  properties->thrusterR = properties->thrusterG = properties->thrusterB = 0;
+  strcpy(properties->name, "PreviewShip");
+  ship->properties = properties;
+  ship->thrusterAngle = ship->thrusterForce = ship->x = ship->y = 0;
+  ship->alive = ship->showName = ship->energyEnabled = false;
+  ships[0] = ship;
+
+  previewGfxManager_->initBbGfx(previewWindow_, viewHeight, stage, teams, 1,
+                                ships, 1, resourcePath());
+  previewGfxManager_->updateView(previewWindow_, viewWidth, viewHeight);
+
+  while (previewWindow_->isOpen()) {
+    processPreviewWindowEvents(previewWindow_, previewGfxManager_);
+    previewWindow_->clear();
+    previewGfxManager_->drawGame(previewWindow_, stage, ships, 1, 0, gfxHandler,
+                                 false, false, 0);
+    previewWindow_->display();
+  }
+
+  previewGfxManager_->destroyBbGfx();
+  delete gfxHandler;
+  delete engine;
+  delete properties;
+  delete ships[0];
+  delete teams[0];
+  delete ships;
+  delete teams;
+
+  newMatchDialog_->Show();
+  newMatchDialog_->Raise();
 }
 
 void GuiManager::deleteMatchConsoles() {
@@ -839,6 +934,10 @@ MatchRunner::~MatchRunner() {
 void MatchRunner::startMatch(const char *stageName, char **teamNames,
                              int numTeams) {
   guiManager_->runNewMatch(stageName, teamNames, numTeams);
+}
+
+void MatchRunner::previewStage(const char *stageName) {
+  guiManager_->showStagePreview(stageName);
 }
 
 void MatchRunner::refreshFiles() {

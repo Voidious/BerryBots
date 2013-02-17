@@ -28,6 +28,7 @@ class NewMatchListener {
   public:
     virtual void startMatch(const char *stagePath, char **teamPaths,
                             int numTeams) = 0;
+    virtual void previewStage(const char *stagePath) = 0;
     virtual void refreshFiles() = 0;
     virtual void cancel() = 0;
     virtual void reloadBaseDirs() = 0;
@@ -92,6 +93,8 @@ class NewMatchDialog : public wxFrame {
     void onSelectStage(wxUpdateUIEvent &event);
     void onSelectBot(wxUpdateUIEvent &event);
     void onSelectLoadedBot(wxUpdateUIEvent &event);
+    void previewSelectedStage();
+    bool stageSelectHasFocus();
     bool botsSelectHasFocus();
     bool loadedBotsSelectHasFocus();
     void validateButtons();

@@ -57,12 +57,14 @@ class GuiManager {
   PackageShipDialog *packageShipDialog_;
   PackageStageDialog *packageStageDialog_;
   sf::RenderWindow *window_;
+  sf::RenderWindow *previewWindow_;
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
   OutputConsole *packagingConsole_;
   OutputConsole *errorConsole_;
   MenuBarMaker *menuBarMaker_;
   GfxManager *gfxManager_;
+  GfxManager *previewGfxManager_;
   GfxViewListener *viewListener_;
   Zipper *zipper_;
   FileManager *fileManager_;
@@ -74,7 +76,6 @@ class GuiManager {
   BerryBotsEngine *engine_;
   char *stageBaseDir_;
   char *botsBaseDir_;
-  unsigned int consoleId_;
   char *currentStagePath_;
   char **currentTeamPaths_;
   int currentNumTeams_;
@@ -105,18 +106,23 @@ class GuiManager {
     bool isValidBotFile(const char *srcFilename, BerryBotsEngine *engine);
     void runNewMatch(const char *stageName, char **teamNames, int numTeams);
     void resumeMatch();
-    void processMainWindowEvents();
+    void processMainWindowEvents(sf::RenderWindow *window,
+                                 GfxManager *gfxManager);
+    void processPreviewWindowEvents(sf::RenderWindow *window,
+                                    GfxManager *gfxManager);
     void showNewMatchDialog();
     void showPackageShipDialog();
     void showPackageStageDialog();
     void showStageConsole();
     void showTeamConsole(int teamIndex);
     void showErrorConsole();
+    void showStagePreview(const char *stageName);
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
     void hidePackagingConsole();
     void hideErrorConsole();
+    void hidePreview();
     void newMatchInitialFocus();
     void packageShipInitialFocus();
     void packageStageInitialFocus();
@@ -153,6 +159,7 @@ class MatchRunner : public NewMatchListener {
     ~MatchRunner();
     virtual void startMatch(const char *stageName, char **teamNames,
                             int numTeams);
+    virtual void previewStage(const char *stagePath);
     virtual void refreshFiles();
     virtual void cancel();
     virtual void reloadBaseDirs();
