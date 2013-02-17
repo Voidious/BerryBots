@@ -251,11 +251,11 @@ void NewMatchDialog::onActivate(wxActivateEvent &event) {
 }
 
 void NewMatchDialog::onShow(wxShowEvent &event) {
-  initialFocus();
+  focusStageSelect();
 }
 
 void NewMatchDialog::onClose(wxCommandEvent &event) {
-  listener_->cancel();
+  listener_->onClose();
 }
 
 void NewMatchDialog::onAddBots(wxCommandEvent &event) {
@@ -413,7 +413,7 @@ void NewMatchDialog::updateBaseDirLabels() {
 }
 
 void NewMatchDialog::onEscape() {
-  listener_->cancel();
+  listener_->onEscape();
 }
 
 void NewMatchDialog::onSelectStage(wxUpdateUIEvent &event) {
@@ -514,7 +514,7 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
   }
 }
 
-void NewMatchDialog::initialFocus() {
+void NewMatchDialog::focusStageSelect() {
   stageSelect_->SetFocus();
 }
 

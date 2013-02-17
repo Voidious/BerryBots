@@ -242,7 +242,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   teamButtons_ = new DockText*[numTeams_];
   for (int x = 0; x < numTeams_; x++) {
     teamButtons_[x] = new DockText(teams_[x]->name, &font_, 16,
-                                   10, 125 + (x * 35), DOCK_SIZE - 10, 30);
+                                   10, getShipDockTop(x), DOCK_SIZE - 10, 30);
   }
 
   sf::Shape** pauseShapes = new sf::Shape*[2];
@@ -437,7 +437,7 @@ void GfxManager::processMouseDown(int x, int y) {
       listener_->onTpsChange(tpsFader_->getVolume());
     } else {
       for (int z = 0; z < numTeams_; z++) {
-        if (teamButtons_[z]->contains(x, y)) {
+        if (!teamButtons_[z]->hidden() && teamButtons_[z]->contains(x, y)) {
           listener_->onTeamClick(teams_[z]->index);
         }
       }
@@ -479,7 +479,9 @@ void GfxManager::showKeyboardShortcuts() {
   playButton_->showShortcut();
   restartButton_->showShortcut();
   for (int z = 0; z < numTeams_; z++) {
-    teamButtons_[z]->showShortcut();
+    if (!teamButtons_[z]->hidden()) {
+      teamButtons_[z]->showShortcut();
+    }
   }
 }
 
@@ -779,6 +781,7 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
   drawDockItem(window, restartButton_);
   drawDockItem(window, tpsFader_);
 
+  int dockIndex = 0;
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
     double teamEnergy = 0;
@@ -793,12 +796,14 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
       }
     }
     teamButtons_[x]->setDisabled(team->disabled);
-    if (showTeam && team->shipsAlive > 0 && teamEnergyTotal > 0) {
-      dockEnergyShape_.setPosition(10, teamButtons_[x]->getBottom() + 20);
-      dockEnergyShape_.setScale(teamEnergy / teamEnergyTotal, 1);
-      window->draw(dockEnergyShape_);
-    }
+    teamButtons_[x]->setHidden(!showTeam);
     if (showTeam) {
+      teamButtons_[x]->setTop(getShipDockTop(dockIndex++));
+      if (team->shipsAlive > 0 && teamEnergyTotal > 0) {
+        dockEnergyShape_.setPosition(10, teamButtons_[x]->getTop() + 20);
+        dockEnergyShape_.setScale(teamEnergy / teamEnergyTotal, 1);
+        window->draw(dockEnergyShape_);
+      }
       drawDockItem(window, teamButtons_[x]);
     }
   }
@@ -811,6 +816,10 @@ void GfxManager::drawDockItem(sf::RenderWindow *window, DockItem *dockItem) {
   for (int x = 0; x < dockItem->getNumDrawables(); x++) {
     window->draw(*(drawables[x]));
   }
+}
+
+int GfxManager::getShipDockTop(int index) {
+  return 125 + (index * 35);
 }
 
 double GfxManager::adjustX(double x) {

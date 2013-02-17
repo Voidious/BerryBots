@@ -21,6 +21,8 @@
 #ifndef GUI_PRINT_HANDLER_H
 #define GUI_PRINT_HANDLER_H
 
+#define MAX_TEAM_CONSOLES  1024
+
 extern "C" {
   #include "lua.h"
 }
@@ -31,15 +33,13 @@ extern "C" {
 
 class GuiPrintHandler : public PrintHandler {
   OutputConsole *stageConsole_;
-  OutputConsole **teamConsoles_;
-  lua_State **teamStates_;
+  OutputConsole* teamConsoles_[MAX_TEAM_CONSOLES];
+  lua_State* teamStates_[MAX_TEAM_CONSOLES];
   int numTeams_;
-  int nextTeamIndex_;
   MenuBarMaker *menuBarMaker_;
 
   public:
-    GuiPrintHandler(OutputConsole *stageConsole, int numTeams,
-                    MenuBarMaker *menuBarMaker);
+    GuiPrintHandler(OutputConsole *stageConsole, MenuBarMaker *menuBarMaker);
     ~GuiPrintHandler();
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);

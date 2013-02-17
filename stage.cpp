@@ -334,7 +334,7 @@ int Stage::getTextCount() {
 void Stage::clearStaleTexts(int gameTime) {
   for (int x = 0; x < numTexts_; x++) {
     StageText *stageText = stageTexts_[x];
-    if (gameTime - stageText->startTime > stageText->drawTicks) {
+    if (gameTime - stageText->startTime >= stageText->drawTicks) {
       if (numTexts_ > 1) {
         stageTexts_[x] = stageTexts_[numTexts_ - 1];
       }

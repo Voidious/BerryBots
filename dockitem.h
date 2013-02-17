@@ -52,6 +52,7 @@ class DockItem : public Rectangle {
     sf::Drawable** getDrawables();
     int getNumDrawables();
     bool contains(int x, int y);
+    int getTop();
 };
 
 #endif

@@ -356,7 +356,7 @@ sf::RenderWindow* GuiManager::getMainWindow() {
 }
 
 void GuiManager::runNewMatch(const char *stageName, char **teamNames,
-                             int numTeams) {
+                             int numUserTeams) {
   tpsFactor_ = 1;
   nextDrawTime_ = 1;
   sf::RenderWindow *window;
@@ -367,7 +367,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
 #endif
   deleteMatchConsoles();
   if (!restarting_) {
-    saveCurrentMatchSettings(stageName, teamNames, numTeams);
+    saveCurrentMatchSettings(stageName, teamNames, numUserTeams);
   }
   if (engine_ != 0) {
     delete engine_;
@@ -388,7 +388,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     printStateListener_ = 0;
   }
   GuiPrintHandler *guiPrintHandler =
-      new GuiPrintHandler(stageConsole_, numTeams, menuBarMaker_);
+      new GuiPrintHandler(stageConsole_, menuBarMaker_);
   printStateListener_ = new PrintStateListener(guiPrintHandler);
   printHandler = guiPrintHandler;
 
@@ -399,10 +399,10 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   char *cacheDir = getCacheDirCopy();
   try {
     engine_->initStage(stageBaseDir_, stageName, cacheDir);
-    engine_->initShips(botsBaseDir_, teamNames, numTeams, cacheDir);
+    engine_->initShips(botsBaseDir_, teamNames, numUserTeams, cacheDir);
     teamConsoles_ = guiPrintHandler->getTeamConsoles();
 
-    for (int x = 0; x < numTeams; x++) {
+    for (int x = 0; x < engine_->getNumTeams(); x++) {
       teamConsoles_[x]->SetTitle(engine_->getTeam(x)->name);
       teamConsoles_[x]->println();
     }
@@ -491,10 +491,9 @@ void GuiManager::runCurrentMatch() {
   sf::RenderWindow *window = getMainWindow();
   try {
     while (window->isOpen() && !interrupted_ && !restarting_ && !quitting_) {
-      if (!paused_ && !restarting_ && !engine_->isGameOver()) {
-        while (engine_->getGameTime() < nextDrawTime_) {
-          engine_->processTick();
-        }
+      while (!paused_ && !restarting_ && !engine_->isGameOver()
+          && engine_->getGameTime() < nextDrawTime_) {
+        engine_->processTick();
       }
       
       while (!interrupted_ && !restarting_ && !quitting_
@@ -541,19 +540,17 @@ void GuiManager::runCurrentMatch() {
 }
 
 void GuiManager::resumeMatch() {
-  if (window_ != 0) {
-    if (interrupted_) {
-      gfxManager_->hideKeyboardShortcuts();
-      hideNewMatchDialog();
-      hidePackageShipDialog();
-      hidePackageStageDialog();
-      hidePackagingConsole();
-      hideErrorConsole();
-      runCurrentMatch();
-    }
-    while (restarting_) {
-      runNewMatch(currentStagePath_, currentTeamPaths_, currentNumTeams_);
-    }
+  if (interrupted_) {
+    gfxManager_->hideKeyboardShortcuts();
+    hideNewMatchDialog();
+    hidePackageShipDialog();
+    hidePackageStageDialog();
+    hidePackagingConsole();
+    hideErrorConsole();
+    runCurrentMatch();
+  }
+  while (restarting_) {
+    runNewMatch(currentStagePath_, currentTeamPaths_, currentNumTeams_);
   }
 }
 
@@ -564,6 +561,7 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
   while (window->pollEvent(event)) {
     if (event.type == sf::Event::Closed) {
       window->close();
+      quit();
     }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
@@ -673,6 +671,7 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
                 || (event.key.code == sf::Keyboard::W
                     && (event.key.control || event.key.system))))) {
       window->close();
+      newMatchDialog_->focusStageSelect();
     }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
@@ -754,6 +753,7 @@ void GuiManager::showStagePreview(const char *stageName) {
   unsigned int targetWidth = floor(windowScale * viewWidth);
   unsigned int targetHeight = floor(windowScale * viewHeight);
   if (previewWindow_ != 0) {
+    previewWindow_->close();
     delete previewWindow_;
     previewWindow_ = 0;
   }
@@ -763,6 +763,9 @@ void GuiManager::showStagePreview(const char *stageName) {
       sf::VideoMode(targetWidth, targetHeight), windowTitle, sf::Style::Default,
       sf::ContextSettings(0, 0, 16, 2, 0));
 
+  wxPoint newMatchPosition = newMatchDialog_->GetPosition();
+  previewWindow_->setPosition(sf::Vector2i(newMatchPosition.x + 100,
+                                           newMatchPosition.y + 50));
   Team **teams = new Team*[1];
   teams[0] = new Team;
   strcpy(teams[0]->name, "PreviewTeam");
@@ -838,16 +841,28 @@ void GuiManager::hideErrorConsole() {
   errorConsole_->Hide();
 }
 
+void GuiManager::dialogClosed() {
+  if (window_ == 0) {
+    listener_->onAllWindowsClosed();
+  } else {
+    resumeMatch();
+  }
+}
+
+void GuiManager::dialogEscaped() {
+  resumeMatch();
+}
+
 void GuiManager::newMatchInitialFocus() {
-  newMatchDialog_->initialFocus();
+  newMatchDialog_->focusStageSelect();
 }
 
 void GuiManager::packageShipInitialFocus() {
-  packageShipDialog_->initialFocus();
+  packageShipDialog_->focusItemSelect();
 }
 
 void GuiManager::packageStageInitialFocus() {
-  packageStageDialog_->initialFocus();
+  packageStageDialog_->focusItemSelect();
 }
 
 void GuiManager::saveCurrentMatchSettings(
@@ -968,8 +983,12 @@ void MatchRunner::refreshFiles() {
   guiManager_->loadBots();
 }
 
-void MatchRunner::cancel() {
-  guiManager_->resumeMatch();
+void MatchRunner::onClose() {
+  guiManager_->dialogClosed();
+}
+
+void MatchRunner::onEscape() {
+  guiManager_->dialogEscaped();
 }
 
 void MatchRunner::reloadBaseDirs() {
@@ -1031,8 +1050,12 @@ void ShipPackager::refreshFiles() {
   guiManager_->loadBots();
 }
 
-void ShipPackager::cancel() {
-  guiManager_->resumeMatch();
+void ShipPackager::onClose() {
+  guiManager_->dialogClosed();
+}
+
+void ShipPackager::onEscape() {
+  guiManager_->dialogEscaped();
 }
 
 StagePackager::StagePackager(GuiManager *guiManager, FileManager *fileManager,
@@ -1092,8 +1115,12 @@ void StagePackager::refreshFiles() {
   guiManager_->loadBots();
 }
 
-void StagePackager::cancel() {
-  guiManager_->resumeMatch();
+void StagePackager::onClose() {
+  guiManager_->dialogClosed();
+}
+
+void StagePackager::onEscape() {
+  guiManager_->dialogEscaped();
 }
 
 PackageReporter::PackageReporter(OutputConsole *packagingConsole) {

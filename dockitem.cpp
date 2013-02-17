@@ -85,3 +85,7 @@ bool DockItem::contains(int x, int y) {
   return (x >= left_ && x <= left_ + width_ && y >= top_
           && y <= top_  + height_);
 }
+
+int DockItem::getTop() {
+  return top_;
+}

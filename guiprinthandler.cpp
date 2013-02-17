@@ -23,23 +23,18 @@
 #include "outputconsole.h"
 #include "guiprinthandler.h"
 
-GuiPrintHandler::GuiPrintHandler(OutputConsole *stageConsole, int numTeams,
+GuiPrintHandler::GuiPrintHandler(OutputConsole *stageConsole,
                                  MenuBarMaker *menuBarMaker) {
   stageConsole_ = stageConsole;
-  teamConsoles_ = new OutputConsole*[numTeams];
-  teamStates_ = new lua_State*[numTeams];
-  numTeams_ = numTeams;
-  nextTeamIndex_ = 0;
   menuBarMaker_ = menuBarMaker;
+  numTeams_ = 0;
 }
 
 GuiPrintHandler::~GuiPrintHandler() {
-  for (int x = 0; x < nextTeamIndex_; x++) {
+  for (int x = 0; x < numTeams_; x++) {
     teamConsoles_[x]->Hide();
     delete teamConsoles_[x];
   }
-  delete teamConsoles_;
-  delete teamStates_;
 }
 
 void GuiPrintHandler::stagePrint(const char *text) {
@@ -47,7 +42,7 @@ void GuiPrintHandler::stagePrint(const char *text) {
 }
 
 void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
-  for (int x = 0; x < nextTeamIndex_; x++) {
+  for (int x = 0; x < numTeams_; x++) {
     if (teamStates_[x] == L) {
       teamConsoles_[x]->println(text);
       break;
@@ -56,14 +51,14 @@ void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
 }
 
 void GuiPrintHandler::registerTeam(lua_State *L, const char *filename) {
-  if (nextTeamIndex_ < numTeams_) {
-    teamStates_[nextTeamIndex_] = L;
+  if (numTeams_ < MAX_TEAM_CONSOLES) {
+    teamStates_[numTeams_] = L;
     OutputConsole *teamConsole = new OutputConsole(filename, menuBarMaker_);
     teamConsole->print("Ship control program loaded: ");
     teamConsole->println(filename);
     teamConsole->Hide();
-    teamConsoles_[nextTeamIndex_] = teamConsole;
-    nextTeamIndex_++;
+    teamConsoles_[numTeams_] = teamConsole;
+    numTeams_++;
   }
 }
 

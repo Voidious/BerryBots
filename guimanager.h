@@ -104,7 +104,6 @@ class GuiManager {
     void loadBots();
     bool isValidBotFile(const char *srcFilename, BerryBotsEngine *engine);
     void runNewMatch(const char *stageName, char **teamNames, int numTeams);
-    void resumeMatch();
     void processMainWindowEvents(sf::RenderWindow *window,
         GfxManager *gfxManager, int viewWidth, int viewHeight);
     void processPreviewWindowEvents(sf::RenderWindow *window,
@@ -121,7 +120,8 @@ class GuiManager {
     void hidePackageStageDialog();
     void hidePackagingConsole();
     void hideErrorConsole();
-    void hidePreview();
+    void dialogClosed();
+    void dialogEscaped();
     void newMatchInitialFocus();
     void packageShipInitialFocus();
     void packageStageInitialFocus();
@@ -137,6 +137,7 @@ class GuiManager {
     sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
+    void resumeMatch();
     void deleteMatchConsoles();
     void saveCurrentMatchSettings(
         const char *stageName, char **teamNames, int numTeams);
@@ -160,7 +161,8 @@ class MatchRunner : public NewMatchListener {
                             int numTeams);
     virtual void previewStage(const char *stagePath);
     virtual void refreshFiles();
-    virtual void cancel();
+    virtual void onClose();
+    virtual void onEscape();
     virtual void reloadBaseDirs();
 };
 
@@ -177,7 +179,8 @@ class ShipPackager : public PackageDialogListener {
     virtual void package(const char *botName, const char *version,
                          bool obfuscate);
     virtual void refreshFiles();
-    virtual void cancel();
+    virtual void onClose();
+    virtual void onEscape();
 };
 
 class StagePackager : public PackageDialogListener {
@@ -194,7 +197,8 @@ class StagePackager : public PackageDialogListener {
     virtual void package(const char *stageName, const char *version,
                          bool obfuscate);
     virtual void refreshFiles();
-    virtual void cancel();
+    virtual void onClose();
+    virtual void onEscape();
 };
 
 class PackageReporter : public PackagingListener {

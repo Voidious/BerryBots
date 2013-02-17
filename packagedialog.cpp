@@ -135,11 +135,11 @@ void PackageDialog::onActivate(wxActivateEvent &event) {
 }
 
 void PackageDialog::onShow(wxShowEvent &event) {
-  initialFocus();
+  focusItemSelect();
 }
 
 void PackageDialog::onClose(wxCommandEvent &event) {
-  listener_->cancel();
+  listener_->onClose();
 }
 
 void PackageDialog::onPackage(wxCommandEvent &event) {
@@ -180,7 +180,7 @@ void PackageDialog::refreshFiles() {
 }
 
 void PackageDialog::onEscape() {
-  listener_->cancel();
+  listener_->onEscape();
 }
 
 void PackageDialog::onSelectItem(wxUpdateUIEvent &event) {
@@ -227,7 +227,7 @@ void PackageDialog::setMnemonicLabels(bool modifierDown) {
   }
 }
 
-void PackageDialog::initialFocus() {
+void PackageDialog::focusItemSelect() {
   itemSelect_->SetFocus();
 }
 

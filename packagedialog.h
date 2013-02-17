@@ -29,7 +29,8 @@ class PackageDialogListener {
     virtual void package(const char *name, const char *version,
                          bool obfuscate) = 0;
     virtual void refreshFiles() = 0;
-    virtual void cancel() = 0;
+    virtual void onClose() = 0;
+    virtual void onEscape() = 0;
     virtual ~PackageDialogListener() {};
 };
 
@@ -70,7 +71,7 @@ class PackageDialog : public wxFrame {
     void validateButtons();
     void validateButtonSelectedListBox(wxButton *button, wxListBox *listBox);
     void setMnemonicLabels(bool modifierDown);
-    void initialFocus();
+    void focusItemSelect();
 };
 
 class PackageEventFilter : public wxEventFilter {

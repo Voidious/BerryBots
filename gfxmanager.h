@@ -191,6 +191,7 @@ class GfxManager {
     void drawDock(sf::RenderWindow *window, Stage *stage, bool paused);
     void drawDockItem(sf::RenderWindow *window, DockItem *dockItem);
     void drawGameOver(sf::RenderWindow *window, Stage *stage, char *winnerName);
+    int getShipDockTop(int index);
     double adjustX(double x);
     double adjustY(double x, double height);
     double adjustY(double x);

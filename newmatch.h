@@ -30,7 +30,8 @@ class NewMatchListener {
                             int numTeams) = 0;
     virtual void previewStage(const char *stagePath) = 0;
     virtual void refreshFiles() = 0;
-    virtual void cancel() = 0;
+    virtual void onClose() = 0;
+    virtual void onEscape() = 0;
     virtual void reloadBaseDirs() = 0;
     virtual ~NewMatchListener() {};
 };
@@ -102,7 +103,7 @@ class NewMatchDialog : public wxFrame {
     void validateButtonNonEmptyListBox(wxButton *button, wxListBox *listBox);
     void validateButtonSelectedListBox(wxButton *button, wxListBox *listBox);
     void setMnemonicLabels(bool modifierDown);
-    void initialFocus();
+    void focusStageSelect();
   private:
     void updateBaseDirLabels();
 };

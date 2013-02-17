@@ -29,13 +29,19 @@
 class DockText : public DockItem {
   sf::Text *drawableText_;
   bool disabled_;
+  bool hidden_;
+  int fontSize_;
 
   public:
     DockText(const char *text, sf::Font *font, int fontSize, int left, int top,
              int width, int height);
     ~DockText();
     void setDisabled(bool disabled);
+    bool hidden();
+    void setHidden(bool hidden);
+    void setTop(int top);
     virtual void setHighlighted(bool highlighted);
+  
 };
 
 #endif
