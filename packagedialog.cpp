@@ -30,7 +30,15 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
   menuBarMaker_ = menuBarMaker;
   menusInitialized_ = false;
   numItems_ = 0;
-  
+
+#ifdef __WINDOWS__
+  // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
+  wxFont windowFont = GetFont();
+  if (windowFont.GetPointSize() <= 9) {
+    SetFont(windowFont.Larger());
+  }
+#endif
+
   mainPanel_ = new wxPanel(this);
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
   mainSizer_->Add(mainPanel_);

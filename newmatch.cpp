@@ -31,6 +31,14 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   listener_ = listener;
   menuBarMaker_ = menuBarMaker;
 
+#ifdef __WINDOWS__
+  // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
+  wxFont windowFont = GetFont();
+  if (windowFont.GetPointSize() <= 9) {
+    SetFont(windowFont.Larger());
+  }
+#endif
+
   mainPanel_ = new wxPanel(this);
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
   mainSizer_->Add(mainPanel_);
