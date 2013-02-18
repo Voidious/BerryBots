@@ -88,6 +88,8 @@ GuiManager::GuiManager(GuiListener *listener) {
   paused_ = false;
   restarting_ = false;
   quitting_ = false;
+  previewing_ = false;
+  closingPreview_ = false;
   tpsFactor_ = 1;
   nextDrawTime_ = 1;
 }
@@ -728,6 +730,13 @@ void GuiManager::showErrorConsole() {
 }
 
 void GuiManager::showStagePreview(const char *stageName) {
+  if (previewing_) {
+    // Don't allow showStagePreview to execute recursively.
+    return;
+  }
+  previewing_ = true;
+  closingPreview_ = false;
+
   GfxEventHandler *gfxHandler = new GfxEventHandler();
   BerryBotsEngine *engine = new BerryBotsEngine(fileManager_);
   try {
@@ -791,7 +800,7 @@ void GuiManager::showStagePreview(const char *stageName) {
                                 ships, 1, resourcePath());
   previewGfxManager_->updateView(previewWindow_, viewWidth, viewHeight);
 
-  while (previewWindow_->isOpen()) {
+  while (!quitting_ && !closingPreview_ && previewWindow_->isOpen()) {
     processPreviewWindowEvents(previewWindow_, previewGfxManager_, viewWidth,
                                viewHeight);
     previewWindow_->clear();
@@ -800,6 +809,7 @@ void GuiManager::showStagePreview(const char *stageName) {
     previewWindow_->display();
   }
 
+  previewWindow_->close();
   previewGfxManager_->destroyBbGfx();
   delete gfxHandler;
   delete engine;
@@ -811,6 +821,11 @@ void GuiManager::showStagePreview(const char *stageName) {
 
   newMatchDialog_->Show();
   newMatchDialog_->Raise();
+  previewing_ = false;
+}
+
+void GuiManager::closeStagePreview() {
+  closingPreview_ = true;
 }
 
 void GuiManager::deleteMatchConsoles() {
@@ -850,7 +865,9 @@ void GuiManager::dialogClosed() {
 }
 
 void GuiManager::dialogEscaped() {
-  resumeMatch();
+  if (window_ != 0) {
+    resumeMatch();
+  }
 }
 
 void GuiManager::newMatchInitialFocus() {
@@ -989,6 +1006,10 @@ void MatchRunner::onClose() {
 
 void MatchRunner::onEscape() {
   guiManager_->dialogEscaped();
+}
+
+void MatchRunner::onActive() {
+  guiManager_->closeStagePreview();
 }
 
 void MatchRunner::reloadBaseDirs() {

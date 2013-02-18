@@ -58,7 +58,9 @@ DockItem::~DockItem() {
 
 void DockItem::setHighlights(int mouseX, int mouseY) {
   bool highlighted = contains(mouseX, mouseY);
-  setHighlighted(highlighted);
+  if (highlighted != highlighted_) {
+    setHighlighted(highlighted);
+  }
   highlighted_ = highlighted;
 }
 

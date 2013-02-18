@@ -91,6 +91,8 @@ class GuiManager {
   bool paused_;
   bool restarting_;
   bool quitting_;
+  bool previewing_;
+  bool closingPreview_;
   double tpsFactor_;
   double nextDrawTime_;
   
@@ -115,6 +117,7 @@ class GuiManager {
     void showTeamConsole(int teamIndex);
     void showErrorConsole();
     void showStagePreview(const char *stageName);
+    void closeStagePreview();
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
@@ -163,6 +166,7 @@ class MatchRunner : public NewMatchListener {
     virtual void refreshFiles();
     virtual void onClose();
     virtual void onEscape();
+    virtual void onActive();
     virtual void reloadBaseDirs();
 };
 
