@@ -38,7 +38,7 @@
 #include "printhandler.h"
 #include "cliprinthandler.h"
 #include "clipackagereporter.h"
-#include "tarzipper.h"
+#include "guizipper.h"
 
 BerryBotsEngine *engine = 0;
 Stage *stage = 0;
@@ -58,7 +58,7 @@ void printUsage() {
 }
 
 int main(int argc, char *argv[]) {
-  Zipper *zipper = new TarZipper();
+  Zipper *zipper = new GuiZipper();
   FileManager *fileManager = new FileManager(zipper);
   CliPackageReporter *packageReporter = new CliPackageReporter();
   fileManager->setListener(packageReporter);
