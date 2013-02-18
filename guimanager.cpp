@@ -92,6 +92,10 @@ GuiManager::GuiManager(GuiListener *listener) {
   closingPreview_ = false;
   tpsFactor_ = 1;
   nextDrawTime_ = 1;
+
+#ifdef __WINDOWS__
+  windowIcon_.loadFromFile("icon_32x32.png");
+#endif
 }
 
 GuiManager::~GuiManager() {
@@ -347,9 +351,14 @@ sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
   if (window_ != 0) {
     delete window_;
   }
+
   window_ = new sf::RenderWindow(sf::VideoMode(width, height), "BerryBots",
                                  sf::Style::Default,
                                  sf::ContextSettings(0, 0, 16, 2, 0));
+#ifdef __WINDOWS__
+  window_->setIcon(32, 32, windowIcon_.getPixelsPtr());
+#endif
+
   return window_;
 }
 
@@ -771,6 +780,9 @@ void GuiManager::showStagePreview(const char *stageName) {
   previewWindow_ = new sf::RenderWindow(
       sf::VideoMode(targetWidth, targetHeight), windowTitle, sf::Style::Default,
       sf::ContextSettings(0, 0, 16, 2, 0));
+#ifdef __WINDOWS__
+  previewWindow_->setIcon(32, 32, windowIcon_.getPixelsPtr());
+#endif
 
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
   previewWindow_->setPosition(sf::Vector2i(newMatchPosition.x + 100,

@@ -65,6 +65,7 @@ class GuiManager {
   GfxManager *gfxManager_;
   GfxManager *previewGfxManager_;
   GfxViewListener *viewListener_;
+  sf::Image windowIcon_;
   Zipper *zipper_;
   FileManager *fileManager_;
   NewMatchListener *newMatchListener_;

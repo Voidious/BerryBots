@@ -18,8 +18,10 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <iostream>
 #include <wx/wx.h>
 #include <wx/artprov.h>
+#include <wx/iconbndl.h>
 #include "bbwx.h"
 #include "basedir.h"
 #include "newmatch.h"
@@ -32,6 +34,8 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   menuBarMaker_ = menuBarMaker;
 
 #ifdef __WINDOWS__
+  SetIcon(wxIcon("berrybots.ico", wxBITMAP_TYPE_ICO));
+
   // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
   wxFont windowFont = GetFont();
   if (windowFont.GetPointSize() <= 9) {

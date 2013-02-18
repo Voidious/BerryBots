@@ -32,6 +32,8 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
   numItems_ = 0;
 
 #ifdef __WINDOWS__
+  SetIcon(wxIcon("berrybots.ico", wxBITMAP_TYPE_ICO));
+
   // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
   wxFont windowFont = GetFont();
   if (windowFont.GetPointSize() <= 9) {
