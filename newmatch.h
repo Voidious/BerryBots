@@ -74,7 +74,6 @@ class NewMatchDialog : public wxFrame {
     void clearBots();
     void addBot(char *bot);
     void onActivate(wxActivateEvent &event);
-    void onShow(wxShowEvent &event);
     void onClose(wxCommandEvent &event);
     void onAddBots(wxCommandEvent &event);
     void addSelectedBots();

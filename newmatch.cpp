@@ -146,7 +146,6 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 
   Connect(NEW_MATCH_ID, wxEVT_ACTIVATE,
           wxActivateEventHandler(NewMatchDialog::onActivate));
-  Connect(NEW_MATCH_ID, wxEVT_SHOW, wxShowEventHandler(NewMatchDialog::onShow));
   Connect(NEW_MATCH_ID, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(NewMatchDialog::onClose));
   Connect(addArrow_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
@@ -251,10 +250,6 @@ void NewMatchDialog::onActivate(wxActivateEvent &event) {
     menusInitialized_ = true;
   }
   SetSizerAndFit(mainSizer_);
-}
-
-void NewMatchDialog::onShow(wxShowEvent &event) {
-  focusStageSelect();
 }
 
 void NewMatchDialog::onClose(wxCommandEvent &event) {
