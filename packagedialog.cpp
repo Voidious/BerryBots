@@ -39,6 +39,8 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
   if (windowFont.GetPointSize() <= 9) {
     SetFont(windowFont.Larger());
   }
+#elif __WXGTK__
+  SetIcon(wxIcon("icon_128x128.png", wxBITMAP_TYPE_PNG));
 #endif
 
   mainPanel_ = new wxPanel(this);

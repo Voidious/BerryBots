@@ -41,6 +41,8 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   if (windowFont.GetPointSize() <= 9) {
     SetFont(windowFont.Larger());
   }
+#elif defined(__WXGTK__)
+  SetIcon(wxIcon("icon_128x128.png", wxBITMAP_TYPE_PNG));
 #endif
 
   mainPanel_ = new wxPanel(this);

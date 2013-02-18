@@ -11,4 +11,5 @@ zipper.cpp guizipper.cpp \
 -I./sfml/include -L./sfml-lib -lsfml-graphics -lsfml-window -lsfml-system -ldl \
 -o bbmain
 cp ./scripts/bb_linux.sh ./berrybots.sh
+cp ./icon.iconset/icon_128x128.png .
 chmod 755 ./berrybots.sh

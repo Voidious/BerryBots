@@ -67,6 +67,11 @@ wxIMPLEMENT_APP(BerryBotsApp);
 
 bool BerryBotsApp::OnInit() {
 
+#ifdef __WXGTK__
+  // Needed to load dock icons for wxWidgets dialogs.
+  wxImage::AddHandler(new wxPNGHandler);
+#endif
+
 #ifdef __WXOSX__
   // On OS X, it complains if we initialize our first SFML window after the
   // wxWidgets windows have set their menu bars or after the base dir selector,

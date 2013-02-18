@@ -95,6 +95,8 @@ GuiManager::GuiManager(GuiListener *listener) {
 
 #ifdef __WINDOWS__
   windowIcon_.loadFromFile("icon_32x32.png");
+#elif defined(__WXGTK__)
+  windowIcon_.loadFromFile("icon_128x128.png");
 #endif
 }
 
@@ -357,6 +359,8 @@ sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
                                  sf::ContextSettings(0, 0, 16, 2, 0));
 #ifdef __WINDOWS__
   window_->setIcon(32, 32, windowIcon_.getPixelsPtr());
+#elif defined(__WXGTK__)
+  window_->setIcon(128, 128, windowIcon_.getPixelsPtr());
 #endif
 
   return window_;
@@ -782,7 +786,10 @@ void GuiManager::showStagePreview(const char *stageName) {
       sf::ContextSettings(0, 0, 16, 2, 0));
 #ifdef __WINDOWS__
   previewWindow_->setIcon(32, 32, windowIcon_.getPixelsPtr());
+#elif defined(__WXGTK__)
+  previewWindow_->setIcon(128, 128, windowIcon_.getPixelsPtr());
 #endif
+
 
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
   previewWindow_->setPosition(sf::Vector2i(newMatchPosition.x + 100,

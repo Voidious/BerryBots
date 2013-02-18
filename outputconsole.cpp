@@ -27,11 +27,19 @@ OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
               wxDEFAULT_FRAME_STYLE) {
   output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0), wxSize(400, 350),
                           wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator);
+
+#ifdef __WINDOWS__
+  SetIcon(wxIcon("berrybots.ico", wxBITMAP_TYPE_ICO));
+#elif defined(__WXGTK__)
+  SetIcon(wxIcon("icon_128x128.png", wxBITMAP_TYPE_PNG));
+#endif
+
 #ifdef __WXOSX__
   defaultFontSize_ = 12;
 #else
   defaultFontSize_ = 10;
 #endif
+
   fontSize_ = defaultFontSize_;
   output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
 

@@ -18,4 +18,5 @@ menubarmaker.cpp \
 -lwx_baseu_xml-2.9 -lwx_baseu_net-2.9 -lwx_baseu-2.9 -lsfml-graphics \
 -lsfml-window -lsfml-system -ldl -o bbgui
 cp ./scripts/bb_gui_linux.sh ./berrybots.sh
+cp ./icon.iconset/icon_128x128.png .
 chmod 755 ./berrybots.sh
