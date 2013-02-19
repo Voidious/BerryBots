@@ -31,7 +31,7 @@ DockShape::DockShape(sf::Shape **shapes, int numShapes, int left, int top,
   drawables_ = (sf::Drawable**) shapes;
   numDrawables_ = numShapes;
   numAltDrawables_ = numDrawables_ + 1;
-  sf::Vector2f newOrigin(left + (width / 2), top + (height / 2));
+  sf::Vector2f newOrigin(left_ + (width_ / 2), top_ + (height_ / 2));
   for (int x = 0; x < numDrawables_; x++) {
     sf::Shape *shape = drawableShapes_[x];
     shape->move(newOrigin);
@@ -61,6 +61,22 @@ DockShape::DockShape(sf::Shape **shapes, int numShapes, int left, int top,
 
 DockShape::~DockShape() {
 
+}
+
+void DockShape::setTop(int top, int textTop) {
+  if (top != top_) {
+    int topDelta = top - top_;
+    top_ = top;
+    sf::Vector2f shift(0, topDelta);
+    for (int x = 0; x < numDrawables_; x++) {
+      sf::Shape *shape = drawableShapes_[x];
+      shape->move(shift);
+    }
+    sf::FloatRect shortcutRect = shortcutText_->getLocalBounds();
+    shortcutText_->setPosition(
+        (left_ + (width_ / 2)) - (shortcutRect.width / 2), top_ + height_);
+    hoverText_->setPosition(hoverText_->getPosition().x, textTop);
+  }
 }
 
 void DockShape::setHighlighted(bool highlighted) {

@@ -29,13 +29,13 @@ DockFader::DockFader(int left, int top, int width, int height,
     const char *hoverText, sf::Font *font, int fontSize, int textLeft,
     int textTop) : DockItem(left, top, width, height) {
   faderSlot_ = new sf::RectangleShape(sf::Vector2f(width, 2));
-  faderSlot_->setPosition(left_, top_ + (height / 2) - 1);
+  faderSlot_->setPosition(left_, top_ + (height_ / 2) - 1);
   faderCenter_ = new sf::RectangleShape(sf::Vector2f(2, (height / 2)));
-  faderCenter_->setPosition(left_ + (width / 2) - 1, top_ + (height / 4));
+  faderCenter_->setPosition(left_ + (width_ / 2) - 1, top_ + (height_ / 4));
   faderCenter_->setFillColor(sf::Color(125, 125, 125));
   faderCenter_->setOutlineThickness(0);
   faderKnob_ = new sf::RectangleShape(sf::Vector2f(4, (height / 2)));
-  faderKnob_->setPosition(left_ + (width / 2) - 2, top_ + (height / 4));
+  faderKnob_->setPosition(left_ + (width_ / 2) - 2, top_ + (height_ / 4));
 
   drawables_ = new sf::Drawable*[3];
   drawables_[0] = faderCenter_;
@@ -78,6 +78,16 @@ double DockFader::getVolume() {
     double volume = pow(VOLUME_BASE, linearVolume);
     return volume;
   }
+}
+
+void DockFader::setTop(int top, int textTop) {
+  if (top != top_) {
+    top_ = top;
+    faderSlot_->setPosition(left_, top_ + (height_ / 2) - 1);
+    faderCenter_->setPosition(left_ + (width_ / 2) - 1, top_ + (height_ / 4));
+    faderKnob_->setPosition(faderKnob_->getPosition().x, top_ + (height_ / 4));
+  }
+  hoverText_->setPosition(hoverText_->getPosition().x, textTop);
 }
 
 void DockFader::setHighlighted(bool highlighted) {

@@ -295,11 +295,6 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
       "Speed", &font_, DOCK_BUTTON_FONT_SIZE, 49, window->getSize().y - 165);
 }
 
-void GfxManager::reinitDockItems(sf::RenderWindow *window) {
-  destroyDockItems();
-  initDockItems(window);
-}
-
 void GfxManager::destroyBbGfx() {
   if (initialized_) {
     destroyDockItems();
@@ -406,7 +401,6 @@ void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
     dockView_.setViewport(sf::FloatRect(0.f, 0.f, dockViewportSize, 1.f));
     stageView_.setViewport(sf::FloatRect(dockViewportSize, 0.f,
                                         stageViewportSize, 1.f));
-    reinitDockItems(window);
   } else {
     stageView_.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
     stageView_.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
@@ -777,6 +771,11 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
   drawDockItem(window, packageShipButton_);
   drawDockItem(window, packageStageButton_);
   drawDockItem(window, stageButton_);
+
+  pauseButton_->setTop(window->getSize().y - 100, window->getSize().y - 55);
+  playButton_->setTop(window->getSize().y - 100, window->getSize().y - 55);
+  restartButton_->setTop(window->getSize().y - 100, window->getSize().y - 55);
+  tpsFader_->setTop(window->getSize().y - 140, window->getSize().y - 165);
   drawDockItem(window, paused ? playButton_ : pauseButton_);
   drawDockItem(window, restartButton_);
   drawDockItem(window, tpsFader_);

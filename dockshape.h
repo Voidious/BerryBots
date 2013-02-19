@@ -33,6 +33,7 @@ class DockShape : public DockItem {
               int textLeft, int textTop, const char *shortcut,
               int shortcutFontSize);
     ~DockShape();
+    void setTop(int top, int textTop);
     virtual void setHighlighted(bool highlighted);
 };
 

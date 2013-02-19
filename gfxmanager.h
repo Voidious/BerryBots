@@ -27,6 +27,7 @@
 #include "gfxeventhandler.h"
 #include "dockitem.h"
 #include "docktext.h"
+#include "dockshape.h"
 #include "dockfader.h"
 
 #define DRAW_SHIP_RADIUS        (SHIP_RADIUS - .7)
@@ -88,9 +89,9 @@ class GfxManager {
   DockItem *packageStageButton_;
   DockText *stageButton_;
   DockText **teamButtons_;
-  DockItem *pauseButton_;
-  DockItem *playButton_;
-  DockItem *restartButton_;
+  DockShape *pauseButton_;
+  DockShape *playButton_;
+  DockShape *restartButton_;
   DockFader *tpsFader_;
   GfxViewListener *listener_;
   Team **teams_;
@@ -163,7 +164,6 @@ class GfxManager {
     void hideKeyboardShortcuts();
   private:
     void initDockItems(sf::RenderWindow *window);
-    void reinitDockItems(sf::RenderWindow *window);
     void destroyDockItems();
     void drawWalls(sf::RenderWindow *window);
     void drawZones(sf::RenderWindow *window);

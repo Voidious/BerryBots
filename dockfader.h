@@ -41,6 +41,7 @@ class DockFader : public DockItem {
     ~DockFader();
     void setKnob(int x);
     double getVolume();
+    void setTop(int top, int textTop);
     virtual void setHighlighted(bool highlighted);
 };
 
