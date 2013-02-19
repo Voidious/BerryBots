@@ -237,11 +237,11 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
       "Package Stage", &font_, DOCK_BUTTON_FONT_SIZE, 9, 50, "T",
       DOCK_SHORTCUT_FONT_SIZE);
 
-  stageButton_ =
-      new DockText(stage_->getName(), &font_, 16, 10, 80, DOCK_SIZE - 10, 40);
+  stageButton_ = new DockText(stage_->getName(), &font_, SHIP_STAGE_FONT_SIZE,
+                              10, 80, DOCK_SIZE - 10, 40);
   teamButtons_ = new DockText*[numTeams_];
   for (int x = 0; x < numTeams_; x++) {
-    teamButtons_[x] = new DockText(teams_[x]->name, &font_, 16,
+    teamButtons_[x] = new DockText(teams_[x]->name, &font_, SHIP_STAGE_FONT_SIZE,
                                    10, getShipDockTop(x), DOCK_SIZE - 10, 30);
   }
 
@@ -818,7 +818,7 @@ void GfxManager::drawDockItem(sf::RenderWindow *window, DockItem *dockItem) {
 }
 
 int GfxManager::getShipDockTop(int index) {
-  return 125 + (index * 35);
+  return 130 + (index * 35);
 }
 
 double GfxManager::adjustX(double x) {

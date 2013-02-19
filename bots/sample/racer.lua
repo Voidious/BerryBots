@@ -10,7 +10,7 @@ function init(shipArg, worldArg)
   world = worldArg
   ship:setName("Racer")
   ship:setShipColor(255, 0, 0)
-  ship:setLaserColor(0, 0, 0)
+  ship:setLaserColor(255, 0, 0)
   ship:setThrusterColor(255, 255, 0)
 end
 

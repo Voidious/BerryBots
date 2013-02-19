@@ -7,7 +7,7 @@ function configure(stageBuilder)
   stageBuilder:setBattleMode(true)
   stageBuilder:addStart(300, 50)
   for i=1,8 do
-    stageBuilder:addShip("sample.shooterdrone.lua")
+    stageBuilder:addShip("shooterdrone.lua")
   end
 end
 

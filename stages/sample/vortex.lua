@@ -34,7 +34,7 @@ function configure(stageBuilder)
   stageBuilder:addStart(start.x, start.y)
 
   for i = 1, MAX_METEORS do
-    stageBuilder:addShip("sample.vortexmeteor.lua")
+    stageBuilder:addShip("vortexmeteor.lua")
   end
 end
 

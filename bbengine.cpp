@@ -299,8 +299,10 @@ void BerryBotsEngine::initStage(const char *stageBaseDir, const char *stageName,
                   PCALL_STAGE);
 
   stage_->buildBaseWalls();
-  char *stageDisplayName = FileManager::stripExtension(stageFilename_);
+  char *stageRootName = FileManager::stripExtension(stageFilename_);
+  char *stageDisplayName = FileManager::parseFilename(stageRootName);
   stage_->setName(stageDisplayName); // TODO: let stage set name like ship
+  delete stageRootName;
   delete stageDisplayName;
   stageConfigureComplete_ = true;
 }
@@ -418,9 +420,11 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     lua_pop(teamState, 2);
 
     char *shipFilenameRoot = FileManager::stripExtension(shipFilename);
-    int nameLength = (int) strlen(shipFilenameRoot);
-    strncpy(team->name, shipFilenameRoot, nameLength);
+    char *defaultShipName = FileManager::parseFilename(shipFilenameRoot);
+    int nameLength = (int) strlen(defaultShipName);
+    strncpy(team->name, defaultShipName, nameLength);
     team->name[nameLength] = '\0';
+    delete shipFilename;
     delete shipFilenameRoot;
     team->stageShip = stageShip;
 
@@ -464,10 +468,11 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
       properties->thrusterR = 255;
       properties->engine = this;
   
-      strncpy(properties->name, shipFilename, nameLength);
+      strncpy(properties->name, defaultShipName, nameLength);
       properties->name[nameLength] = '\0';
       initShipRound(ship);
     }
+    delete defaultShipName;
 
     teams_[x] = team;
     for (int y = 0; y < numStateShips; y++) {
@@ -496,7 +501,6 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     if (shipDir != 0) {
       delete shipDir;
     }
-    delete shipFilename;
     delete stateShips;
   }
 

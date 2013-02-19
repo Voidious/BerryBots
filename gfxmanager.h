@@ -61,6 +61,7 @@
 #define DOCK_ENERGY_LENGTH       DOCK_SIZE - 40
 #define DOCK_BUTTON_FONT_SIZE     20
 #define DOCK_SHORTCUT_FONT_SIZE   16
+#define SHIP_STAGE_FONT_SIZE      16
 
 #define SPARK_COLOR      sf::Color(40, 100, 255, 255);
 #define TORPEDO_COLOR    sf::Color(255, 89, 38, 255);

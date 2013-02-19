@@ -9,7 +9,7 @@ function configure(stageBuilder)
   stageBuilder:setSize(400, 700)
   stageBuilder:addStart(200, 50)
   for i = 1, 12 do
-    stageBuilder:addShip("sample.driftdrone.lua")
+    stageBuilder:addShip("driftdrone.lua")
     stageBuilder:addStart(100 + (math.random() * 200),
         100 + (math.floor((i - 1) / 3) * 150) + (((i - 1) % 3) * 25))
   end

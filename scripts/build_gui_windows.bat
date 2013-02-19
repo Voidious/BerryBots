@@ -25,6 +25,7 @@ menubarmaker.cpp bbres.o ^
 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32 -luuid -lrpcrt4 ^
 -ladvapi32 -lwsock32 -lsfml-graphics -lsfml-window -lsfml-system ^
 -o BerryBots
+del bbres.o
 
 copy .\sfml-lib\sfml-graphics-2.dll .
 copy .\sfml-lib\sfml-system-2.dll .

@@ -59,7 +59,7 @@ function updateEnemyShipData(enemyShips, sensors)
     for i, shipDestroyed in pairs(sensors:shipDestroyedEvents()) do
       local name = shipDestroyed.shipName
       if (shipData[name] ~= nil) then
-        shipData[shipDestroyed.shipName].alive = false
+        shipData[name].alive = false
       end
     end
   end
