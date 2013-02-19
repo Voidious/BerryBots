@@ -71,6 +71,14 @@ std::string getTmpDir(void) {
   }
 }
 
+std::string getApidocPath(void) {
+  if (loadCfg()) {
+    return [cfg.apidocPath UTF8String];
+  } else {
+    exit(0);
+  }
+}
+
 void setRootDir(std::string newRootDir) {
   loadCfg();
   [cfg setRootDir:[NSString stringWithUTF8String:newRootDir.c_str()]];

@@ -109,6 +109,7 @@ class FileManager {
         const char *stageFilename, const char *stageShipName);
     static char* stripExtension(const char *filename);
     static bool isDirectory(const char *filePath);
+    static bool fileExists(const char *filename);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);
@@ -126,7 +127,6 @@ class FileManager {
     void crawlFiles(lua_State *L, const char *startFile,
                     BerryBotsEngine *engine)
                     throw (InvalidLuaFilenameException*, LuaException*);
-    bool fileExists(const char *filename);
     void createDirectory(const char *filename);
     void createDirectoryIfNecessary(const char *dir);
     void recursiveDelete(const char *fileToDelete);

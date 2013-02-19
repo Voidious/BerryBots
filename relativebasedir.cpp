@@ -50,6 +50,10 @@ std::string getTmpDir() {
   return getFullPath(".tmp");
 }
 
+std::string getApidocPath() {
+  return getFullPath("apidoc/index.html");
+}
+
 void setRootDir(std::string newRootDir) {
   // no-op
 }

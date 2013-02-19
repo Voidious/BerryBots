@@ -27,6 +27,7 @@
 @synthesize botsDir;
 @synthesize cacheDir;
 @synthesize tmpDir;
+@synthesize apidocPath;
 
 bool fileExists(const char *filename) {
   FILE *testFile = fopen(filename, "r");
@@ -81,6 +82,7 @@ bool fileExists(const char *filename) {
       self.botsDir = [temp objectForKey:@"Bots dir"];
       self.cacheDir = [temp objectForKey:@"Cache dir"];
       self.tmpDir = [temp objectForKey:@"Tmp dir"];
+      self.apidocPath = [temp objectForKey:@"Apidoc Path"];
       if ([fileManager fileExistsAtPath:self.stageDir]
           && [fileManager fileExistsAtPath:self.botsDir]) {
         selectRoot = false;
@@ -104,6 +106,8 @@ bool fileExists(const char *filename) {
                    newRootDir, @CACHE_SUBDIR];
   self.tmpDir = [NSString stringWithFormat:@"%@/%@",
                  newRootDir, @TMP_SUBDIR];
+  self.apidocPath = [NSString stringWithFormat:@"%@/%@",
+                     newRootDir, @"apidoc/index.html"];
   [self save];
 
   NSString *srcPath = [[NSBundle mainBundle] resourcePath];
@@ -177,9 +181,11 @@ bool fileExists(const char *filename) {
       [rootPath stringByAppendingPathComponent:@"config.plist"];
   NSDictionary *plistDict =
       [NSDictionary dictionaryWithObjects:
-       [NSArray arrayWithObjects: stageDir, botsDir, cacheDir, tmpDir, nil]
+       [NSArray arrayWithObjects:stageDir, botsDir, cacheDir, tmpDir,
+                                 apidocPath, nil]
         forKeys:[NSArray arrayWithObjects:
-                 @"Stage dir", @"Bots dir", @"Cache dir", @"Tmp dir", nil]];
+                 @"Stage dir", @"Bots dir", @"Cache dir", @"Tmp dir",
+                 @"Apidoc Path", nil]];
   NSData *plistData =
       [NSPropertyListSerialization dataFromPropertyList:plistDict
           format:NSPropertyListXMLFormat_v1_0
