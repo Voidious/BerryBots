@@ -1,0 +1,261 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+<h1>Modules</h1>
+<ul>
+
+	<li>
+		<a href="../modules/Admin.html">Admin</a>
+	</li>
+
+	<li>
+		<a href="../modules/Sensors.html">Sensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/Ship.html">Ship</a>
+	</li>
+
+	<li>
+		<a href="../modules/ShipControl.html">ShipControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageBuilder.html">StageBuilder</a>
+	</li>
+
+	<li><strong>StageControl</strong></li>
+	
+	<li>
+		<a href="../modules/StageSensors.html">StageSensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/World.html">World</a>
+	</li>
+
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>StageControl</code></h1>
+
+<p>The API to be implemented by a stage control program. Defines the settings and behavior of a stage.</p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#configure">configure</a>&nbsp;(stageBuilder)</td>
+	<td class="summary">Configures the stage settings.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#init">init</a>&nbsp;(ships, world, admin)</td>
+	<td class="summary">Initializes the stage.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#run">run</a>&nbsp;(stageSensors)</td>
+	<td class="summary">Executes stage code each tick.</td>
+	</tr>
+
+</table>
+
+
+
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="configure"></a><strong>configure</strong>&nbsp;(stageBuilder)</dt>
+<dd>
+Configures the stage settings. Passes a builder object used to define static configuration of the stage, such as dimensions, walls, zones, and starting points.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  stageBuilder: The builder used to configure the stage. Can only be used during execution of this function.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/StageBuilder.html">
+		StageBuilder
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="init"></a><strong>init</strong>&nbsp;(ships, world, admin)</dt>
+<dd>
+Initializes the stage. Passes references to all ships, the world, and an administrator object used to modify the state of the stage and ships.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ships: A table of all ships loaded for this game.
+	</li>
+	
+	<li>
+	  world: A userdata object used to query information about the game world, such as stage size, locations of walls and zones, and current time.
+	</li>
+	
+	<li>
+	  admin: A userdata object used to perform administrative operations only available to the stage program, such as modifying a ship's speed, location, or energy, destroying or reviving ships, ending a round or the game, and deciding on a winner.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/Ship.html">
+		Ship
+	</a>
+	
+	<li><a href="../modules/World.html">
+		World
+	</a>
+	
+	<li><a href="../modules/Admin.html">
+		Admin
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="run"></a><strong>run</strong>&nbsp;(stageSensors)</dt>
+<dd>
+Executes stage code each tick. Allows the stage to monitor the game, modify the stage and ships, and decide when the game ends and who wins.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  stageSensors: A userdata object that can be queried for information on all events that took place this tick.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/StageSensors.html">
+		StageSensors
+	</a>
+	
+</ul>
+
+</dd>
+
+
+</dl>
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

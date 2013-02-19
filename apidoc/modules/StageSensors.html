@@ -1,0 +1,667 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+<h1>Modules</h1>
+<ul>
+
+	<li>
+		<a href="../modules/Admin.html">Admin</a>
+	</li>
+
+	<li>
+		<a href="../modules/Sensors.html">Sensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/Ship.html">Ship</a>
+	</li>
+
+	<li>
+		<a href="../modules/ShipControl.html">ShipControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageBuilder.html">StageBuilder</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageControl.html">StageControl</a>
+	</li>
+
+	<li><strong>StageSensors</strong></li>
+	
+	<li>
+		<a href="../modules/World.html">World</a>
+	</li>
+
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>StageSensors</code></h1>
+
+<p>The stage's sensors, which provide information about all events that occurred this tick.</p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#laserHitShipEvents">laserHitShipEvents</a>&nbsp;()</td>
+	<td class="summary">Details of all lasers hitting ships.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#shipDestroyedEvents">shipDestroyedEvents</a>&nbsp;()</td>
+	<td class="summary">Details of all ships destroyed.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#shipFiredLaserEvents">shipFiredLaserEvents</a>&nbsp;()</td>
+	<td class="summary">Details of all lasers fired.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#shipFiredTorpedoEvents">shipFiredTorpedoEvents</a>&nbsp;()</td>
+	<td class="summary">Details of all torpedos fired.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#shipHitShipEvents">shipHitShipEvents</a>&nbsp;()</td>
+	<td class="summary">Details of all ship-ship collisions.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#shipHitWallEvents">shipHitWallEvents</a>&nbsp;()</td>
+	<td class="summary">Details of all ship-wall collisions.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#torpedoHitShipEvents">torpedoHitShipEvents</a>&nbsp;()</td>
+	<td class="summary">Details of all torpedos hitting ships.</td>
+	</tr>
+
+</table>
+
+
+
+
+<h2>Tables</h2>
+<table class="table_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#LaserHitShipEvent">LaserHitShipEvent</a></td>
+	<td class="summary">Details of a laser hitting a ship.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#ShipDestroyedEvent">ShipDestroyedEvent</a></td>
+	<td class="summary">Details of a ship being destroyed.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#ShipFiredLaserEvent">ShipFiredLaserEvent</a></td>
+	<td class="summary">Details of a ship firing a laser.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#ShipFiredTorpedoEvent">ShipFiredTorpedoEvent</a></td>
+	<td class="summary">Details of a ship firing a torpedo.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#ShipHitShipEvent">ShipHitShipEvent</a></td>
+	<td class="summary">Details of a ship-ship collision.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#ShipHitWallEvent">ShipHitWallEvent</a></td>
+	<td class="summary">Details of a ship hitting the wall.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#TorpedoHitShipEvent">TorpedoHitShipEvent</a></td>
+	<td class="summary">Details of a torpedo hitting a ship.</td>
+	</tr>
+
+</table>
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="laserHitShipEvents"></a><strong>laserHitShipEvents</strong>&nbsp;()</dt>
+<dd>
+Details of all lasers hitting ships. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table of all <code>LaserHitShipEvent</code>s from this tick.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/StageSensors.html#LaserHitShipEvent">
+		LaserHitShipEvent
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="shipDestroyedEvents"></a><strong>shipDestroyedEvents</strong>&nbsp;()</dt>
+<dd>
+Details of all ships destroyed. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table of all <code>ShipDestroyedEvent</code>s from this tick.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/StageSensors.html#ShipDestroyedEvent">
+		ShipDestroyedEvent
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="shipFiredLaserEvents"></a><strong>shipFiredLaserEvents</strong>&nbsp;()</dt>
+<dd>
+Details of all lasers fired. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table of all <code>ShipFiredLaserEvent</code>s from this tick.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="">
+		ShipFiredLaserevent
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="shipFiredTorpedoEvents"></a><strong>shipFiredTorpedoEvents</strong>&nbsp;()</dt>
+<dd>
+Details of all torpedos fired. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table of all <code>ShipFiredTorpedoEvent</code>s from this tick.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="">
+		ShipFiredTorpedoevent
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="shipHitShipEvents"></a><strong>shipHitShipEvents</strong>&nbsp;()</dt>
+<dd>
+Details of all ship-ship collisions. Two versions of each event are reported, with "hitting" and "target" information reversed. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table of all <code>ShipHitShipEvent</code>s tick.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/StageSensors.html#ShipHitShipEvent">
+		ShipHitShipEvent
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="shipHitWallEvents"></a><strong>shipHitWallEvents</strong>&nbsp;()</dt>
+<dd>
+Details of all ship-wall collisions. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table of all <code>ShipHitWallEvent</code>s from this tick.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/StageSensors.html#ShipHitWallEvent">
+		ShipHitWallEvent
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="torpedoHitShipEvents"></a><strong>torpedoHitShipEvents</strong>&nbsp;()</dt>
+<dd>
+Details of all torpedos hitting ships. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table of all <code>TorpedoHitShipEvent</code>s from this tick.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/StageSensors.html#TorpedoHitShipEvent">
+		TorpedoHitShipEvent
+	</a>
+	
+</ul>
+
+</dd>
+
+
+</dl>
+
+
+
+
+<h2><a name="tables"></a>Tables</h2>
+<dl class="table">
+
+<dt><a name="LaserHitShipEvent"></a><strong>LaserHitShipEvent</strong></dt>
+<dd>Details of a laser hitting a ship. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  time: The time of the laser-ship collision.
+	</li>
+	
+	<li>
+	  srcName: The name of the ship that fired the laser.
+	</li>
+	
+	<li>
+	  targetName: The name of the ship that was hit.
+	</li>
+	
+	<li>
+	  laserX: The x coordinate of the hitting laser.
+	</li>
+	
+	<li>
+	  laserY: The y coordinate of the hitting laser.
+	</li>
+	
+	<li>
+	  laserHeading: The angle at which the laser was traveling.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="ShipDestroyedEvent"></a><strong>ShipDestroyedEvent</strong></dt>
+<dd>Details of a ship being destroyed. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  time: The time that the ship was destroyed.
+	</li>
+	
+	<li>
+	  shipName: The name of the ship that was destroyed.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="ShipFiredLaserEvent"></a><strong>ShipFiredLaserEvent</strong></dt>
+<dd>Details of a ship firing a laser. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  time: The time that the ship fired a laser.
+	</li>
+	
+	<li>
+	  shipName: The name of the ship that fired a laser.
+	</li>
+	
+	<li>
+	  shipX: The x coordinate of the ship when it fired a laser.
+	</li>
+	
+	<li>
+	  shipY: The y coordinate of the ship when it fired a laser.
+	</li>
+	
+	<li>
+	  laserHeading: The angle at which the laser was fired.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="ShipFiredTorpedoEvent"></a><strong>ShipFiredTorpedoEvent</strong></dt>
+<dd>Details of a ship firing a torpedo. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  time: The time that the ship fired a torpedo.
+	</li>
+	
+	<li>
+	  shipName: The name of the ship that fired a torpedo.
+	</li>
+	
+	<li>
+	  shipX: The x coordinate of the ship when it fired a torpedo.
+	</li>
+	
+	<li>
+	  shipY: The y coordinate of the ship when it fired a torpedo.
+	</li>
+	
+	<li>
+	  torpedoHeading: The angle at which the torpedo was fired.
+	</li>
+	
+	<li>
+	  torpedoDistance: The distance the torpedo was fired.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="ShipHitShipEvent"></a><strong>ShipHitShipEvent</strong></dt>
+<dd>Details of a ship-ship collision. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  time: The time of the ship-ship collision.
+	</li>
+	
+	<li>
+	  targetName: The name of the ship that was hit.
+	</li>
+	
+	<li>
+	  targetX: The x coordinate of the ship that was hit.
+	</li>
+	
+	<li>
+	  targetY: The y coordinate of the ship that was hit.
+	</li>
+	
+	<li>
+	  hittingName: The name of the hitting ship.
+	</li>
+	
+	<li>
+	  hittingX: The x coordinate of the hitting ship.
+	</li>
+	
+	<li>
+	  hittingY: The y coordinate of the hitting ship.
+	</li>
+	
+	<li>
+	  inAngle: The angle from the hitting ship to the target ship.
+	</li>
+	
+	<li>
+	  inForce: The magnitude of force that the hitting ship applied to the target ship, altering its momentum.
+	</li>
+	
+	<li>
+	  outAngle: The angle from the target ship to the hitting ship.
+	</li>
+	
+	<li>
+	  outForce: The magnitude of force that the target ship applied to the hitting ship, altering its momentum.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="ShipHitWallEvent"></a><strong>ShipHitWallEvent</strong></dt>
+<dd>Details of a ship hitting the wall. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  time: The time of the ship-wall collision.
+	</li>
+	
+	<li>
+	  shipName: The name of the ship that hit the wall.
+	</li>
+	
+	<li>
+	  shipX: The x coordinate of the ship where it hit the wall.
+	</li>
+	
+	<li>
+	  shipY: The y coordinate of the ship where it hit the wall.
+	</li>
+	
+	<li>
+	  bounceAngle: The angle at which the collision exerted force against the ship.
+	</li>
+	
+	<li>
+	  bounceForce: The mangnitude of force that the wall collision applied to the target ship, altering its momentum.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="TorpedoHitShipEvent"></a><strong>TorpedoHitShipEvent</strong></dt>
+<dd>Details of a torpedo hitting a ship. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  time: The time of the torpedo-ship collision.
+	</li>
+	
+	<li>
+	  srcName: The name of the ship that fired the torpedo.
+	</li>
+	
+	<li>
+	  targetName: The name of the ship that was hit.
+	</li>
+	
+	<li>
+	  hitAngle: The angle from the blast center to the target ship.
+	</li>
+	
+	<li>
+	  hitForce: The magnitude of force that the torpedo blast applied to the target ship, altering its momentum.
+	</li>
+	
+	<li>
+	  hitDamage: The damage done by the torpedo blast to the target ship, decreasing its energy.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+</dl>
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

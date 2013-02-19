@@ -29,9 +29,9 @@
 }
 
 - (Boolean) hasPlist;
-- (void) loadPlist;
+- (bool) loadPlist;
 - (void) setRootDir:(NSString *) newRootDir;
-- (void) chooseNewRootDir;
+- (bool) chooseNewRootDir;
 - (void) save;
 @property (copy, nonatomic) NSString *stageDir;
 @property (copy, nonatomic) NSString *botsDir;

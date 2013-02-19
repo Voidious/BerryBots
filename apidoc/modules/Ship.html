@@ -1,0 +1,739 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+<h1>Modules</h1>
+<ul>
+
+	<li>
+		<a href="../modules/Admin.html">Admin</a>
+	</li>
+
+	<li>
+		<a href="../modules/Sensors.html">Sensors</a>
+	</li>
+
+	<li><strong>Ship</strong></li>
+	
+	<li>
+		<a href="../modules/ShipControl.html">ShipControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageBuilder.html">StageBuilder</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageControl.html">StageControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageSensors.html">StageSensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/World.html">World</a>
+	</li>
+
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>Ship</code></h1>
+
+<p>A ship controlled by a user written program loaded at run time.</p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#alive">alive</a>&nbsp;()</td>
+	<td class="summary">Whether the ship is currently alive.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#energy">energy</a>&nbsp;()</td>
+	<td class="summary">The ship's energy.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#fireLaser">fireLaser</a>&nbsp;(heading)</td>
+	<td class="summary">Fires a laser at the given angle.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#fireThruster">fireThruster</a>&nbsp;(angle, force)</td>
+	<td class="summary">Fires the ship's thruster, pushing it in the given direction and altering its speed and/or heading.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#fireTorpedo">fireTorpedo</a>&nbsp;(heading, distance)</td>
+	<td class="summary">Fires a torpedo the given distance at the given angle.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#heading">heading</a>&nbsp;()</td>
+	<td class="summary">The ship's heading, in radians (0 is east, pi / 2 is north).</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#hitShip">hitShip</a>&nbsp;()</td>
+	<td class="summary">Whether the ship hit another ship on the previous tick.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#hitWall">hitWall</a>&nbsp;()</td>
+	<td class="summary">Whether the ship hit a wall on the previous tick.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#isStageShip">isStageShip</a>&nbsp;()</td>
+	<td class="summary">Whether the ship was loaded by the stage.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#laserGunHeat">laserGunHeat</a>&nbsp;()</td>
+	<td class="summary">The heat of the ship's laser gun.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#name">name</a>&nbsp;()</td>
+	<td class="summary">The name of the ship.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setLaserColor">setLaserColor</a>&nbsp;(r, g, b)</td>
+	<td class="summary">Sets the color of the ship's lasers, in RGB (0-255).</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setName">setName</a>&nbsp;(name)</td>
+	<td class="summary">Sets the name of the ship.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setShipColor">setShipColor</a>&nbsp;(r, g, b)</td>
+	<td class="summary">Sets the color of the ship's hull, in RGB (0-255).</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setTeamName">setTeamName</a>&nbsp;(teamName)</td>
+	<td class="summary">Sets the name of the ship's team.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setThrusterColor">setThrusterColor</a>&nbsp;(r, g, b)</td>
+	<td class="summary">Sets the color of the ship's thruster, in RGB (0-255).</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#speed">speed</a>&nbsp;()</td>
+	<td class="summary">The ship's speed.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#teamName">teamName</a>&nbsp;()</td>
+	<td class="summary">The name of the team this ship is part of.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#torpedoGunHeat">torpedoGunHeat</a>&nbsp;()</td>
+	<td class="summary">The heat of the ship's torpedo gun.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#x">x</a>&nbsp;()</td>
+	<td class="summary">The x coordinate of the ship (higher is to the right).</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#y">y</a>&nbsp;()</td>
+	<td class="summary">The y coordinate of the ship (higher is to the top).</td>
+	</tr>
+
+</table>
+
+
+
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="alive"></a><strong>alive</strong>&nbsp;()</dt>
+<dd>
+Whether the ship is currently alive. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the ship is alive, <code>false</code> otherwise.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="energy"></a><strong>energy</strong>&nbsp;()</dt>
+<dd>
+The ship's energy. A ship with energy <= 0 is destroyed. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The ship's energy
+
+
+
+</dd>
+
+
+
+
+<dt><a name="fireLaser"></a><strong>fireLaser</strong>&nbsp;(heading)</dt>
+<dd>
+Fires a laser at the given angle. All lasers move at the same speed (25), do the same amount of damage (4), and cool at the same rate (5 ticks). <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  heading: The angle at which to fire the laser, in radians (0 is east, pi / 2 is north).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the laser was fired, <code>false</code> otherwise (if battle mode is disabled, if the laser gun was not cool, or if it was disabled by the stage).
+
+
+
+</dd>
+
+
+
+
+<dt><a name="fireThruster"></a><strong>fireThruster</strong>&nbsp;(angle, force)</dt>
+<dd>
+Fires the ship's thruster, pushing it in the given direction and altering its speed and/or heading. This command only affects one tick - if you don't call it again the next tick, your ship will keep moving with the same speed and heading.<br/><br/> Note that momentum is cumulative. From a dead stop, your ship will move in the given direction, but if your ship is already moving, the thruster force is added to your current movement vector. If you want to keep things simple and always move in straight lines, you can stop moving in one direction before starting to move in another: <code>ship:fireThruster(ship:heading() + math.pi, ship:speed())</code> <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  angle: The angle the thruster will push the ship in, in radians (0 is east, pi / 2 is north).
+	</li>
+	
+	<li>
+	  force: The force of the thruster push, 0 <= force <= 1. A force of 1 alters the ship's speed by 1 along the axis of the thruster angle.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the thruster was fired, <code>false</code> otherwise (if the thruster has been disabled by the stage).
+
+
+
+</dd>
+
+
+
+
+<dt><a name="fireTorpedo"></a><strong>fireTorpedo</strong>&nbsp;(heading, distance)</dt>
+<dd>
+Fires a torpedo the given distance at the given angle. All torpedos move at the same speed (12), do the same amount of damage, and cool at the same rate (100 ticks). Torpedos move through walls and ships until they reach the specified distance. They inflict damage and knockback on all ships within the blast radius (100), doing the most damage and knockback to ships near the center of the blast.<br/><br/> The damage and knockback formulas are both:<br/> <code>30 / (1 - square(distance to blast center / blast radius))</code> <br/><br/> Ships near the center of the blast radius take nearly full damage, while ships at a distance of 50 take 25% damage and knockback.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  heading: The angle at which to fire the torpedo, in radians (0 is east, pi / 2 is north).
+	</li>
+	
+	<li>
+	  distance: The distance to fire the torpedo.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the torpedo was fired, <code>false</code> otherwise (if battle mode is disabled, if the torpedo gun was not cool, or if it was disabled by the stage).
+
+
+
+</dd>
+
+
+
+
+<dt><a name="heading"></a><strong>heading</strong>&nbsp;()</dt>
+<dd>
+The ship's heading, in radians (0 is east, pi / 2 is north). <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The ship's heading.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="hitShip"></a><strong>hitShip</strong>&nbsp;()</dt>
+<dd>
+Whether the ship hit another ship on the previous tick. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the ship hit another ship on the previous tick, <code>false</code> otherwise.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="hitWall"></a><strong>hitWall</strong>&nbsp;()</dt>
+<dd>
+Whether the ship hit a wall on the previous tick. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the ship hit a wall on the previous tick, <code>false</code> otherwise.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="isStageShip"></a><strong>isStageShip</strong>&nbsp;()</dt>
+<dd>
+Whether the ship was loaded by the stage. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the ship is part of the stage, <code>false</code> otherwise.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="laserGunHeat"></a><strong>laserGunHeat</strong>&nbsp;()</dt>
+<dd>
+The heat of the ship's laser gun. A heat of 0 means the gun can be fired, a heat of 3 means the gun can be fired 3 ticks from now.<br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The heat of the ship's laser gun.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="name"></a><strong>name</strong>&nbsp;()</dt>
+<dd>
+The name of the ship. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The name of the ship.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setLaserColor"></a><strong>setLaserColor</strong>&nbsp;(r, g, b)</dt>
+<dd>
+Sets the color of the ship's lasers, in RGB (0-255). <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  r: The amount of red, from 0 to 255.
+	</li>
+	
+	<li>
+	  g: The amount of green, from 0 to 255.
+	</li>
+	
+	<li>
+	  b: The amount of blue, from 0 to 255.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setName"></a><strong>setName</strong>&nbsp;(name)</dt>
+<dd>
+Sets the name of the ship. This function can only be called during <code>init</code>.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the ship.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setShipColor"></a><strong>setShipColor</strong>&nbsp;(r, g, b)</dt>
+<dd>
+Sets the color of the ship's hull, in RGB (0-255). <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  r: The amount of red, from 0 to 255.
+	</li>
+	
+	<li>
+	  g: The amount of green, from 0 to 255.
+	</li>
+	
+	<li>
+	  b: The amount of blue, from 0 to 255.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setTeamName"></a><strong>setTeamName</strong>&nbsp;(teamName)</dt>
+<dd>
+Sets the name of the ship's team. This function can only be called during <code>init</code>.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  teamName: The name of the team this ship is part of.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setThrusterColor"></a><strong>setThrusterColor</strong>&nbsp;(r, g, b)</dt>
+<dd>
+Sets the color of the ship's thruster, in RGB (0-255). <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  r: The amount of red, from 0 to 255.
+	</li>
+	
+	<li>
+	  g: The amount of green, from 0 to 255.
+	</li>
+	
+	<li>
+	  b: The amount of blue, from 0 to 255.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="speed"></a><strong>speed</strong>&nbsp;()</dt>
+<dd>
+The ship's speed. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The ship's speed.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="teamName"></a><strong>teamName</strong>&nbsp;()</dt>
+<dd>
+The name of the team this ship is part of. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The name of the team this ship is part of.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="torpedoGunHeat"></a><strong>torpedoGunHeat</strong>&nbsp;()</dt>
+<dd>
+The heat of the ship's torpedo gun. A heat of 0 means the gun can be fired, a heat of 50 means the gun can be fired 50 ticks from now.<br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The heat of the ship's torpedo gun.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="x"></a><strong>x</strong>&nbsp;()</dt>
+<dd>
+The x coordinate of the ship (higher is to the right). <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The x coordinate of the ship.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="y"></a><strong>y</strong>&nbsp;()</dt>
+<dd>
+The y coordinate of the ship (higher is to the top). <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The y coordinate of the ship.
+
+
+
+</dd>
+
+
+</dl>
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

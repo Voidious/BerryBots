@@ -54,7 +54,7 @@ bool fileExists(const char *filename) {
   return false;
 }
 
-- (void) loadPlist {
+- (bool) loadPlist {
   if (self) {
     NSString *errorDesc = nil;
     NSPropertyListFormat format;
@@ -87,9 +87,12 @@ bool fileExists(const char *filename) {
       }
     }
     if (selectRoot) {
-      [self chooseNewRootDir];
+      return [self chooseNewRootDir];
+    } else {
+      return true;
     }
   }
+  return false;
 }
 
 - (void) setRootDir:(NSString *) newRootDir {
@@ -126,10 +129,21 @@ bool fileExists(const char *filename) {
         NSLog(@"Error: %@", dError);
       }
     }
+
+    NSString *apidocDir =
+        [NSString stringWithFormat:@"%@/%@", newRootDir, @"apidoc"];
+    if (![fileManager isReadableFileAtPath:apidocDir]) {
+      NSString *apidocSrc = [NSString stringWithFormat:@"%@/apidoc", srcPath];
+      int success =
+          [fileManager copyItemAtPath:apidocSrc toPath:apidocDir error:&dError];
+      if (success != YES) {
+        NSLog(@"Error: %@", dError);
+      }
+    }
   }
 }
 
-- (void) chooseNewRootDir {
+- (bool) chooseNewRootDir {
   NSOpenPanel* openDlg = [NSOpenPanel openPanel];
   [openDlg setCanChooseFiles:NO];
   [openDlg setCanChooseDirectories:YES];
@@ -142,6 +156,9 @@ bool fileExists(const char *filename) {
       NSLog(@"File path: %@", [[files objectAtIndex:i] path]);
     }
     [self setRootDir:[[files objectAtIndex:0] path]];
+    return true;
+  } else {
+    return false;
   }
 }
 

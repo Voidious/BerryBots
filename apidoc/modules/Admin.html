@@ -1,0 +1,779 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+<h1>Modules</h1>
+<ul>
+
+	<li><strong>Admin</strong></li>
+	
+	<li>
+		<a href="../modules/Sensors.html">Sensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/Ship.html">Ship</a>
+	</li>
+
+	<li>
+		<a href="../modules/ShipControl.html">ShipControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageBuilder.html">StageBuilder</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageControl.html">StageControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageSensors.html">StageSensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/World.html">World</a>
+	</li>
+
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>Admin</code></h1>
+
+<p>Administrative operations for a stage control program.</p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#destroyShip">destroyShip</a>&nbsp;(ship)</td>
+	<td class="summary">Destroys a ship.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#drawText">drawText</a>&nbsp;(x, y, text)</td>
+	<td class="summary">Draws text on the screen.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#gameOver">gameOver</a>&nbsp;()</td>
+	<td class="summary">Ends the match.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#moveShip">moveShip</a>&nbsp;(ship, x, y)</td>
+	<td class="summary">Moves a ship.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#reviveShip">reviveShip</a>&nbsp;(ship)</td>
+	<td class="summary">Revives a ship.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#roundOver">roundOver</a>&nbsp;()</td>
+	<td class="summary">Ends a round.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#sendEvent">sendEvent</a>&nbsp;(ship, event)</td>
+	<td class="summary">Sends a custom event to the target ship.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setShipEnergy">setShipEnergy</a>&nbsp;(ship, energy)</td>
+	<td class="summary">Sets a ship's energy.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setShipEnergyEnabled">setShipEnergyEnabled</a>&nbsp;(ship, enabled)</td>
+	<td class="summary">Sets whether a ship's energy can be modified.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setShipHeading">setShipHeading</a>&nbsp;(ship, heading)</td>
+	<td class="summary">Sets a ship's heading, in radians (0 is east, pi / 2 is north).</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setShipLaserEnabled">setShipLaserEnabled</a>&nbsp;(ship, enabled)</td>
+	<td class="summary">Sets whether a ship's laser gun is enabled.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setShipShowName">setShipShowName</a>&nbsp;(ship, showName)</td>
+	<td class="summary">Sets whether a ship's name is drawn on screen.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setShipSpeed">setShipSpeed</a>&nbsp;(ship, speed)</td>
+	<td class="summary">Sets a ship's speed.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setShipThrusterEnabled">setShipThrusterEnabled</a>&nbsp;(ship, enabled)</td>
+	<td class="summary">Sets whether a ship's thruster is enabled.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setShipTorpedoEnabled">setShipTorpedoEnabled</a>&nbsp;(ship, enabled)</td>
+	<td class="summary">Sets whether a ship's torpedo gun is enabled.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setWinner">setWinner</a>&nbsp;(name)</td>
+	<td class="summary">Sets the name of the ship or team that has won the match.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#shipDamage">shipDamage</a>&nbsp;(ship)</td>
+	<td class="summary">Returns the amount of damage the given ship has done to enemy ships.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#shipFriendlyDamage">shipFriendlyDamage</a>&nbsp;(ship)</td>
+	<td class="summary">Returns the amount of damage the given ship has done to friendly ships (self or teammates).</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#shipFriendlyKills">shipFriendlyKills</a>&nbsp;(ship)</td>
+	<td class="summary">Returns the number of friendly ships (self or teammates) the given ship has killed.<br/><br/> </td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#shipKills">shipKills</a>&nbsp;(ship)</td>
+	<td class="summary">Returns the number of enemy ships the given ship has killed.</td>
+	</tr>
+
+</table>
+
+
+
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="destroyShip"></a><strong>destroyShip</strong>&nbsp;(ship)</dt>
+<dd>
+Destroys a ship. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to destroy.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="drawText"></a><strong>drawText</strong>&nbsp;(x, y, text)</dt>
+<dd>
+Draws text on the screen. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  x: The x coordinate of the left side of the text.
+	</li>
+	
+	<li>
+	  y: The y coordinate of the bottom of the text.
+	</li>
+	
+	<li>
+	  text: The text to draw on the screen.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="gameOver"></a><strong>gameOver</strong>&nbsp;()</dt>
+<dd>
+Ends the match. The <code>gameOver</code> function is called on any ship control program that defines it.<br/><br/>
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="moveShip"></a><strong>moveShip</strong>&nbsp;(ship, x, y)</dt>
+<dd>
+Moves a ship. If the specified location overlaps any walls or other ships, it is shifted randomly until it doesn't. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to move.
+	</li>
+	
+	<li>
+	  x: The x coordinate of the ship's new location.
+	</li>
+	
+	<li>
+	  y: The y coordinate of the ship's new location.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="reviveShip"></a><strong>reviveShip</strong>&nbsp;(ship)</dt>
+<dd>
+Revives a ship. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to revive. The ship's energy is set to full (100).
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="roundOver"></a><strong>roundOver</strong>&nbsp;()</dt>
+<dd>
+Ends a round. All torpedos and lasers are removed from the stage, all ships are revived and moved to new start locations by the same configuration as at the start of a match. The <code>roundOver</code> function is called on any ship control program that defines it. <br/><br/>
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="sendEvent"></a><strong>sendEvent</strong>&nbsp;(ship, event)</dt>
+<dd>
+Sends a custom event to the target ship. This event can be any Lua value - nil, boolean, number, string, or a table containing any of these values, including nested tables.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to send the event to.
+	</li>
+	
+	<li>
+	  event: The value to send as an event.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setShipEnergy"></a><strong>setShipEnergy</strong>&nbsp;(ship, energy)</dt>
+<dd>
+Sets a ship's energy. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to modify.
+	</li>
+	
+	<li>
+	  energy: The new energy of the ship.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setShipEnergyEnabled"></a><strong>setShipEnergyEnabled</strong>&nbsp;(ship, enabled)</dt>
+<dd>
+Sets whether a ship's energy can be modified. (Default: <code>false</code>, or <code>true</code> if battle mode is enabled.)<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to modify.
+	</li>
+	
+	<li>
+	  enabled: <code>true</code> to enable energy tracking for the ship, <code>false</code> otherwise.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setShipHeading"></a><strong>setShipHeading</strong>&nbsp;(ship, heading)</dt>
+<dd>
+Sets a ship's heading, in radians (0 is east, pi / 2 is north). The ship will have the chance to fire its thruster once more before its position is next updated. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to modify.
+	</li>
+	
+	<li>
+	  heading: The new heading of the ship.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setShipLaserEnabled"></a><strong>setShipLaserEnabled</strong>&nbsp;(ship, enabled)</dt>
+<dd>
+Sets whether a ship's laser gun is enabled. (Default: <code>false</code>, or <code>true</code> if battle mode is enabled.)<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to modify.
+	</li>
+	
+	<li>
+	  enabled: <code>true</code> to enable the ship's laser gun, <code>false</code> otherwise.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setShipShowName"></a><strong>setShipShowName</strong>&nbsp;(ship, showName)</dt>
+<dd>
+Sets whether a ship's name is drawn on screen. For stage ships, it's often preferable to hide the name. (Default: <code>true</code>.)<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to modify.
+	</li>
+	
+	<li>
+	  showName: <code>true</code> to show the ship's name, <code>false</code> otherwise.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setShipSpeed"></a><strong>setShipSpeed</strong>&nbsp;(ship, speed)</dt>
+<dd>
+Sets a ship's speed. The ship will have the chance to fire its thruster once more before its position is next updated. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to modify.
+	</li>
+	
+	<li>
+	  speed: The new speed of the ship.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setShipThrusterEnabled"></a><strong>setShipThrusterEnabled</strong>&nbsp;(ship, enabled)</dt>
+<dd>
+Sets whether a ship's thruster is enabled. (Default: <code>true</code>.)<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to modify.
+	</li>
+	
+	<li>
+	  enabled: <code>true</code> to enable the ship's thruster, <code>false</code> otherwise.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setShipTorpedoEnabled"></a><strong>setShipTorpedoEnabled</strong>&nbsp;(ship, enabled)</dt>
+<dd>
+Sets whether a ship's torpedo gun is enabled. (Default: <code>false</code>, or <code>true</code> if battle mode is enabled.)<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to modify.
+	</li>
+	
+	<li>
+	  enabled: <code>true</code> to enable the ship's torpedo gun, <code>false</code> otherwise.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setWinner"></a><strong>setWinner</strong>&nbsp;(name)</dt>
+<dd>
+Sets the name of the ship or team that has won the match. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the winning team or ship.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="shipDamage"></a><strong>shipDamage</strong>&nbsp;(ship)</dt>
+<dd>
+Returns the amount of damage the given ship has done to enemy ships. The amount of damage is divided by the total energy a ship starts with. If a ship inflicts full damage to a ship, that would be 1.0 damage.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to query.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="shipFriendlyDamage"></a><strong>shipFriendlyDamage</strong>&nbsp;(ship)</dt>
+<dd>
+Returns the amount of damage the given ship has done to friendly ships (self or teammates). The amount of damage is divided by the total energy a ship starts with. If a ship inflicts full damage to a ship, that would be 1.0 damage.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to query.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="shipFriendlyKills"></a><strong>shipFriendlyKills</strong>&nbsp;(ship)</dt>
+<dd>
+Returns the number of friendly ships (self or teammates) the given ship has killed.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to query.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="shipKills"></a><strong>shipKills</strong>&nbsp;(ship)</dt>
+<dd>
+Returns the number of enemy ships the given ship has killed. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to query.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+</dl>
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

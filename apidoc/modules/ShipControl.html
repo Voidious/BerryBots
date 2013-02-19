@@ -1,0 +1,325 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+<h1>Modules</h1>
+<ul>
+
+	<li>
+		<a href="../modules/Admin.html">Admin</a>
+	</li>
+
+	<li>
+		<a href="../modules/Sensors.html">Sensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/Ship.html">Ship</a>
+	</li>
+
+	<li><strong>ShipControl</strong></li>
+	
+	<li>
+		<a href="../modules/StageBuilder.html">StageBuilder</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageControl.html">StageControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageSensors.html">StageSensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/World.html">World</a>
+	</li>
+
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>ShipControl</code></h1>
+
+<p>The API to be implemented by a ship control program. Defines the behavior of a ship or a team of ships.</p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#gameOver">gameOver</a>&nbsp;()</td>
+	<td class="summary">(optional) Indicates the game has ended.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#init">init</a>&nbsp;(ships, world)</td>
+	<td class="summary">Initializes a ship control program.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#roundOver">roundOver</a>&nbsp;()</td>
+	<td class="summary">(optional) Indicates a round has ended.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#run">run</a>&nbsp;(enemyShips, sensors)</td>
+	<td class="summary">Executes ship control code each tick.</td>
+	</tr>
+
+</table>
+
+
+
+
+<h2>Tables</h2>
+<table class="table_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#EnemyShip">EnemyShip</a></td>
+	<td class="summary">Information about an enemy ship that's visible to the ships controlled by this program.<br/> </td>
+	</tr>
+
+</table>
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="gameOver"></a><strong>gameOver</strong>&nbsp;()</dt>
+<dd>
+(optional) Indicates the game has ended. Called by the stage on the final tick of the game. No further action can be taken in the game world, but data can be printed about the match, or if file system access has been enabled, data could be written to disk.
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="init"></a><strong>init</strong>&nbsp;(ships, world)</dt>
+<dd>
+Initializes a ship control program. Passes references to <code>ships</code> and <code>world</code> objects. These can be used to query information about the state of the game world, information about ships under this program's control, and to issue commands to those ships. Only called once at the start of the match. Some ship initialization functions, like <code>setName</code>, can only be called from init.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ships: A userdata object representing a ship, or if team size > 1, a table of ship userdata objects.
+	</li>
+	
+	<li>
+	  world: A userdata object used to query information about the game world, such as stage size, locations of walls and zones, and current time.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/Ship.html">
+		Ship
+	</a>
+	
+	<li><a href="../modules/World.html">
+		World
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="roundOver"></a><strong>roundOver</strong>&nbsp;()</dt>
+<dd>
+(optional) Indicates a round has ended. Called by the stage each time a round ends. The meaning of this depends on the stage. In the sample battle stage library, it is called between a fixed number of rounds, but not after the last round when <code>gameOver</code> is called. Other game types could have a variable number of rounds.
+
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="run"></a><strong>run</strong>&nbsp;(enemyShips, sensors)</dt>
+<dd>
+Executes ship control code each tick. Called once per tick to give the program a chance to process information about the game and issue commands to its ship(s). Only called if one or more of the ships controlled by this program are still alive.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  enemyShips: A table with information about the enemy ships that are visible to the ships controlled by this program. Each entry is a table with information about an enemy ship.
+	</li>
+	
+	<li>
+	  sensors: A userdata object that can be queried for information on events that involved this program's ships on the previous tick.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/ShipControl.html#EnemyShip">
+		EnemyShip
+	</a>
+	
+	<li><a href="../modules/Sensors.html">
+		Sensors
+	</a>
+	
+</ul>
+
+</dd>
+
+
+</dl>
+
+
+
+
+<h2><a name="tables"></a>Tables</h2>
+<dl class="table">
+
+<dt><a name="EnemyShip"></a><strong>EnemyShip</strong></dt>
+<dd>Information about an enemy ship that's visible to the ships controlled by this program.<br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  x: The x coordinate (higher is to the right).
+	</li>
+	
+	<li>
+	  y: The y coordinate (higher is to the top).
+	</li>
+	
+	<li>
+	  heading: Angle the enemy ship is traveling, in radians (0 is east, pi / 2 is north).
+	</li>
+	
+	<li>
+	  speed: Speed at which the enemy ship is traveling.
+	</li>
+	
+	<li>
+	  energy: Amount of energy the enemy ship has.
+	</li>
+	
+	<li>
+	  isStageShip: Whether the ship was loaded by the stage.
+	</li>
+	
+	<li>
+	  name: Name of the enemy ship.
+	</li>
+	
+	<li>
+	  teamName: Name of the enemy ship's team.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+</dl>
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

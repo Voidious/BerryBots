@@ -1,0 +1,414 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+<h1>Modules</h1>
+<ul>
+
+	<li>
+		<a href="../modules/Admin.html">Admin</a>
+	</li>
+
+	<li>
+		<a href="../modules/Sensors.html">Sensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/Ship.html">Ship</a>
+	</li>
+
+	<li>
+		<a href="../modules/ShipControl.html">ShipControl</a>
+	</li>
+
+	<li><strong>StageBuilder</strong></li>
+	
+	<li>
+		<a href="../modules/StageControl.html">StageControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageSensors.html">StageSensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/World.html">World</a>
+	</li>
+
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>StageBuilder</code></h1>
+
+<p>A builder used to configure the stage before the game starts. These functions do nothing after the stage's <code>configure</code> function finishes.</p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#addShip">addShip</a>&nbsp;(shipFilename)</td>
+	<td class="summary">Adds a ship to the stage.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#addStart">addStart</a>&nbsp;(x, y)</td>
+	<td class="summary">Adds a start location to the stage.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#addWall">addWall</a>&nbsp;(left, bottom, width, height)</td>
+	<td class="summary">Adds a wall to the stage.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#addZone">addZone</a>&nbsp;(left, bottom, width, height, tag)</td>
+	<td class="summary">Adds a zone to the stage.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setBattleMode">setBattleMode</a>&nbsp;(enabled)</td>
+	<td class="summary">Sets whether battle mode is enabled.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setSize">setSize</a>&nbsp;(width, height)</td>
+	<td class="summary">Sets the width and height of the stage.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setTeamSize">setTeamSize</a>&nbsp;(teamSize)</td>
+	<td class="summary">Sets the team size.</td>
+	</tr>
+
+</table>
+
+
+
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="addShip"></a><strong>addShip</strong>&nbsp;(shipFilename)</dt>
+<dd>
+Adds a ship to the stage. The ship's control program must be in or below the directory of the stage program. The <code>isStageShip</code> function (in <code>Ship</code>) or property (in <code>EnemyShip</code>) allow stages and ships to see which ships are part of the stage. Otherwise, they function exactly like all other ships. A stage loaded ship is generally designed to function as part of the gameplay of the stage.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  shipFilename: The path/filename of the ship program, relative to the stage program.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/ShipControl.html">
+		ShipControl
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="addStart"></a><strong>addStart</strong>&nbsp;(x, y)</dt>
+<dd>
+Adds a start location to the stage. Start locations are given to ships in the same order that they are added, at the start of the game and each round. In the absence of a pre-defined start location, a ship is placed in a random location. In either case, if the ship's location intersects with a wall, the location is shifted randomly until it doesn't.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  x: The x coordinate of the start location.
+	</li>
+	
+	<li>
+	  y: The y coordinate of the start location.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="addWall"></a><strong>addWall</strong>&nbsp;(left, bottom, width, height)</dt>
+<dd>
+Adds a wall to the stage. Lasers stop at walls, ships bounce off of walls, and ships cannot see ships or events through walls. Torpedos travel through walls.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  left: The x coordinate of the left side of the wall.
+	</li>
+	
+	<li>
+	  bottom: The y coordinate of the bottom side of the wall.
+	</li>
+	
+	<li>
+	  width: The width of the wall.
+	</li>
+	
+	<li>
+	  height: The height of the wall.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="">
+		Wall
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="addZone"></a><strong>addZone</strong>&nbsp;(left, bottom, width, height, tag)</dt>
+<dd>
+Adds a zone to the stage. Zones are displayed on the screen and ships are told where all zones are at the start of the game. Zones have no pre-defined behavior; a stage can use a zone in any way it likes as part of its gameplay. For instance, touching a zone is the goal of a maze stage, while it destroys a ship on a joust stage. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  left: The x coordinate of the left side of the zone.
+	</li>
+	
+	<li>
+	  bottom: The y coordinate of the bottom side of the zone.
+	</li>
+	
+	<li>
+	  width: The width of the zone.
+	</li>
+	
+	<li>
+	  height: The height of the zone.
+	</li>
+	
+	<li>
+	  tag: (optional) The tag string associated with this zone.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="">
+		Zone
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="setBattleMode"></a><strong>setBattleMode</strong>&nbsp;(enabled)</dt>
+<dd>
+Sets whether battle mode is enabled. (Default: <code>false</code>.) When battle mode is disabled, laser guns, torpedo guns, and energy tracking are all disabled. Ships can only move around, and ships are only destroyed or revived directly by the stage program.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  enabled: <code>true</code> to enable battle mode, <code>false</code> to disable battle mode.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setSize"></a><strong>setSize</strong>&nbsp;(width, height)</dt>
+<dd>
+Sets the width and height of the stage. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  width: The width of the stage.
+	</li>
+	
+	<li>
+	  height: The height of the stage.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setTeamSize"></a><strong>setTeamSize</strong>&nbsp;(teamSize)</dt>
+<dd>
+Sets the team size. Each user loaded ship program is given this many ships. Stage ship programs are loaded with one ship, regardless of team size.<br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  teamSize: The number of ships to assign to each user ship control program.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/ShipControl.html">
+		ShipControl
+	</a>
+	
+</ul>
+
+</dd>
+
+
+</dl>
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

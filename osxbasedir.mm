@@ -25,11 +25,11 @@
 
 OsxCfg *cfg = 0;
 
-void loadCfg() {
+bool loadCfg() {
   if (cfg == 0) {
     cfg = [[OsxCfg alloc] init];
   }
-  [cfg loadPlist];
+  return [cfg loadPlist];
 }
 
 bool isConfigured() {
@@ -40,23 +40,35 @@ bool isConfigured() {
 }
 
 std::string getStageDir(void) {
-  loadCfg();
-  return [cfg.stageDir UTF8String];
+  if (loadCfg()) {
+    return [cfg.stageDir UTF8String];
+  } else {
+    exit(0);
+  }
 }
 
 std::string getBotsDir(void) {
-  loadCfg();
-  return [cfg.botsDir UTF8String];
+  if (loadCfg()) {
+    return [cfg.botsDir UTF8String];
+  } else {
+    exit(0);
+  }
 }
 
 std::string getCacheDir(void) {
-  loadCfg();
-  return [cfg.cacheDir UTF8String];
+  if (loadCfg()) {
+    return [cfg.cacheDir UTF8String];
+  } else {
+    exit(0);
+  }
 }
 
 std::string getTmpDir(void) {
-  loadCfg();
-  return [cfg.tmpDir UTF8String];
+  if (loadCfg()) {
+    return [cfg.tmpDir UTF8String];
+  } else {
+    exit(0);
+  }
 }
 
 void setRootDir(std::string newRootDir) {

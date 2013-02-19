@@ -1,0 +1,662 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>Reference</title>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>LuaDoc</h1>
+<ul>
+	
+	<li><a href="../index.html">Index</a></li>
+	
+</ul>
+
+
+<!-- Module list -->
+
+<h1>Modules</h1>
+<ul>
+
+	<li>
+		<a href="../modules/Admin.html">Admin</a>
+	</li>
+
+	<li>
+		<a href="../modules/Sensors.html">Sensors</a>
+	</li>
+
+	<li>
+		<a href="../modules/Ship.html">Ship</a>
+	</li>
+
+	<li>
+		<a href="../modules/ShipControl.html">ShipControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageBuilder.html">StageBuilder</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageControl.html">StageControl</a>
+	</li>
+
+	<li>
+		<a href="../modules/StageSensors.html">StageSensors</a>
+	</li>
+
+	<li><strong>World</strong></li>
+	
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>World</code></h1>
+
+<p>The game world.</p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#height">height</a>&nbsp;()</td>
+	<td class="summary">The height of the stage.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#inAnyZone">inAnyZone</a>&nbsp;(ship)</td>
+	<td class="summary">Checks whether a ship is currently in any stage zone.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#inZone">inZone</a>&nbsp;(ship, tag)</td>
+	<td class="summary">Checks whether a ship is currently in a specific stage zone.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#numShips">numShips</a>&nbsp;()</td>
+	<td class="summary">The total number of ships in the game.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#teamSize">teamSize</a>&nbsp;()</td>
+	<td class="summary">The number of ships assigned to each user loaded ship program.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#time">time</a>&nbsp;()</td>
+	<td class="summary">The current time of the game.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#touchedAnyZone">touchedAnyZone</a>&nbsp;(ship)</td>
+	<td class="summary">Checks whether a ship's path from last tick to this tick intersects any part of any stage zone.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#touchedZone">touchedZone</a>&nbsp;(ship, tag)</td>
+	<td class="summary">Checks whether a ship's path from last tick to this tick intersects any part of a specific stage zone.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#walls">walls</a>&nbsp;()</td>
+	<td class="summary">Returns a table with all the walls on the stage, including the outer walls.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#width">width</a>&nbsp;()</td>
+	<td class="summary">The width of the stage.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#zones">zones</a>&nbsp;()</td>
+	<td class="summary">Returns a table with all the zones on the stage.</td>
+	</tr>
+
+</table>
+
+
+
+
+<h2>Tables</h2>
+<table class="table_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#Constants">Constants</a></td>
+	<td class="summary">Constants that help define the game rules and physics.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#Wall">Wall</a></td>
+	<td class="summary">Specifies the position and size of a wall.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#Zone">Zone</a></td>
+	<td class="summary">Specifies the position, size, and tag of a zone.</td>
+	</tr>
+
+</table>
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="height"></a><strong>height</strong>&nbsp;()</dt>
+<dd>
+The height of the stage. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The height of the stage.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="inAnyZone"></a><strong>inAnyZone</strong>&nbsp;(ship)</dt>
+<dd>
+Checks whether a ship is currently in any stage zone. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to check.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the ship is in any stage zone, <code>false</code> otherwise.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/Ship.html">
+		Ship
+	</a>
+	
+	<li><a href="../modules/World.html#Zone">
+		Zone
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="inZone"></a><strong>inZone</strong>&nbsp;(ship, tag)</dt>
+<dd>
+Checks whether a ship is currently in a specific stage zone. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to check.
+	</li>
+	
+	<li>
+	  tag: The tag of the zone to check.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the ship is in the stage zone with the given tag, <code>false</code> otherwise.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/Ship.html">
+		Ship
+	</a>
+	
+	<li><a href="../modules/World.html#Zone">
+		Zone
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="numShips"></a><strong>numShips</strong>&nbsp;()</dt>
+<dd>
+The total number of ships in the game. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The total number of ships.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="teamSize"></a><strong>teamSize</strong>&nbsp;()</dt>
+<dd>
+The number of ships assigned to each user loaded ship program. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The number of ships assigned to each team.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="time"></a><strong>time</strong>&nbsp;()</dt>
+<dd>
+The current time of the game. Time increases by one each tick and does not reset between rounds. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The current time.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="touchedAnyZone"></a><strong>touchedAnyZone</strong>&nbsp;(ship)</dt>
+<dd>
+Checks whether a ship's path from last tick to this tick intersects any part of any stage zone. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to check.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the ship touches any stage zone, <code>false</code> otherwise.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/Ship.html">
+		Ship
+	</a>
+	
+	<li><a href="../modules/World.html#Zone">
+		Zone
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="touchedZone"></a><strong>touchedZone</strong>&nbsp;(ship, tag)</dt>
+<dd>
+Checks whether a ship's path from last tick to this tick intersects any part of a specific stage zone. <br/><br/>
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship to check.
+	</li>
+	
+	<li>
+	  tag: The tag of the zone to check.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the ship touches the stage zone with the given tag, <code>false</code> otherwise.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/Ship.html">
+		Ship
+	</a>
+	
+	<li><a href="../modules/World.html#Zone">
+		Zone
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="walls"></a><strong>walls</strong>&nbsp;()</dt>
+<dd>
+Returns a table with all the walls on the stage, including the outer walls. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table with details of all the walls on the stage.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/World.html#Wall">
+		Wall
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="width"></a><strong>width</strong>&nbsp;()</dt>
+<dd>
+The width of the stage. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The width of the stage.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="zones"></a><strong>zones</strong>&nbsp;()</dt>
+<dd>
+Returns a table with all the zones on the stage. <br/><br/>
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table with details of all the zones on the stage.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/World.html#Zone">
+		Zone
+	</a>
+	
+</ul>
+
+</dd>
+
+
+</dl>
+
+
+
+
+<h2><a name="tables"></a>Tables</h2>
+<dl class="table">
+
+<dt><a name="Constants"></a><strong>Constants</strong></dt>
+<dd>Constants that help define the game rules and physics. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  SHIP_RADIUS: The radius of a ship.
+	</li>
+	
+	<li>
+	  LASER_SPEED: The speed at which a laser travels each tick.
+	</li>
+	
+	<li>
+	  LASER_HEAT: The number of ticks it takes for a laser gun to cool down before it can fire again.
+	</li>
+	
+	<li>
+	  LASER_DAMAGE: The amount of energy depleted by a laser when it hits.
+	</li>
+	
+	<li>
+	  TORPEDO_SPEED: The speed at which a torpedo travels each tick.
+	</li>
+	
+	<li>
+	  TORPEDO_HEAT: The number of ticks it takes for a torpedo gun to cool down before it can fire again.
+	</li>
+	
+	<li>
+	  TORPEDO_BLAST_RADIUS: The radius of the blast caused by a torpedo explosion. Any ship closer to the blast center will take damage.
+	</li>
+	
+	<li>
+	  TORPEDO_BLAST_FORCE: The magnitude of force from a torpedo blast to a ship located exactly at the center of a blast.
+	</li>
+	
+	<li>
+	  TORPEDO_BLAST_DAMAGE: The damage caused by a torpedo blast to a ship located exactly at the center of a blast.
+	</li>
+	
+	<li>
+	  DEFAULT_ENERGY: The amount of energy a ship starts with each game and each round.
+	</li>
+	
+	<li>
+	  MAX_THRUSTER_FORCE: The maximum magnitude of force a thruster can emit in one tick.
+	</li>
+	
+	<li>
+	  WALL_BOUNCE: The portion of the colliding force that is reflected back into a ship when it collides with a wall. A value of 1.0 would mean a ship loses no momentum when hitting a wall.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="Wall"></a><strong>Wall</strong></dt>
+<dd>Specifies the position and size of a wall. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  left: The x coordinate of the left side of the wall.
+	</li>
+	
+	<li>
+	  bottom: The y coordinate of the bottom side of the wall.
+	</li>
+	
+	<li>
+	  width: The width of the wall.
+	</li>
+	
+	<li>
+	  height: The height of the wall.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="Zone"></a><strong>Zone</strong></dt>
+<dd>Specifies the position, size, and tag of a zone. <br/>
+
+
+<em>Fields</em>
+<ul>
+	
+	<li>
+	  left: The x coordinate of the left side of the zone.
+	</li>
+	
+	<li>
+	  bottom: The y coordinate of the bottom side of the zone.
+	</li>
+	
+	<li>
+	  width: The width of the zone.
+	</li>
+	
+	<li>
+	  height: The height of the zone.
+	</li>
+	
+	<li>
+	  tag: The tag that identifies the zone. Not necessarily unique, and may be empty.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+</dl>
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+	<p><a href="http://validator.w3.org/check?uri=referer"><img src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" width="88" /></a></p>
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>
