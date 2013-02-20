@@ -106,6 +106,14 @@ char* FileManager::getFilePath(const char *dir, const char *filename) {
   long absFilenameLen = strlen(dir) + strlen(BB_DIRSEP) + strlen(filename);
   absFilename = new char[absFilenameLen + 1];
   sprintf(absFilename, "%s%s%s", dir, BB_DIRSEP, filename);
+#ifdef __WIN32__
+  for (int x = 0; x < absFilenameLen; x++) {
+    if (absFilename[x] == '/') {
+      absFilename[x] = '\\';
+    }
+  }
+#endif
+
   char *dots;
   int i = 0;
   char *dotSlash = new char[3];
@@ -615,7 +623,7 @@ bool FileManager::fileExists(const char *filename) {
   if (exists) {
     fclose(testFile);
   }
-  return exists;
+  return exists || isDirectory(filename);
 }
 
 bool FileManager::isDirectory(const char *filePath) {

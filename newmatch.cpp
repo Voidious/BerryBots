@@ -22,6 +22,7 @@
 #include <wx/wx.h>
 #include <wx/artprov.h>
 #include <wx/iconbndl.h>
+#include <wx/mimetype.h>
 #include "bbwx.h"
 #include "basedir.h"
 #include "filemanager.h"
@@ -88,11 +89,9 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 
   dirsSizer->AddStretchSpacer(1);
   wxBoxSizer *moreButtonsSizer = new wxBoxSizer(wxHORIZONTAL);
-#if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseApidocsButton_ = new wxButton(mainPanel_, wxID_ANY, "&API Docs");
   browseApidocsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_OPEN));
   moreButtonsSizer->Add(browseApidocsButton_);
-#endif
 
 #ifdef __WXOSX__
   // Using cwd as base dir on other platforms, so only support changing base dir
@@ -158,6 +157,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 
   startButton_ = new wxButton(mainPanel_, wxID_ANY, "    Start &Match!    ",
                               wxDefaultPosition, wxDefaultSize);
+  browseApidocsButton_->MoveAfterInTabOrder(browseShipsButton_);
   gridSizer->Add(startButton_, 0, wxALIGN_RIGHT);
   borderSizer_->Add(gridSizer, 0, wxALL, 12);
   mainPanel_->SetSizerAndFit(borderSizer_);
@@ -191,6 +191,8 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
           wxUpdateUIEventHandler(NewMatchDialog::onSelectBot));
   Connect(loadedBotsSelect_->GetId(), wxEVT_UPDATE_UI,
           wxUpdateUIEventHandler(NewMatchDialog::onSelectLoadedBot));
+  Connect(browseApidocsButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(NewMatchDialog::onBrowseApidocs));
 
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseStagesButton_->MoveAfterInTabOrder(startButton_);
@@ -200,8 +202,6 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
           wxCommandEventHandler(NewMatchDialog::onBrowseStages));
   Connect(browseShipsButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onBrowseShips));
-  Connect(browseApidocsButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
-          wxCommandEventHandler(NewMatchDialog::onBrowseApidocs));
 #endif
 
 #ifdef __WXOSX__
@@ -229,11 +229,11 @@ NewMatchDialog::~NewMatchDialog() {
   delete stageBaseDirLabel_;
   delete botsBaseDirLabel_;
   delete keyboardLabel_;
+  delete browseApidocsButton_;
 
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   delete browseStagesButton_;
   delete browseShipsButton_;
-  delete browseApidocsButton_;
 #endif
 
 #ifdef __WXOSX__
@@ -398,11 +398,11 @@ void NewMatchDialog::refreshFiles() {
 }
 
 void NewMatchDialog::onBrowseStages(wxCommandEvent &event) {
-  openFile(getStageDir().c_str());
+  browseDirectory(getStageDir().c_str());
 }
 
 void NewMatchDialog::onBrowseShips(wxCommandEvent &event) {
-  openFile(getBotsDir().c_str());
+  browseDirectory(getBotsDir().c_str());
 }
 
 void NewMatchDialog::onBrowseApidocs(wxCommandEvent &event) {
@@ -410,10 +410,32 @@ void NewMatchDialog::onBrowseApidocs(wxCommandEvent &event) {
 }
 
 void NewMatchDialog::browseApidocs() {
-  openFile(getApidocPath().c_str());
+  openHtmlFile(getApidocPath().c_str());
 }
 
-void NewMatchDialog::openFile(const char *file) {
+void NewMatchDialog::browseDirectory(const char *dir) {
+  if (!FileManager::fileExists(dir)) {
+    std::string fileNotFoundString("Directory not found: ");
+    fileNotFoundString.append(dir);
+    wxMessageDialog cantBrowseMessage(this, "Directory not found",
+                                      fileNotFoundString, wxOK);
+    cantBrowseMessage.ShowModal();
+  } else {
+#if defined(__WXOSX__)
+    ::wxExecute(wxString::Format("open %s", dir), wxEXEC_ASYNC, NULL);
+#elif defined(__LINUX__)
+    ::wxExecute(wxString::Format("xdg-open %s", dir), wxEXEC_ASYNC, NULL);
+#elif defined(__WINDOWS__)
+    ::wxExecute(wxString::Format("explorer %s", dir), wxEXEC_ASYNC, NULL);
+#else
+    wxMessageDialog cantBrowseMessage(this, "Couldn't browse directory",
+        "Sorry, don't know how to open/browse files on your platform.", wxOK);
+    cantBrowseMessage.ShowModal();
+#endif
+  }
+}
+
+void NewMatchDialog::openHtmlFile(const char *file) {
   if (!FileManager::fileExists(file)) {
     std::string fileNotFoundString("File not found: ");
     fileNotFoundString.append(file);
@@ -421,16 +443,24 @@ void NewMatchDialog::openFile(const char *file) {
                                       fileNotFoundString, wxOK);
     cantBrowseMessage.ShowModal();
   } else {
+    // On Mac OS X, wxFileType::GetOpenCommand always returns Safari instead of
+    // the default browser. And what's worse, Safari doesn't load the CSS
+    // properly when we open it that way. But we can trust the 'open' command.
 #if defined(__WXOSX__)
     ::wxExecute(wxString::Format("open %s", file), wxEXEC_ASYNC, NULL);
-#elif defined(__LINUX__)
-    ::wxExecute(wxString::Format("xdg-open %s", file), wxEXEC_ASYNC, NULL);
-#elif defined(__WINDOWS__)
-    ::wxExecute(wxString::Format("explorer %s", file), wxEXEC_ASYNC, NULL);
 #else
-    wxMessageDialog cantBrowseMessage(this, "Couldn't open file",
-        "Sorry, don't know how to open/browse files on your platform.", wxOK);
-    cantBrowseMessage.ShowModal();
+    wxMimeTypesManager *typeManager = new wxMimeTypesManager();
+    wxFileType *htmlType = typeManager->GetFileTypeFromExtension(".html");
+    wxString openCommand = htmlType->GetOpenCommand(file);
+    if (openCommand.IsEmpty()) {
+      wxMessageDialog cantBrowseMessage(this, "Couldn't open file",
+          "Sorry, don't know how to open/browse files on your platform.", wxOK);
+      cantBrowseMessage.ShowModal();
+    } else {
+      ::wxExecute(openCommand, wxEXEC_ASYNC, NULL);
+    }
+    delete htmlType;
+    delete typeManager;
 #endif
   }
 }

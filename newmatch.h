@@ -91,7 +91,6 @@ class NewMatchDialog : public wxFrame {
     void onBrowseShips(wxCommandEvent &event);
     void onBrowseApidocs(wxCommandEvent &event);
     void browseApidocs();
-    void openFile(const char *dir);
     void onChangeBaseDir(wxCommandEvent &event);
     void changeBaseDir();
     void onEscape();
@@ -109,6 +108,8 @@ class NewMatchDialog : public wxFrame {
     void focusStageSelect();
   private:
     void updateBaseDirLabels();
+    void browseDirectory(const char *dir);
+    void openHtmlFile(const char *file);
 };
 
 class NewMatchEventFilter : public wxEventFilter {
