@@ -254,9 +254,9 @@ int Ship_setName(lua_State *L) {
     if (printHandler != 0) {
       std::stringstream ss;
       if (team->numShips == 1) {
-        ss << "Set";
+        ss << "== Set";
       } else {
-        ss << "Ship " << (ship->index - team->firstShipIndex + 1) << " set";
+        ss << "== Ship " << (ship->index - team->firstShipIndex + 1) << " set";
       }
       ss << " name: " << shipName;
       printHandler->shipPrint(L, ss.str().c_str());
@@ -275,7 +275,7 @@ int Ship_setTeamName(lua_State *L) {
     setTeamName(team, teamName);
     if (printHandler != 0) {
       std::stringstream ss;
-      ss << "Set team name: " << teamName;
+      ss << "== Set team name: " << teamName;
       printHandler->shipPrint(L, ss.str().c_str());
     }
   }
@@ -296,9 +296,9 @@ int Ship_setShipColor(lua_State *L) {
     if (printHandler != 0) {
       std::stringstream ss;
       if (team->numShips == 1) {
-        ss << "Set";
+        ss << "== Set";
       } else {
-        ss << "Ship " << (ship->index - team->firstShipIndex + 1) << " set";
+        ss << "== Ship " << (ship->index - team->firstShipIndex + 1) << " set";
       }
       ss << " ship color: (" << r << ", " << g << ", " << b << ")";
       printHandler->shipPrint(L, ss.str().c_str());
@@ -321,9 +321,9 @@ int Ship_setLaserColor(lua_State *L) {
     if (printHandler != 0) {
       std::stringstream ss;
       if (team->numShips == 1) {
-        ss << "Set";
+        ss << "== Set";
       } else {
-        ss << "Ship " << (ship->index - team->firstShipIndex + 1) << " set";
+        ss << "== Ship " << (ship->index - team->firstShipIndex + 1) << " set";
       }
       ss << " laser color: (" << r << ", " << g << ", " << b << ")";
       printHandler->shipPrint(L, ss.str().c_str());
@@ -346,9 +346,9 @@ int Ship_setThrusterColor(lua_State *L) {
     if (printHandler != 0) {
       std::stringstream ss;
       if (team->numShips == 1) {
-        ss << "Set";
+        ss << "== Set";
       } else {
-        ss << "Ship " << (ship->index - team->firstShipIndex + 1) << " set";
+        ss << "== Ship " << (ship->index - team->firstShipIndex + 1) << " set";
       }
       ss << " thruster color: (" << r << ", " << g << ", " << b << ")";
       printHandler->shipPrint(L, ss.str().c_str());
@@ -908,7 +908,7 @@ int StageBuilder_setSize(lua_State *L) {
     stageBuilder->engine->getStage()->setSize(width, height);
     if (printHandler != 0) {
       std::stringstream ss;
-      ss << "Set stage size: " << width << " x " << height;
+      ss << "== Set stage size: " << width << " x " << height;
       printHandler->stagePrint(ss.str().c_str());
     }
   }
@@ -924,7 +924,7 @@ int StageBuilder_setBattleMode(lua_State *L) {
     stageBuilder->engine->setBattleMode(battleMode);
     if (printHandler != 0) {
       std::stringstream ss;
-      ss << "Set battle mode: " << (battleMode ? "true" : "false");
+      ss << "== Set battle mode: " << (battleMode ? "true" : "false");
       printHandler->stagePrint(ss.str().c_str());
     }
   }
@@ -946,7 +946,7 @@ int StageBuilder_addWall(lua_State *L) {
   }
   if (printHandler != 0) {
     std::stringstream ss;
-    ss << "Added wall: bottom left (" << left << ", " << bottom << "), "
+    ss << "== Added wall: bottom left (" << left << ", " << bottom << "), "
        << "dimensions " << width << " x " << height;
     printHandler->stagePrint(ss.str().c_str());
   }
@@ -966,7 +966,7 @@ int StageBuilder_addStart(lua_State *L) {
   }
   if (printHandler != 0) {
     std::stringstream ss;
-    ss << "Added start position: (" << x << ", " << y << ")";
+    ss << "== Added start position: (" << x << ", " << y << ")";
     printHandler->stagePrint(ss.str().c_str());
   }
   return 1;
@@ -988,7 +988,7 @@ int StageBuilder_addZone(lua_State *L) {
   }
   if (printHandler != 0) {
     std::stringstream ss;
-    ss << "Added zone: bottom left (" << left << ", " << bottom << "), "
+    ss << "== Added zone: bottom left (" << left << ", " << bottom << "), "
        << "dimensions: " << width << " x " << height;
     printHandler->stagePrint(ss.str().c_str());
   }
@@ -1007,7 +1007,7 @@ int StageBuilder_addShip(lua_State *L) {
   }
   if (printHandler != 0) {
     std::stringstream ss;
-    ss << "Added stage ship: " << stageShipFilename;
+    ss << "== Added stage ship: " << stageShipFilename;
     printHandler->stagePrint(ss.str().c_str());
   }
   return 1;
@@ -1022,7 +1022,7 @@ int StageBuilder_setTeamSize(lua_State *L) {
     stageBuilder->engine->setTeamSize(teamSize);
     if (printHandler != 0) {
       std::stringstream ss;
-      ss << "Set team size: " << teamSize;
+      ss << "== Set team size: " << teamSize;
       printHandler->stagePrint(ss.str().c_str());
     }
   }

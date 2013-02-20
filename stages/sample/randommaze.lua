@@ -18,8 +18,6 @@ function configure(stageBuilder)
     x = x - (width / 2)
     y = y - (height / 2)
     stageBuilder:addWall(x, y, width, height)
-    print("stageBuilder:addWall(" .. x .. ", " .. y .. ", " .. width .. ", "
-        .. height .. ")")
   end
   
   stageBuilder:addZone(600, 500, 50, 50)

@@ -54,7 +54,7 @@ void GuiPrintHandler::registerTeam(lua_State *L, const char *filename) {
   if (numTeams_ < MAX_TEAM_CONSOLES) {
     teamStates_[numTeams_] = L;
     OutputConsole *teamConsole = new OutputConsole(filename, menuBarMaker_);
-    teamConsole->print("Ship control program loaded: ");
+    teamConsole->print("== Ship control program loaded: ");
     teamConsole->println(filename);
     teamConsole->Hide();
     teamConsoles_[numTeams_] = teamConsole;

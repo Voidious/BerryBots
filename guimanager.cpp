@@ -390,7 +390,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   }
 
   stageConsole_ = new OutputConsole(stageName, menuBarMaker_);
-  stageConsole_->print("Stage control program loaded: ");
+  stageConsole_->print("== Stage control program loaded: ");
   stageConsole_->println(stageName);
   stageConsole_->Hide();
   
