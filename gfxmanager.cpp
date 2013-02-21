@@ -387,6 +387,28 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   }
 }
 
+void GfxManager::increaseWindowSize(sf::RenderWindow *window, int viewWidth,
+                                    int viewHeight) {
+  adjustWindowScale(window, viewWidth, viewHeight, WINDOW_SIZE_STEP);
+}
+
+void GfxManager::decreaseWindowSize(sf::RenderWindow *window, int viewWidth,
+                                    int viewHeight) {
+  adjustWindowScale(window, viewWidth, viewHeight, -WINDOW_SIZE_STEP);
+}
+
+void GfxManager::adjustWindowScale(sf::RenderWindow *window, int viewWidth,
+                                   int viewHeight, double scaleDelta) {
+  unsigned int windowWidth = window->getSize().x;
+  unsigned int windowHeight = window->getSize().y;
+  unsigned int dockSize = (showDock_ ? DOCK_SIZE : 0);
+  double currentScale = ((double) windowWidth - dockSize) / viewWidth;
+  double newScale = currentScale + scaleDelta;
+  windowWidth = (viewWidth * newScale) + dockSize;
+  windowHeight = viewHeight * newScale;
+  window->setSize(sf::Vector2u(windowWidth, windowHeight));
+}
+
 // TODO: don't let user resize to smaller than dock top + dock bottom + some min
 //       dock ships size
 void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,

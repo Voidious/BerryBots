@@ -579,6 +579,21 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
   sf::Event event;
   bool resized = false;
   while (window->pollEvent(event)) {
+#ifdef __WXOSX__
+    // For some reason, the dash key (between 0 and =) generates no KeyPressed
+    // event on Mac OS X, but does generate a TextEntered event - at least on my
+    // MacBook Pro, with built-in or external keyboard. The same external
+    // keyboard does generate proper KeyPressed events on Windows and Linux.
+    if (event.type == sf::Event::TextEntered
+        && (sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)
+            || sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
+            || sf::Keyboard::isKeyPressed(sf::Keyboard::RSystem)
+            || sf::Keyboard::isKeyPressed(sf::Keyboard::LSystem))
+        && event.text.unicode == 45) {
+      gfxManager->decreaseWindowSize(window, viewWidth, viewHeight);
+    }
+#endif
+
     if (event.type == sf::Event::Closed) {
       window->close();
       quit();
@@ -636,6 +651,18 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
         case sf::Keyboard::T:
           showPackageStageDialog();
           break;
+        case sf::Keyboard::Equal:
+        case sf::Keyboard::Add:
+          if (event.key.system || event.key.control) {
+            gfxManager->increaseWindowSize(window, viewWidth, viewHeight);
+          }
+          break;
+        case sf::Keyboard::Dash:
+        case sf::Keyboard::Subtract:
+          if (event.key.system || event.key.control) {
+            gfxManager->decreaseWindowSize(window, viewWidth, viewHeight);
+          }
+          break;
         default:
           break;
       }
@@ -677,7 +704,7 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
   }
 
   // On Linux/GTK and Windows, the wxWidgets windows don't get events while
-  // this thread has control unless we manually wxYield each frame. Seems to be
+  // this thread has control unless we wxYield each frame. Seems to be
   // unnecessary on Mac/Cocoa.
 #ifndef __WXOSX__
   wxYield();

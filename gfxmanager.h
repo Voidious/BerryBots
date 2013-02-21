@@ -30,10 +30,11 @@
 #include "dockshape.h"
 #include "dockfader.h"
 
-#define DOCK_TOP_HEIGHT     120
-#define DOCK_BOTTOM_HEIGHT  150
+#define DOCK_TOP_HEIGHT         120
+#define DOCK_BOTTOM_HEIGHT      150
 #define DRAW_SHIP_RADIUS        (SHIP_RADIUS - .7)
 #define SHIP_OUTLINE_THICKNESS  1.7
+#define WINDOW_SIZE_STEP        .1
 
 #define STAGE_MARGIN             25
 #define DOCK_SIZE                159
@@ -163,6 +164,12 @@ class GfxManager {
     void drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
                   int numShips, int time, GfxEventHandler *gfxHandler,
                   bool paused, bool gameOver, char *winnerName);
+    void increaseWindowSize(sf::RenderWindow *window, int viewWidth,
+                            int viewHeight);
+    void decreaseWindowSize(sf::RenderWindow *window, int viewWidth,
+                            int viewHeight);
+    void adjustWindowScale(sf::RenderWindow *window, int viewWidth,
+                           int viewHeight, double scaleDelta);
     void updateView(sf::RenderWindow *window, unsigned int viewWidth,
                     unsigned int viewHeight);
     void processMouseDown(int x, int y);
