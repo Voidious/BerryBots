@@ -30,6 +30,8 @@
 #include "dockshape.h"
 #include "dockfader.h"
 
+#define DOCK_TOP_HEIGHT     120
+#define DOCK_BOTTOM_HEIGHT  150
 #define DRAW_SHIP_RADIUS        (SHIP_RADIUS - .7)
 #define SHIP_OUTLINE_THICKNESS  1.7
 
@@ -103,6 +105,9 @@ class GfxManager {
   bool initialized_;
   bool adjustingTps_;
   int windowHeight_;
+  int dockTeamsViewHeight_;
+  int dockTeamsScrollPosition_;
+  int dockTeamsScrollBottom_;
 
   sf::CircleShape shipShape_;
   sf::CircleShape shipDotShape_;
@@ -141,7 +146,9 @@ class GfxManager {
   sf::Color zoneColor_;
   sf::Color dockLineColor_;
 
-  sf::View dockView_;
+  sf::View dockTopView_;
+  sf::View dockTeamsView_;
+  sf::View dockBottomView_;
   sf::View stageView_;
   sf::Font font_;
 
@@ -161,6 +168,7 @@ class GfxManager {
     void processMouseDown(int x, int y);
     void processMouseUp(int x, int y);
     void processMouseMoved(int x, int y);
+    void processMouseWheel(int x, int y, int delta);
     void showKeyboardShortcuts();
     void hideKeyboardShortcuts();
   private:

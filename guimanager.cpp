@@ -578,6 +578,11 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
       window->close();
       quit();
     }
+    if (event.type == sf::Event::MouseWheelMoved) {
+      sf::Event::MouseWheelEvent wheelEvent = event.mouseWheel;
+      gfxManager->processMouseWheel(wheelEvent.x, wheelEvent.y,
+                                    wheelEvent.delta);
+    }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
       gfxManager->updateView(window, viewWidth, viewHeight);

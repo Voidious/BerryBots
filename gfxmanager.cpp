@@ -51,6 +51,7 @@ GfxManager::GfxManager(bool showDock) {
   stage_ = 0;
   initialized_ = false;
   adjustingTps_ = false;
+  dockTeamsViewHeight_ = 0;
 
   shipShape_.setRadius(DRAW_SHIP_RADIUS);
   shipDotShape_.setRadius(SHIP_DOT_RADIUS);
@@ -69,8 +70,9 @@ GfxManager::GfxManager(bool showDock) {
   thrusterPoint_ = sf::Vector2f(0, THRUSTER_THICKNESS / 2);
   energyShape_.setSize(sf::Vector2f(ENERGY_LENGTH, ENERGY_THICKNESS));
   dockEnergyShape_.setSize(sf::Vector2f(DOCK_ENERGY_LENGTH, ENERGY_THICKNESS));
-  dockLineShape_.setSize(sf::Vector2f(1, 4096));
-  dockMarginShape_.setSize(sf::Vector2f(8, 4096));
+  // TODO: move these out to their own view
+  dockLineShape_.setSize(sf::Vector2f(1, 8192));
+  dockMarginShape_.setSize(sf::Vector2f(8, 8192));
 
   sparkColor_ = SPARK_COLOR;
   torpedoColor_ = TORPEDO_COLOR;
@@ -240,9 +242,14 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   stageButton_ = new DockText(stage_->getName(), &font_, SHIP_STAGE_FONT_SIZE,
                               10, 80, DOCK_SIZE - 10, 40);
   teamButtons_ = new DockText*[numTeams_];
+  dockTeamsScrollPosition_ = 0;
+  dockTeamsScrollBottom_ = 0;
   for (int x = 0; x < numTeams_; x++) {
-    teamButtons_[x] = new DockText(teams_[x]->name, &font_, SHIP_STAGE_FONT_SIZE,
-                                   10, getShipDockTop(x), DOCK_SIZE - 10, 30);
+    int teamTop = getShipDockTop(x);
+    teamButtons_[x] = new DockText(teams_[x]->name, &font_,
+        SHIP_STAGE_FONT_SIZE, 10, teamTop, DOCK_SIZE - 10, 30);
+    dockTeamsScrollBottom_ = std::max(dockTeamsScrollBottom_,
+                                      teamTop + 30 - DOCK_TOP_HEIGHT);
   }
 
   sf::Shape** pauseShapes = new sf::Shape*[2];
@@ -380,6 +387,8 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   }
 }
 
+// TODO: don't let user resize to smaller than dock top + dock bottom + some min
+//       dock ships size
 void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
                             unsigned int viewHeight) {
   unsigned int windowWidth = window->getSize().x;
@@ -394,13 +403,32 @@ void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
   window->setSize(sf::Vector2u(windowWidth, windowHeight));
 
   if (showDock_) {
-    dockView_.reset(sf::FloatRect(0, 0, dockSize, windowHeight));
+    unsigned int dockTeamsHeight =
+        windowHeight - DOCK_TOP_HEIGHT - DOCK_BOTTOM_HEIGHT;
+    dockTopView_.reset(sf::FloatRect(0, 0, dockSize, DOCK_TOP_HEIGHT));
+    // TODO: preserve scroll position on resize
+    dockTeamsScrollPosition_ = 0;
+    dockTeamsView_.reset(sf::FloatRect(0, DOCK_TOP_HEIGHT,
+                                       dockSize, dockTeamsHeight));
+    dockBottomView_.reset(sf::FloatRect(0, windowHeight - DOCK_BOTTOM_HEIGHT,
+                                     dockSize, DOCK_BOTTOM_HEIGHT));
     stageView_.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
-    float dockViewportSize = (((double) dockSize) / windowWidth);
-    float stageViewportSize = 1 - dockViewportSize;
-    dockView_.setViewport(sf::FloatRect(0.f, 0.f, dockViewportSize, 1.f));
-    stageView_.setViewport(sf::FloatRect(dockViewportSize, 0.f,
-                                        stageViewportSize, 1.f));
+
+    float dockViewportWidth = (((float) dockSize) / windowWidth);
+    float stageViewportWidth = 1 - dockViewportWidth;
+    float topViewportHeight = (((float) DOCK_TOP_HEIGHT) / windowHeight);
+    float teamsViewportHeight = (((float) dockTeamsHeight) / windowHeight);
+    float bottomViewportHeight = 1.0f - topViewportHeight - teamsViewportHeight;
+    dockTopView_.setViewport(
+        sf::FloatRect(0.f, 0.f, dockViewportWidth, topViewportHeight));
+    dockTeamsView_.setViewport(sf::FloatRect(
+        0.f, topViewportHeight, dockViewportWidth, teamsViewportHeight));
+    dockBottomView_.setViewport(sf::FloatRect(0.f,
+        topViewportHeight + teamsViewportHeight, dockViewportWidth,
+        bottomViewportHeight));
+    stageView_.setViewport(sf::FloatRect(dockViewportWidth, 0.f,
+                                        stageViewportWidth, 1.f));
+    dockTeamsViewHeight_ = dockTeamsHeight;
   } else {
     stageView_.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
     stageView_.setViewport(sf::FloatRect(0.f, 0.f, 1.f, 1.f));
@@ -431,7 +459,8 @@ void GfxManager::processMouseDown(int x, int y) {
       listener_->onTpsChange(tpsFader_->getVolume());
     } else {
       for (int z = 0; z < numTeams_; z++) {
-        if (!teamButtons_[z]->hidden() && teamButtons_[z]->contains(x, y)) {
+        if (!teamButtons_[z]->hidden()
+            && teamButtons_[z]->contains(x, y + dockTeamsScrollPosition_)) {
           listener_->onTeamClick(teams_[z]->index);
         }
       }
@@ -451,7 +480,7 @@ void GfxManager::processMouseMoved(int x, int y) {
   } else {
     stageButton_->setHighlights(x, y);
     for (int z = 0; z < numTeams_; z++) {
-      teamButtons_[z]->setHighlights(x, y);
+      teamButtons_[z]->setHighlights(x, y + dockTeamsScrollPosition_);
     }
 
     newMatchButton_->setHighlights(x, y);
@@ -462,6 +491,15 @@ void GfxManager::processMouseMoved(int x, int y) {
     restartButton_->setHighlights(x, y);
     tpsFader_->setHighlights(x, y);
   }
+}
+
+void GfxManager::processMouseWheel(int x, int y, int delta) {
+  delta = limit(-dockTeamsScrollPosition_, delta * -3,
+      std::max(dockTeamsViewHeight_, dockTeamsScrollBottom_)
+          - dockTeamsScrollPosition_ - dockTeamsViewHeight_);
+  dockTeamsView_.move(0, delta);
+  dockTeamsScrollPosition_ += delta;
+  processMouseMoved(x, y);
 }
 
 void GfxManager::showKeyboardShortcuts() {
@@ -766,20 +804,26 @@ void GfxManager::drawGameOver(sf::RenderWindow *window, Stage *stage,
 }
 
 void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
-  window->setView(dockView_);
+  window->setView(dockTopView_);
   drawDockItem(window, newMatchButton_);
   drawDockItem(window, packageShipButton_);
   drawDockItem(window, packageStageButton_);
   drawDockItem(window, stageButton_);
+  window->draw(dockLineShape_);
+  window->draw(dockMarginShape_);
 
-  pauseButton_->setTop(window->getSize().y - 100, window->getSize().y - 55);
-  playButton_->setTop(window->getSize().y - 100, window->getSize().y - 55);
-  restartButton_->setTop(window->getSize().y - 100, window->getSize().y - 55);
-  tpsFader_->setTop(window->getSize().y - 140, window->getSize().y - 165);
+  window->setView(dockBottomView_);
+  pauseButton_->setTop(window->getSize().y - 85, window->getSize().y - 40);
+  playButton_->setTop(window->getSize().y - 85, window->getSize().y - 40);
+  restartButton_->setTop(window->getSize().y - 85, window->getSize().y - 40);
+  tpsFader_->setTop(window->getSize().y - 125, window->getSize().y - 150);
   drawDockItem(window, paused ? playButton_ : pauseButton_);
   drawDockItem(window, restartButton_);
   drawDockItem(window, tpsFader_);
+  window->draw(dockLineShape_);
+  window->draw(dockMarginShape_);
 
+  window->setView(dockTeamsView_);
   int dockIndex = 0;
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
