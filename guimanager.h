@@ -142,7 +142,7 @@ class GuiManager {
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
     void resumeMatch();
-    void deleteMatchConsoles();
+    void deleteStageConsole();
     void saveCurrentMatchSettings(
         const char *stageName, char **teamNames, int numTeams);
     void deleteCurrentMatchSettings();

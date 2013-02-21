@@ -101,7 +101,7 @@ GuiManager::GuiManager(GuiListener *listener) {
 }
 
 GuiManager::~GuiManager() {
-  deleteMatchConsoles();
+  deleteStageConsole();
   deleteCurrentMatchSettings();
   delete newMatchDialog_;
   delete packageShipDialog_;
@@ -130,6 +130,10 @@ GuiManager::~GuiManager() {
   if (printStateListener_ != 0) {
     delete printStateListener_;
     printStateListener_ = 0;
+  }
+  if (printHandler != 0) {
+    delete printHandler;
+    printHandler = 0;
   }
 }
 
@@ -374,13 +378,14 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                              int numUserTeams) {
   tpsFactor_ = 1;
   nextDrawTime_ = 1;
+
   sf::RenderWindow *window;
 #ifdef __WXOSX__
   // On Mac OS X, we need to initialize before the wxWidgets stuff below to
   // avoid some weird errors.
   window = initMainWindow(1200, 800);
 #endif
-  deleteMatchConsoles();
+
   if (!restarting_) {
     saveCurrentMatchSettings(stageName, teamNames, numUserTeams);
   }
@@ -389,23 +394,30 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     engine_ = 0;
   }
 
-  stageConsole_ = new OutputConsole(stageName, menuBarMaker_);
+  GuiPrintHandler *guiPrintHandler;
+  if (restarting_) {
+    stageConsole_->clear();
+    guiPrintHandler = (GuiPrintHandler*) printHandler;
+    guiPrintHandler->restartMode();
+  } else {
+    deleteStageConsole();
+    stageConsole_ = new OutputConsole(stageName, menuBarMaker_);
+    stageConsole_->Hide();
+
+    if (printHandler != 0) {
+      delete printHandler;
+      printHandler = 0;
+    }
+    if (printStateListener_ != 0) {
+      delete printStateListener_;
+      printStateListener_ = 0;
+    }
+    guiPrintHandler = new GuiPrintHandler(stageConsole_, menuBarMaker_);
+    printStateListener_ = new PrintStateListener(guiPrintHandler);
+    printHandler = guiPrintHandler;
+  }
   stageConsole_->print("== Stage control program loaded: ");
   stageConsole_->println(stageName);
-  stageConsole_->Hide();
-  
-  if (printHandler != 0) {
-    delete printHandler;
-    printHandler = 0;
-  }
-  if (printStateListener_ != 0) {
-    delete printStateListener_;
-    printStateListener_ = 0;
-  }
-  GuiPrintHandler *guiPrintHandler =
-      new GuiPrintHandler(stageConsole_, menuBarMaker_);
-  printStateListener_ = new PrintStateListener(guiPrintHandler);
-  printHandler = guiPrintHandler;
 
   srand((unsigned int) time(NULL));
   engine_ = new BerryBotsEngine(fileManager_);
@@ -432,10 +444,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots engine init failed", wxOK | wxICON_EXCLAMATION);
     errorMessage.ShowModal();
-    delete printHandler;
-    printHandler = 0;
-    delete printStateListener_;
-    printStateListener_ = 0;
     delete engine_;
     engine_ = 0;
     delete cacheDir;
@@ -543,14 +551,11 @@ void GuiManager::runCurrentMatch() {
 
   if (!interrupted_) {
     gfxManager_->destroyBbGfx();
-    delete printHandler;
-    printHandler = 0;
     delete printStateListener_;
     printStateListener_ = 0;
     delete engine_;
     engine_ = 0;
     delete gfxHandler_;
-    deleteMatchConsoles();
   }
 }
 
@@ -852,7 +857,7 @@ void GuiManager::closeStagePreview() {
   closingPreview_ = true;
 }
 
-void GuiManager::deleteMatchConsoles() {
+void GuiManager::deleteStageConsole() {
   if (stageConsole_ != 0) {
     stageConsole_->Hide();
     delete stageConsole_;

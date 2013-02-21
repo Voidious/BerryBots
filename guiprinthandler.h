@@ -36,7 +36,9 @@ class GuiPrintHandler : public PrintHandler {
   OutputConsole* teamConsoles_[MAX_TEAM_CONSOLES];
   lua_State* teamStates_[MAX_TEAM_CONSOLES];
   int numTeams_;
+  int nextTeamIndex_;
   MenuBarMaker *menuBarMaker_;
+  bool restartMode_;
 
   public:
     GuiPrintHandler(OutputConsole *stageConsole, MenuBarMaker *menuBarMaker);
@@ -44,6 +46,7 @@ class GuiPrintHandler : public PrintHandler {
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
     void registerTeam(lua_State *L, const char *filename);
+    void restartMode();
     OutputConsole **getTeamConsoles();
 };
 
