@@ -62,14 +62,15 @@ OutputConsole::~OutputConsole() {
 }
 
 void OutputConsole::onActivate(wxActivateEvent &event) {
-#ifdef __WXGTK__
   if (!menusInitialized_) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
   }
-#endif
 }
 
+// This is the only wxWidgets dialog that needs to be drawn concurrently with
+// the main SFML window. We get a lot of flickering in the main window if we
+// don't override this.
 void OutputConsole::OnEraseBackground(wxEraseEvent&) {
 
 }
@@ -95,7 +96,7 @@ void OutputConsole::onClose(wxCommandEvent &event) {
   Hide();
 }
 
-// TODO: delta based on current text size, eg 36 => 42 vs 38
+// TODO: delta based on current text size, eg 36 => 42, not 38
 void OutputConsole::increaseTextSize() {
   fontSize_ += 2;
   output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
