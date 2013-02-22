@@ -31,7 +31,7 @@
 #include "dockfader.h"
 
 #define DOCK_TOP_HEIGHT         120
-#define DOCK_BOTTOM_HEIGHT      150
+#define DOCK_BOTTOM_HEIGHT      155
 #define DRAW_SHIP_RADIUS        (SHIP_RADIUS - .7)
 #define SHIP_OUTLINE_THICKNESS  1.7
 #define WINDOW_SIZE_STEP        .1
@@ -168,6 +168,8 @@ class GfxManager {
                             int viewHeight);
     void decreaseWindowSize(sf::RenderWindow *window, int viewWidth,
                             int viewHeight);
+    void defaultWindowSize(sf::RenderWindow *window, int viewWidth,
+                           int viewHeight);
     void adjustWindowScale(sf::RenderWindow *window, int viewWidth,
                            int viewHeight, double scaleDelta);
     void updateView(sf::RenderWindow *window, unsigned int viewWidth,

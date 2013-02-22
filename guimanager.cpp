@@ -380,6 +380,21 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   nextDrawTime_ = 1;
 
   sf::RenderWindow *window;
+  bool maintainWindowProperties = false;
+  sf::Vector2i prevPosition;
+  float prevScale = 1.0f;
+  if (window_ != 0) {
+#ifndef __WXGTK__
+    // sf::Window::getPosition just doesn't work on Linux/GTK, so don't try,
+    // which at least lets the window manager position it to be fully on screen.
+    prevPosition = window_->getPosition();
+    if (restarting_) {
+      prevScale = ((float) (window_->getSize().x - DOCK_SIZE)) / viewWidth_;
+    }
+    maintainWindowProperties = true;
+#endif
+  }
+  
 #ifdef __WXOSX__
   // On Mac OS X, we need to initialize before the wxWidgets stuff below to
   // avoid some weird errors.
@@ -457,9 +472,14 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   viewHeight_ = stage->getHeight() + (STAGE_MARGIN * 2);
   unsigned int screenWidth = sf::VideoMode::getDesktopMode().width;
   unsigned int screenHeight = sf::VideoMode::getDesktopMode().height;
-  double windowScale =
-      std::min(1.0, std::min(((double) screenWidth - DOCK_SIZE) / viewWidth_,
-                             ((double) screenHeight) / viewHeight_));
+  float windowScale;
+  if (restarting_ && maintainWindowProperties) {
+    windowScale = prevScale;
+  } else {
+    windowScale =
+        std::min(1.0, std::min(((double) screenWidth - DOCK_SIZE) / viewWidth_,
+                               ((double) screenHeight) / viewHeight_));
+  }
   unsigned int targetWidth = floor(windowScale * viewWidth_) + DOCK_SIZE;
   unsigned int targetHeight = floor(windowScale * viewHeight_);
 #ifdef __WXOSX__
@@ -471,6 +491,12 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
 #else
   window = initMainWindow(targetWidth, targetHeight);
 #endif
+
+  if (maintainWindowProperties) {
+    int left = limit(0, prevPosition.x, screenWidth - targetWidth);
+    int top = limit(0, prevPosition.y, screenHeight - targetHeight);
+    window_->setPosition(sf::Vector2i(left, top));
+  }
 
   interrupted_ = false;
   paused_ = false;
@@ -663,6 +689,10 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
             gfxManager->decreaseWindowSize(window, viewWidth, viewHeight);
           }
           break;
+        case sf::Keyboard::Num0:
+          if (event.key.system || event.key.control) {
+            gfxManager->defaultWindowSize(window, viewWidth, viewHeight);
+          }
         default:
           break;
       }
