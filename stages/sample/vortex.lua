@@ -149,9 +149,9 @@ function run(stageSensors)
     round = round + 1
   end
 
-  admin:drawText(415, 950, "Score: " .. roundsWon .. " / " .. (round - 1))
+  admin:drawText("Score: " .. roundsWon .. " / " .. (round - 1), 415, 950)
   if (drawNiceTimer > 0) then
-    admin:drawText(475, 50, "Nice!")
+    admin:drawText("Nice!", 475, 50)
     drawNiceTimer = drawNiceTimer - 1
   end
 end

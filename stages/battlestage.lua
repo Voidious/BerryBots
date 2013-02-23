@@ -43,7 +43,7 @@ local function drawRound()
   end
 
   if (printRoundTimer > 0) then
-    admin:drawText(20, 26, "Round " .. currentRound)
+    admin:drawText("Round " .. currentRound, 20, 26)
     printRoundTimer = printRoundTimer - 1
   end
 end

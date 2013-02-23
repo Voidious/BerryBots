@@ -1,4 +1,4 @@
---- Provides administrative operations to a stage control program.
+--- Provides administrative superpowers to a stage control program.
 module "Admin"
 
 --- Destroys a ship.
@@ -123,7 +123,8 @@ function gameOver()
 
 --- Draws text on the screen.
 -- <br/><br/>
+-- @param text The text to draw on the screen.
 -- @param x The x coordinate of the left side of the text.
 -- @param y The y coordinate of the bottom of the text.
--- @param text The text to draw on the screen.
-function drawText(x, y, text)
+-- @param size (optional) Size of characters, in pixels.
+function drawText(text, x, y, size)

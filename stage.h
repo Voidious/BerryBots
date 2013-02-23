@@ -62,6 +62,7 @@ typedef struct {
 typedef struct {
   int x;
   int y;
+  int fontSize;
   char *text;
   int startTime;
   int drawTicks;
@@ -124,7 +125,8 @@ class Stage {
     char** getStageShips();
     int getStageShipCount();
 
-    int addText(int x, int y, const char *text, int gameTime, int drawTicks);
+    int addText(int x, int y, const char *text, int gameTime, int fontSize,
+                int drawTicks);
     StageText** getTexts();
     int getTextCount();
     void clearStaleTexts(int gameTime);

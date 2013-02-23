@@ -69,11 +69,11 @@ function run(stageSensors)
   end
 
   if (messageTimer > 0) then
-    admin:drawText(10, 630, message)
+    admin:drawText(message, 10, 630)
     messageTimer = messageTimer - 1
   end
 
-  admin:drawText(10, 670, "Score: " .. score)
+  admin:drawText("Score: " .. score, 10, 670)
 end
 
 function stageShipsAlive()

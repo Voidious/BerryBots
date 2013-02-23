@@ -30,48 +30,50 @@
 #include "dockshape.h"
 #include "dockfader.h"
 
-#define DOCK_TOP_HEIGHT         120
-#define DOCK_BOTTOM_HEIGHT      155
-#define DRAW_SHIP_RADIUS        (SHIP_RADIUS - .7)
-#define SHIP_OUTLINE_THICKNESS  1.7
-#define WINDOW_SIZE_STEP        .1
+#define DOCK_TOP_HEIGHT           120
+#define DOCK_BOTTOM_HEIGHT        155
+#define DRAW_SHIP_RADIUS          (SHIP_RADIUS - .7)
+#define SHIP_OUTLINE_THICKNESS    1.7
+#define WINDOW_SIZE_STEP          .1
 
-#define STAGE_MARGIN             25
-#define DOCK_SIZE                159
-#define SHIP_DOT_POSITION        DRAW_SHIP_RADIUS * .45
-#define SHIP_DOT_RADIUS          DRAW_SHIP_RADIUS * .2
-#define SHIP_DOT_FRAMES          240
-#define LASER_THICKNESS          2
-#define THRUSTER_THICKNESS       6
-#define THRUSTER_LENGTH          12
-#define ENERGY_THICKNESS         2
-#define ENERGY_LENGTH            (DRAW_SHIP_RADIUS * 4)
-#define THRUSTER_ZERO            (DRAW_SHIP_RADIUS + 1.0) / (DRAW_SHIP_RADIUS + THRUSTER_LENGTH)
-#define TORPEDO_RADIUS           4
-#define TORPEDO_SIZE             TORPEDO_RADIUS * 2
-#define SHIP_DEATH_FRAMES        16
-#define SHIP_DEATH_FRAME_LENGTH  2
-#define SHIP_DEATH_TIME          (SHIP_DEATH_FRAMES * SHIP_DEATH_FRAME_LENGTH)
-#define SHIP_DEATH_RADIUS        6
-#define LASER_SPARK_LENGTH       8
-#define LASER_SPARK_THICKNESS    1.5
-#define LASER_SPARK_FRAMES       8
-#define LASER_SPARK_TIME         LASER_SPARK_FRAMES
-#define TORPEDO_BLAST_FRAMES     16
-#define TORPEDO_BLAST_TIME       TORPEDO_BLAST_FRAMES
-#define FONT_NAME                "Questrial-Regular.ttf"
+#define STAGE_MARGIN              25
+#define DOCK_SIZE                 159
+#define SHIP_DOT_POSITION         DRAW_SHIP_RADIUS * .45
+#define SHIP_DOT_RADIUS           DRAW_SHIP_RADIUS * .2
+#define SHIP_DOT_FRAMES           240
+#define LASER_THICKNESS           2
+#define THRUSTER_THICKNESS        6
+#define THRUSTER_LENGTH           12
+#define ENERGY_THICKNESS          2
+#define ENERGY_LENGTH             (DRAW_SHIP_RADIUS * 4)
+#define THRUSTER_ZERO             (DRAW_SHIP_RADIUS + 1.0) / (DRAW_SHIP_RADIUS + THRUSTER_LENGTH)
+#define TORPEDO_RADIUS            4
+#define TORPEDO_SIZE              TORPEDO_RADIUS * 2
+#define SHIP_DEATH_FRAMES         16
+#define SHIP_DEATH_FRAME_LENGTH   2
+#define SHIP_DEATH_TIME           (SHIP_DEATH_FRAMES * SHIP_DEATH_FRAME_LENGTH)
+#define SHIP_DEATH_RADIUS         6
+#define LASER_SPARK_LENGTH        8
+#define LASER_SPARK_THICKNESS     1.5
+#define LASER_SPARK_FRAMES        8
+#define LASER_SPARK_TIME          LASER_SPARK_FRAMES
+#define TORPEDO_BLAST_FRAMES      16
+#define TORPEDO_BLAST_TIME        TORPEDO_BLAST_FRAMES
+#define MIN_STAGE_TEXT_FONT_SIZE  12
+#define MAX_STAGE_TEXT_FONT_SIZE  256
+#define FONT_NAME                 "Questrial-Regular.ttf"
 
-#define DOCK_ENERGY_LENGTH       DOCK_SIZE - 40
+#define DOCK_ENERGY_LENGTH        (DOCK_SIZE - 40)
 #define DOCK_BUTTON_FONT_SIZE     20
 #define DOCK_SHORTCUT_FONT_SIZE   16
 #define SHIP_STAGE_FONT_SIZE      16
 
-#define SPARK_COLOR      sf::Color(40, 100, 255, 255);
-#define TORPEDO_COLOR    sf::Color(255, 89, 38, 255);
-#define BLAST_COLOR      sf::Color(255, 128, 51, 255);
-#define ENERGY_COLOR     sf::Color(255, 255, 0, 255);
-#define ZONE_COLOR       sf::Color(100, 68, 68, 255);
-#define DOCK_LINE_COLOR  sf::Color(100, 100, 100);
+#define SPARK_COLOR               sf::Color(40, 100, 255, 255);
+#define TORPEDO_COLOR             sf::Color(255, 89, 38, 255);
+#define BLAST_COLOR               sf::Color(255, 128, 51, 255);
+#define ENERGY_COLOR              sf::Color(255, 255, 0, 255);
+#define ZONE_COLOR                sf::Color(100, 68, 68, 255);
+#define DOCK_LINE_COLOR           sf::Color(100, 100, 100);
 
 class GfxViewListener {
   public:

@@ -306,7 +306,7 @@ bool Stage::isShipInShip(int shipIndex, double x, double y) {
 }
 
 int Stage::addText(int x, int y, const char *text, int gameTime,
-                   int drawTicks) {
+                   int fontSize, int drawTicks) {
   if (numTexts_ >= MAX_STAGE_TEXTS) {
     return 0;
   } else {
@@ -317,6 +317,7 @@ int Stage::addText(int x, int y, const char *text, int gameTime,
     stageText->y = y;
     stageText->text = newText;
     stageText->startTime = gameTime;
+    stageText->fontSize = fontSize;
     stageText->drawTicks = 1;
     stageTexts_[numTexts_++] = stageText;
     return 1;

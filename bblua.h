@@ -35,6 +35,8 @@
 #define PCALL_TIME_LIMIT    500000 //  0.5s
 #endif
 
+#define DEFAULT_STAGE_TEXT_SIZE  28
+
 extern "C" {
   #include "lua.h"
   #include "lualib.h"

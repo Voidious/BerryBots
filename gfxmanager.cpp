@@ -790,7 +790,9 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
     StageText **stageTexts = stage->getTexts();
     for (int x = 0; x < numTexts; x++) {
       StageText *stageText = stageTexts[x];
-      sf::Text text(stageText->text, font_, 28);
+      sf::Text text(stageText->text, font_,
+          limit(MIN_STAGE_TEXT_FONT_SIZE, stageText->fontSize,
+                MAX_STAGE_TEXT_FONT_SIZE));
       text.setColor(sf::Color::White);
       sf::FloatRect textRect = text.getLocalBounds();
       text.setPosition(adjustX(stageText->x),

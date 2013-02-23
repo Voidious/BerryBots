@@ -86,8 +86,8 @@ function run()
   end
   if (maxLaps > 0) then
     admin:drawText(
-        225, 375, "LEADER: " .. lapLeader .. ": " .. maxLaps .. " laps")
+        "LEADER: " .. lapLeader .. ": " .. maxLaps .. " laps", 225, 375)
     admin:drawText(
-        225, 325, "BEST LAP: " .. bestLapName .. ": " .. bestLap .. " ticks")
+        "BEST LAP: " .. bestLapName .. ": " .. bestLap .. " ticks", 225, 325)
   end
 end
