@@ -8,6 +8,9 @@ function init(shipRef, worldArg)
   ship = shipRef
   world = worldArg
   ship:setName("Drifter")
+  ship:setShipColor(150, 150, 150)
+  ship:setLaserColor(255, 255, 255)
+  ship:setThrusterColor(255, 255, 255)
 end
 
 stopTimer = 30

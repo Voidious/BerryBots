@@ -62,8 +62,6 @@ function init(shipsArg, worldArg, adminArg)
     if (ship:isStageShip()) then
       table.insert(stageShips, ship)
       admin:setShipShowName(ship, false)
-      admin:moveShip(ship, -1000, -1000)
-      admin:destroyShip(ship)
     else
       userShip = ship
     end

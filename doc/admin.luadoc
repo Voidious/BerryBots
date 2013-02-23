@@ -68,8 +68,9 @@ function setShipThrusterEnabled(ship, enabled)
 --     <code>false</code> otherwise.
 function setShipEnergyEnabled(ship, enabled)
 
---- Sets whether a ship's name is drawn on screen. For stage ships, it's often
--- preferable to hide the name. (Default: <code>true</code>.)<br/><br/>
+--- Sets whether a ship's name is drawn on screen. Setting this to
+-- <code>false</code> also hides the ship from the dock in the BerryBots GUI.
+-- (Default: <code>true</code>.)<br/><br/>
 -- @param ship The ship to modify.
 -- @param showName <code>true</code> to show the ship's name, <code>false</code>
 --     otherwise.

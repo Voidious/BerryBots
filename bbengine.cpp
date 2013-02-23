@@ -435,7 +435,6 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
         ship->properties = new ShipProperties;
         ship->properties->disabled = true;
         ship->properties->ownedByLua = false;
-        ship->alive = false;
       } else {
         ship = pushShip(teamState);
         if (numStateShips > 1) {
@@ -443,8 +442,8 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
         }
         ship->properties->disabled = false;
         ship->properties->ownedByLua = true;
-        ship->alive = true;
       }
+      ship->alive = false;
       ship->teamIndex = x;
       ship->index = shipIndex++;
       ships_[ship->index] = stateShips[y] = ship;
@@ -545,9 +544,7 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
 }
 
 void BerryBotsEngine::initShipRound(Ship *ship) {
-  if (!ship->properties->disabled) {
-    ship->alive = true;
-  }
+  ship->alive = (!ship->properties->disabled && !ship->properties->stageShip);
   ship->speed = ship->heading = ship->thrusterAngle = ship->thrusterForce = 0;
   ship->energy = DEFAULT_ENERGY;
   ship->laserGunHeat = LASER_HEAT;

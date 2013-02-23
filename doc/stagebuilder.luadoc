@@ -53,15 +53,14 @@ function addStart(x, y)
 function addZone(left, bottom, width, height, tag)
 
 --- Adds a ship to the stage.
--- The ship's control program must be in or below the directory of the stage
--- program. The <code>isStageShip</code> function (in <code>Ship</code>) or
--- property (in <code>EnemyShip</code>) allow stages and ships to see which
--- ships are part of the stage. Otherwise, they function exactly like all
--- other ships. A stage loaded ship is generally designed to function as part of
--- the gameplay of the stage.<br/><br/>
+-- The ship begins the match and each round as inactive - the stage must call
+-- <code>reviveShip</code> before it can be used. The <code>isStageShip</code>
+-- function (in <code>Ship</code>) or property (in <code>EnemyShip</code>) allow
+-- stages and ships to see which ships were loaded by the stage. Otherwise,
+-- stage-loaded ships function exactly like all other ships.<br/><br/>
 -- @see ShipControl
--- @param shipFilename The path/filename of the ship program, relative to the stage
---     program.
+-- @param shipFilename The path/filename of the ship program, relative to the
+--     stage program.
 function addShip(shipFilename)
 
 --- Sets the team size.

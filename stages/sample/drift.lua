@@ -45,6 +45,7 @@ function init(shipsArg, worldArg, adminArg)
       shipSettings[ship:name()] = { }
       shipSettings[ship:name()].y = ship:y()
       shipSettings[ship:name()].speed = event.speed
+      admin:reviveShip(ship)
       admin:setShipShowName(ship, false)
     else
       userShip = ship
