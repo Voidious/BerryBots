@@ -1,4 +1,4 @@
---- A ship controlled by a user written program loaded at run time.
+--- A ship controlled by a user written program.
 module "Ship"
 
 --- Fires the ship's thruster, pushing it in the given direction and altering

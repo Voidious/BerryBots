@@ -1,7 +1,7 @@
 --- A ship's sensors, which provide information about events that occurred on
 -- the previous tick. In general, a ship or team is aware of any event that
 -- happens to a ship that it controls, or to any ship that is visible to a ship
--- that it controls (i.e., no walls between the ships).
+-- that it controls.
 module "Sensors"
 
 --- Details of a ship-ship collision.

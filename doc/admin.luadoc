@@ -1,4 +1,4 @@
---- Administrative operations for a stage control program.
+--- Provides administrative operations to a stage control program.
 module "Admin"
 
 --- Destroys a ship.

@@ -1,6 +1,6 @@
---- A builder used to configure the stage before the game starts.
+--- Used to configure stage properties before the game starts.
 -- These functions do nothing after the stage's <code>configure</code> function
--- finishes.
+-- completes execution.
 module "StageBuilder"
 
 --- Sets the width and height of the stage.

@@ -2,7 +2,9 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-    <title>Reference</title>
+    <title>BerryBots API Docs</title>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
+    <link rel="shortcut icon" href="favicon.gif">
     <link rel="stylesheet" href="luadoc.css" type="text/css" />
 	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
 </head>
@@ -10,18 +12,12 @@
 <body>
 <div id="container">
 
-<div id="product">
-	<div id="product_logo"></div>
-	<div id="product_name"><big><b></b></big></div>
-	<div id="product_description"></div>
-</div> <!-- id="product" -->
-
 <div id="main">
 
 <div id="navigation">
 
 
-<h1>LuaDoc</h1>
+<h1>BerryBots Lua API</h1>
 <ul>
 	
 	<li><strong>Index</strong></li>
@@ -74,13 +70,47 @@
 
 
 
-
+<h1>Helpful Links</h1>
+<ul>
+    <li><a href="http://www.lua.org/manual/5.1/">Lua 5.1 Manual</a></li>
+    <li><a href="http://lua-users.org/wiki/TutorialDirectory">Lua-users Tutorial Directory</a></li>
+    <li><a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Bots">Sample Ships</a>
+    <li><a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Stages">Sample Stages</a>
+    <li><a href="http://berrybots.com/specs.html">BerryBots Game Specs</a></li>
+    <li><a href="http://berrybots.com/wiki">BerryBots Wiki</a></li>
+</ul>
 
 
 </div> <!-- id="navigation" -->
 
 <div id="content">
 
+<div id="intro">
+    <p><img src="icon_64x64.png" style="float: left; margin-right: 0.5em"> 
+      BerryBots ships and stages are programmed in Lua 5.1. If you're new to
+      Lua, check out the
+      <a href="http://www.lua.org/manual/5.1/">Lua 5.1 Manual</a>,
+      the <a href="http://lua-users.org/wiki/TutorialDirectory">Tutorial Directory</a>
+      at the Lua-users wiki, or learn by example from the
+      <a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Bots">sample ships</a>
+      and
+      <a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Stages">sample stages</a>.
+    </p>
+    <p>
+      Your main Lua program must implement the functions of the
+      <a href="modules/ShipControl.html">ShipControl</a>
+      or
+      <a href="modules/StageControl.html">StageControl</a>
+      interface. These are called by BerryBots before, during, and after the
+      match. The parameters passed to these functions allow your program to
+      learn about and control all gameplay elements in BerryBots.
+    </p>
+    <p>
+      For more information about programming BerryBots ships and stages, or to
+      post about your own creations, visit the
+      <a href="http://berrybots.com/wiki">BerryBots Wiki</a>.
+    </p>
+</div>
 
 
 <h2>Modules</h2>
@@ -89,7 +119,7 @@
 
 	<tr>
 		<td class="name"><a href="modules/Admin.html">Admin</a></td>
-		<td class="summary">Administrative operations for a stage control program.</td>
+		<td class="summary">Provides administrative operations to a stage control program.</td>
 	</tr>
 
 	<tr>
@@ -99,7 +129,7 @@
 
 	<tr>
 		<td class="name"><a href="modules/Ship.html">Ship</a></td>
-		<td class="summary">A ship controlled by a user written program loaded at run time.</td>
+		<td class="summary">A ship controlled by a user written program.</td>
 	</tr>
 
 	<tr>
@@ -109,7 +139,7 @@
 
 	<tr>
 		<td class="name"><a href="modules/StageBuilder.html">StageBuilder</a></td>
-		<td class="summary">A builder used to configure the stage before the game starts.</td>
+		<td class="summary">Used to configure stage properties before the game starts.</td>
 	</tr>
 
 	<tr>
