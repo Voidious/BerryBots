@@ -9,15 +9,19 @@ rectangle.cpp stage.cpp packagedialog.cpp packageship.cpp packagestage.cpp \
 dockitem.cpp dockshape.cpp docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp \
 menubarmaker.cpp \
 ./luajit/src/libluajit.a ./libarchive/libarchive.a \
+/usr/lib/libz.dylib /usr/lib/libiconv.dylib \
 -I./luajit/src -I./libarchive/include -I./stlsoft-1.9.116/include \
 -I./sfml/include -L./sfml-lib \
--I./wxWidgets/include -I./wxWidgets/gtk2-unicode-2.9 -D_FILE_OFFSET_BITS=64 \
--DWXUSINGDLL -D__WXGTK__ \
--L./wxWidgets-lib -pthread \
--Wl,-rpath,./wxWidgets-lib -lwx_gtk2u_xrc-2.9 \
--lwx_gtk2u_html-2.9 -lwx_gtk2u_qa-2.9 -lwx_gtk2u_adv-2.9 -lwx_gtk2u_core-2.9 \
--lwx_baseu_xml-2.9 -lwx_baseu_net-2.9 -lwx_baseu-2.9 -lsfml-graphics \
--lsfml-window -lsfml-system -ldl -o bbgui
-cp ./scripts/bb_gui_linux.sh ./berrybots.sh
+-I./wxWidgets/osx_cocoa-unicode-2.9 -I./wxWidgets/include \
+-D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__ \
+-L./wxWidgets-lib -framework IOKit -framework Carbon -framework Cocoa \
+-framework AudioToolbox -framework System -framework OpenGL \
+-lwx_osx_cocoau_xrc-2.9 -lwx_osx_cocoau_webview-2.9 -lwx_osx_cocoau_html-2.9 \
+-lwx_osx_cocoau_qa-2.9 -lwx_osx_cocoau_adv-2.9 -lwx_osx_cocoau_core-2.9 \
+-lwx_baseu_xml-2.9 -lwx_baseu_net-2.9 -lwx_baseu-2.9  \
+-lsfml-graphics -lsfml-window -lsfml-system -ldl \
+-pagezero_size 10000 -image_base 100000000 \
+-o bbgui
+cp ./scripts/bb_gui_osx.sh ./berrybots.sh
 cp ./icon.iconset/icon_128x128.png .
 chmod 755 ./berrybots.sh
