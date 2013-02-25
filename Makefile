@@ -21,12 +21,12 @@ WIN_SFML_BUILD_PATH = ${SFML_PATH}\build
 ##############################################################################
 # BerryBots GUI common source files
 SOURCES =  bbguimain.cpp guiprinthandler.cpp guimanager.cpp newmatch.cpp
-SOURCES += outputconsole.cpp relativebasedir.cpp linuxresourcepath.cpp
-SOURCES += bbutil.cpp gfxmanager.cpp filemanager.cpp circle2d.cpp line2d.cpp 
-SOURCES += point2d.cpp sensorhandler.cpp zone.cpp bbengine.cpp bblua.cpp
-SOURCES += gfxeventhandler.cpp rectangle.cpp stage.cpp packagedialog.cpp
-SOURCES += packageship.cpp packagestage.cpp dockitem.cpp dockshape.cpp
-SOURCES += docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp menubarmaker.cpp
+SOURCES += outputconsole.cpp bbutil.cpp gfxmanager.cpp filemanager.cpp
+SOURCES += circle2d.cpp line2d.cpp point2d.cpp sensorhandler.cpp zone.cpp
+SOURCES += bbengine.cpp bblua.cpp gfxeventhandler.cpp rectangle.cpp stage.cpp
+SOURCES += packagedialog.cpp packageship.cpp packagestage.cpp dockitem.cpp
+SOURCES += dockshape.cpp docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp
+SOURCES += menubarmaker.cpp
 ##############################################################################
 
 
@@ -47,7 +47,8 @@ RPI_LDFLAGS = -L/opt/vc/lib -lGLESv2 -ldl
 
 ##############################################################################
 # Sources and flags for building on Mac OS X / Cocoa
-OSX_EXTRA_SOURCES =  ./luajit/src/libluajit.a
+OSX_EXTRA_SOURCES =  osxbasedir.mm osxcfg.m ResourcePath.mm
+OSX_EXTRA_SOURCES += ./luajit/src/libluajit.a
 OSX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
 OSX_EXTRA_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
 
@@ -56,14 +57,15 @@ OSX_CFLAGS += -I${SFML_PATH}/include `${WXWIDGETS_PATH}/wx-config --cflags`
 
 OSX_LDFLAGS =  -L${SFML_BUILD_PATH}/lib `${WXWIDGETS_PATH}/wx-config --libs`
 OSX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
-OSX_LDFLAGS += -pagezero_size 10000 -image_base 100000000
+OSX_LDFLAGS += -pagezero_size 10000 -image_base 100000000 -std=c99
 ##############################################################################
 
 
 ##############################################################################
 # Sources and flags for building on Linux / GTK
-LINUX_EXTRA_SOURCES =  ./luajit/src/libluajit.a
-LINUX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a 
+LINUX_EXTRA_SOURCES =  relativebasedir.cpp linuxresourcepath.cpp
+LINUX_EXTRA_SOURCES += ./luajit/src/libluajit.a
+LINUX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
 
 LINUX_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include -I${LIBARCHIVE_PATH}
 LINUX_CFLAGS += -I${SFML_PATH}/include
@@ -76,9 +78,9 @@ LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
 
 ##############################################################################
 # Sources and flags for building on Windows
-WIN_EXTRA_SOURCES =  bbres.o .\luajit\src\lua51.dll
+WIN_EXTRA_SOURCES =  relativebasedir.cpp linuxresourcepath.cpp bbres.o
+WIN_EXTRA_SOURCES += .\luajit\src\lua51.dll ${WIN_ZLIB_PATH}\zlib1.dll
 WIN_EXTRA_SOURCES += ${LIBARCHIVE_PATH}\build\libarchive\libarchive_static.a
-WIN_EXTRA_SOURCES += ${WIN_ZLIB_PATH}\zlib1.dll
 
 WIN_CFLAGS =  -I.\luajit\src -I.\stlsoft-1.9.116\include -I${LIBARCHIVE_PATH}
 WIN_CFLAGS += -I${SFML_PATH}\include 
