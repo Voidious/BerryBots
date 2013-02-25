@@ -1,3 +1,5 @@
+REM Note: This is for building BerryBots to run single battles from the command
+REM       line, like the Raspberry Pi version.
 cd luajit
 mingw32-make
 cd ..

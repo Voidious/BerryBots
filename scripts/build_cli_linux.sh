@@ -1,3 +1,5 @@
+# Note: This is for building BerryBots to run single battles from the command
+#       line, like the Raspberry Pi version.
 cd luajit
 make
 cd ..
