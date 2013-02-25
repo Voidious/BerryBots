@@ -51,23 +51,11 @@ OSX_EXTRA_SOURCES =  ./luajit/src/libluajit.a
 OSX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
 OSX_EXTRA_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
 
-# Note: wxWidgets CFLAGS can be generated custom for your system using:
-#       wx-config --cflags
 OSX_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include -I${LIBARCHIVE_PATH}
-OSX_CFLAGS += -I${SFML_PATH}/include
-OSX_CFLAGS += -I${WXWIDGETS_PATH}/lib/wx/include/osx_cocoa-unicode-2.9
-OSX_CFLAGS += -I${WXWIDGETS_PATH}/include -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL
-OSX_CFLAGS += -D__WXMAC__ -D__WXOSX__ -D__WXOSX_COCOA__
+OSX_CFLAGS += -I${SFML_PATH}/include `${WXWIDGETS_PATH}/wx-config --cflags`
 
-# Note: wxWidgets linker flags can be generated custom for your system using:
-#       wx-config --libs
-OSX_LDFLAGS =  -L${SFML_BUILD_PATH}/lib -L${WXWIDGETS_PATH}/lib -framework IOKit
-OSX_LDFLAGS += -framework Carbon -framework Cocoa -framework AudioToolbox
-OSX_LDFLAGS += -framework System -framework OpenGL -lwx_osx_cocoau_xrc-2.9
-OSX_LDFLAGS += -lwx_osx_cocoau_webview-2.9 -lwx_osx_cocoau_html-2.9
-OSX_LDFLAGS += -lwx_osx_cocoau_qa-2.9 -lwx_osx_cocoau_adv-2.9
-OSX_LDFLAGS += -lwx_osx_cocoau_core-2.9 -lwx_baseu_xml-2.9 -lwx_baseu_net-2.9
-OSX_LDFLAGS += -lwx_baseu-2.9 -lsfml-graphics -lsfml-window -lsfml-system -ldl
+OSX_LDFLAGS =  -L${SFML_BUILD_PATH}/lib `${WXWIDGETS_PATH}/wx-config --libs`
+OSX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
 OSX_LDFLAGS += -pagezero_size 10000 -image_base 100000000
 ##############################################################################
 
@@ -77,21 +65,12 @@ OSX_LDFLAGS += -pagezero_size 10000 -image_base 100000000
 LINUX_EXTRA_SOURCES =  ./luajit/src/libluajit.a
 LINUX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a 
 
-# Note: wxWidgets CFLAGS can be generated custom for your system using:
-#       wx-config --cflags
 LINUX_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include -I${LIBARCHIVE_PATH}
 LINUX_CFLAGS += -I${SFML_PATH}/include
-LINUX_CFLAGS += -I${WXWIDGETS_PATH}/lib/wx/include/gtk2-unicode-2.9
-LINUX_CFLAGS += -I${WXWIDGETS_PATH}/include -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL
-LINUX_CFLAGS += -D_FILE_OFFSET_BITS=64 -DWXUSINGDLL -D__WXGTK__
+LINUX_CFLAGS += `${WXWIDGETS_PATH}/wx-config --cflags`
 
-# Note: wxWidgets linker flags can be generated custom for your system using:
-#       wx-config --libs
-LINUX_LDFLAGS =  -L${SFML_BUILD_PATH}/lib -L${WXWIDGETS_PATH}/lib -pthread
-LINUX_LDFLAGS += -Wl,-rpath,${WXWIDGETS_PATH}/lib -lwx_gtk2u_xrc-2.9
-LINUX_LDFLAGS += -lwx_gtk2u_html-2.9 -lwx_gtk2u_qa-2.9 -lwx_gtk2u_adv-2.9
-LINUX_LDFLAGS += -lwx_gtk2u_core-2.9 -lwx_baseu_xml-2.9 -lwx_baseu_net-2.9
-LINUX_LDFLAGS += -lwx_baseu-2.9 -lsfml-graphics -lsfml-window -lsfml-system -ldl
+LINUX_LDFLAGS =  -L${SFML_BUILD_PATH}/lib `${WXWIDGETS_PATH}/wx-config --libs`
+LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
 ##############################################################################
 
 
@@ -140,19 +119,21 @@ rpi:
 osx:
 	$(MAKE_LUAJIT)
 	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
+	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
 	cp ./scripts/bb_gui_osx.sh ./berrybots.sh
 	chmod 755 ./berrybots.sh
 
 linux:
 	$(MAKE_LUAJIT)
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
+	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
 	cp ./scripts/bb_gui_linux.sh ./berrybots.sh
 	cp ./icon.iconset/icon_128x128.png .
 	chmod 755 ./berrybots.sh
 
 clean:
 	$(CLEAN_LUAJIT)
-	rm -rf *o bbgui
+	rm -rf *o sfml-lib bbgui berrybots.sh
 
 WIN_MAKE_LUAJIT=cd luajit && $(MAKE) && cd ..
 WIN_CLEAN_LUAJIT=cd luajit && $(MAKE) clean && cd ..
@@ -162,14 +143,15 @@ windows:
 	copy icon.iconset\icon_32x32.png .
 	$(WIN_MAKE_LUAJIT)	
 	$(CC) ${SOURCES} ${WIN_EXTRA_SOURCES} ${WIN_CFLAGS} ${WIN_LDFLAGS} -o BerryBots
-	copy $${WIN_SFML_BUILD_PATH}\lib\sfml-graphics-2.dll .
-	copy $${WIN_SFML_BUILD_PATH}\lib\sfml-system-2.dll .
-	copy $${WIN_SFML_BUILD_PATH}\lib\sfml-window-2.dll .
+	copy ${WIN_SFML_BUILD_PATH}\lib\sfml-graphics-2.dll .
+	copy ${WIN_SFML_BUILD_PATH}\lib\sfml-system-2.dll .
+	copy ${WIN_SFML_BUILD_PATH}\lib\sfml-window-2.dll .
 	copy ${WIN_ZLIB_PATH}\zlib1.dll .
 	copy .\luajit\src\lua51.dll .
 
 winclean:
 	$(WIN_CLEAN_LUAJIT)
 	del *o
+	del *.dll
 	del BerryBots.exe
 ##############################################################################
