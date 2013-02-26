@@ -382,14 +382,14 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   sf::RenderWindow *window;
   bool maintainWindowProperties = false;
   sf::Vector2i prevPosition;
-  float prevScale = 1.0f;
+  double prevScale = 1.0;
   if (window_ != 0) {
 #ifndef __WXGTK__
     // sf::Window::getPosition just doesn't work on Linux/GTK, so don't try,
     // which at least lets the window manager position it to be fully on screen.
     prevPosition = window_->getPosition();
     if (restarting_) {
-      prevScale = ((float) (window_->getSize().x - DOCK_SIZE)) / viewWidth_;
+      prevScale = ((double) (window_->getSize().x - DOCK_SIZE)) / viewWidth_;
     }
     maintainWindowProperties = true;
 #endif
@@ -472,7 +472,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   viewHeight_ = stage->getHeight() + (STAGE_MARGIN * 2);
   unsigned int screenWidth = sf::VideoMode::getDesktopMode().width;
   unsigned int screenHeight = sf::VideoMode::getDesktopMode().height;
-  float windowScale;
+  double windowScale;
   if (restarting_ && maintainWindowProperties) {
     windowScale = prevScale;
   } else {

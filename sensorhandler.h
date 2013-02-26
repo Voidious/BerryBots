@@ -38,10 +38,10 @@
 
 typedef struct {
   int time;
-  unsigned short targetShipIndex;
+  short targetShipIndex;
   double targetX;
   double targetY;
-  unsigned short hittingShipIndex;
+  short hittingShipIndex;
   double hittingX;
   double hittingY;
   double inAngle;
@@ -52,7 +52,7 @@ typedef struct {
 
 typedef struct {
   int time;
-  unsigned short targetShipIndex;
+  short targetShipIndex;
   double laserX;
   double laserY;
   double laserHeading;
@@ -60,7 +60,7 @@ typedef struct {
 
 typedef struct {
   int time;
-  unsigned short targetShipIndex;
+  short targetShipIndex;
   double hitAngle;
   double hitForce;
   double hitDamage;
@@ -68,7 +68,7 @@ typedef struct {
 
 typedef struct {
   int time;
-  unsigned short shipIndex;
+  short shipIndex;
   double shipX;
   double shipY;
   double bounceAngle;
@@ -77,36 +77,36 @@ typedef struct {
 
 typedef struct {
   int time;
-  unsigned short shipIndex;
+  short shipIndex;
 } ShipDestroyed;
 
 typedef struct {
   int time;
-  unsigned short shipIndex;
+  short shipIndex;
   double shipX;
   double shipY;
 } ShipFiredLaser;
 
 typedef struct {
   int time;
-  unsigned short shipIndex;
+  short shipIndex;
   double shipX;
   double shipY;
 } ShipFiredTorpedo;
 
 typedef struct {
   int time;
-  unsigned short targetShipIndex;
+  short targetShipIndex;
   double shipX;
   double shipY;
 } LaserHitShip;
 
 typedef struct {
   int time;
-  unsigned short hittingShipIndex;
+  short hittingShipIndex;
   double hittingX;
   double hittingY;
-  unsigned short targetShipIndex;
+  short targetShipIndex;
   double targetX;
   double targetY;
   double inAngle;
@@ -117,7 +117,7 @@ typedef struct {
 
 typedef struct {
   int time;
-  unsigned short shipIndex;
+  short shipIndex;
   double shipX;
   double shipY;
   double laserHeading;
@@ -125,7 +125,7 @@ typedef struct {
 
 typedef struct {
   int time;
-  unsigned short shipIndex;
+  short shipIndex;
   double shipX;
   double shipY;
   double torpedoHeading;
@@ -134,8 +134,8 @@ typedef struct {
 
 typedef struct {
   int time;
-  unsigned short srcShipIndex;
-  unsigned short targetShipIndex;
+  short srcShipIndex;
+  short targetShipIndex;
   double laserX;
   double laserY;
   double laserHeading;
@@ -143,8 +143,8 @@ typedef struct {
 
 typedef struct {
   int time;
-  unsigned short srcShipIndex;
-  unsigned short targetShipIndex;
+  short srcShipIndex;
+  short targetShipIndex;
   double hitAngle;
   double hitForce;
   double hitDamage;

@@ -40,10 +40,10 @@ extern "C" {
 class BerryBotsEngine;
 
 typedef struct {
-  unsigned short index;
-  unsigned short firstShipIndex;
-  unsigned short numShips;
-  unsigned short shipsAlive;
+  short index;
+  short firstShipIndex;
+  short numShips;
+  short shipsAlive;
   bool hasRoundOver;
   bool hasGameOver;
   int stageEventRef;
@@ -61,15 +61,15 @@ typedef struct {
 // Static ship properties that we don't need to copy around.
 typedef struct {
   char name[MAX_NAME_LENGTH + 1];
-  unsigned short shipR;
-  unsigned short shipG;
-  unsigned short shipB;
-  unsigned short laserR;
-  unsigned short laserG;
-  unsigned short laserB;
-  unsigned short thrusterR;
-  unsigned short thrusterG;
-  unsigned short thrusterB;
+  short shipR;
+  short shipG;
+  short shipB;
+  short laserR;
+  short laserG;
+  short laserB;
+  short thrusterR;
+  short thrusterG;
+  short thrusterB;
   bool stageShip;
   bool disabled;
   bool ownedByLua;
@@ -77,8 +77,8 @@ typedef struct {
 } ShipProperties;
 
 typedef struct {
-  unsigned short index;
-  unsigned short teamIndex;
+  short index;
+  short teamIndex;
   double thrusterAngle;
   double thrusterForce;
   double x;
@@ -86,8 +86,8 @@ typedef struct {
   double heading;
   double speed;
   double energy;
-  unsigned char laserGunHeat;
-  unsigned char torpedoGunHeat;
+  short laserGunHeat;
+  short torpedoGunHeat;
   bool hitWall;
   bool hitShip;
   bool alive;
@@ -116,8 +116,8 @@ typedef struct {
 } Sensors;
 
 typedef struct {
-  unsigned short shipIndex;
-  unsigned int fireTime;
+  short shipIndex;
+  int fireTime;
   double x;
   double y;
   double heading;
@@ -127,7 +127,7 @@ typedef struct {
 } Laser;
 
 typedef struct {
-  unsigned short shipIndex;
+  short shipIndex;
   double x;
   double y;
   double heading;
@@ -142,11 +142,11 @@ typedef struct {
 } StageBuilder;
 
 typedef struct {
-  unsigned short width;
-  unsigned short height;
-  unsigned short numShips;
-  unsigned short teamSize;
-  unsigned int time;
+  int width;
+  int height;
+  short numShips;
+  short teamSize;
+  int time;
   int wallsRef;
   int zonesRef;
   int constantsRef;

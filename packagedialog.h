@@ -44,7 +44,7 @@ class PackageDialog : public wxFrame {
   wxButton *refreshButton_;
   wxButton *packageButton_;
   wxStaticText *keyboardLabel_;
-  unsigned int numItems_;
+  int numItems_;
   PackageDialogListener *listener_;
   MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;

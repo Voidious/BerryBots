@@ -27,17 +27,17 @@
 #define MAX_SHIP_DEATHS  64
 
 typedef struct {
-  unsigned short shipIndex;
+  short shipIndex;
   double x;
   double y;
   int time;
 } ShipDeathGraphic;
 
 typedef struct {
-  unsigned short srcShipIndex;
-  unsigned short hitShipIndex;
+  short srcShipIndex;
+  short hitShipIndex;
   int time;
-  unsigned short offsets[4];
+  short offsets[4];
 } LaserHitShipGraphic;
 
 typedef struct {

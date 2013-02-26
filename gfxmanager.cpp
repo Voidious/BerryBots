@@ -447,11 +447,11 @@ void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
                                      dockSize, DOCK_BOTTOM_HEIGHT));
     stageView_.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
 
-    float dockViewportWidth = (((float) dockSize) / windowWidth);
-    float stageViewportWidth = 1 - dockViewportWidth;
-    float topViewportHeight = (((float) DOCK_TOP_HEIGHT) / windowHeight);
-    float teamsViewportHeight = (((float) dockTeamsHeight) / windowHeight);
-    float bottomViewportHeight = 1.0f - topViewportHeight - teamsViewportHeight;
+    double dockViewportWidth = (((double) dockSize) / windowWidth);
+    double stageViewportWidth = 1 - dockViewportWidth;
+    double topViewportHeight = (((double) DOCK_TOP_HEIGHT) / windowHeight);
+    double teamsViewportHeight = (((double) dockTeamsHeight) / windowHeight);
+    double bottomViewportHeight = 1.0f - topViewportHeight - teamsViewportHeight;
     dockTopView_.setViewport(
         sf::FloatRect(0.f, 0.f, dockViewportWidth, topViewportHeight));
     dockTeamsView_.setViewport(sf::FloatRect(

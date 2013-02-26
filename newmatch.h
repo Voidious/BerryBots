@@ -59,9 +59,9 @@ class NewMatchDialog : public wxFrame {
   wxStaticText *stageBaseDirLabel_;
   wxStaticText *botsBaseDirLabel_;
   wxStaticText *keyboardLabel_;
-  unsigned int numStages_;
-  unsigned int numBots_;
-  unsigned int numLoadedBots_;
+  int numStages_;
+  int numBots_;
+  int numLoadedBots_;
   NewMatchListener *listener_;
   MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
