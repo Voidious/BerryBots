@@ -39,9 +39,9 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   stage_ = new Stage(DEFAULT_STAGE_WIDTH, DEFAULT_STAGE_HEIGHT);
   listener_ = 0;
   gameTime_ = 0;
-  numTeams_ = 0;
+  numTeams_ = numInitializedTeams_ = 0;
   teamSize_ = 1;
-  numShips_ = 0;
+  numShips_ = numInitializedShips_ = 0;
   stageRun_ = false;
   stageConfigureComplete_ = false;
   shipInitComplete_ = false;
@@ -83,7 +83,7 @@ BerryBotsEngine::~BerryBotsEngine() {
     delete stageFilename_;
   }
 
-  for (int x = 0; x < numShips_; x++) {
+  for (int x = 0; x < numInitializedShips_; x++) {
     Ship *ship = ships_[x];
     if (ship->properties->ownedByLua) {
       delete ship->properties;
@@ -101,7 +101,7 @@ BerryBotsEngine::~BerryBotsEngine() {
     delete oldShips_;
   }
 
-  for (int x = 0; x < numTeams_; x++) {
+  for (int x = 0; x < numInitializedTeams_; x++) {
     Team *team = teams_[x];
     if (team->ownedByLua) {
       lua_close(team->state);
@@ -116,10 +116,10 @@ BerryBotsEngine::~BerryBotsEngine() {
   if (worlds_ != 0) {
     delete worlds_;
   }
-  for (int x = 0; x < numTeams_; x++) {
-    delete teamVision_[x];
-  }
   if (teamVision_ != 0) {
+    for (int x = 0; x < numTeams_; x++) {
+      delete teamVision_[x];
+    }
     delete teamVision_;
   }
   delete stage_;
@@ -474,9 +474,11 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     delete defaultShipName;
 
     teams_[x] = team;
+    numInitializedTeams_++;
     for (int y = 0; y < numStateShips; y++) {
       Ship *ship = stateShips[y];
       ships_[ship->index] = ship;
+      numInitializedShips_++;
     }
 
     if (!disabled) {
