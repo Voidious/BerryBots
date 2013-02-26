@@ -67,10 +67,10 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   gridSizer->Add(stageSizer, 0, wxALIGN_LEFT);
 
   wxBoxSizer *dirsSizer = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
-  stageBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
-  botsBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
+  stagesBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
+  shipsBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
   updateBaseDirLabels();
-  dirsSizer->Add(stageBaseDirLabel_);
+  dirsSizer->Add(stagesBaseDirLabel_);
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseStagesButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
   browseStagesButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
@@ -79,7 +79,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 #endif
 
   dirsSizer->AddSpacer(12);
-  dirsSizer->Add(botsBaseDirLabel_);
+  dirsSizer->Add(shipsBaseDirLabel_);
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseShipsButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
   browseShipsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
@@ -109,17 +109,17 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   dirsSizer->AddSpacer(4);
   gridSizer->Add(dirsSizer, 0, wxEXPAND | wxLEFT, 8);
 
-  botsLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Ships:");
-  botsSelect_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
-                              wxSize(275, 225), 0, NULL,
-                              wxLB_EXTENDED | wxLB_SORT);
-  wxBoxSizer *botsSizer = new wxBoxSizer(wxVERTICAL);
-  botsSizer->Add(botsLabel_, 0, wxALIGN_LEFT);
-  botsSizer->AddSpacer(3);
-  botsSizer->Add(botsSelect_, 0, wxALIGN_LEFT);
-  gridSizer->Add(botsSizer, 0, wxALIGN_LEFT);
+  shipsLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Ships:");
+  shipsSelect_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
+                               wxSize(275, 225), 0, NULL,
+                               wxLB_EXTENDED | wxLB_SORT);
+  wxBoxSizer *shipsSizer = new wxBoxSizer(wxVERTICAL);
+  shipsSizer->Add(shipsLabel_, 0, wxALIGN_LEFT);
+  shipsSizer->AddSpacer(3);
+  shipsSizer->Add(shipsSelect_, 0, wxALIGN_LEFT);
+  gridSizer->Add(shipsSizer, 0, wxALIGN_LEFT);
 
-  wxBoxSizer *buttonsLoadedBotsSizer = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *buttonsLoadedShipsSizer = new wxBoxSizer(wxHORIZONTAL);
   addArrow_ = new wxButton(mainPanel_, wxID_ANY, ">>", wxDefaultPosition,
                            wxDefaultSize);
   removeArrow_ = new wxButton(mainPanel_, wxID_ANY, "<<", wxDefaultPosition,
@@ -127,14 +127,14 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   clearButton_ = new wxButton(mainPanel_, wxID_ANY, "C&lear", wxDefaultPosition,
                               wxDefaultSize);
 
-  wxBoxSizer *botButtonsSizer = new wxBoxSizer(wxVERTICAL);
-  botButtonsSizer->AddStretchSpacer(1);
-  botButtonsSizer->Add(addArrow_, 0, wxALIGN_CENTER);
-  botButtonsSizer->AddSpacer(5);
-  botButtonsSizer->Add(removeArrow_, 0, wxALIGN_CENTER);
-  botButtonsSizer->AddSpacer(5);
-  botButtonsSizer->Add(clearButton_, 0, wxALIGN_CENTER);
-  botButtonsSizer->AddStretchSpacer(1);
+  wxBoxSizer *shipButtonsSizer = new wxBoxSizer(wxVERTICAL);
+  shipButtonsSizer->AddStretchSpacer(1);
+  shipButtonsSizer->Add(addArrow_, 0, wxALIGN_CENTER);
+  shipButtonsSizer->AddSpacer(5);
+  shipButtonsSizer->Add(removeArrow_, 0, wxALIGN_CENTER);
+  shipButtonsSizer->AddSpacer(5);
+  shipButtonsSizer->Add(clearButton_, 0, wxALIGN_CENTER);
+  shipButtonsSizer->AddStretchSpacer(1);
 #ifdef __WXOSX__
   keyboardLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
                                     "\u2318 hotkeys");
@@ -142,15 +142,15 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   keyboardLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
                                     "ALT hotkeys");
 #endif
-  botButtonsSizer->Add(keyboardLabel_, 0, wxALIGN_CENTER | wxALIGN_BOTTOM);
-  buttonsLoadedBotsSizer->Add(botButtonsSizer, 0, wxALIGN_CENTER | wxEXPAND);
+  shipButtonsSizer->Add(keyboardLabel_, 0, wxALIGN_CENTER | wxALIGN_BOTTOM);
+  buttonsLoadedShipsSizer->Add(shipButtonsSizer, 0, wxALIGN_CENTER | wxEXPAND);
 
-  loadedBotsSelect_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
-                                    wxSize(275, 225), 0, NULL, wxLB_EXTENDED);
-  buttonsLoadedBotsSizer->AddSpacer(5);
-  buttonsLoadedBotsSizer->Add(loadedBotsSelect_, 0,
+  loadedShipsSelect_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
+                                     wxSize(275, 225), 0, NULL, wxLB_EXTENDED);
+  buttonsLoadedShipsSizer->AddSpacer(5);
+  buttonsLoadedShipsSizer->Add(loadedShipsSelect_, 0,
                               wxALIGN_BOTTOM | wxALIGN_RIGHT);
-  gridSizer->Add(buttonsLoadedBotsSizer, 0, wxALIGN_BOTTOM);
+  gridSizer->Add(buttonsLoadedShipsSizer, 0, wxALIGN_BOTTOM);
 
   refreshButton_ = new wxButton(mainPanel_, wxID_REFRESH, "    &Refresh    ");
   gridSizer->Add(refreshButton_, 0, wxALIGN_LEFT);
@@ -163,7 +163,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   mainPanel_->SetSizerAndFit(borderSizer_);
   SetSizerAndFit(mainSizer_);
 
-  numStages_ = numBots_ = numLoadedBots_ = 0;
+  numStages_ = numShips_ = numLoadedShips_ = 0;
   menusInitialized_ = false;
   validateButtons();
 
@@ -172,25 +172,25 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   Connect(NEW_MATCH_ID, wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(NewMatchDialog::onClose));
   Connect(addArrow_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
-          wxCommandEventHandler(NewMatchDialog::onAddBots));
+          wxCommandEventHandler(NewMatchDialog::onAddShips));
   Connect(removeArrow_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
-          wxCommandEventHandler(NewMatchDialog::onRemoveBots));
+          wxCommandEventHandler(NewMatchDialog::onRemoveShips));
   Connect(clearButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
-          wxCommandEventHandler(NewMatchDialog::onClearLoadedBots));
+          wxCommandEventHandler(NewMatchDialog::onClearLoadedShips));
   Connect(startButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onStartMatch));
-  Connect(botsSelect_->GetId(), wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
-          wxCommandEventHandler(NewMatchDialog::onAddBots));
-  Connect(loadedBotsSelect_->GetId(), wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
-          wxCommandEventHandler(NewMatchDialog::onRemoveBots));
+  Connect(shipsSelect_->GetId(), wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
+          wxCommandEventHandler(NewMatchDialog::onAddShips));
+  Connect(loadedShipsSelect_->GetId(), wxEVT_COMMAND_LISTBOX_DOUBLECLICKED,
+          wxCommandEventHandler(NewMatchDialog::onRemoveShips));
   Connect(refreshButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onRefreshFiles));
   Connect(stageSelect_->GetId(), wxEVT_UPDATE_UI,
           wxUpdateUIEventHandler(NewMatchDialog::onSelectStage));
-  Connect(botsSelect_->GetId(), wxEVT_UPDATE_UI,
-          wxUpdateUIEventHandler(NewMatchDialog::onSelectBot));
-  Connect(loadedBotsSelect_->GetId(), wxEVT_UPDATE_UI,
-          wxUpdateUIEventHandler(NewMatchDialog::onSelectLoadedBot));
+  Connect(shipsSelect_->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(NewMatchDialog::onSelectShip));
+  Connect(loadedShipsSelect_->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(NewMatchDialog::onSelectLoadedShip));
   Connect(browseApidocsButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onBrowseApidocs));
 
@@ -218,16 +218,16 @@ NewMatchDialog::~NewMatchDialog() {
   delete eventFilter_;
   delete stageLabel_;
   delete stageSelect_;
-  delete botsLabel_;
-  delete botsSelect_;
+  delete shipsLabel_;
+  delete shipsSelect_;
   delete addArrow_;
   delete removeArrow_;
   delete clearButton_;
-  delete loadedBotsSelect_;
+  delete loadedShipsSelect_;
   delete startButton_;
   delete refreshButton_;
-  delete stageBaseDirLabel_;
-  delete botsBaseDirLabel_;
+  delete stagesBaseDirLabel_;
+  delete shipsBaseDirLabel_;
   delete keyboardLabel_;
   delete browseApidocsButton_;
 
@@ -256,16 +256,16 @@ void NewMatchDialog::addStage(char *stage) {
   }
 }
 
-void NewMatchDialog::clearBots() {
-  botsSelect_->Clear();
-  numBots_ = 0;
+void NewMatchDialog::clearShips() {
+  shipsSelect_->Clear();
+  numShips_ = 0;
 }
 
-void NewMatchDialog::addBot(char *bot) {
-  botsSelect_->Append(wxString(bot));
-  numBots_++;
-  if (botsSelect_->GetCount() > 0) {
-    botsSelect_->SetFirstItem(0);
+void NewMatchDialog::addShip(char *ship) {
+  shipsSelect_->Append(wxString(ship));
+  numShips_++;
+  if (shipsSelect_->GetCount() > 0) {
+    shipsSelect_->SetFirstItem(0);
   }
 }
 
@@ -284,63 +284,63 @@ void NewMatchDialog::onClose(wxCommandEvent &event) {
   listener_->onClose();
 }
 
-void NewMatchDialog::onAddBots(wxCommandEvent &event) {
-  addSelectedBots();
+void NewMatchDialog::onAddShips(wxCommandEvent &event) {
+  addSelectedShips();
 }
 
-void NewMatchDialog::addSelectedBots() {
-  wxArrayInt selectedBots;
-  botsSelect_->GetSelections(selectedBots);
-  wxArrayInt::const_iterator first = selectedBots.begin();
-  wxArrayInt::const_iterator last = selectedBots.end();
+void NewMatchDialog::addSelectedShips() {
+  wxArrayInt selectedShips;
+  shipsSelect_->GetSelections(selectedShips);
+  wxArrayInt::const_iterator first = selectedShips.begin();
+  wxArrayInt::const_iterator last = selectedShips.end();
   while (first != last) {
-    int botIndex = *first++;
-    loadedBotsSelect_->Insert(botsSelect_->GetString(botIndex),
-                              numLoadedBots_++);
+    int shipIndex = *first++;
+    loadedShipsSelect_->Insert(shipsSelect_->GetString(shipIndex),
+                               numLoadedShips_++);
   }
   validateButtons();
 }
 
-void NewMatchDialog::onRemoveBots(wxCommandEvent &event) {
-  removeSelectedLoadedBots();
+void NewMatchDialog::onRemoveShips(wxCommandEvent &event) {
+  removeSelectedLoadedShips();
 }
 
-void NewMatchDialog::removeSelectedLoadedBots() {
-  wxArrayInt selectedBots;
-  loadedBotsSelect_->GetSelections(selectedBots);
-  wxArrayInt::const_iterator first = selectedBots.begin();
-  wxArrayInt::const_iterator last = selectedBots.end();
+void NewMatchDialog::removeSelectedLoadedShips() {
+  wxArrayInt selectedShips;
+  loadedShipsSelect_->GetSelections(selectedShips);
+  wxArrayInt::const_iterator first = selectedShips.begin();
+  wxArrayInt::const_iterator last = selectedShips.end();
   int removed = 0;
   while (first != last) {
-    int botIndex = *first++;
-    loadedBotsSelect_->Delete(botIndex - (removed++));
-    numLoadedBots_--;
+    int shipIndex = *first++;
+    loadedShipsSelect_->Delete(shipIndex - (removed++));
+    numLoadedShips_--;
   }
   validateButtons();
 }
 
-void NewMatchDialog::removeStaleLoadedBots() {
-  if (numLoadedBots_ > 0) {
-    for (int x = 0; x < numLoadedBots_; x++) {
-      wxString loadedBot = loadedBotsSelect_->GetString(x);
-      if (botsSelect_->wxItemContainerImmutable::FindString(loadedBot)
+void NewMatchDialog::removeStaleLoadedShips() {
+  if (numLoadedShips_ > 0) {
+    for (int x = 0; x < numLoadedShips_; x++) {
+      wxString loadedShip = loadedShipsSelect_->GetString(x);
+      if (shipsSelect_->wxItemContainerImmutable::FindString(loadedShip)
               == wxNOT_FOUND) {
-        loadedBotsSelect_->Delete(x);
+        loadedShipsSelect_->Delete(x);
         x--;
-        numLoadedBots_--;
+        numLoadedShips_--;
       }
     }
   }
   validateButtons();
 }
 
-void NewMatchDialog::onClearLoadedBots(wxCommandEvent &event) {
-  clearLoadedBots();
+void NewMatchDialog::onClearLoadedShips(wxCommandEvent &event) {
+  clearLoadedShips();
 }
 
-void NewMatchDialog::clearLoadedBots() {
-  loadedBotsSelect_->Clear();
-  numLoadedBots_ = 0;
+void NewMatchDialog::clearLoadedShips() {
+  loadedShipsSelect_->Clear();
+  numLoadedShips_ = 0;
   validateButtons();
 }
 
@@ -350,21 +350,20 @@ void NewMatchDialog::onStartMatch(wxCommandEvent &event) {
 
 void NewMatchDialog::startMatch() {
   if (listener_ != 0) {
-    wxArrayInt loadedBots;
     wxArrayInt selectedStageIndex;
     stageSelect_->GetSelections(selectedStageIndex);
-    if (numLoadedBots_ > 0 && selectedStageIndex.Count() > 0) {
-      int numStartBots = numLoadedBots_;
-      char** bots = new char*[numStartBots];
-      for (int x = 0; x < numStartBots; x++) {
-        wxString loadedBot = loadedBotsSelect_->GetString(x);
-        char *bot = new char[loadedBot.length() + 1];
+    if (numLoadedShips_ > 0 && selectedStageIndex.Count() > 0) {
+      int numStartShips = numLoadedShips_;
+      char** ships = new char*[numStartShips];
+      for (int x = 0; x < numStartShips; x++) {
+        wxString loadedShip = loadedShipsSelect_->GetString(x);
+        char *ship = new char[loadedShip.length() + 1];
 #ifdef __WINDOWS__
-        strcpy(bot, loadedBot.c_str());
+        strcpy(ship, loadedShip.c_str());
 #else
-        strcpy(bot, loadedBot.fn_str());
+        strcpy(ship, loadedShip.fn_str());
 #endif
-        bots[x] = bot;
+        ships[x] = ship;
       }
       
       wxString selectedStage =
@@ -376,12 +375,12 @@ void NewMatchDialog::startMatch() {
       strcpy(stage, selectedStage.fn_str());
 #endif
       
-      listener_->startMatch(stage, bots, numStartBots);
+      listener_->startMatch(stage, ships, numStartShips);
       
-      for (int x = 0; x < numStartBots; x++) {
-        delete bots[x];
+      for (int x = 0; x < numStartShips; x++) {
+        delete ships[x];
       }
-      delete bots;
+      delete ships;
       delete stage;
     }
   }
@@ -398,11 +397,11 @@ void NewMatchDialog::refreshFiles() {
 }
 
 void NewMatchDialog::onBrowseStages(wxCommandEvent &event) {
-  browseDirectory(getStageDir().c_str());
+  browseDirectory(getStagesDir().c_str());
 }
 
 void NewMatchDialog::onBrowseShips(wxCommandEvent &event) {
-  browseDirectory(getBotsDir().c_str());
+  browseDirectory(getShipsDir().c_str());
 }
 
 void NewMatchDialog::onBrowseApidocs(wxCommandEvent &event) {
@@ -476,12 +475,12 @@ void NewMatchDialog::changeBaseDir() {
 }
 
 void NewMatchDialog::updateBaseDirLabels() {
-  wxString stageBaseDirLabelText("Stages:  ");
-  stageBaseDirLabelText.Append(getStageDir());
-  stageBaseDirLabel_->SetLabelText(stageBaseDirLabelText);
-  wxString botsBaseDirLabelText("Ships:  ");
-  botsBaseDirLabelText.Append(getBotsDir());
-  botsBaseDirLabel_->SetLabelText(botsBaseDirLabelText);
+  wxString stagesBaseDirLabelText("Stages:  ");
+  stagesBaseDirLabelText.Append(getStagesDir());
+  stagesBaseDirLabel_->SetLabelText(stagesBaseDirLabelText);
+  wxString shipsBaseDirLabelText("Ships:  ");
+  shipsBaseDirLabelText.Append(getShipsDir());
+  shipsBaseDirLabel_->SetLabelText(shipsBaseDirLabelText);
 }
 
 void NewMatchDialog::onEscape() {
@@ -492,11 +491,11 @@ void NewMatchDialog::onSelectStage(wxUpdateUIEvent &event) {
   validateButtons();
 }
 
-void NewMatchDialog::onSelectBot(wxUpdateUIEvent &event) {
+void NewMatchDialog::onSelectShip(wxUpdateUIEvent &event) {
   validateButtons();
 }
 
-void NewMatchDialog::onSelectLoadedBot(wxUpdateUIEvent &event) {
+void NewMatchDialog::onSelectLoadedShip(wxUpdateUIEvent &event) {
   validateButtons();
 }
 
@@ -521,24 +520,24 @@ bool NewMatchDialog::stageSelectHasFocus() {
   return stageSelect_->HasFocus();
 }
 
-bool NewMatchDialog::botsSelectHasFocus() {
-  return botsSelect_->HasFocus();
+bool NewMatchDialog::shipsSelectHasFocus() {
+  return shipsSelect_->HasFocus();
 }
 
-bool NewMatchDialog::loadedBotsSelectHasFocus() {
-  return loadedBotsSelect_->HasFocus();
+bool NewMatchDialog::loadedShipsSelectHasFocus() {
+  return loadedShipsSelect_->HasFocus();
 }
 
 void NewMatchDialog::validateButtons() {
-  if (numLoadedBots_ > 0) {
+  if (numLoadedShips_ > 0) {
     validateButtonSelectedListBox(startButton_, stageSelect_);
   } else {
     startButton_->Disable();
   }
 
-  validateButtonSelectedListBox(addArrow_, botsSelect_);
-  validateButtonSelectedListBox(removeArrow_, loadedBotsSelect_);
-  validateButtonNonEmptyListBox(clearButton_, loadedBotsSelect_);
+  validateButtonSelectedListBox(addArrow_, shipsSelect_);
+  validateButtonSelectedListBox(removeArrow_, loadedShipsSelect_);
+  validateButtonNonEmptyListBox(clearButton_, loadedShipsSelect_);
 }
 
 void NewMatchDialog::validateButtonNonEmptyListBox(wxButton *button,
@@ -612,12 +611,12 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
       newMatchDialog_->onEscape();
       return Event_Processed;
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_RETURN)
-               && newMatchDialog_->botsSelectHasFocus()) {
-      newMatchDialog_->addSelectedBots();
+               && newMatchDialog_->shipsSelectHasFocus()) {
+      newMatchDialog_->addSelectedShips();
       return Event_Processed;
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_BACK)
-               && (newMatchDialog_->loadedBotsSelectHasFocus())) {
-      newMatchDialog_->removeSelectedLoadedBots();
+               && (newMatchDialog_->loadedShipsSelectHasFocus())) {
+      newMatchDialog_->removeSelectedLoadedShips();
     } else if (keyCode == WXK_SPACE && newMatchDialog_->stageSelectHasFocus()) {
       newMatchDialog_->previewSelectedStage();
       return Event_Processed;
@@ -630,7 +629,7 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
       newMatchDialog_->refreshFiles();
       return Event_Processed;
     } else if (keyEvent->GetUnicodeKey() == 'L' && modifierDown) {
-      newMatchDialog_->clearLoadedBots();
+      newMatchDialog_->clearLoadedShips();
       return Event_Processed;
 #endif
     }

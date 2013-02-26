@@ -39,17 +39,17 @@ bool isConfigured() {
   return cfg.hasPlist;
 }
 
-std::string getStageDir(void) {
+std::string getStagesDir(void) {
   if (loadCfg()) {
-    return [cfg.stageDir UTF8String];
+    return [cfg.stagesDir UTF8String];
   } else {
     exit(0);
   }
 }
 
-std::string getBotsDir(void) {
+std::string getShipsDir(void) {
   if (loadCfg()) {
-    return [cfg.botsDir UTF8String];
+    return [cfg.shipsDir UTF8String];
   } else {
     exit(0);
   }

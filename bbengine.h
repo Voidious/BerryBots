@@ -65,7 +65,7 @@ class BerryBotsEngine {
   Stage *stage_;
   FileManager *fileManager_;
   lua_State *stageState_;
-  char *stageDir_;
+  char *stagesDir_;
   char *stageFilename_;
   World *stageWorld_;
   NewTeamStateListener *listener_;
@@ -110,9 +110,9 @@ class BerryBotsEngine {
     void setWinnerName(const char* winnerName);
     char* getWinnerName();
 
-    void initStage(const char *stageBaseDir, const char *stageName,
+    void initStage(const char *stagesBaseDir, const char *stageName,
                    const char *cacheDir) throw (EngineException*);
-    void initShips(const char *botsBaseDir, char **teamNames, int numTeams,
+    void initShips(const char *shipsBaseDir, char **teamNames, int numTeams,
                    const char *cacheDir) throw (EngineException*);
     void processTick() throw (EngineException*);
     void processRoundOver();

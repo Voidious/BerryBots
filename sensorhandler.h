@@ -155,7 +155,7 @@ class SensorHandler : public EventHandler {
   int numTeams_;
   bool** teamVision_;
 
-  // Events for the bots.
+  // Events for the ships.
   HitByShip*** hitByShips_;
   int* numHitByShips_;
   HitByLaser*** hitByLasers_;
@@ -208,7 +208,7 @@ class SensorHandler : public EventHandler {
     virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,
         double torpedoDistance, int time);
 
-    // Events for the bots.
+    // Events for the ships.
     HitByShip** getHitByShips(int teamIndex);
     int numHitByShips(int teamIndex);
     void clearHitByShips(int teamIndex);

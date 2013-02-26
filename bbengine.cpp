@@ -51,7 +51,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   winnerName_[0] = '\0';
 
   stageState_ = 0;
-  stageDir_ = 0;
+  stagesDir_ = 0;
   stageFilename_ = 0;
   stageWorld_ = 0;
   teams_ = 0;
@@ -76,8 +76,8 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
 
 BerryBotsEngine::~BerryBotsEngine() {
   timerSettings_->enabled = false;
-  if (stageDir_ != 0) {
-    delete stageDir_;
+  if (stagesDir_ != 0) {
+    delete stagesDir_;
   }
   if (stageFilename_ != 0) {
     delete stageFilename_;
@@ -264,18 +264,18 @@ void *BerryBotsEngine::timerThread(void *vargs) {
 }
 
 // Loads the stage in the file stageName, which may include a relative path,
-// from the root directory stageBaseDir. Note that the file may be either a .lua
-// file, in which case we just load it directly; or a stage packaged as a
+// from the root directory stagesBaseDir. Note that the file may be either a
+// .lua file, in which case we just load it directly; or a stage packaged as a
 // .tar.gz file, in which case we extract it to the cache and load from there.
-void BerryBotsEngine::initStage(const char *stageBaseDir, const char *stageName,
-                                const char *cacheDir) throw (EngineException*) {
-  if (stageDir_ != 0 || stageFilename_ != 0) {
+void BerryBotsEngine::initStage(const char *stagesBaseDir,
+    const char *stageName, const char *cacheDir) throw (EngineException*) {
+  if (stagesDir_ != 0 || stageFilename_ != 0) {
     throw new EngineException("Already initialized stage for this engine.");
   }
 
   try {
     fileManager_->loadStageFileData(
-        stageBaseDir, stageName, &stageDir_, &stageFilename_, cacheDir);
+        stagesBaseDir, stageName, &stagesDir_, &stageFilename_, cacheDir);
   } catch (FileNotFoundException *fnfe) {
     EngineException *eie = new EngineException(fnfe->what());
     delete fnfe;
@@ -285,7 +285,7 @@ void BerryBotsEngine::initStage(const char *stageBaseDir, const char *stageName,
     delete ze;
     throw eie;
   }
-  initStageState(&stageState_, stageDir_);
+  initStageState(&stageState_, stagesDir_);
 
   if (luaL_loadfile(stageState_, stageFilename_)) {
     throwForLuaError(stageState_, "Cannot load stage file: %s");
@@ -308,11 +308,11 @@ void BerryBotsEngine::initStage(const char *stageBaseDir, const char *stageName,
 }
 
 // Loads the teams in the files specified in teamNames from the root directory
-// botsBaseDir. Each team name is a path relative to botsBaseDir . Note that the
-// team file may be either a .lua file, in which case we just load it directly;
-// or a ship/team packaged as a .tar.gz file, in which case we extract it to the
-// cache and load from there.
-void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
+// shipsBaseDir. Each team name is a path relative to shipsBaseDir . Note that
+// the team file may be either a .lua file, in which case we just load it
+// directly; or a ship/team packaged as a .tar.gz file, in which case we extract
+// it to the cache and load from there.
+void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     int numTeams, const char *cacheDir) throw (EngineException*) {
   int userTeams = numTeams;
   int numStageShips = stage_->getStageShipCount();
@@ -329,14 +329,14 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     bool deleteFilename = false;
     bool stageShip = (x >= userTeams);
     if (stageShip) {
-      baseDir = stageDir_;
+      baseDir = stagesDir_;
       const char *localFilename = stage_->getStageShips()[x - userTeams];
       filename = FileManager::getStageShipRelativePath(
-          stageDir_, stageFilename_, localFilename);
+          stagesDir_, stageFilename_, localFilename);
 
       deleteFilename = true;
     } else {
-      baseDir = botsBaseDir;
+      baseDir = shipsBaseDir;
       filename = teamNames[x];
     }
 
@@ -344,7 +344,7 @@ void BerryBotsEngine::initShips(const char *botsBaseDir, char **teamNames,
     char *shipDir = 0;
     char *shipFilename = 0;
     try {
-      fileManager_->loadBotFileData(baseDir, filename, &shipDir, &shipFilename,
+      fileManager_->loadShipFileData(baseDir, filename, &shipDir, &shipFilename,
                                     cacheDir);
     } catch (FileNotFoundException *fnfe) {
       if (deleteFilename) {

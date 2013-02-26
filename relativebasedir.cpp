@@ -34,11 +34,11 @@ std::string getFullPath(const char *relativePath) {
   return fullPath;
 }
 
-std::string getStageDir() {
+std::string getStagesDir() {
   return getFullPath("stages");
 }
 
-std::string getBotsDir() {
+std::string getShipsDir() {
   return getFullPath("bots");
 }
 

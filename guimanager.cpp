@@ -47,7 +47,7 @@ extern PrintHandler *printHandler;
 
 GuiManager::GuiManager(GuiListener *listener) {
   listener_ = listener;
-  stageBaseDir_ = botsBaseDir_ = 0;
+  stagesBaseDir_ = shipsBaseDir_ = 0;
   reloadBaseDirs();
 
   window_ = 0;
@@ -58,16 +58,16 @@ GuiManager::GuiManager(GuiListener *listener) {
   packagingConsole_ = new OutputConsole("Packaging Details", menuBarMaker_);
   errorConsole_ = new OutputConsole("Error Console", menuBarMaker_);
   packagingConsole_->SetPosition(wxPoint(150, 100));
-  newMatchListener_ = new MatchRunner(this, stageBaseDir_, botsBaseDir_);
+  newMatchListener_ = new MatchRunner(this, stagesBaseDir_, shipsBaseDir_);
   newMatchDialog_ = new NewMatchDialog(newMatchListener_, menuBarMaker_);
   shipPackager_ = new ShipPackager(this, fileManager_, packagingConsole_,
-                                   botsBaseDir_);
+                                   shipsBaseDir_);
   packageShipDialog_ = new PackageShipDialog(shipPackager_, menuBarMaker_);
   stagePackager_ = new StagePackager(this, fileManager_, packagingConsole_,
-                                     stageBaseDir_, botsBaseDir_);
+                                     stagesBaseDir_, shipsBaseDir_);
   packageStageDialog_ = new PackageStageDialog(stagePackager_, menuBarMaker_);
   loadStages();
-  loadBots();
+  loadShips();
 
   stageConsole_ = 0;
   teamConsoles_ = 0;
@@ -108,8 +108,8 @@ GuiManager::~GuiManager() {
   delete packageStageDialog_;
   delete packagingConsole_;
   delete menuBarMaker_;
-  delete stageBaseDir_;
-  delete botsBaseDir_;
+  delete stagesBaseDir_;
+  delete shipsBaseDir_;
   if (engine_ != 0) {
     delete engine_;
   }
@@ -138,33 +138,33 @@ GuiManager::~GuiManager() {
 }
 
 void GuiManager::setBaseDirs(const char *stagesBaseDir,
-                             const char *botsBaseDir) {
-  if (stageBaseDir_ != 0) {
-    delete stageBaseDir_;
+                             const char *shipsBaseDir) {
+  if (stagesBaseDir_ != 0) {
+    delete stagesBaseDir_;
   }
-  stageBaseDir_ = new char[strlen(stagesBaseDir) + 1];
-  strcpy(stageBaseDir_, stagesBaseDir);
+  stagesBaseDir_ = new char[strlen(stagesBaseDir) + 1];
+  strcpy(stagesBaseDir_, stagesBaseDir);
 
-  if (botsBaseDir_ != 0) {
-    delete botsBaseDir_;
+  if (shipsBaseDir_ != 0) {
+    delete shipsBaseDir_;
   }
-  botsBaseDir_ = new char[strlen(botsBaseDir) + 1];
-  strcpy(botsBaseDir_, botsBaseDir);
+  shipsBaseDir_ = new char[strlen(shipsBaseDir) + 1];
+  strcpy(shipsBaseDir_, shipsBaseDir);
 }
 
 void GuiManager::reloadBaseDirs() {
-  setBaseDirs(getStageDir().c_str(), getBotsDir().c_str());
+  setBaseDirs(getStagesDir().c_str(), getShipsDir().c_str());
 }
 
 void GuiManager::loadStages() {
   newMatchDialog_->clearStages();
   packageStageDialog_->clearItems();
-  loadStagesFromDir(stageBaseDir_);
+  loadStagesFromDir(stagesBaseDir_);
 }
 
 void GuiManager::loadStagesFromDir(const char *loadDir) {
   BerryBotsEngine engine(fileManager_);
-  loadItemsFromDir(stageBaseDir_, loadDir, ITEM_STAGE, packageStageDialog_,
+  loadItemsFromDir(stagesBaseDir_, loadDir, ITEM_STAGE, packageStageDialog_,
                    &engine);
 }
 
@@ -178,17 +178,17 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
   if (fileManager_->isLuaFilename(srcFilename)
       || fileManager_->isZipFilename(srcFilename)) {
     char *cacheDir = getCacheDirCopy();
-    char *stageDir = 0;
+    char *stagesDir = 0;
     char *stageFilename = 0;
     try {
-      fileManager_->loadStageFileData(stageBaseDir_, srcFilename, &stageDir,
+      fileManager_->loadStageFileData(stagesBaseDir_, srcFilename, &stagesDir,
                                       &stageFilename, cacheDir);
     } catch (FileNotFoundException *fnfe) {
       // Only possible if user deletes file from disk after we find it on disk
       // but before we validate it. Seems safe to fail silently.
       delete cacheDir;
-      if (stageDir != 0) {
-        delete stageDir;
+      if (stagesDir != 0) {
+        delete stagesDir;
       }
       if (stageFilename != 0) {
         delete stageFilename;
@@ -196,8 +196,8 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
       return false;
     } catch (ZipperException *ze) {
       delete cacheDir;
-      if (stageDir != 0) {
-        delete stageDir;
+      if (stagesDir != 0) {
+        delete stagesDir;
       }
       if (stageFilename != 0) {
         delete stageFilename;
@@ -210,13 +210,13 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
     }
     delete cacheDir;
     lua_State *stageState;
-    initStageState(&stageState, stageDir);
+    initStageState(&stageState, stagesDir);
 
     if (luaL_loadfile(stageState, stageFilename)
         || engine->callUserLuaCode(stageState, 0, "", PCALL_VALIDATE)) {
       logErrorMessage(stageState, "Problem loading stage: %s");
       lua_close(stageState);
-      delete stageDir;
+      delete stagesDir;
       delete stageFilename;
       return false;
     }
@@ -224,33 +224,33 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
     lua_getglobal(stageState, "configure");
     if (lua_isnil(stageState, -1)) {
       lua_close(stageState);
-      delete stageDir;
+      delete stagesDir;
       delete stageFilename;
       return false;
     }
 
     lua_close(stageState);
-    delete stageDir;
+    delete stagesDir;
     delete stageFilename;
     return true;
   }
   return false;
 }
 
-void GuiManager::loadBots() {
-  newMatchDialog_->clearBots();
+void GuiManager::loadShips() {
+  newMatchDialog_->clearShips();
   packageShipDialog_->clearItems();
-  loadBotsFromDir(botsBaseDir_);
-  newMatchDialog_->removeStaleLoadedBots();
+  loadShipsFromDir(shipsBaseDir_);
+  newMatchDialog_->removeStaleLoadedShips();
 }
 
-void GuiManager::loadBotsFromDir(const char *loadDir) {
+void GuiManager::loadShipsFromDir(const char *loadDir) {
   BerryBotsEngine engine(fileManager_);
-  loadItemsFromDir(botsBaseDir_, loadDir, ITEM_BOT, packageShipDialog_,
+  loadItemsFromDir(shipsBaseDir_, loadDir, ITEM_SHIP, packageShipDialog_,
                    &engine);
 }
 
-bool GuiManager::isValidBotFile(const char *srcFilename,
+bool GuiManager::isValidShipFile(const char *srcFilename,
                                 BerryBotsEngine *engine) {
   // TODO: Is this too slow? Should we keep this list in the cache so we don't
   //       have to do this on every startup / refresh - at least for packaged
@@ -260,29 +260,29 @@ bool GuiManager::isValidBotFile(const char *srcFilename,
   if (fileManager_->isLuaFilename(srcFilename)
       || fileManager_->isZipFilename(srcFilename)) {
     char *cacheDir = getCacheDirCopy();
-    char *botDir = 0;
-    char *botFilename = 0;
+    char *shipDir = 0;
+    char *shipFilename = 0;
     try {
-      fileManager_->loadBotFileData(botsBaseDir_, srcFilename, &botDir,
-                                    &botFilename, cacheDir);
+      fileManager_->loadShipFileData(shipsBaseDir_, srcFilename, &shipDir,
+                                     &shipFilename, cacheDir);
     } catch (FileNotFoundException *fnfe) {
       // Only possible if user deletes file from disk after we find it on disk
       // but before we validate it. Seems safe to fail silently.
       delete cacheDir;
-      if (botDir != 0) {
-        delete botDir;
+      if (shipDir != 0) {
+        delete shipDir;
       }
-      if (botFilename != 0) {
-        delete botFilename;
+      if (shipFilename != 0) {
+        delete shipFilename;
       }
       return false;
     } catch (ZipperException *ze) {
       delete cacheDir;
-      if (botDir != 0) {
-        delete botDir;
+      if (shipDir != 0) {
+        delete shipDir;
       }
-      if (botFilename != 0) {
-        delete botFilename;
+      if (shipFilename != 0) {
+        delete shipFilename;
       }
       errorConsole_->println(ze->what());
       wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
@@ -292,14 +292,14 @@ bool GuiManager::isValidBotFile(const char *srcFilename,
     }
     delete cacheDir;
     lua_State *shipState;
-    initShipState(&shipState, botDir);
+    initShipState(&shipState, shipDir);
 
-    if (luaL_loadfile(shipState, botFilename)
+    if (luaL_loadfile(shipState, shipFilename)
         || engine->callUserLuaCode(shipState, 0, "", PCALL_VALIDATE)) {
       logErrorMessage(shipState, "Problem loading ship: %s");
       lua_close(shipState);
-      delete botDir;
-      delete botFilename;
+      delete shipDir;
+      delete shipFilename;
       return false;
     }
 
@@ -307,14 +307,14 @@ bool GuiManager::isValidBotFile(const char *srcFilename,
     lua_getglobal(shipState, "init");
     if (lua_isnil(shipState, -1) || !lua_isnil(shipState, -2)) {
       lua_close(shipState);
-      delete botDir;
-      delete botFilename;
+      delete shipDir;
+      delete shipFilename;
       return false;
     }
     
     lua_close(shipState);
-    delete botDir;
-    delete botFilename;
+    delete shipDir;
+    delete shipFilename;
     return true;
   }
   return false;
@@ -336,8 +336,8 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
     } else {
       char *relativeFilename = &(filePath[strlen(baseDir) + 1]);
       bool valid = false;
-      if (itemType == ITEM_BOT && isValidBotFile(relativeFilename, engine)) {
-        newMatchDialog_->addBot(relativeFilename);
+      if (itemType == ITEM_SHIP && isValidShipFile(relativeFilename, engine)) {
+        newMatchDialog_->addShip(relativeFilename);
         valid = true;
       } else if (itemType == ITEM_STAGE && isValidStageFile(relativeFilename,
                                                             engine)) {
@@ -440,8 +440,8 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   Stage *stage = engine_->getStage();
   char *cacheDir = getCacheDirCopy();
   try {
-    engine_->initStage(stageBaseDir_, stageName, cacheDir);
-    engine_->initShips(botsBaseDir_, teamNames, numUserTeams, cacheDir);
+    engine_->initStage(stagesBaseDir_, stageName, cacheDir);
+    engine_->initShips(shipsBaseDir_, teamNames, numUserTeams, cacheDir);
     teamConsoles_ = guiPrintHandler->getTeamConsoles();
 
     for (int x = 0; x < engine_->getNumTeams(); x++) {
@@ -820,7 +820,7 @@ void GuiManager::showStagePreview(const char *stageName) {
   GfxEventHandler *gfxHandler = new GfxEventHandler();
   BerryBotsEngine *engine = new BerryBotsEngine(fileManager_);
   try {
-    engine->initStage(stageBaseDir_, stageName, getCacheDir().c_str());
+    engine->initStage(stagesBaseDir_, stageName, getCacheDir().c_str());
   } catch (EngineException *e) {
     delete gfxHandler;
     delete engine;
@@ -1034,16 +1034,16 @@ void GuiManager::logErrorMessage(lua_State *L, const char *formatString) {
   errorConsole_->Raise();
 }
 
-char* GuiManager::getStageDirCopy() {
-  char *stageDir = new char[getStageDir().length() + 1];
-  strcpy(stageDir, getStageDir().c_str());
-  return stageDir;
+char* GuiManager::getStagesDirCopy() {
+  char *stagesDir = new char[getStagesDir().length() + 1];
+  strcpy(stagesDir, getStagesDir().c_str());
+  return stagesDir;
 }
 
-char* GuiManager::getBotsDirCopy() {
-  char *botsDir = new char[getBotsDir().length() + 1];
-  strcpy(botsDir, getBotsDir().c_str());
-  return botsDir;
+char* GuiManager::getShipsDirCopy() {
+  char *shipsDir = new char[getShipsDir().length() + 1];
+  strcpy(shipsDir, getShipsDir().c_str());
+  return shipsDir;
 }
 
 char* GuiManager::getCacheDirCopy() {
@@ -1058,18 +1058,18 @@ char* GuiManager::getTmpDirCopy() {
   return tmpDir;
 }
 
-MatchRunner::MatchRunner(GuiManager *guiManager, char *stageDir,
-                         char *botsDir) {
+MatchRunner::MatchRunner(GuiManager *guiManager, char *stagesDir,
+                         char *shipsDir) {
   guiManager_ = guiManager;
-  stageDir_ = new char[strlen(stageDir) + 1];
-  strcpy(stageDir_, stageDir);
-  botsDir_ = new char[strlen(botsDir) + 1];
-  strcpy(botsDir_, botsDir);
+  stagesDir_ = new char[strlen(stagesDir) + 1];
+  strcpy(stagesDir_, stagesDir);
+  shipsDir_ = new char[strlen(shipsDir) + 1];
+  strcpy(shipsDir_, shipsDir);
 }
 
 MatchRunner::~MatchRunner() {
-  delete stageDir_;
-  delete botsDir_;
+  delete stagesDir_;
+  delete shipsDir_;
 }
 
 void MatchRunner::startMatch(const char *stageName, char **teamNames,
@@ -1083,7 +1083,7 @@ void MatchRunner::previewStage(const char *stageName) {
 
 void MatchRunner::refreshFiles() {
   guiManager_->loadStages();
-  guiManager_->loadBots();
+  guiManager_->loadShips();
 }
 
 void MatchRunner::onClose() {
@@ -1104,26 +1104,26 @@ void MatchRunner::reloadBaseDirs() {
 }
 
 ShipPackager::ShipPackager(GuiManager *guiManager, FileManager *fileManager,
-                           OutputConsole *packagingConsole, char *botsDir) {
+                           OutputConsole *packagingConsole, char *shipsDir) {
   packagingConsole_ = packagingConsole;
   guiManager_ = guiManager;
   fileManager_ = fileManager;
-  botsDir_ = new char[strlen(botsDir) + 1];
-  strcpy(botsDir_, botsDir);
+  shipsDir_ = new char[strlen(shipsDir) + 1];
+  strcpy(shipsDir_, shipsDir);
 }
 
 ShipPackager::~ShipPackager() {
-  delete botsDir_;
+  delete shipsDir_;
 }
 
-void ShipPackager::package(const char *botName, const char *version,
+void ShipPackager::package(const char *shipName, const char *version,
                            bool obfuscate) {
   char *cacheDir = guiManager_->getCacheDirCopy();
   char *tmpDir = guiManager_->getTmpDirCopy();
   bool refresh = true;
   try {
-    fileManager_->packageBot(botsDir_, botName, version, cacheDir, tmpDir,
-                             obfuscate, false);
+    fileManager_->packageShip(shipsDir_, shipName, version, cacheDir, tmpDir,
+                              obfuscate, false);
   } catch (FileExistsException *e) {
     std::stringstream overwriteStream;
     overwriteStream << "File already exists: " << e->what() << std::endl
@@ -1132,8 +1132,8 @@ void ShipPackager::package(const char *botName, const char *version,
                                  wxOK | wxCANCEL | wxICON_QUESTION);
     int r = errorMessage.ShowModal();
     if (r == wxID_OK) {
-      fileManager_->packageBot(botsDir_, botName, version, cacheDir, tmpDir,
-                               obfuscate, true);
+      fileManager_->packageShip(shipsDir_, shipName, version, cacheDir, tmpDir,
+                                obfuscate, true);
       fileManager_->deleteFromCache(cacheDir, e->what());
     } else {
       refresh = false;
@@ -1148,13 +1148,13 @@ void ShipPackager::package(const char *botName, const char *version,
   delete cacheDir;
   delete tmpDir;
   if (refresh) {
-    guiManager_->loadBots();
+    guiManager_->loadShips();
   }
 }
 
 void ShipPackager::refreshFiles() {
   guiManager_->loadStages();
-  guiManager_->loadBots();
+  guiManager_->loadShips();
 }
 
 void ShipPackager::onClose() {
@@ -1166,19 +1166,19 @@ void ShipPackager::onEscape() {
 }
 
 StagePackager::StagePackager(GuiManager *guiManager, FileManager *fileManager,
-    OutputConsole *packagingConsole, char *stageDir, char *botsDir) {
+    OutputConsole *packagingConsole, char *stagesDir, char *shipsDir) {
   packagingConsole_ = packagingConsole;
   guiManager_ = guiManager;
   fileManager_ = fileManager;
-  stageDir_ = new char[strlen(stageDir) + 1];
-  strcpy(stageDir_, stageDir);
-  botsDir_ = new char[strlen(botsDir) + 1];
-  strcpy(botsDir_, botsDir);
+  stagesDir_ = new char[strlen(stagesDir) + 1];
+  strcpy(stagesDir_, stagesDir);
+  shipsDir_ = new char[strlen(shipsDir) + 1];
+  strcpy(shipsDir_, shipsDir);
 }
 
 StagePackager::~StagePackager() {
-  delete stageDir_;
-  delete botsDir_;
+  delete stagesDir_;
+  delete shipsDir_;
 }
 
 void StagePackager::package(const char *stageName, const char *version,
@@ -1187,7 +1187,7 @@ void StagePackager::package(const char *stageName, const char *version,
   char *tmpDir = guiManager_->getTmpDirCopy();
   bool refresh = true;
   try {
-    fileManager_->packageStage(stageDir_, stageName, version, cacheDir, tmpDir,
+    fileManager_->packageStage(stagesDir_, stageName, version, cacheDir, tmpDir,
                                obfuscate, false);
   } catch (FileExistsException *e) {
     std::stringstream overwriteStream;
@@ -1197,7 +1197,7 @@ void StagePackager::package(const char *stageName, const char *version,
                                  wxOK | wxCANCEL | wxICON_QUESTION);
     int r = errorMessage.ShowModal();
     if (r == wxID_OK) {
-      fileManager_->packageStage(stageDir_, stageName, version, cacheDir,
+      fileManager_->packageStage(stagesDir_, stageName, version, cacheDir,
                                  tmpDir, obfuscate, true);
       fileManager_->deleteFromCache(cacheDir, e->what());
     } else {
@@ -1219,7 +1219,7 @@ void StagePackager::package(const char *stageName, const char *version,
 
 void StagePackager::refreshFiles() {
   guiManager_->loadStages();
-  guiManager_->loadBots();
+  guiManager_->loadShips();
 }
 
 void StagePackager::onClose() {

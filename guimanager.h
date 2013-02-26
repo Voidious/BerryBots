@@ -33,7 +33,7 @@
 #include "guiprinthandler.h"
 
 #define ITEM_STAGE  1
-#define ITEM_BOT    2
+#define ITEM_SHIP    2
 
 class GuiListener {
   public:
@@ -74,8 +74,8 @@ class GuiManager {
   PackagingListener *packageReporter_;
   PrintStateListener *printStateListener_;
   BerryBotsEngine *engine_;
-  char *stageBaseDir_;
-  char *botsBaseDir_;
+  char *stagesBaseDir_;
+  char *shipsBaseDir_;
   char *currentStagePath_;
   char **currentTeamPaths_;
   int currentNumTeams_;
@@ -100,12 +100,12 @@ class GuiManager {
   public:
     GuiManager(GuiListener *listener);
     ~GuiManager();
-    void setBaseDirs(const char *stagesBaseDir, const char *botsBaseDir);
+    void setBaseDirs(const char *stagesBaseDir, const char *shipsBaseDir);
     void reloadBaseDirs();
     void loadStages();
     bool isValidStageFile(const char *srcFilename, BerryBotsEngine *engine);
-    void loadBots();
-    bool isValidBotFile(const char *srcFilename, BerryBotsEngine *engine);
+    void loadShips();
+    bool isValidShipFile(const char *srcFilename, BerryBotsEngine *engine);
     void runNewMatch(const char *stageName, char **teamNames, int numTeams);
     void processMainWindowEvents(sf::RenderWindow *window,
         GfxManager *gfxManager, int viewWidth, int viewHeight);
@@ -133,8 +133,8 @@ class GuiManager {
     void restartMatch();
     void setTpsFactor(double tpsFactor);
     void quit();
-    char* getStageDirCopy();
-    char* getBotsDirCopy();
+    char* getStagesDirCopy();
+    char* getShipsDirCopy();
     char* getCacheDirCopy();
     char* getTmpDirCopy();
   private:
@@ -147,7 +147,7 @@ class GuiManager {
         const char *stageName, char **teamNames, int numTeams);
     void deleteCurrentMatchSettings();
     void loadStagesFromDir(const char *loadDir);
-    void loadBotsFromDir(const char *loadDir);
+    void loadShipsFromDir(const char *loadDir);
     void loadItemsFromDir(const char *baseDir, const char *loadDir,
         int itemType, PackageDialog *packageDialog, BerryBotsEngine *engine);
     void logErrorMessage(lua_State *L, const char *formatString);
@@ -155,11 +155,11 @@ class GuiManager {
 
 class MatchRunner : public NewMatchListener {
   GuiManager *guiManager_;
-  char *stageDir_;
-  char *botsDir_;
+  char *stagesDir_;
+  char *shipsDir_;
 
   public:
-    MatchRunner(GuiManager *guiManager, char *stageDir, char *botsDir);
+    MatchRunner(GuiManager *guiManager, char *stagesDir, char *shipsDir);
     ~MatchRunner();
     virtual void startMatch(const char *stageName, char **teamNames,
                             int numTeams);
@@ -175,13 +175,13 @@ class ShipPackager : public PackageDialogListener {
   GuiManager *guiManager_;
   FileManager *fileManager_;
   OutputConsole *packagingConsole_;
-  char *botsDir_;
+  char *shipsDir_;
 
   public:
     ShipPackager(GuiManager *guiManager, FileManager *fileManager,
-                 OutputConsole *packagingConsole, char *botsDir);
+                 OutputConsole *packagingConsole, char *shipsDir);
     ~ShipPackager();
-    virtual void package(const char *botName, const char *version,
+    virtual void package(const char *shipName, const char *version,
                          bool obfuscate);
     virtual void refreshFiles();
     virtual void onClose();
@@ -192,12 +192,12 @@ class StagePackager : public PackageDialogListener {
   GuiManager *guiManager_;
   FileManager *fileManager_;
   OutputConsole *packagingConsole_;
-  char *stageDir_;
-  char *botsDir_;
+  char *stagesDir_;
+  char *shipsDir_;
 
   public:
     StagePackager(GuiManager *guiManager, FileManager *fileManager,
-        OutputConsole *packagingConsole, char *stageDir, char *botsDir);
+        OutputConsole *packagingConsole, char *stagesDir, char *shipsDir);
     ~StagePackager();
     virtual void package(const char *stageName, const char *version,
                          bool obfuscate);

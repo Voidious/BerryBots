@@ -51,8 +51,8 @@ void FileManager::setListener(PackagingListener *packagingListener) {
   packagingListener_ = packagingListener;
 }
 
-char* FileManager::loadUserLuaFilename(
-    char *userDirPath, const char *metaFilename) throw (FileNotFoundException*) {
+char* FileManager::loadUserLuaFilename(char *userDirPath,
+    const char *metaFilename) throw (FileNotFoundException*) {
   int userPropertiesPathLen =
       (int) (strlen(userDirPath) + 1 + strlen(metaFilename));
   char *userPropertiesPath = new char[userPropertiesPathLen + 1];
@@ -170,13 +170,13 @@ char* FileManager::getAbsFilePath(const char *filename) {
 //   * stages/my/game.lua calls addStageShip("gameship.lua")
 //   * BerryBots loads file from stages/my/gameship.lua
 //   * Ship's working directory is stages/, filename is my/gameship.lua.
-char* FileManager::getStageShipRelativePath(const char *stageDir,
+char* FileManager::getStageShipRelativePath(const char *stagesDir,
     const char *stageFilename, const char *stageShipName) {
-  char *stagePath = FileManager::getFilePath(stageDir, stageFilename);
+  char *stagePath = FileManager::getFilePath(stagesDir, stageFilename);
   char *stageLocalDir = FileManager::parseDir(stagePath);
   char *stageShipPath = FileManager::getFilePath(stageLocalDir, stageShipName);
   char *relativePath =
-      FileManager::parseRelativeFilePath(stageDir, stageShipPath);
+      FileManager::parseRelativeFilePath(stagesDir, stageShipPath);
 
   delete stagePath;
   delete stageLocalDir;
@@ -235,25 +235,26 @@ void FileManager::loadUserFileData(const char *srcBaseDir,
   }
 }
 
-// Loads the stage from srcFilename in root directory stageBaseDir, extracts it
-// to the cache if it is a packaged stage, and updates stageDir/stageFilename
+// Loads the stage from srcFilename in root directory stagesBaseDir, extracts it
+// to the cache if it is a packaged stage, and updates stagesDir/stageFilename
 // with the correct path to load the stage's .lua file. This will either be the
 // same as the input or the location in the cache that we extracted to.
-void FileManager::loadStageFileData(const char *stageBaseDir,
-    const char *srcFilename, char **stageDir, char **stageFilename,
+void FileManager::loadStageFileData(const char *stagesBaseDir,
+    const char *srcFilename, char **stagesDir, char **stageFilename,
     const char *cacheDir) throw (FileNotFoundException*, ZipperException*) {
-  loadUserFileData(stageBaseDir, srcFilename, stageDir, stageFilename,
+  loadUserFileData(stagesBaseDir, srcFilename, stagesDir, stageFilename,
                    STAGE_METAFILE, cacheDir);
 }
 
-// Loads the bot from srcFilename in root directory botsBaseDir, extracts it
-// to the cache if it is a packaged ship/team, and updates botDir/botFilename
+// Loads the ship from srcFilename in root directory shipsBaseDir, extracts it
+// to the cache if it is a packaged ship/team, and updates shipDir/shipFilename
 // with the correct path to load the stage's .lua file. This will either be the
 // same as the input or the location in the cache that we extracted to.
-void FileManager::loadBotFileData(const char *botsBaseDir,
-    const char *srcFilename, char **botDir, char **botFilename,
+void FileManager::loadShipFileData(const char *shipsBaseDir,
+    const char *srcFilename, char **shipDir, char **shipFilename,
     const char *cacheDir) throw (FileNotFoundException*, ZipperException*) {
-  loadUserFileData(botsBaseDir, srcFilename, botDir, botFilename, BOT_METAFILE, cacheDir);
+  loadUserFileData(shipsBaseDir, srcFilename, shipDir, shipFilename,
+                   SHIP_METAFILE, cacheDir);
 }
 
 bool FileManager::hasExtension(const char *filename, const char *extension) {
@@ -270,7 +271,7 @@ bool FileManager::isZipFilename(const char *filename) {
   return hasExtension(filename, ZIP_EXTENSION);
 }
 
-// Package files loaded by stage or bot. Expects the list of files loaded by
+// Package files loaded by stage or ship. Expects the list of files loaded by
 // the Lua state to be at the top of the stack (from "__FILES" table).
 //
 // Note that this list is populated by the modified Lua used by BerryBots, but
@@ -279,10 +280,10 @@ bool FileManager::isZipFilename(const char *filename) {
 // a big concern that he might try to hack himself. Still, only pack files with
 // .lua extension, and show all files that get packaged so the user might catch
 // anything fishy if they are indeed packaging someone else's code.
-void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir,
-    const char *userFilename, const char *version, const char *metaFilename,
-    int prevFiles, int numFiles, char **packFilenames, const char *tmpDir,
-    bool obfuscate, bool force)
+void FileManager::packageCommon(lua_State *userState,
+    const char *userAbsBaseDir, const char *userFilename, const char *version,
+    const char *metaFilename, int prevFiles, int numFiles, char **packFilenames,
+    const char *tmpDir, bool obfuscate, bool force)
     throw (InvalidLuaFilenameException*, LuaException*, ZipperException*,
            FileExistsException*) {
 
@@ -300,7 +301,7 @@ void FileManager::packageCommon(lua_State *userState, const char *userAbsBaseDir
     lua_pop(userState, 1);
   }
 
-  // Transform bot's relative file path to packaged filename.
+  // Transform ship's relative file path to packaged filename.
   // E.g.: voidious/zero.lua v1.0 => voidious.zero_1.0.tar.gz
   int baseLen = (int) (strlen(userFilename) - strlen(LUA_EXTENSION));
   int outputFilenameLen =
@@ -435,13 +436,13 @@ void FileManager::crawlFiles(lua_State *L, const char *startFile,
   lua_pop(L, 1);
 }
 
-void FileManager::packageStage(const char *stageBaseDir, const char *stageName,
+void FileManager::packageStage(const char *stagesBaseDir, const char *stageName,
     const char *version, const char *cacheDir, const char *tmpDir,
     bool obfuscate, bool force)
     throw (FileNotFoundException*, InvalidLuaFilenameException*,
            LuaException*, ZipperException*, FileExistsException*) {
   checkLuaFilename(stageName);
-  char *stageAbsBaseDir = getAbsFilePath(stageBaseDir);
+  char *stageAbsBaseDir = getAbsFilePath(stagesBaseDir);
   lua_State *stageState;
   initStageState(&stageState, stageAbsBaseDir);
   
@@ -481,7 +482,7 @@ void FileManager::packageStage(const char *stageBaseDir, const char *stageName,
   for (int x = 0; x < numStageShips; x++) {
     const char *stageShipFilename = stageShipFilenames[x];
     char *shipRelativePath = FileManager::getStageShipRelativePath(
-        stageBaseDir, stageName, stageShipFilename);
+        stagesBaseDir, stageName, stageShipFilename);
     bool dup = false;
     for (int y = 0; y < x && !dup; y++) {
       if (strcmp(packFilenames[y], shipRelativePath) == 0) {
@@ -543,40 +544,40 @@ void FileManager::packageStage(const char *stageBaseDir, const char *stageName,
   delete packFilenames;
 }
 
-// Packages the bot at botsBaseDir/botName, including all related source files,
-// into a .tar.gz file in botsBaseDir.
+// Packages the ship at shipsBaseDir/shipName, including all related source
+// files, into a .tar.gz file in shipsBaseDir.
 //
 // Some notes on parameters:
-// botsBasedir - Base directory of the bot's source files; also the root working
-//     directory for the bot's Lua state. For instance, if the bot requires the
-//     "battlebot" module, it will look in "botsBaseDir/battlebot.lua".
-// botName - The filename of the bot. This might include a relative path to
-//     the file. For instance, I may have my main bot file in
+// shipsBaseDir - Base directory of the ship's source files; also the root
+//     working directory for the ship's Lua state. For instance, if the ship
+//     requires the "battlebot" module, it will look in
+//     "shipsBaseDir/battlebot.lua".
+// shipName - The filename of the ship. This might include a relative path to
+//     the file. For instance, I may have my main ship file in
 //     "bots/voidious/zero.lua" and require the "battlebot" module in
-//     "bots/battlebot.lua". In this case, botName would be "voidious/zero.lua".
-void FileManager::packageBot(const char *botBaseDir, const char *botName,
+//     "bots/battlebot.lua", and shipName would be "voidious/zero.lua".
+void FileManager::packageShip(const char *shipBaseDir, const char *shipName,
     const char *version, const char *cacheDir, const char *tmpDir,
     bool obfuscate, bool force)
     throw (FileNotFoundException*, InvalidLuaFilenameException*,
            LuaException*, ZipperException*, FileExistsException*) {
-  checkLuaFilename(botName);
-  char *botAbsBaseDir = getAbsFilePath(botBaseDir);
+  checkLuaFilename(shipName);
+  char *shipAbsBaseDir = getAbsFilePath(shipBaseDir);
   lua_State *shipState;
-  initShipState(&shipState, botAbsBaseDir);
+  initShipState(&shipState, shipAbsBaseDir);
   BerryBotsEngine engine(this);
-  crawlFiles(shipState, botName, &engine);
+  crawlFiles(shipState, shipName, &engine);
 
   lua_getfield(shipState, LUA_REGISTRYINDEX, "__FILES");
   int numFiles = (int) lua_objlen(shipState, -1);
   char **packFilenames = new char*[numFiles];
 
   try {
-    packageCommon(shipState, botAbsBaseDir, botName, version,
-                  BOT_METAFILE, 0, numFiles, packFilenames, tmpDir, obfuscate,
-                  force);
+    packageCommon(shipState, shipAbsBaseDir, shipName, version, SHIP_METAFILE, 0,
+                  numFiles, packFilenames, tmpDir, obfuscate, force);
   } catch (InvalidLuaFilenameException *e) {
     // TODO: find a way to combine these catches
-    delete botAbsBaseDir;
+    delete shipAbsBaseDir;
     lua_close(shipState);
     for (int x = 0; x < numFiles; x++) {
       delete packFilenames[x];
@@ -584,7 +585,7 @@ void FileManager::packageBot(const char *botBaseDir, const char *botName,
     delete packFilenames;
     throw e;
   } catch (LuaException *e) {
-    delete botAbsBaseDir;
+    delete shipAbsBaseDir;
     lua_close(shipState);
     for (int x = 0; x < numFiles; x++) {
       delete packFilenames[x];
@@ -592,7 +593,7 @@ void FileManager::packageBot(const char *botBaseDir, const char *botName,
     delete packFilenames;
     throw e;
   } catch (ZipperException *e) {
-    delete botAbsBaseDir;
+    delete shipAbsBaseDir;
     lua_close(shipState);
     for (int x = 0; x < numFiles; x++) {
       delete packFilenames[x];
@@ -600,7 +601,7 @@ void FileManager::packageBot(const char *botBaseDir, const char *botName,
     delete packFilenames;
     throw e;
   } catch (FileExistsException *e) {
-    delete botAbsBaseDir;
+    delete shipAbsBaseDir;
     lua_close(shipState);
     for (int x = 0; x < numFiles; x++) {
       delete packFilenames[x];
@@ -609,7 +610,7 @@ void FileManager::packageBot(const char *botBaseDir, const char *botName,
     throw e;
   }
 
-  delete botAbsBaseDir;
+  delete shipAbsBaseDir;
   lua_close(shipState);
   for (int x = 0; x < numFiles; x++) {
     delete packFilenames[x];

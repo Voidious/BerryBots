@@ -23,8 +23,8 @@
 
 @implementation OsxCfg
 
-@synthesize stageDir;
-@synthesize botsDir;
+@synthesize stagesDir;
+@synthesize shipsDir;
 @synthesize cacheDir;
 @synthesize tmpDir;
 @synthesize apidocPath;
@@ -78,13 +78,13 @@ bool fileExists(const char *filename) {
       if (!temp) {
         NSLog(@"Error reading plist: %@, format: %ld", errorDesc, format);
       }
-      self.stageDir = [temp objectForKey:@"Stage dir"];
-      self.botsDir = [temp objectForKey:@"Bots dir"];
+      self.stagesDir = [temp objectForKey:@"Stage dir"];
+      self.shipsDir = [temp objectForKey:@"Ships dir"];
       self.cacheDir = [temp objectForKey:@"Cache dir"];
       self.tmpDir = [temp objectForKey:@"Tmp dir"];
       self.apidocPath = [temp objectForKey:@"Apidoc Path"];
-      if ([fileManager fileExistsAtPath:self.stageDir]
-          && [fileManager fileExistsAtPath:self.botsDir]) {
+      if ([fileManager fileExistsAtPath:self.stagesDir]
+          && [fileManager fileExistsAtPath:self.shipsDir]) {
         selectRoot = false;
       }
     }
@@ -98,9 +98,9 @@ bool fileExists(const char *filename) {
 }
 
 - (void) setRootDir:(NSString *) newRootDir {
-  self.stageDir = [NSString stringWithFormat:@"%@/%@",
-                   newRootDir, @"stages"];
-  self.botsDir = [NSString stringWithFormat:@"%@/%@",
+  self.stagesDir = [NSString stringWithFormat:@"%@/%@",
+                    newRootDir, @"stages"];
+  self.shipsDir = [NSString stringWithFormat:@"%@/%@",
                   newRootDir, @"bots"];
   self.cacheDir = [NSString stringWithFormat:@"%@/%@",
                    newRootDir, @CACHE_SUBDIR];
@@ -114,21 +114,21 @@ bool fileExists(const char *filename) {
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if ([fileManager isReadableFileAtPath:srcPath]) {
     NSError *dError;
-    if (![fileManager isReadableFileAtPath:self.stageDir]) {
+    if (![fileManager isReadableFileAtPath:self.stagesDir]) {
       NSString *stagesSrc =
           [NSString stringWithFormat:@"%@/stages", srcPath];
       int success = [fileManager
-                     copyItemAtPath:stagesSrc toPath:self.stageDir
+                     copyItemAtPath:stagesSrc toPath:self.stagesDir
                      error:&dError];
       if (success != YES) {
         NSLog(@"Error: %@", dError);
       }
     }
 
-    if (![fileManager isReadableFileAtPath:self.botsDir]) {
-      NSString *botsSrc = [NSString stringWithFormat:@"%@/bots", srcPath];
+    if (![fileManager isReadableFileAtPath:self.shipsDir]) {
+      NSString *shipsSrc = [NSString stringWithFormat:@"%@/bots", srcPath];
       int success = [fileManager
-                 copyItemAtPath:botsSrc toPath:self.botsDir error:&dError];
+                 copyItemAtPath:shipsSrc toPath:self.shipsDir error:&dError];
       if (success != YES) {
         NSLog(@"Error: %@", dError);
       }
@@ -181,10 +181,10 @@ bool fileExists(const char *filename) {
       [rootPath stringByAppendingPathComponent:@"config.plist"];
   NSDictionary *plistDict =
       [NSDictionary dictionaryWithObjects:
-       [NSArray arrayWithObjects:stageDir, botsDir, cacheDir, tmpDir,
+       [NSArray arrayWithObjects:stagesDir, shipsDir, cacheDir, tmpDir,
                                  apidocPath, nil]
         forKeys:[NSArray arrayWithObjects:
-                 @"Stage dir", @"Bots dir", @"Cache dir", @"Tmp dir",
+                 @"Stage dir", @"Ships dir", @"Cache dir", @"Tmp dir",
                  @"Apidoc Path", nil]];
   NSData *plistData =
       [NSPropertyListSerialization dataFromPropertyList:plistDict

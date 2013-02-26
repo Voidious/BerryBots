@@ -21,14 +21,14 @@
 #ifndef BBCONST_H
 #define BBCONST_H
 
-#define BOTS_SUBDIR           "bots"
+#define SHIPS_SUBDIR          "bots"
 #define STAGES_SUBDIR         "stages"
 #define CACHE_SUBDIR          "cache"
 #define TMP_SUBDIR            ".tmp"
 #define ZIP_EXTENSION         ".tar.gz"
 #define LUA_EXTENSION         ".lua"
 #define STAGE_METAFILE        "stage.filename"
-#define BOT_METAFILE          "bot.filename"
+#define SHIP_METAFILE         "bot.filename"
 #define MAX_FILENAME_LENGTH   1024
 
 #define DEFAULT_STAGE_WIDTH   800

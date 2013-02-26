@@ -531,7 +531,7 @@ void Stage::moveAndCheckCollisions(
     }
   }
 
-  // Update x/y/heading/speeds for bots with ship-ship collisions.
+  // Update x/y/heading/speeds for ships with ship-ship collisions.
   for (int x = 0; x < numShips; x++) {
     ShipMoveData *shipDatum = &(shipData[x]);
     if (ships[x]->alive && shipDatum->shipCollision) {

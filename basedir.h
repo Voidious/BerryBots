@@ -4,8 +4,8 @@
 #include <string>
 
 extern bool isConfigured();
-extern std::string getStageDir(void);
-extern std::string getBotsDir(void);
+extern std::string getStagesDir(void);
+extern std::string getShipsDir(void);
 extern std::string getCacheDir(void);
 extern std::string getTmpDir(void);
 extern std::string getApidocPath(void);

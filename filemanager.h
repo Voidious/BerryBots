@@ -77,22 +77,22 @@ class FileManager {
     FileManager(Zipper *zipper);
     ~FileManager();
     void setListener(PackagingListener *packagingListener);
-    void loadStageFileData(const char *stageBaseDir, const char *filename,
-        char **stageDir, char **stageDirFilename, const char *cacheDir)
+    void loadStageFileData(const char *stagesBaseDir, const char *filename,
+        char **stagesDir, char **stageFilename, const char *cacheDir)
         throw (FileNotFoundException*, ZipperException*);
-    void loadBotFileData(const char *botsBaseDir, const char *filename,
-        char **botDir, char **botDirFilename, const char *cacheDir)
+    void loadShipFileData(const char *shipsBaseDir, const char *filename,
+        char **shipDir, char **shipFilename, const char *cacheDir)
         throw (FileNotFoundException*, ZipperException*);
     bool isLuaFilename(const char *filename);
     bool isZipFilename(const char *filename);
-    void packageStage(const char *stageBaseDir, const char *stageName,
+    void packageStage(const char *stagesBaseDir, const char *stageName,
                       const char *version, const char *cacheDir,
                       const char *tmpDir, bool obfuscate, bool force)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
                LuaException*, ZipperException*, FileExistsException*);
-    void packageBot(const char *botBaseDir, const char *botName,
-                    const char *version, const char *cacheDir,
-                    const char *tmpDir, bool obfuscate, bool force)
+    void packageShip(const char *shipBaseDir, const char *shipName,
+                     const char *version, const char *cacheDir,
+                     const char *tmpDir, bool obfuscate, bool force)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
                LuaException*, ZipperException*, FileExistsException*);
     void saveBytecode(const char *srcFile, const char *outputFile,
@@ -105,7 +105,7 @@ class FileManager {
     static char* parseFilename(const char *dirAndFilename);
     static char* parseRelativeFilePath(const char *absBaseDir,
                                        const char *absFilePath);
-    static char* getStageShipRelativePath(const char *stageDir,
+    static char* getStageShipRelativePath(const char *stagesDir,
         const char *stageFilename, const char *stageShipName);
     static char* stripExtension(const char *filename);
     static bool isDirectory(const char *filePath);

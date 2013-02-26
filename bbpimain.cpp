@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
   CliPackageReporter *packageReporter = new CliPackageReporter();
   fileManager->setListener(packageReporter);
 
-  char *botsBaseDir = FileManager::getAbsFilePath(BOTS_SUBDIR);
+  char *shipsBaseDir = FileManager::getAbsFilePath(SHIPS_SUBDIR);
   char *stagesBaseDir = FileManager::getAbsFilePath(STAGES_SUBDIR);
 
   char **stageInfo = parseFlag(argc, argv, "packstage", 2);
@@ -87,27 +87,27 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  char **botInfo = parseFlag(argc, argv, "packbot", 2);
-  if (botInfo != 0) {
+  char **shipInfo = parseFlag(argc, argv, "packbot", 2);
+  if (shipInfo != 0) {
     if (argc < 4) {
       printUsage();
     }
     // TODO: add a new flag for obfuscating source code
     bool obfuscate = false;
     try {
-      char *botAbsName = FileManager::getAbsFilePath(botInfo[0]);
-      char *botName =
-         FileManager::parseRelativeFilePath(botsBaseDir, botAbsName);
-      fileManager->packageBot(botsBaseDir, botName, botInfo[1], CACHE_SUBDIR,
-                              TMP_SUBDIR, obfuscate, true);
-      delete botAbsName;
-      delete botName;
+      char *shipAbsName = FileManager::getAbsFilePath(shipInfo[0]);
+      char *shipName =
+         FileManager::parseRelativeFilePath(shipsBaseDir, shipAbsName);
+      fileManager->packageShip(shipsBaseDir, shipName, shipInfo[1],
+                               CACHE_SUBDIR, TMP_SUBDIR, obfuscate, true);
+      delete shipAbsName;
+      delete shipName;
     } catch (std::exception *e) {
       std::cout << "BerryBots encountered an error:" << std::endl;
       std::cout << "  " << e->what() << std::endl;
       exit(0);
     }
-    delete botInfo;
+    delete shipInfo;
     return 0;
   }
 
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
   for (int x = 0; x < numTeams; x++) {
     char *teamAbsName = FileManager::getAbsFilePath(argv[x + firstTeam]);
     char *teamName =
-        FileManager::parseRelativeFilePath(botsBaseDir, teamAbsName);
+        FileManager::parseRelativeFilePath(shipsBaseDir, teamAbsName);
     teams[x] = teamName;
     delete teamAbsName;
   }
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
   cliPrintHandler->setNumTeams(numTeams);
   engine->setListener(cliStateListener);
   try {
-    engine->initShips(botsBaseDir, teams, numTeams, CACHE_SUBDIR);
+    engine->initShips(shipsBaseDir, teams, numTeams, CACHE_SUBDIR);
   } catch (EngineException *e) {
     std::cout << "BerryBots initialization failed:" << std::endl;
     std::cout << "  " << e->what() << std::endl;
@@ -239,7 +239,7 @@ int main(int argc, char *argv[]) {
   delete packageReporter;
   delete fileManager;
   delete zipper;
-  delete botsBaseDir;
+  delete shipsBaseDir;
   delete stagesBaseDir;
 
   return 0;
