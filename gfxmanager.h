@@ -175,7 +175,7 @@ class GfxManager {
     void adjustWindowScale(sf::RenderWindow *window, int viewWidth,
                            int viewHeight, double scaleDelta);
     void updateView(sf::RenderWindow *window, unsigned int viewWidth,
-                    unsigned int viewHeight);
+                    unsigned int viewHeight, bool init);
     void processMouseDown(int x, int y);
     void processMouseUp(int x, int y);
     void processMouseMoved(int x, int y);

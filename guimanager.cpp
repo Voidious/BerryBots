@@ -518,7 +518,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   gfxManager_->initBbGfx(window, viewHeight_, stage, engine_->getTeams(),
                          engine_->getNumTeams(), engine_->getShips(),
                          engine_->getNumShips(), resourcePath());
-  gfxManager_->updateView(window, viewWidth_, viewHeight_);
+  gfxManager_->updateView(window, viewWidth_, viewHeight_, true);
   window->setVisible(true);
   window->clear();
   gfxManager_->drawGame(window, stage, engine_->getShips(),
@@ -631,7 +631,7 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
     }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
-      gfxManager->updateView(window, viewWidth, viewHeight);
+      gfxManager->updateView(window, viewWidth, viewHeight, false);
     }
     if (event.type == sf::Event::MouseButtonPressed) {
       gfxManager->processMouseDown(event.mouseButton.x, event.mouseButton.y);
@@ -757,7 +757,7 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
     }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
-      gfxManager->updateView(window, viewWidth, viewHeight);
+      gfxManager->updateView(window, viewWidth, viewHeight, false);
     }
   }
 
@@ -884,7 +884,7 @@ void GuiManager::showStagePreview(const char *stageName) {
 
   previewGfxManager_->initBbGfx(previewWindow_, viewHeight, stage, teams, 1,
                                 ships, 1, resourcePath());
-  previewGfxManager_->updateView(previewWindow_, viewWidth, viewHeight);
+  previewGfxManager_->updateView(previewWindow_, viewWidth, viewHeight, true);
 
   while (!quitting_ && !closingPreview_ && previewWindow_->isOpen()) {
     processPreviewWindowEvents(previewWindow_, previewGfxManager_, viewWidth,

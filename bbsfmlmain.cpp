@@ -184,7 +184,7 @@ int main(int argc, char *argv[]) {
     gfxManager = new GfxManager(false);
     window = new sf::RenderWindow(sf::VideoMode(targetWidth, targetHeight),
         "BerryBots", sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
-    gfxManager->updateView(window, viewWidth, viewHeight);
+    gfxManager->updateView(window, viewWidth, viewHeight, true);
     gfxManager->initBbGfx(window, viewHeight, stage, engine->getTeams(),
         engine->getNumTeams(), engine->getShips(), engine->getNumShips(),
         std::string(".") + std::string(BB_DIRSEP));
@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
           }
           if (event.type == sf::Event::Resized && !resized) {
             resized = true;
-            gfxManager->updateView(window, viewWidth, viewHeight);
+            gfxManager->updateView(window, viewWidth, viewHeight, false);
           }
         }
     

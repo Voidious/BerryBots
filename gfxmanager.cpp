@@ -418,16 +418,21 @@ void GfxManager::adjustWindowScale(sf::RenderWindow *window, int viewWidth,
 // TODO: don't let user resize to smaller than dock top + dock bottom + some min
 //       dock ships size
 void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
-                            unsigned int viewHeight) {
-  unsigned int windowWidth = window->getSize().x;
-  unsigned int windowHeight = window->getSize().y;
+                            unsigned int viewHeight, bool init) {
+  unsigned int oldWindowWidth = window->getSize().x;
+  unsigned int oldWindowHeight = window->getSize().y;
   unsigned int dockSize = (showDock_ ? DOCK_SIZE : 0);
 
-  double widthScale = ((double) windowWidth - dockSize) / viewWidth;
-  double heightScale = ((double) windowHeight) / viewHeight;
+  double widthScale = ((double) oldWindowWidth - dockSize) / viewWidth;
+  double heightScale = ((double) oldWindowHeight) / viewHeight;
   double scale = std::min(widthScale, heightScale);
-  windowWidth = floor(scale * viewWidth) + dockSize;
-  windowHeight = floor(scale * viewHeight);
+  unsigned int windowWidth = floor(scale * viewWidth) + dockSize;
+  unsigned int windowHeight = floor(scale * viewHeight);
+  if (!init && windowWidth == oldWindowWidth
+      && windowHeight == oldWindowHeight) {
+    // nothing to do - avoid infinite resize on Linux
+    return;
+  }
   window->setSize(sf::Vector2u(windowWidth, windowHeight));
 
   if (showDock_) {
@@ -522,7 +527,7 @@ void GfxManager::processMouseMoved(int x, int y) {
 }
 
 void GfxManager::processMouseWheel(int x, int y, int delta) {
-  delta = limit(-dockTeamsScrollPosition_, delta * -3,
+  delta = limit(-dockTeamsScrollPosition_, delta * -35,
       std::max(dockTeamsViewHeight_, dockTeamsScrollBottom_)
           - dockTeamsScrollPosition_ - dockTeamsViewHeight_);
   dockTeamsView_.move(0, delta);
