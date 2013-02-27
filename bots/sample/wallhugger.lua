@@ -29,8 +29,8 @@ function init(shipsArg, worldArg)
     ship:setShipColor(0, 255, 0)
     ship:setLaserColor(255, 255, 255)
     ship:setThrusterColor(0, 255, 0)
-    local shipState = { heading=randomDirection(),
-                        started = false, wasAgainstWall = true }
+    local shipState = {heading=randomDirection(), started = false,
+                       stopping = false, wasAgainstWall = true}
     shipStates[ship] = shipState
   end
 
@@ -44,8 +44,6 @@ function run(enemyShips, sensors)
   end
 end
 
-stopping = false
-
 function runShip(ship, enemyShips, sensors)
   moveAlongWalls(ship)
   fireAtNearestEnemy(ship, enemyShips)
@@ -53,15 +51,15 @@ end
 
 function moveAlongWalls(ship)
   local state = shipStates[ship]
-  if (stopping and round(ship:speed(), 4) == 0) then
-    stopping = false
+  if (state.stopping and round(ship:speed(), 2) == 0) then
+    state.stopping = false
     state.started = false
     state.heading = randomDirection()
-  elseif (stopping or ship:hitWall() or ship:hitShip()) then
-    stopping = true
+  elseif (state.stopping or ship:hitWall() or ship:hitShip()) then
+    state.stopping = true
     ship:fireThruster(ship:heading() + math.pi, ship:speed())
   else
-    if (state.started and round(ship:speed(), 4) == 0) then
+    if (state.started and round(ship:speed(), 2) == 0) then
       state.started = false
       local turn = 1
       local aheadWallFeeler =
@@ -89,12 +87,21 @@ function moveAlongWalls(ship)
 
     if (state.started and state.wasAgainstWall
         and not wouldHitWall(wallLines, decelWallFeeler)) then
+      -- Decelerate to follow concave corner.
       ship:fireThruster(ship:heading() + math.pi, ship:speed())
     elseif (state.started and state.wasAgainstWall
         and not wouldHitWall(wallLines, coastWallFeeler)) then
-      -- do nothing
+      -- Coast to follow concave corner. (Do nothing.)
     elseif (not wouldHitWall(wallLines, accelLine)) then
+      -- Safe to accelerate in current direction.
       ship:fireThruster(state.heading, MAX_SPEED - ship:speed())
+    elseif (round(ship:speed(), 2) == 0) then
+      -- No valid options in current direction, select new random direction.
+      state.heading = randomDirection()
+      ship:fireThruster(state.heading, 1)
+      local newWallFeeler = feelerLine(ship, state.heading, 0, 1)
+      local againstWall = wouldHitWall(wallLines, hereWallFeeler)
+      state.wasAgainstWall = state.wasAgainstWall or againstWall
     else
       local coastLine = moveLine(ship, state.heading, coastDistance)
       if (wouldHitWall(wallLines, coastLine)) then
