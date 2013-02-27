@@ -73,7 +73,11 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   dirsSizer->Add(stagesBaseDirLabel_);
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseStagesButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
+#ifndef __WINDOWS__
+  // Bizarrely, it's impossible to add any padding between the bitmap and the
+  // edge of the button on Windows. It's ugly enough to just not set a bitmap.
   browseStagesButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
+#endif
   dirsSizer->AddSpacer(3);
   dirsSizer->Add(browseStagesButton_);
 #endif
@@ -82,7 +86,10 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   dirsSizer->Add(shipsBaseDirLabel_);
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseShipsButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
+#ifndef __WINDOWS__
+  // Don't set impossible to align bitmap on Windows.
   browseShipsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
+#endif
   dirsSizer->AddSpacer(3);
   dirsSizer->Add(browseShipsButton_);
 #endif
@@ -90,7 +97,10 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   dirsSizer->AddStretchSpacer(1);
   wxBoxSizer *moreButtonsSizer = new wxBoxSizer(wxHORIZONTAL);
   browseApidocsButton_ = new wxButton(mainPanel_, wxID_ANY, "&API Docs");
+#ifndef __WINDOWS__
+  // Don't set impossible to align bitmap on Windows.
   browseApidocsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_OPEN));
+#endif
   moreButtonsSizer->Add(browseApidocsButton_);
 
 #ifdef __WXOSX__
