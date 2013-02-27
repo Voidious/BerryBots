@@ -18,5 +18,5 @@ function init(shipsArg, worldArg, adminArg)
 end
 
 function run(stageSensors)
-  battlestage.basicScoring(ships, admin)
+  battlestage.basicScoring(ships, admin, 437, 770, 16)
 end

@@ -2,11 +2,11 @@
 
 module("battlestage", package.seeall);
 
+local NUM_ROUNDS = 9
+
 local currentRound = 1
 local lastRoundPrinted = 0
 local printRoundTimer = 0
-local numRounds = 9
-local teamScores = { }
 
 function numTeams(ships)
   local count = 0
@@ -52,14 +52,14 @@ end
 -- In 1v1 (or 2 teams), scoring is based on survival - the last team standing at
 -- the end of each round scores a point.
 -- For just 1 team, do nothing.
-function basicScoring(ships, admin)
+function basicScoring(ships, admin, scoresX, scoresY, scoresSize)
   drawRound()
 
   local numTeams = numTeams(ships)
   if (numTeams > 2) then
-    battlestage.ffaKillsPlusDamage(ships, admin)
+    battlestage.ffaKillsPlusDamage(ships, admin, scoresX, scoresY, scoresSize)
   elseif (numTeams == 2) then
-    battlestage.duelSurvival(ships, admin)
+    battlestage.duelSurvival(ships, admin, scoresX, scoresY, scoresSize)
   end
 end
 
@@ -67,41 +67,32 @@ end
 --   * 1 point per kill
 --   * 1 / <default energy> points for each point of damage done
 --   * negative score for damage/kills to self or team
-function ffaKillsPlusDamage(ships, admin)
+function ffaKillsPlusDamage(ships, admin, scoresX, scoresY, scoresSize)
   local teamsAlive = teamsAlive(ships)
   if (teamsAlive <= 1) then
-    if (currentRound == numRounds) then
-      local numTeams = 0
-      local teamScores = { }
-      for i, ship in pairs(ships) do
-        local teamName = ship:teamName()
-        if (teamScores[teamName] == nil) then
-          teamScores[teamName] = 0
-          numTeams = numTeams + 1
-        end
-        local kills = admin:shipKills(ship) - admin:shipFriendlyKills(ship)
-        local damage = admin:shipDamage(ship) - admin:shipFriendlyDamage(ship)
-        local score = kills + damage
-        print(ship:name() .. ": " .. round(score, 2) .. " (" .. round(kills, 2)
-            .. " kills/" .. round(damage, 2) .. " damage)")
-        teamScores[teamName] = teamScores[teamName] + score
-      end
+    if (currentRound == NUM_ROUNDS) then
+      if (scoresX == nil) then scoresX = 10 end
+      if (scoresY == nil) then scoresY = 500 end
+      if (scoresSize == nil) then scoresSize = 16 end
 
-      if (numTeams < (# ships)) then
-        print("****")
-        for teamName, teamScore in pairs(teamScores) do
-          print(teamName .. ": " .. round(teamScore, 2))
-        end
+      local teamScores = getTeamScores(ships, admin)
+      local sortedScores = getSortedScores(teamScores)
+      admin:drawText("---------------------- Results ----------------------",
+                     scoresX, scoresY, scoresSize)
+      for i, score in ipairs(sortedScores) do
+        local scoreLine = score.name .. ":  " .. round(score.total, 2) .. "  ("
+            .. round(score.kills, 2) .. " destroys, " .. round(score.damage, 2)
+            .. " dmg)"
+        print(scoreLine)
+        admin:drawText(" " .. scoreLine, scoresX,
+                       (scoresY - math.floor(i * scoresSize * 1.25)),
+                       scoresSize)
       end
-      local bestScore = -math.huge
-      local winner = nil
-      for teamName, teamScore in pairs(teamScores) do
-        if (teamScore > bestScore) then
-          bestScore = teamScore
-          winner = teamName
-        end
-      end
-      admin:setWinner(winner)
+      admin:drawText("------------------------------------------------------",
+          scoresX,
+          scoresY - math.floor(((# sortedScores) + 0.3) * scoresSize * 1.25),
+          scoresSize)
+      admin:setWinner(sortedScores[1].name)
       admin:gameOver()
     else
       currentRound = currentRound + 1
@@ -110,12 +101,34 @@ function ffaKillsPlusDamage(ships, admin)
   end
 end
 
+function getTeamScores(ships, admin)
+  local numTeams = 0
+  local teamScores = { }
+  for i, ship in pairs(ships) do
+    local teamName = ship:teamName()
+    if (teamScores[teamName] == nil) then
+      teamScores[teamName] =
+          {total = 0, kills = 0, damage = 0, name = teamName}
+      numTeams = numTeams + 1
+    end
+    local kills = admin:shipKills(ship) - admin:shipFriendlyKills(ship)
+    local damage = admin:shipDamage(ship) - admin:shipFriendlyDamage(ship)
+    local total = kills + damage
+    teamScores[teamName].total = teamScores[teamName].total + total
+    teamScores[teamName].kills = teamScores[teamName].kills + kills
+    teamScores[teamName].damage = teamScores[teamName].damage + damage
+  end
+  return teamScores
+end
+
+local duelScores = { }
+
 -- Each round, the last team standing scores a point. The winning team is the
 -- one that won the most rounds.
-function duelSurvival(ships, admin)
-  if (not next(teamScores)) then
+function duelSurvival(ships, admin, scoresX, scoresY, scoresSize)
+  if (not next(duelScores)) then
     for i, ship in pairs(ships) do
-      teamScores[ship:teamName()] = 0
+      duelScores[ship:teamName()] = {name = ship:teamName(), total = 0}
     end
   end
   
@@ -127,36 +140,49 @@ function duelSurvival(ships, admin)
         roundWinner = ship:teamName()
       end
     end
-    if (roundWinner ~= nil) then
-      teamScores[roundWinner] = teamScores[roundWinner] + 1
-    end
+    duelScores[roundWinner].total = duelScores[roundWinner].total + 1
 
-    if (currentRound == numRounds) then
-      local team1 = nil
-      local team2 = nil
-      local score1
-      local score2
-      for teamName, teamScore in pairs(teamScores) do
-        print(teamName .. ": " .. teamScore)
-        if (team1 == nil) then
-          team1 = teamName
-          score1 = teamScore
-        else
-          team2 = teamName
-          score2 = teamScore
-        end
+    if (currentRound == NUM_ROUNDS) then
+      if (scoresX == nil) then scoresX = 10 end
+      if (scoresY == nil) then scoresY = 500 end
+      if (scoresSize == nil) then scoresSize = 16 end
+
+      local sortedScores = getSortedScores(duelScores)
+      admin:drawText("---------------------- Results ----------------------",
+                     scoresX, scoresY, scoresSize)
+      for i, score in ipairs(sortedScores) do
+        local scoreLine = score.name .. ": " .. score.total .. " rounds"
+        print(scoreLine)
+        admin:drawText(" " .. scoreLine, scoresX,
+                       (scoresY - math.floor(i * scoresSize * 1.25)),
+                       scoresSize)
       end
-      if (score1 > score2) then
-        admin:setWinner(team1)
-      elseif (score2 > score1) then
-        admin:setWinner(team2)
-      end
+      admin:drawText("------------------------------------------------------",
+                     scoresX, scoresY - math.floor(2.3 * scoresSize * 1.25),
+                     scoresSize)
+      admin:setWinner(sortedScores[1].name)
       admin:gameOver()
     else
       currentRound = currentRound + 1
       admin:roundOver()
     end
   end
+end
+
+function getSortedScores(teamScores)
+  local scores = { }
+  for i, score in pairs(teamScores) do
+    table.insert(scores, score)
+  end
+  table.sort(scores, scoreSorter)
+  return scores
+end
+
+function scoreSorter(teamScore1, teamScore2)
+  if (teamScore1.total > teamScore2.total) then
+    return true
+  end
+  return false
 end
 
 function round(d, x)
