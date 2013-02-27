@@ -17,13 +17,15 @@ function configure(stageBuilder)
 end
 
 ships = nil
+world = nil
 admin = nil
 
 function init(shipsArg, worldArg, adminArg)
   ships = shipsArg
+  world = worldArg
   admin = adminArg
 end
 
 function run(stageSensors)
-  battlestage.basicScoring(ships, admin, 2600, 3400, 60)
+  battlestage.basicScoring(ships, world, admin, 2600, 3400, 60)
 end

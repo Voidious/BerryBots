@@ -3,10 +3,12 @@
 module("battlestage", package.seeall);
 
 local NUM_ROUNDS = 9
+local ROUND_TIME_LIMIT = 5000
 
 local currentRound = 1
 local lastRoundPrinted = 0
 local printRoundTimer = 0
+local roundStartTime = 0
 
 function numTeams(ships)
   local count = 0
@@ -52,14 +54,15 @@ end
 -- In 1v1 (or 2 teams), scoring is based on survival - the last team standing at
 -- the end of each round scores a point.
 -- For just 1 team, do nothing.
-function basicScoring(ships, admin, scoresX, scoresY, scoresSize)
+function basicScoring(ships, world, admin, scoresX, scoresY, scoresSize)
   drawRound()
 
   local numTeams = numTeams(ships)
   if (numTeams > 2) then
-    battlestage.ffaKillsPlusDamage(ships, admin, scoresX, scoresY, scoresSize)
+    battlestage.ffaKillsPlusDamage(
+        ships, world, admin, scoresX, scoresY, scoresSize)
   elseif (numTeams == 2) then
-    battlestage.duelSurvival(ships, admin, scoresX, scoresY, scoresSize)
+    battlestage.duelSurvival(ships, world, admin, scoresX, scoresY, scoresSize)
   end
 end
 
@@ -67,7 +70,8 @@ end
 --   * 1 point per kill
 --   * 1 / <default energy> points for each point of damage done
 --   * negative score for damage/kills to self or team
-function ffaKillsPlusDamage(ships, admin, scoresX, scoresY, scoresSize)
+function ffaKillsPlusDamage(ships, world, admin, scoresX, scoresY, scoresSize)
+  checkRoundTimeLimit(ships, world, admin)
   local teamsAlive = teamsAlive(ships)
   if (teamsAlive <= 1) then
     if (currentRound == NUM_ROUNDS) then
@@ -96,6 +100,7 @@ function ffaKillsPlusDamage(ships, admin, scoresX, scoresY, scoresSize)
       admin:gameOver()
     else
       currentRound = currentRound + 1
+      roundStartTime = world:time()
       admin:roundOver()
     end
   end
@@ -125,13 +130,14 @@ local duelScores = { }
 
 -- Each round, the last team standing scores a point. The winning team is the
 -- one that won the most rounds.
-function duelSurvival(ships, admin, scoresX, scoresY, scoresSize)
+function duelSurvival(ships, world, admin, scoresX, scoresY, scoresSize)
   if (not next(duelScores)) then
     for i, ship in pairs(ships) do
       duelScores[ship:teamName()] = {name = ship:teamName(), total = 0}
     end
   end
-  
+
+  checkRoundTimeLimit(ships, world, admin)
   local teamsAlive = teamsAlive(ships)
   if (teamsAlive <= 1) then
     local roundWinner = nil
@@ -140,7 +146,9 @@ function duelSurvival(ships, admin, scoresX, scoresY, scoresSize)
         roundWinner = ship:teamName()
       end
     end
-    duelScores[roundWinner].total = duelScores[roundWinner].total + 1
+    if (roundWinner ~= nil) then
+      duelScores[roundWinner].total = duelScores[roundWinner].total + 1
+    end
 
     if (currentRound == NUM_ROUNDS) then
       if (scoresX == nil) then scoresX = 10 end
@@ -164,6 +172,7 @@ function duelSurvival(ships, admin, scoresX, scoresY, scoresSize)
       admin:gameOver()
     else
       currentRound = currentRound + 1
+      roundStartTime = world:time()
       admin:roundOver()
     end
   end
@@ -183,6 +192,18 @@ function scoreSorter(teamScore1, teamScore2)
     return true
   end
   return false
+end
+
+function checkRoundTimeLimit(ships, world, admin)
+  if (world:time() - roundStartTime > ROUND_TIME_LIMIT) then
+    print("Round " .. currentRound .. ": time limit exceeded, destroying all "
+        .. "ships")
+    for i, ship in pairs(ships) do
+      if (ship:alive()) then
+        admin:destroyShip(ship)
+      end
+    end
+  end
 end
 
 function round(d, x)
