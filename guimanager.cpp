@@ -480,13 +480,13 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
         std::min(1.0, std::min(((double) screenWidth - DOCK_SIZE) / viewWidth_,
                                ((double) screenHeight) / viewHeight_));
   }
-  unsigned int targetWidth = floor(windowScale * viewWidth_) + DOCK_SIZE;
-  unsigned int targetHeight = floor(windowScale * viewHeight_);
+  unsigned int targetWidth = round(windowScale * viewWidth_) + DOCK_SIZE;
+  unsigned int targetHeight = round(windowScale * viewHeight_);
 #ifdef __WXOSX__
   window->setSize(sf::Vector2u(targetWidth, targetHeight));
   sf::Vector2i pos = window->getPosition();
-  int x = std::max(0, std::min((int) (screenWidth - targetWidth), pos.x));
-  int y = std::max(0, std::min((int) (screenHeight - targetHeight), pos.y));
+  int x = limit(0, pos.x, (int) round(screenWidth - targetWidth));
+  int y = limit(0, pos.y, (int) round(screenHeight - targetHeight));
   window->setPosition(sf::Vector2i(x, y));
 #else
   window = initMainWindow(targetWidth, targetHeight);
@@ -518,7 +518,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   gfxManager_->initBbGfx(window, viewHeight_, stage, engine_->getTeams(),
                          engine_->getNumTeams(), engine_->getShips(),
                          engine_->getNumShips(), resourcePath());
-  gfxManager_->updateView(window, viewWidth_, viewHeight_, true);
+  gfxManager_->initViews(window, viewWidth_, viewHeight_);
   window->setVisible(true);
   window->clear();
   gfxManager_->drawGame(window, stage, engine_->getShips(),
@@ -631,7 +631,7 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
     }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
-      gfxManager->updateView(window, viewWidth, viewHeight, false);
+      gfxManager->onResize(window, viewWidth, viewHeight);
     }
     if (event.type == sf::Event::MouseButtonPressed) {
       gfxManager->processMouseDown(event.mouseButton.x, event.mouseButton.y);
@@ -757,7 +757,7 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
     }
     if (event.type == sf::Event::Resized && !resized) {
       resized = true;
-      gfxManager->updateView(window, viewWidth, viewHeight, false);
+      gfxManager->onResize(window, viewWidth, viewHeight);
     }
   }
 
@@ -839,8 +839,8 @@ void GuiManager::showStagePreview(const char *stageName) {
   double windowScale =
       std::min(1.0, std::min(((double) screenWidth) / viewWidth,
                              ((double) screenHeight) / viewHeight));
-  unsigned int targetWidth = floor(windowScale * viewWidth);
-  unsigned int targetHeight = floor(windowScale * viewHeight);
+  unsigned int targetWidth = round(windowScale * viewWidth);
+  unsigned int targetHeight = round(windowScale * viewHeight);
   if (previewWindow_ != 0) {
     previewWindow_->close();
     delete previewWindow_;
@@ -884,7 +884,7 @@ void GuiManager::showStagePreview(const char *stageName) {
 
   previewGfxManager_->initBbGfx(previewWindow_, viewHeight, stage, teams, 1,
                                 ships, 1, resourcePath());
-  previewGfxManager_->updateView(previewWindow_, viewWidth, viewHeight, true);
+  previewGfxManager_->initViews(previewWindow_, viewWidth, viewHeight);
 
   while (!quitting_ && !closingPreview_ && previewWindow_->isOpen()) {
     processPreviewWindowEvents(previewWindow_, previewGfxManager_, viewWidth,

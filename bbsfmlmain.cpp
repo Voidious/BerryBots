@@ -178,13 +178,13 @@ int main(int argc, char *argv[]) {
     double windowScale = std::min(1.0,
         std::min(((double) screenWidth) / viewWidth,
                  ((double) screenHeight) / viewHeight));
-    unsigned int targetWidth = floor(windowScale * viewWidth);
-    unsigned int targetHeight = floor(windowScale * viewHeight);
+    unsigned int targetWidth = round(windowScale * viewWidth);
+    unsigned int targetHeight = round(windowScale * viewHeight);
 
     gfxManager = new GfxManager(false);
     window = new sf::RenderWindow(sf::VideoMode(targetWidth, targetHeight),
         "BerryBots", sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
-    gfxManager->updateView(window, viewWidth, viewHeight, true);
+    gfxManager->initViews(window, viewWidth, viewHeight);
     gfxManager->initBbGfx(window, viewHeight, stage, engine->getTeams(),
         engine->getNumTeams(), engine->getShips(), engine->getNumShips(),
         std::string(".") + std::string(BB_DIRSEP));
@@ -217,7 +217,7 @@ int main(int argc, char *argv[]) {
           }
           if (event.type == sf::Event::Resized && !resized) {
             resized = true;
-            gfxManager->updateView(window, viewWidth, viewHeight, false);
+            gfxManager->onResize(window, viewWidth, viewHeight);
           }
         }
     

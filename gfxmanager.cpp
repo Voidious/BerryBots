@@ -399,8 +399,10 @@ void GfxManager::decreaseWindowSize(sf::RenderWindow *window, int viewWidth,
 
 void GfxManager::defaultWindowSize(sf::RenderWindow *window, int viewWidth,
                                     int viewHeight) {
+  unsigned int windowWidth = window->getSize().x;
   unsigned int dockSize = (showDock_ ? DOCK_SIZE : 0);
-  window->setSize(sf::Vector2u(viewWidth + dockSize, viewHeight));
+  double currentScale = ((double) windowWidth - dockSize) / viewWidth;
+  adjustWindowScale(window, viewWidth, viewHeight, 1.0 - currentScale);
 }
 
 void GfxManager::adjustWindowScale(sf::RenderWindow *window, int viewWidth,
@@ -412,13 +414,21 @@ void GfxManager::adjustWindowScale(sf::RenderWindow *window, int viewWidth,
   double newScale = currentScale + scaleDelta;
   windowWidth = (viewWidth * newScale) + dockSize;
   windowHeight = viewHeight * newScale;
-  window->setSize(sf::Vector2u(windowWidth, windowHeight));
+  updateViews(window, viewWidth, viewHeight, windowWidth, windowHeight);
 }
 
-// TODO: don't let user resize to smaller than dock top + dock bottom + some min
-//       dock ships size
-void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
-                            unsigned int viewHeight, bool init) {
+void GfxManager::initViews(sf::RenderWindow *window, unsigned int viewWidth,
+                          unsigned int viewHeight) {
+  resizeViews(window, viewWidth, viewHeight, true);
+}
+
+void GfxManager::onResize(sf::RenderWindow *window, unsigned int viewWidth,
+                          unsigned int viewHeight) {
+  resizeViews(window, viewWidth, viewHeight, false);
+}
+
+void GfxManager::resizeViews(sf::RenderWindow *window, unsigned int viewWidth,
+                             unsigned int viewHeight, bool forceUpdate) {
   unsigned int oldWindowWidth = window->getSize().x;
   unsigned int oldWindowHeight = window->getSize().y;
   unsigned int dockSize = (showDock_ ? DOCK_SIZE : 0);
@@ -426,15 +436,22 @@ void GfxManager::updateView(sf::RenderWindow *window, unsigned int viewWidth,
   double widthScale = ((double) oldWindowWidth - dockSize) / viewWidth;
   double heightScale = ((double) oldWindowHeight) / viewHeight;
   double scale = std::min(widthScale, heightScale);
-  unsigned int windowWidth = floor(scale * viewWidth) + dockSize;
-  unsigned int windowHeight = floor(scale * viewHeight);
-  if (!init && windowWidth == oldWindowWidth
-      && windowHeight == oldWindowHeight) {
-    // nothing to do - avoid infinite resize on Linux
-    return;
+  unsigned int windowWidth = round(scale * viewWidth) + dockSize;
+  unsigned int windowHeight = round(scale * viewHeight);
+  if (forceUpdate || windowWidth != oldWindowWidth
+      || windowHeight != oldWindowHeight) {
+    updateViews(window, viewWidth, viewHeight, windowWidth, windowHeight);
   }
+}
+
+// TODO: don't let user resize to smaller than dock top + dock bottom + some min
+//       dock ships size
+void GfxManager::updateViews(sf::RenderWindow *window, unsigned int viewWidth,
+    unsigned int viewHeight, unsigned int windowWidth,
+    unsigned int windowHeight) {
   window->setSize(sf::Vector2u(windowWidth, windowHeight));
 
+  unsigned int dockSize = (showDock_ ? DOCK_SIZE : 0);
   if (showDock_) {
     unsigned int dockTeamsHeight =
         windowHeight - DOCK_TOP_HEIGHT - DOCK_BOTTOM_HEIGHT;

@@ -172,10 +172,10 @@ class GfxManager {
                             int viewHeight);
     void defaultWindowSize(sf::RenderWindow *window, int viewWidth,
                            int viewHeight);
-    void adjustWindowScale(sf::RenderWindow *window, int viewWidth,
-                           int viewHeight, double scaleDelta);
-    void updateView(sf::RenderWindow *window, unsigned int viewWidth,
-                    unsigned int viewHeight, bool init);
+    void initViews(sf::RenderWindow *window, unsigned int viewWidth,
+                   unsigned int viewHeight);
+    void onResize(sf::RenderWindow *window, unsigned int viewWidth,
+                  unsigned int viewHeight);
     void processMouseDown(int x, int y);
     void processMouseUp(int x, int y);
     void processMouseMoved(int x, int y);
@@ -185,6 +185,13 @@ class GfxManager {
   private:
     void initDockItems(sf::RenderWindow *window);
     void destroyDockItems();
+    void adjustWindowScale(sf::RenderWindow *window, int viewWidth,
+                           int viewHeight, double scaleDelta);
+    void resizeViews(sf::RenderWindow *window, unsigned int viewWidth,
+                     unsigned int viewHeight, bool forceUpdate);
+    void updateViews(sf::RenderWindow *window, unsigned int viewWidth,
+                     unsigned int viewHeight, unsigned int windowWidth,
+                     unsigned int windowHeight);
     void drawWalls(sf::RenderWindow *window);
     void drawZones(sf::RenderWindow *window);
     void adjustTorpedoRayPoint(sf::RectangleShape *rayShape, double angle);
