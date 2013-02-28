@@ -41,6 +41,9 @@ function run()
     if (world:touchedAnyZone(ship)) then
       admin:setWinner(ship:name())
       admin:gameOver()
+      local timeLine = "Time: " .. world:time()
+      print(timeLine)
+      admin:drawText(timeLine, 330, 550, 32)
     elseif (ship:hitWall()) then
       admin:gameOver()
     end
