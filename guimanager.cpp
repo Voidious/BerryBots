@@ -577,8 +577,6 @@ void GuiManager::runCurrentMatch() {
 
   if (!interrupted_) {
     gfxManager_->destroyBbGfx();
-    delete printStateListener_;
-    printStateListener_ = 0;
     delete engine_;
     engine_ = 0;
     delete gfxHandler_;

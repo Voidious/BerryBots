@@ -52,24 +52,28 @@ void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
 }
 
 void GuiPrintHandler::registerTeam(lua_State *L, const char *filename) {
+  OutputConsole *teamConsole = 0;
   if (restartMode_) {
     if (nextTeamIndex_ >= numTeams_) {
       // Restarting should never have more teams than last time.
       exit(EXIT_FAILURE);
     }
     teamStates_[nextTeamIndex_] = L;
-    teamConsoles_[nextTeamIndex_]->clear();
+    teamConsole = teamConsoles_[nextTeamIndex_];
+    teamConsole->clear();
     nextTeamIndex_++;
   } else {
     if (numTeams_ < MAX_TEAM_CONSOLES) {
       teamStates_[numTeams_] = L;
-      OutputConsole *teamConsole = new OutputConsole(filename, menuBarMaker_);
-      teamConsole->print("== Ship control program loaded: ");
-      teamConsole->println(filename);
+      teamConsole = new OutputConsole(filename, menuBarMaker_);
       teamConsole->Hide();
       teamConsoles_[numTeams_] = teamConsole;
       nextTeamIndex_ = numTeams_++;
     }
+  }
+  if (teamConsole != 0) {
+    teamConsole->print("== Ship control program loaded: ");
+    teamConsole->println(filename);
   }
 }
 
