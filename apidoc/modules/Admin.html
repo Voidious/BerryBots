@@ -85,7 +85,7 @@
 
 <h1>Module <code>Admin</code></h1>
 
-<p>Provides administrative operations to a stage control program.</p>
+<p>Provides administrative superpowers to a stage control program.</p>
 
 
 
@@ -100,7 +100,7 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#drawText">drawText</a>&nbsp;(x, y, text)</td>
+	<td class="name" nowrap><a href="#drawText">drawText</a>&nbsp;(text, x, y, size)</td>
 	<td class="summary">Draws text on the screen.</td>
 	</tr>
 
@@ -186,7 +186,7 @@
 
 	<tr>
 	<td class="name" nowrap><a href="#shipFriendlyKills">shipFriendlyKills</a>&nbsp;(ship)</td>
-	<td class="summary">Returns the number of friendly ships (self or teammates) the given ship has killed.<br/><br/> </td>
+	<td class="summary">Returns the number of friendly ships (self or teammates) the given ship has killed.</td>
 	</tr>
 
 	<tr>
@@ -212,8 +212,9 @@
 
 
 <dt><a name="destroyShip"></a><strong>destroyShip</strong>&nbsp;(ship)</dt>
+<br/>
 <dd>
-Destroys a ship. <br/><br/>
+Destroys a ship.
 
 
 <h3>Parameters</h3>
@@ -237,13 +238,18 @@ Destroys a ship. <br/><br/>
 
 
 
-<dt><a name="drawText"></a><strong>drawText</strong>&nbsp;(x, y, text)</dt>
+<dt><a name="drawText"></a><strong>drawText</strong>&nbsp;(text, x, y, size)</dt>
+<br/>
 <dd>
-Draws text on the screen. <br/><br/>
+Draws text on the screen.
 
 
 <h3>Parameters</h3>
 <ul>
+	
+	<li>
+	  text: The text to draw on the screen.
+	</li>
 	
 	<li>
 	  x: The x coordinate of the left side of the text.
@@ -254,7 +260,7 @@ Draws text on the screen. <br/><br/>
 	</li>
 	
 	<li>
-	  text: The text to draw on the screen.
+	  size: (optional) Size of characters, in pixels.
 	</li>
 	
 </ul>
@@ -272,8 +278,9 @@ Draws text on the screen. <br/><br/>
 
 
 <dt><a name="gameOver"></a><strong>gameOver</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Ends the match. The <code>gameOver</code> function is called on any ship control program that defines it.<br/><br/>
+Ends the match. The <code>gameOver</code> function is called on any ship control program that defines it.
 
 
 
@@ -289,8 +296,9 @@ Ends the match. The <code>gameOver</code> function is called on any ship control
 
 
 <dt><a name="moveShip"></a><strong>moveShip</strong>&nbsp;(ship, x, y)</dt>
+<br/>
 <dd>
-Moves a ship. If the specified location overlaps any walls or other ships, it is shifted randomly until it doesn't. <br/><br/>
+Moves a ship. If the specified location overlaps any walls or other ships, it is shifted randomly until it doesn't.
 
 
 <h3>Parameters</h3>
@@ -323,8 +331,9 @@ Moves a ship. If the specified location overlaps any walls or other ships, it is
 
 
 <dt><a name="reviveShip"></a><strong>reviveShip</strong>&nbsp;(ship)</dt>
+<br/>
 <dd>
-Revives a ship. <br/><br/>
+Revives a ship.
 
 
 <h3>Parameters</h3>
@@ -349,8 +358,9 @@ Revives a ship. <br/><br/>
 
 
 <dt><a name="roundOver"></a><strong>roundOver</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Ends a round. All torpedos and lasers are removed from the stage, all ships are revived and moved to new start locations by the same configuration as at the start of a match. The <code>roundOver</code> function is called on any ship control program that defines it. <br/><br/>
+Ends a round. All torpedos and lasers are removed from the stage, all ships are revived and moved to new start locations by the same configuration as at the start of a match. The <code>roundOver</code> function is called on any ship control program that defines it.
 
 
 
@@ -366,8 +376,9 @@ Ends a round. All torpedos and lasers are removed from the stage, all ships are 
 
 
 <dt><a name="sendEvent"></a><strong>sendEvent</strong>&nbsp;(ship, event)</dt>
+<br/>
 <dd>
-Sends a custom event to the target ship. This event can be any Lua value - nil, boolean, number, string, or a table containing any of these values, including nested tables.<br/><br/>
+Sends a custom event to the target ship. This event can be any Lua value - nil, boolean, number, string, or a table containing any of these values, including nested tables.
 
 
 <h3>Parameters</h3>
@@ -396,8 +407,9 @@ Sends a custom event to the target ship. This event can be any Lua value - nil, 
 
 
 <dt><a name="setShipEnergy"></a><strong>setShipEnergy</strong>&nbsp;(ship, energy)</dt>
+<br/>
 <dd>
-Sets a ship's energy. <br/><br/>
+Sets a ship's energy.
 
 
 <h3>Parameters</h3>
@@ -426,8 +438,9 @@ Sets a ship's energy. <br/><br/>
 
 
 <dt><a name="setShipEnergyEnabled"></a><strong>setShipEnergyEnabled</strong>&nbsp;(ship, enabled)</dt>
+<br/>
 <dd>
-Sets whether a ship's energy can be modified. (Default: <code>false</code>, or <code>true</code> if battle mode is enabled.)<br/><br/>
+Sets whether a ship's energy can be modified. (Default: <code>false</code>, or <code>true</code> if battle mode is enabled.)
 
 
 <h3>Parameters</h3>
@@ -456,8 +469,9 @@ Sets whether a ship's energy can be modified. (Default: <code>false</code>, or <
 
 
 <dt><a name="setShipHeading"></a><strong>setShipHeading</strong>&nbsp;(ship, heading)</dt>
+<br/>
 <dd>
-Sets a ship's heading, in radians (0 is east, pi / 2 is north). The ship will have the chance to fire its thruster once more before its position is next updated. <br/><br/>
+Sets a ship's heading, in radians (0 is east, pi / 2 is north). The ship will have the chance to fire its thruster once more before its position is next updated.
 
 
 <h3>Parameters</h3>
@@ -486,8 +500,9 @@ Sets a ship's heading, in radians (0 is east, pi / 2 is north). The ship will ha
 
 
 <dt><a name="setShipLaserEnabled"></a><strong>setShipLaserEnabled</strong>&nbsp;(ship, enabled)</dt>
+<br/>
 <dd>
-Sets whether a ship's laser gun is enabled. (Default: <code>false</code>, or <code>true</code> if battle mode is enabled.)<br/><br/>
+Sets whether a ship's laser gun is enabled. (Default: <code>false</code>, or <code>true</code> if battle mode is enabled.)
 
 
 <h3>Parameters</h3>
@@ -516,8 +531,9 @@ Sets whether a ship's laser gun is enabled. (Default: <code>false</code>, or <co
 
 
 <dt><a name="setShipShowName"></a><strong>setShipShowName</strong>&nbsp;(ship, showName)</dt>
+<br/>
 <dd>
-Sets whether a ship's name is drawn on screen. For stage ships, it's often preferable to hide the name. (Default: <code>true</code>.)<br/><br/>
+Sets whether a ship's name is drawn on screen. Setting this to <code>false</code> also hides the ship from the dock in the BerryBots GUI. (Default: <code>true</code>.)
 
 
 <h3>Parameters</h3>
@@ -546,8 +562,9 @@ Sets whether a ship's name is drawn on screen. For stage ships, it's often prefe
 
 
 <dt><a name="setShipSpeed"></a><strong>setShipSpeed</strong>&nbsp;(ship, speed)</dt>
+<br/>
 <dd>
-Sets a ship's speed. The ship will have the chance to fire its thruster once more before its position is next updated. <br/><br/>
+Sets a ship's speed. The ship will have the chance to fire its thruster once more before its position is next updated.
 
 
 <h3>Parameters</h3>
@@ -576,8 +593,9 @@ Sets a ship's speed. The ship will have the chance to fire its thruster once mor
 
 
 <dt><a name="setShipThrusterEnabled"></a><strong>setShipThrusterEnabled</strong>&nbsp;(ship, enabled)</dt>
+<br/>
 <dd>
-Sets whether a ship's thruster is enabled. (Default: <code>true</code>.)<br/><br/>
+Sets whether a ship's thruster is enabled. (Default: <code>true</code>.)
 
 
 <h3>Parameters</h3>
@@ -606,8 +624,9 @@ Sets whether a ship's thruster is enabled. (Default: <code>true</code>.)<br/><br
 
 
 <dt><a name="setShipTorpedoEnabled"></a><strong>setShipTorpedoEnabled</strong>&nbsp;(ship, enabled)</dt>
+<br/>
 <dd>
-Sets whether a ship's torpedo gun is enabled. (Default: <code>false</code>, or <code>true</code> if battle mode is enabled.)<br/><br/>
+Sets whether a ship's torpedo gun is enabled. (Default: <code>false</code>, or <code>true</code> if battle mode is enabled.)
 
 
 <h3>Parameters</h3>
@@ -636,8 +655,9 @@ Sets whether a ship's torpedo gun is enabled. (Default: <code>false</code>, or <
 
 
 <dt><a name="setWinner"></a><strong>setWinner</strong>&nbsp;(name)</dt>
+<br/>
 <dd>
-Sets the name of the ship or team that has won the match. <br/><br/>
+Sets the name of the ship or team that has won the match.
 
 
 <h3>Parameters</h3>
@@ -662,8 +682,9 @@ Sets the name of the ship or team that has won the match. <br/><br/>
 
 
 <dt><a name="shipDamage"></a><strong>shipDamage</strong>&nbsp;(ship)</dt>
+<br/>
 <dd>
-Returns the amount of damage the given ship has done to enemy ships. The amount of damage is divided by the total energy a ship starts with. If a ship inflicts full damage to a ship, that would be 1.0 damage.<br/><br/>
+Returns the amount of damage the given ship has done to enemy ships. The amount of damage is divided by the total energy a ship starts with. If a ship inflicts full damage to a ship, that would be 1.0 damage.
 
 
 <h3>Parameters</h3>
@@ -688,8 +709,9 @@ Returns the amount of damage the given ship has done to enemy ships. The amount 
 
 
 <dt><a name="shipFriendlyDamage"></a><strong>shipFriendlyDamage</strong>&nbsp;(ship)</dt>
+<br/>
 <dd>
-Returns the amount of damage the given ship has done to friendly ships (self or teammates). The amount of damage is divided by the total energy a ship starts with. If a ship inflicts full damage to a ship, that would be 1.0 damage.<br/><br/>
+Returns the amount of damage the given ship has done to friendly ships (self or teammates). The amount of damage is divided by the total energy a ship starts with. If a ship inflicts full damage to a ship, that would be 1.0 damage.
 
 
 <h3>Parameters</h3>
@@ -714,8 +736,9 @@ Returns the amount of damage the given ship has done to friendly ships (self or 
 
 
 <dt><a name="shipFriendlyKills"></a><strong>shipFriendlyKills</strong>&nbsp;(ship)</dt>
+<br/>
 <dd>
-Returns the number of friendly ships (self or teammates) the given ship has killed.<br/><br/>
+Returns the number of friendly ships (self or teammates) the given ship has killed.
 
 
 <h3>Parameters</h3>
@@ -740,8 +763,9 @@ Returns the number of friendly ships (self or teammates) the given ship has kill
 
 
 <dt><a name="shipKills"></a><strong>shipKills</strong>&nbsp;(ship)</dt>
+<br/>
 <dd>
-Returns the number of enemy ships the given ship has killed. <br/><br/>
+Returns the number of enemy ships the given ship has killed.
 
 
 <h3>Parameters</h3>

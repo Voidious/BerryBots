@@ -4,7 +4,6 @@
 module "StageBuilder"
 
 --- Sets the width and height of the stage.
--- <br/><br/>
 -- @param width The width of the stage.
 -- @param height The height of the stage.
 function setSize(width, height)
@@ -13,14 +12,14 @@ function setSize(width, height)
 -- (Default: <code>false</code>.) When battle mode is disabled, laser guns,
 -- torpedo guns, and energy tracking are all disabled. Ships can only move
 -- around, and ships are only destroyed or revived directly by the stage
--- program.<br/><br/>
+-- program.
 -- @param enabled <code>true</code> to enable battle mode, <code>false</code> to
 --     disable battle mode.
 function setBattleMode(enabled)
 
 --- Adds a wall to the stage.
 -- Lasers stop at walls, ships bounce off of walls, and ships cannot see ships
--- or events through walls. Torpedos travel through walls.<br/><br/>
+-- or events through walls. Torpedos travel through walls.
 -- @see Wall
 -- @param left The x coordinate of the left side of the wall.
 -- @param bottom The y coordinate of the bottom side of the wall.
@@ -33,7 +32,7 @@ function addWall(left, bottom, width, height)
 -- at the start of the game and each round. In the absence of a pre-defined
 -- start location, a ship is placed in a random location. In either case, if the
 -- ship's location intersects with a wall, the location is shifted randomly
--- until it doesn't.<br/><br/>
+-- until it doesn't.
 -- @param x The x coordinate of the start location.
 -- @param y The y coordinate of the start location.
 function addStart(x, y)
@@ -43,7 +42,6 @@ function addStart(x, y)
 -- the start of the game. Zones have no pre-defined behavior; a stage can use a
 -- zone in any way it likes as part of its gameplay. For instance, touching a
 -- zone is the goal of a maze stage, while it destroys a ship on a joust stage.
--- <br/><br/>
 -- @see Zone
 -- @param left The x coordinate of the left side of the zone.
 -- @param bottom The y coordinate of the bottom side of the zone.
@@ -57,7 +55,7 @@ function addZone(left, bottom, width, height, tag)
 -- <code>reviveShip</code> before it can be used. The <code>isStageShip</code>
 -- function (in <code>Ship</code>) or property (in <code>EnemyShip</code>) allow
 -- stages and ships to see which ships were loaded by the stage. Otherwise,
--- stage-loaded ships function exactly like all other ships.<br/><br/>
+-- stage-loaded ships function exactly like all other ships.
 -- @see ShipControl
 -- @param shipFilename The path/filename of the ship program, relative to the
 --     stage program.
@@ -65,7 +63,7 @@ function addShip(shipFilename)
 
 --- Sets the team size.
 -- Each user loaded ship program is given this many ships. Stage ship programs
--- are loaded with one ship, regardless of team size.<br/><br/>
+-- are loaded with one ship, regardless of team size.
 -- @see ShipControl
 -- @param teamSize The number of ships to assign to each user ship control
 --     program.

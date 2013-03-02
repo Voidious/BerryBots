@@ -5,7 +5,6 @@
 module "Sensors"
 
 --- Details of a ship-ship collision.
--- <br/>
 -- @class table
 -- @name HitByShipEvent
 -- @field time The time of the ship-ship collision.
@@ -24,13 +23,11 @@ module "Sensors"
 --     hitting ship, altering its momentum.
 
 --- Details of ship-ship collisions with ships under this program's control.
--- <br/><br/>
 -- @see HitByShipEvent
 -- @return A table of all <code>HitByShipEvent</code>s from the previous tick.
 function hitByShipEvents()
 
 --- Details of a laser hitting a ship under this program's control.
--- <br/>
 -- @class table
 -- @name HitByLaserEvent
 -- @field time The time of the laser-ship collision.
@@ -40,13 +37,11 @@ function hitByShipEvents()
 -- @field laserHeading The angle at which the laser was traveling.
 
 --- Details of lasers hitting ships under this program's control.
--- <br/><br/>
 -- @see HitByLaserEvent
 -- @return A table of all <code>HitByLaserEvent</code>s from the previous tick.
 function hitByLaserEvents()
 
 --- Details of a torpedo hitting a ship under this program's control.
--- <br/>
 -- @class table
 -- @name HitByTorpedoEvent
 -- @field time The time of the torpedo-ship collision.
@@ -58,14 +53,12 @@ function hitByLaserEvents()
 --     decreasing its energy.
 
 --- Details of torpedos hitting ships under this program's control.
--- <br/><br/>
 -- @see HitByTorpedoEvent
 -- @return A table of all <code>HitByTorpedoEvent</code>s from the previous
 --     tick.
 function hitByTorpedoEvents()
 
 --- Details of a ship under this program's control hitting the wall.
--- <br/>
 -- @class table
 -- @name HitWallEvent
 -- @field time The time of the ship-wall collision.
@@ -78,13 +71,11 @@ function hitByTorpedoEvents()
 --     the target ship, altering its momentum.
 
 --- Details of ship-wall collisions with ships under this program's control.
--- <br/><br/>
 -- @see HitWallEvent
 -- @return A table of all <code>HitWallEvent</code>s from the previous tick.
 function hitWallEvents()
 
 --- Details of a ship being destroyed.
--- <br/>
 -- @class table
 -- @name ShipDestroyedEvent
 -- @field time The time that the ship was destroyed.
@@ -92,13 +83,11 @@ function hitWallEvents()
 
 --- Details of all ships destroyed. Unlike most events, these are reported even
 -- to programs that didn't have vision of them.
--- <br/><br/>
 -- @see ShipDestroyedEvent
 -- @return A table of all <code>ShipDestroyedEvent</code>s from the previous tick.
 function shipDestroyedEvents()
 
 --- Details of a visible enemy ship firing a laser.
--- <br/>
 -- @class table
 -- @name ShipFiredLaserEvent
 -- @field time The time that the ship fired a laser.
@@ -107,14 +96,12 @@ function shipDestroyedEvents()
 -- @field shipY The y coordinate of the ship when it fired a laser.
 
 --- Details of lasers fired by visible enemy ships.
--- <br/><br/>
 -- @see ShipFiredLaserevent
 -- @return A table of all visible <code>ShipFiredLaserEvent</code>s from the
 --     previous tick.
 function shipFiredLaserEvents()
 
 --- Details of a visible enemy ship firing a torpedo.
--- <br/>
 -- @class table
 -- @name ShipFiredTorpedoEvent
 -- @field time The time that the ship fired a torpedo.
@@ -123,14 +110,12 @@ function shipFiredLaserEvents()
 -- @field shipY The y coordinate of the ship when it fired a torpedo.
 
 --- Details of torpedos fired by visible enemy ships.
--- <br/><br/>
 -- @see ShipFiredTorpedoevent
 -- @return A table of all visible <code>ShipFiredTorpedoEvent</code>s from the
 --     previous tick.
 function shipFiredTorpedoEvents()
 
 --- Details of a laser hitting a visible enemy ship.
--- <br/>
 -- @class table
 -- @name LaserHitShipEvent
 -- @field time The time of the laser-ship collision.
@@ -139,7 +124,6 @@ function shipFiredTorpedoEvents()
 -- @field targetY The y coordinate of the ship when it was hit.
 
 --- Details of lasers hitting visible enemy ships.
--- <br/><br/>
 -- @see LaserHitShipEvent
 -- @return A table of all visible <code>LaserHitShipEvent</code>s from the
 --     previous tick.
@@ -149,6 +133,6 @@ function laserHitShipEvents()
 -- These events can have any format - nil, number, string, boolean, or table
 -- with any combination of these types, including nested tables. So a ship needs
 -- to be designed to understand the specfiic event API of any stage that sends
--- it stage events.<br/><br/>
+-- it stage events.
 function stageEvents()
     

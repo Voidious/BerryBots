@@ -147,8 +147,9 @@
 
 
 <dt><a name="addShip"></a><strong>addShip</strong>&nbsp;(shipFilename)</dt>
+<br/>
 <dd>
-Adds a ship to the stage. The ship's control program must be in or below the directory of the stage program. The <code>isStageShip</code> function (in <code>Ship</code>) or property (in <code>EnemyShip</code>) allow stages and ships to see which ships are part of the stage. Otherwise, they function exactly like all other ships. A stage loaded ship is generally designed to function as part of the gameplay of the stage.<br/><br/>
+Adds a ship to the stage. The ship begins the match and each round as inactive - the stage must call <code>reviveShip</code> before it can be used. The <code>isStageShip</code> function (in <code>Ship</code>) or property (in <code>EnemyShip</code>) allow stages and ships to see which ships were loaded by the stage. Otherwise, stage-loaded ships function exactly like all other ships.
 
 
 <h3>Parameters</h3>
@@ -182,8 +183,9 @@ Adds a ship to the stage. The ship's control program must be in or below the dir
 
 
 <dt><a name="addStart"></a><strong>addStart</strong>&nbsp;(x, y)</dt>
+<br/>
 <dd>
-Adds a start location to the stage. Start locations are given to ships in the same order that they are added, at the start of the game and each round. In the absence of a pre-defined start location, a ship is placed in a random location. In either case, if the ship's location intersects with a wall, the location is shifted randomly until it doesn't.<br/><br/>
+Adds a start location to the stage. Start locations are given to ships in the same order that they are added, at the start of the game and each round. In the absence of a pre-defined start location, a ship is placed in a random location. In either case, if the ship's location intersects with a wall, the location is shifted randomly until it doesn't.
 
 
 <h3>Parameters</h3>
@@ -212,8 +214,9 @@ Adds a start location to the stage. Start locations are given to ships in the sa
 
 
 <dt><a name="addWall"></a><strong>addWall</strong>&nbsp;(left, bottom, width, height)</dt>
+<br/>
 <dd>
-Adds a wall to the stage. Lasers stop at walls, ships bounce off of walls, and ships cannot see ships or events through walls. Torpedos travel through walls.<br/><br/>
+Adds a wall to the stage. Lasers stop at walls, ships bounce off of walls, and ships cannot see ships or events through walls. Torpedos travel through walls.
 
 
 <h3>Parameters</h3>
@@ -259,8 +262,9 @@ Adds a wall to the stage. Lasers stop at walls, ships bounce off of walls, and s
 
 
 <dt><a name="addZone"></a><strong>addZone</strong>&nbsp;(left, bottom, width, height, tag)</dt>
+<br/>
 <dd>
-Adds a zone to the stage. Zones are displayed on the screen and ships are told where all zones are at the start of the game. Zones have no pre-defined behavior; a stage can use a zone in any way it likes as part of its gameplay. For instance, touching a zone is the goal of a maze stage, while it destroys a ship on a joust stage. <br/><br/>
+Adds a zone to the stage. Zones are displayed on the screen and ships are told where all zones are at the start of the game. Zones have no pre-defined behavior; a stage can use a zone in any way it likes as part of its gameplay. For instance, touching a zone is the goal of a maze stage, while it destroys a ship on a joust stage.
 
 
 <h3>Parameters</h3>
@@ -310,8 +314,9 @@ Adds a zone to the stage. Zones are displayed on the screen and ships are told w
 
 
 <dt><a name="setBattleMode"></a><strong>setBattleMode</strong>&nbsp;(enabled)</dt>
+<br/>
 <dd>
-Sets whether battle mode is enabled. (Default: <code>false</code>.) When battle mode is disabled, laser guns, torpedo guns, and energy tracking are all disabled. Ships can only move around, and ships are only destroyed or revived directly by the stage program.<br/><br/>
+Sets whether battle mode is enabled. (Default: <code>false</code>.) When battle mode is disabled, laser guns, torpedo guns, and energy tracking are all disabled. Ships can only move around, and ships are only destroyed or revived directly by the stage program.
 
 
 <h3>Parameters</h3>
@@ -336,8 +341,9 @@ Sets whether battle mode is enabled. (Default: <code>false</code>.) When battle 
 
 
 <dt><a name="setSize"></a><strong>setSize</strong>&nbsp;(width, height)</dt>
+<br/>
 <dd>
-Sets the width and height of the stage. <br/><br/>
+Sets the width and height of the stage.
 
 
 <h3>Parameters</h3>
@@ -366,8 +372,9 @@ Sets the width and height of the stage. <br/><br/>
 
 
 <dt><a name="setTeamSize"></a><strong>setTeamSize</strong>&nbsp;(teamSize)</dt>
+<br/>
 <dd>
-Sets the team size. Each user loaded ship program is given this many ships. Stage ship programs are loaded with one ship, regardless of team size.<br/><br/>
+Sets the team size. Each user loaded ship program is given this many ships. Stage ship programs are loaded with one ship, regardless of team size.
 
 
 <h3>Parameters</h3>

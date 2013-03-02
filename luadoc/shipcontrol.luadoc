@@ -8,7 +8,7 @@ module "ShipControl"
 -- information about ships under this program's control, and to issue commands
 -- to those ships. Only called once at the start of the match. Some
 -- ship initialization functions, like <code>setName</code>, can only be called
--- from init.<br/><br/>
+-- from init.
 -- @see Ship, World
 -- @param ships A userdata object representing a ship, or if team size > 1, a
 --     table of ship userdata objects.
@@ -18,7 +18,7 @@ module "ShipControl"
 function init(ships, world)
 
 --- Information about an enemy ship that's visible to the ships controlled by
--- this program.<br/>
+-- this program.
 -- @class table
 -- @name EnemyShip
 -- @field x The x coordinate (higher is to the right).
@@ -34,7 +34,7 @@ function init(ships, world)
 --- Executes ship control code each tick.
 -- Called once per tick to give the program a chance to process information
 -- about the game and issue commands to its ship(s). Only called if one or
--- more of the ships controlled by this program are still alive.<br/><br/>
+-- more of the ships controlled by this program are still alive.
 -- @see EnemyShip, Sensors
 -- @param enemyShips A table with information about the enemy ships that are
 --     visible to the ships controlled by this program. Each entry is a table

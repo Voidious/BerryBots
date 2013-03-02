@@ -202,8 +202,9 @@
 
 
 <dt><a name="hitByLaserEvents"></a><strong>hitByLaserEvents</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Details of lasers hitting ships under this program's control. <br/><br/>
+Details of lasers hitting ships under this program's control.
 
 
 
@@ -231,8 +232,9 @@ A table of all <code>HitByLaserEvent</code>s from the previous tick.
 
 
 <dt><a name="hitByShipEvents"></a><strong>hitByShipEvents</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Details of ship-ship collisions with ships under this program's control. <br/><br/>
+Details of ship-ship collisions with ships under this program's control.
 
 
 
@@ -260,8 +262,9 @@ A table of all <code>HitByShipEvent</code>s from the previous tick.
 
 
 <dt><a name="hitByTorpedoEvents"></a><strong>hitByTorpedoEvents</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Details of torpedos hitting ships under this program's control. <br/><br/>
+Details of torpedos hitting ships under this program's control.
 
 
 
@@ -289,8 +292,9 @@ A table of all <code>HitByTorpedoEvent</code>s from the previous tick.
 
 
 <dt><a name="hitWallEvents"></a><strong>hitWallEvents</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Details of ship-wall collisions with ships under this program's control. <br/><br/>
+Details of ship-wall collisions with ships under this program's control.
 
 
 
@@ -318,8 +322,9 @@ A table of all <code>HitWallEvent</code>s from the previous tick.
 
 
 <dt><a name="laserHitShipEvents"></a><strong>laserHitShipEvents</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Details of lasers hitting visible enemy ships. <br/><br/>
+Details of lasers hitting visible enemy ships.
 
 
 
@@ -347,8 +352,9 @@ A table of all visible <code>LaserHitShipEvent</code>s from the previous tick.
 
 
 <dt><a name="shipDestroyedEvents"></a><strong>shipDestroyedEvents</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Details of all ships destroyed. Unlike most events, these are reported even to programs that didn't have vision of them. <br/><br/>
+Details of all ships destroyed. Unlike most events, these are reported even to programs that didn't have vision of them.
 
 
 
@@ -376,8 +382,9 @@ A table of all <code>ShipDestroyedEvent</code>s from the previous tick.
 
 
 <dt><a name="shipFiredLaserEvents"></a><strong>shipFiredLaserEvents</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Details of lasers fired by visible enemy ships. <br/><br/>
+Details of lasers fired by visible enemy ships.
 
 
 
@@ -405,8 +412,9 @@ A table of all visible <code>ShipFiredLaserEvent</code>s from the previous tick.
 
 
 <dt><a name="shipFiredTorpedoEvents"></a><strong>shipFiredTorpedoEvents</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Details of torpedos fired by visible enemy ships. <br/><br/>
+Details of torpedos fired by visible enemy ships.
 
 
 
@@ -434,8 +442,9 @@ A table of all visible <code>ShipFiredTorpedoEvent</code>s from the previous tic
 
 
 <dt><a name="stageEvents"></a><strong>stageEvents</strong>&nbsp;()</dt>
+<br/>
 <dd>
-All events sent from the stage to a ship under this program's control. These events can have any format - nil, number, string, boolean, or table with any combination of these types, including nested tables. So a ship needs to be designed to understand the specfiic event API of any stage that sends it stage events.<br/><br/>
+All events sent from the stage to a ship under this program's control. These events can have any format - nil, number, string, boolean, or table with any combination of these types, including nested tables. So a ship needs to be designed to understand the specfiic event API of any stage that sends it stage events.
 
 
 
@@ -457,10 +466,11 @@ All events sent from the stage to a ship under this program's control. These eve
 <dl class="table">
 
 <dt><a name="HitByLaserEvent"></a><strong>HitByLaserEvent</strong></dt>
-<dd>Details of a laser hitting a ship under this program's control. <br/>
+<br/>
+<dd>Details of a laser hitting a ship under this program's control.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
@@ -490,10 +500,11 @@ All events sent from the stage to a ship under this program's control. These eve
 
 
 <dt><a name="HitByShipEvent"></a><strong>HitByShipEvent</strong></dt>
-<dd>Details of a ship-ship collision. <br/>
+<br/>
+<dd>Details of a ship-ship collision.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
@@ -547,10 +558,11 @@ All events sent from the stage to a ship under this program's control. These eve
 
 
 <dt><a name="HitByTorpedoEvent"></a><strong>HitByTorpedoEvent</strong></dt>
-<dd>Details of a torpedo hitting a ship under this program's control. <br/>
+<br/>
+<dd>Details of a torpedo hitting a ship under this program's control.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
@@ -580,10 +592,11 @@ All events sent from the stage to a ship under this program's control. These eve
 
 
 <dt><a name="HitWallEvent"></a><strong>HitWallEvent</strong></dt>
-<dd>Details of a ship under this program's control hitting the wall. <br/>
+<br/>
+<dd>Details of a ship under this program's control hitting the wall.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
@@ -617,10 +630,11 @@ All events sent from the stage to a ship under this program's control. These eve
 
 
 <dt><a name="LaserHitShipEvent"></a><strong>LaserHitShipEvent</strong></dt>
-<dd>Details of a laser hitting a visible enemy ship. <br/>
+<br/>
+<dd>Details of a laser hitting a visible enemy ship.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
@@ -646,10 +660,11 @@ All events sent from the stage to a ship under this program's control. These eve
 
 
 <dt><a name="ShipDestroyedEvent"></a><strong>ShipDestroyedEvent</strong></dt>
-<dd>Details of a ship being destroyed. <br/>
+<br/>
+<dd>Details of a ship being destroyed.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
@@ -667,10 +682,11 @@ All events sent from the stage to a ship under this program's control. These eve
 
 
 <dt><a name="ShipFiredLaserEvent"></a><strong>ShipFiredLaserEvent</strong></dt>
-<dd>Details of a visible enemy ship firing a laser. <br/>
+<br/>
+<dd>Details of a visible enemy ship firing a laser.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
@@ -696,10 +712,11 @@ All events sent from the stage to a ship under this program's control. These eve
 
 
 <dt><a name="ShipFiredTorpedoEvent"></a><strong>ShipFiredTorpedoEvent</strong></dt>
-<dd>Details of a visible enemy ship firing a torpedo. <br/>
+<br/>
+<dd>Details of a visible enemy ship firing a torpedo.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>

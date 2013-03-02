@@ -9,6 +9,7 @@ end
 %>
 
 <dt><%=func.private and "local " or ""%><a name="<%=func.name%>"></a><strong><%=func.name%></strong>&nbsp;(<%=table.concat(func.param, ", ")%>)</dt>
+<br/>
 <dd>
 <%=func.description or ""%>
 

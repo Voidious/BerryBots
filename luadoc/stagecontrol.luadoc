@@ -4,7 +4,7 @@ module "StageControl"
 
 --- Configures the stage settings.
 -- Passes a builder object used to define static configuration of the stage,
--- such as dimensions, walls, zones, and starting points.<br/><br/>
+-- such as dimensions, walls, zones, and starting points.
 -- @see StageBuilder
 -- @param stageBuilder The builder used to configure the stage. Can only be used
 --     during execution of this function.
@@ -12,7 +12,7 @@ function configure(stageBuilder)
 
 --- Initializes the stage.
 -- Passes references to all ships, the world, and an administrator object used
--- to modify the state of the stage and ships.<br/><br/>
+-- to modify the state of the stage and ships.
 -- @see Ship, World, Admin
 -- @param ships A table of all ships loaded for this game.
 -- @param world A userdata object used to query information about the game
@@ -26,7 +26,7 @@ function init(ships, world, admin)
 
 --- Executes stage code each tick.
 -- Allows the stage to monitor the game, modify the stage and ships, and decide
--- when the game ends and who wins.<br/><br/>
+-- when the game ends and who wins.
 -- @see StageSensors
 -- @param stageSensors A userdata object that can be queried for information on
 --     all events that took place this tick.

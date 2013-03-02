@@ -217,8 +217,9 @@
 
 
 <dt><a name="alive"></a><strong>alive</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Whether the ship is currently alive. <br/><br/>
+Whether the ship is currently alive.
 
 
 
@@ -237,8 +238,9 @@ Whether the ship is currently alive. <br/><br/>
 
 
 <dt><a name="energy"></a><strong>energy</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The ship's energy. A ship with energy <= 0 is destroyed. <br/><br/>
+The ship's energy. A ship with energy <= 0 is destroyed.
 
 
 
@@ -257,8 +259,9 @@ The ship's energy
 
 
 <dt><a name="fireLaser"></a><strong>fireLaser</strong>&nbsp;(heading)</dt>
+<br/>
 <dd>
-Fires a laser at the given angle. All lasers move at the same speed (25), do the same amount of damage (4), and cool at the same rate (5 ticks). <br/><br/>
+Fires a laser at the given angle. All lasers move at the same speed (25), do the same amount of damage (4), and cool at the same rate (5 ticks).
 
 
 <h3>Parameters</h3>
@@ -286,8 +289,9 @@ Fires a laser at the given angle. All lasers move at the same speed (25), do the
 
 
 <dt><a name="fireThruster"></a><strong>fireThruster</strong>&nbsp;(angle, force)</dt>
+<br/>
 <dd>
-Fires the ship's thruster, pushing it in the given direction and altering its speed and/or heading. This command only affects one tick - if you don't call it again the next tick, your ship will keep moving with the same speed and heading.<br/><br/> Note that momentum is cumulative. From a dead stop, your ship will move in the given direction, but if your ship is already moving, the thruster force is added to your current movement vector. If you want to keep things simple and always move in straight lines, you can stop moving in one direction before starting to move in another: <code>ship:fireThruster(ship:heading() + math.pi, ship:speed())</code> <br/><br/>
+Fires the ship's thruster, pushing it in the given direction and altering its speed and/or heading. This command only affects one tick - if you don't call it again the next tick, your ship will keep moving with the same speed and heading.<br/><br/> Note that momentum is cumulative. From a dead stop, your ship will move in the given direction, but if your ship is already moving, the thruster force is added to your current movement vector. If you want to keep things simple and always move in straight lines, you can stop moving in one direction before starting to move in another: <code>ship:fireThruster(ship:heading() + math.pi, ship:speed())</code>
 
 
 <h3>Parameters</h3>
@@ -319,8 +323,9 @@ Fires the ship's thruster, pushing it in the given direction and altering its sp
 
 
 <dt><a name="fireTorpedo"></a><strong>fireTorpedo</strong>&nbsp;(heading, distance)</dt>
+<br/>
 <dd>
-Fires a torpedo the given distance at the given angle. All torpedos move at the same speed (12), do the same amount of damage, and cool at the same rate (100 ticks). Torpedos move through walls and ships until they reach the specified distance. They inflict damage and knockback on all ships within the blast radius (100), doing the most damage and knockback to ships near the center of the blast.<br/><br/> The damage and knockback formulas are both:<br/> <code>30 / (1 - square(distance to blast center / blast radius))</code> <br/><br/> Ships near the center of the blast radius take nearly full damage, while ships at a distance of 50 take 25% damage and knockback.<br/><br/>
+Fires a torpedo the given distance at the given angle. All torpedos move at the same speed (12), do the same amount of damage, and cool at the same rate (100 ticks). Torpedos move through walls and ships until they reach the specified distance. They inflict damage and knockback on all ships within the blast radius (100), doing the most damage and knockback to ships near the center of the blast.<br/><br/> The damage and knockback formulas are both:<br/> <code>30 / (1 - square(distance to blast center / blast radius))</code> <br/><br/> Ships near the center of the blast radius take nearly full damage, while ships at a distance of 50 take 25% damage and knockback.
 
 
 <h3>Parameters</h3>
@@ -352,8 +357,9 @@ Fires a torpedo the given distance at the given angle. All torpedos move at the 
 
 
 <dt><a name="heading"></a><strong>heading</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The ship's heading, in radians (0 is east, pi / 2 is north). <br/><br/>
+The ship's heading, in radians (0 is east, pi / 2 is north).
 
 
 
@@ -372,8 +378,9 @@ The ship's heading.
 
 
 <dt><a name="hitShip"></a><strong>hitShip</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Whether the ship hit another ship on the previous tick. <br/><br/>
+Whether the ship hit another ship on the previous tick.
 
 
 
@@ -392,8 +399,9 @@ Whether the ship hit another ship on the previous tick. <br/><br/>
 
 
 <dt><a name="hitWall"></a><strong>hitWall</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Whether the ship hit a wall on the previous tick. <br/><br/>
+Whether the ship hit a wall on the previous tick.
 
 
 
@@ -412,8 +420,9 @@ Whether the ship hit a wall on the previous tick. <br/><br/>
 
 
 <dt><a name="isStageShip"></a><strong>isStageShip</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Whether the ship was loaded by the stage. <br/><br/>
+Whether the ship was loaded by the stage.
 
 
 
@@ -432,8 +441,9 @@ Whether the ship was loaded by the stage. <br/><br/>
 
 
 <dt><a name="laserGunHeat"></a><strong>laserGunHeat</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The heat of the ship's laser gun. A heat of 0 means the gun can be fired, a heat of 3 means the gun can be fired 3 ticks from now.<br/><br/>
+The heat of the ship's laser gun. A heat of 0 means the gun can be fired, a heat of 3 means the gun can be fired 3 ticks from now.
 
 
 
@@ -452,8 +462,9 @@ The heat of the ship's laser gun.
 
 
 <dt><a name="name"></a><strong>name</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The name of the ship. <br/><br/>
+The name of the ship.
 
 
 
@@ -472,8 +483,9 @@ The name of the ship.
 
 
 <dt><a name="setLaserColor"></a><strong>setLaserColor</strong>&nbsp;(r, g, b)</dt>
+<br/>
 <dd>
-Sets the color of the ship's lasers, in RGB (0-255). <br/><br/>
+Sets the color of the ship's lasers, in RGB (0-255).
 
 
 <h3>Parameters</h3>
@@ -506,8 +518,9 @@ Sets the color of the ship's lasers, in RGB (0-255). <br/><br/>
 
 
 <dt><a name="setName"></a><strong>setName</strong>&nbsp;(name)</dt>
+<br/>
 <dd>
-Sets the name of the ship. This function can only be called during <code>init</code>.<br/><br/>
+Sets the name of the ship. This function can only be called during <code>init</code>.
 
 
 <h3>Parameters</h3>
@@ -532,8 +545,9 @@ Sets the name of the ship. This function can only be called during <code>init</c
 
 
 <dt><a name="setShipColor"></a><strong>setShipColor</strong>&nbsp;(r, g, b)</dt>
+<br/>
 <dd>
-Sets the color of the ship's hull, in RGB (0-255). <br/><br/>
+Sets the color of the ship's hull, in RGB (0-255).
 
 
 <h3>Parameters</h3>
@@ -566,8 +580,9 @@ Sets the color of the ship's hull, in RGB (0-255). <br/><br/>
 
 
 <dt><a name="setTeamName"></a><strong>setTeamName</strong>&nbsp;(teamName)</dt>
+<br/>
 <dd>
-Sets the name of the ship's team. This function can only be called during <code>init</code>.<br/><br/>
+Sets the name of the ship's team. This function can only be called during <code>init</code>.
 
 
 <h3>Parameters</h3>
@@ -592,8 +607,9 @@ Sets the name of the ship's team. This function can only be called during <code>
 
 
 <dt><a name="setThrusterColor"></a><strong>setThrusterColor</strong>&nbsp;(r, g, b)</dt>
+<br/>
 <dd>
-Sets the color of the ship's thruster, in RGB (0-255). <br/><br/>
+Sets the color of the ship's thruster, in RGB (0-255).
 
 
 <h3>Parameters</h3>
@@ -626,8 +642,9 @@ Sets the color of the ship's thruster, in RGB (0-255). <br/><br/>
 
 
 <dt><a name="speed"></a><strong>speed</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The ship's speed. <br/><br/>
+The ship's speed.
 
 
 
@@ -646,8 +663,9 @@ The ship's speed.
 
 
 <dt><a name="teamName"></a><strong>teamName</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The name of the team this ship is part of. <br/><br/>
+The name of the team this ship is part of.
 
 
 
@@ -666,8 +684,9 @@ The name of the team this ship is part of.
 
 
 <dt><a name="torpedoGunHeat"></a><strong>torpedoGunHeat</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The heat of the ship's torpedo gun. A heat of 0 means the gun can be fired, a heat of 50 means the gun can be fired 50 ticks from now.<br/><br/>
+The heat of the ship's torpedo gun. A heat of 0 means the gun can be fired, a heat of 50 means the gun can be fired 50 ticks from now.
 
 
 
@@ -686,8 +705,9 @@ The heat of the ship's torpedo gun.
 
 
 <dt><a name="x"></a><strong>x</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The x coordinate of the ship (higher is to the right). <br/><br/>
+The x coordinate of the ship (higher is to the right).
 
 
 
@@ -706,8 +726,9 @@ The x coordinate of the ship.
 
 
 <dt><a name="y"></a><strong>y</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The y coordinate of the ship (higher is to the top). <br/><br/>
+The y coordinate of the ship (higher is to the top).
 
 
 

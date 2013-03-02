@@ -2,7 +2,6 @@
 module "World"
 
 --- Constants that help define the game rules and physics.
--- <br/>
 -- @class table
 -- @name Constants
 -- @field SHIP_RADIUS The radius of a ship.
@@ -27,14 +26,13 @@ module "World"
 --     into a ship when it collides with a wall. A value of 1.0 would mean a
 --     ship loses no momentum when hitting a wall.
 
---- Various constants that help define the game rules and physics.
--- <br/><br/>
+--- A table of constants that describe the game rules and physics.
 -- @see Constants
 -- @return A table of key-value pairs defining constants about the game rules
 --     and physics.
+function constants()
 
 --- Specifies the position and size of a wall.
--- <br/>
 -- @class table
 -- @name Wall
 -- @field left The x coordinate of the left side of the wall.
@@ -42,14 +40,12 @@ module "World"
 -- @field width The width of the wall.
 -- @field height The height of the wall.
 
---- Returns a table with all the walls on the stage, including the outer walls.
--- <br/><br/>
+--- A table of all the walls on the stage, including the outer walls.
 -- @see Wall
 -- @return A table with details of all the walls on the stage.
 function walls()
 
 --- Specifies the position, size, and tag of a zone.
--- <br/>
 -- @class table
 -- @name Zone
 -- @field left The x coordinate of the left side of the zone.
@@ -59,40 +55,33 @@ function walls()
 -- @field tag The tag that identifies the zone. Not necessarily unique, and may
 --     be empty.
 
---- Returns a table with all the zones on the stage.
--- <br/><br/>
+--- A table of all the zones on the stage.
 -- @see Zone
 -- @return A table with details of all the zones on the stage.
 function zones()
 
 --- The width of the stage.
--- <br/><br/>
 -- @return The width of the stage.
 function width()
 
 --- The height of the stage.
--- <br/><br/>
 -- @return The height of the stage.
 function height()
 
 --- The current time of the game. Time increases by one each tick and does
 -- not reset between rounds.
--- <br/><br/>
 -- @return The current time.
 function time()
 
 --- The total number of ships in the game.
--- <br/><br/>
 -- @return The total number of ships.
 function numShips()
 
 --- The number of ships assigned to each user loaded ship program.
--- <br/><br/>
 -- @return The number of ships assigned to each team.
 function teamSize()
 
 --- Checks whether a ship is currently in any stage zone.
--- <br/><br/>
 -- @see Ship
 -- @see Zone
 -- @param ship The ship to check.
@@ -101,7 +90,6 @@ function teamSize()
 function inAnyZone(ship)
 
 --- Checks whether a ship is currently in a specific stage zone.
--- <br/><br/>
 -- @see Ship
 -- @see Zone
 -- @param ship The ship to check.
@@ -112,7 +100,6 @@ function inZone(ship, tag)
 
 --- Checks whether a ship's path from last tick to this tick intersects any part
 -- of any stage zone.
--- <br/><br/>
 -- @see Ship
 -- @see Zone
 -- @param ship The ship to check.
@@ -122,7 +109,6 @@ function touchedAnyZone(ship)
 
 --- Checks whether a ship's path from last tick to this tick intersects any part
 -- of a specific stage zone.
--- <br/><br/>
 -- @see Ship
 -- @see Zone
 -- @param ship The ship to check.

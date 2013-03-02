@@ -3,7 +3,6 @@
 module "StageSensors"
 
 --- Details of a ship-ship collision.
--- <br/>
 -- @class table
 -- @name ShipHitShipEvent
 -- @field time The time of the ship-ship collision.
@@ -22,13 +21,11 @@ module "StageSensors"
 
 --- Details of all ship-ship collisions. Two versions of each event
 -- are reported, with "hitting" and "target" information reversed.
--- <br/><br/>
 -- @see ShipHitShipEvent
 -- @return A table of all <code>ShipHitShipEvent</code>s tick.
 function shipHitShipEvents()
 
 --- Details of a laser hitting a ship.
--- <br/>
 -- @class table
 -- @name LaserHitShipEvent
 -- @field time The time of the laser-ship collision.
@@ -39,13 +36,11 @@ function shipHitShipEvents()
 -- @field laserHeading The angle at which the laser was traveling.
 
 --- Details of all lasers hitting ships.
--- <br/><br/>
 -- @see LaserHitShipEvent
 -- @return A table of all <code>LaserHitShipEvent</code>s from this tick.
 function laserHitShipEvents()
 
 --- Details of a torpedo hitting a ship.
--- <br/>
 -- @class table
 -- @name TorpedoHitShipEvent
 -- @field time The time of the torpedo-ship collision.
@@ -58,13 +53,11 @@ function laserHitShipEvents()
 --     decreasing its energy.
 
 --- Details of all torpedos hitting ships.
--- <br/><br/>
 -- @see TorpedoHitShipEvent
 -- @return A table of all <code>TorpedoHitShipEvent</code>s from this tick.
 function torpedoHitShipEvents()
 
 --- Details of a ship hitting the wall.
--- <br/>
 -- @class table
 -- @name ShipHitWallEvent
 -- @field time The time of the ship-wall collision.
@@ -77,26 +70,22 @@ function torpedoHitShipEvents()
 --     the target ship, altering its momentum.
 
 --- Details of all ship-wall collisions.
--- <br/><br/>
 -- @see ShipHitWallEvent
 -- @return A table of all <code>ShipHitWallEvent</code>s from this tick.
 function shipHitWallEvents()
 
 --- Details of a ship being destroyed.
--- <br/>
 -- @class table
 -- @name ShipDestroyedEvent
 -- @field time The time that the ship was destroyed.
 -- @field shipName The name of the ship that was destroyed.
 
 --- Details of all ships destroyed.
--- <br/><br/>
 -- @see ShipDestroyedEvent
 -- @return A table of all <code>ShipDestroyedEvent</code>s from this tick.
 function shipDestroyedEvents()
 
 --- Details of a ship firing a laser.
--- <br/>
 -- @class table
 -- @name ShipFiredLaserEvent
 -- @field time The time that the ship fired a laser.
@@ -106,13 +95,11 @@ function shipDestroyedEvents()
 -- @field laserHeading The angle at which the laser was fired.
 
 --- Details of all lasers fired.
--- <br/><br/>
 -- @see ShipFiredLaserevent
 -- @return A table of all <code>ShipFiredLaserEvent</code>s from this tick.
 function shipFiredLaserEvents()
 
 --- Details of a ship firing a torpedo.
--- <br/>
 -- @class table
 -- @name ShipFiredTorpedoEvent
 -- @field time The time that the ship fired a torpedo.
@@ -123,7 +110,6 @@ function shipFiredLaserEvents()
 -- @field torpedoDistance The distance the torpedo was fired.
 
 --- Details of all torpedos fired.
--- <br/><br/>
 -- @see ShipFiredTorpedoevent
 -- @return A table of all <code>ShipFiredTorpedoEvent</code>s from this tick.
 function shipFiredTorpedoEvents()

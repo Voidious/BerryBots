@@ -124,7 +124,7 @@
 
 	<tr>
 	<td class="name" nowrap><a href="#EnemyShip">EnemyShip</a></td>
-	<td class="summary">Information about an enemy ship that's visible to the ships controlled by this program.<br/> </td>
+	<td class="summary">Information about an enemy ship that's visible to the ships controlled by this program.</td>
 	</tr>
 
 </table>
@@ -142,6 +142,7 @@
 
 
 <dt><a name="gameOver"></a><strong>gameOver</strong>&nbsp;()</dt>
+<br/>
 <dd>
 (optional) Indicates the game has ended. Called by the stage on the final tick of the game. No further action can be taken in the game world, but data can be printed about the match, or if file system access has been enabled, data could be written to disk.
 
@@ -159,8 +160,9 @@
 
 
 <dt><a name="init"></a><strong>init</strong>&nbsp;(ships, world)</dt>
+<br/>
 <dd>
-Initializes a ship control program. Passes references to <code>ships</code> and <code>world</code> objects. These can be used to query information about the state of the game world, information about ships under this program's control, and to issue commands to those ships. Only called once at the start of the match. Some ship initialization functions, like <code>setName</code>, can only be called from init.<br/><br/>
+Initializes a ship control program. Passes references to <code>ships</code> and <code>world</code> objects. These can be used to query information about the state of the game world, information about ships under this program's control, and to issue commands to those ships. Only called once at the start of the match. Some ship initialization functions, like <code>setName</code>, can only be called from init.
 
 
 <h3>Parameters</h3>
@@ -202,6 +204,7 @@ Initializes a ship control program. Passes references to <code>ships</code> and 
 
 
 <dt><a name="roundOver"></a><strong>roundOver</strong>&nbsp;()</dt>
+<br/>
 <dd>
 (optional) Indicates a round has ended. Called by the stage each time a round ends. The meaning of this depends on the stage. In the sample battle stage library, it is called between a fixed number of rounds, but not after the last round when <code>gameOver</code> is called. Other game types could have a variable number of rounds.
 
@@ -219,8 +222,9 @@ Initializes a ship control program. Passes references to <code>ships</code> and 
 
 
 <dt><a name="run"></a><strong>run</strong>&nbsp;(enemyShips, sensors)</dt>
+<br/>
 <dd>
-Executes ship control code each tick. Called once per tick to give the program a chance to process information about the game and issue commands to its ship(s). Only called if one or more of the ships controlled by this program are still alive.<br/><br/>
+Executes ship control code each tick. Called once per tick to give the program a chance to process information about the game and issue commands to its ship(s). Only called if one or more of the ships controlled by this program are still alive.
 
 
 <h3>Parameters</h3>
@@ -268,10 +272,11 @@ Executes ship control code each tick. Called once per tick to give the program a
 <dl class="table">
 
 <dt><a name="EnemyShip"></a><strong>EnemyShip</strong></dt>
-<dd>Information about an enemy ship that's visible to the ships controlled by this program.<br/>
+<br/>
+<dd>Information about an enemy ship that's visible to the ships controlled by this program.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>

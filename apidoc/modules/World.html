@@ -95,6 +95,11 @@
 <table class="function_list">
 
 	<tr>
+	<td class="name" nowrap><a href="#constants">constants</a>&nbsp;()</td>
+	<td class="summary">A table of constants that describe the game rules and physics.</td>
+	</tr>
+
+	<tr>
 	<td class="name" nowrap><a href="#height">height</a>&nbsp;()</td>
 	<td class="summary">The height of the stage.</td>
 	</tr>
@@ -136,7 +141,7 @@
 
 	<tr>
 	<td class="name" nowrap><a href="#walls">walls</a>&nbsp;()</td>
-	<td class="summary">Returns a table with all the walls on the stage, including the outer walls.</td>
+	<td class="summary">A table of all the walls on the stage, including the outer walls.</td>
 	</tr>
 
 	<tr>
@@ -146,7 +151,7 @@
 
 	<tr>
 	<td class="name" nowrap><a href="#zones">zones</a>&nbsp;()</td>
-	<td class="summary">Returns a table with all the zones on the stage.</td>
+	<td class="summary">A table of all the zones on the stage.</td>
 	</tr>
 
 </table>
@@ -186,9 +191,40 @@
 
 
 
-<dt><a name="height"></a><strong>height</strong>&nbsp;()</dt>
+<dt><a name="constants"></a><strong>constants</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The height of the stage. <br/><br/>
+A table of constants that describe the game rules and physics.
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+A table of key-value pairs defining constants about the game rules and physics.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/World.html#Constants">
+		Constants
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="height"></a><strong>height</strong>&nbsp;()</dt>
+<br/>
+<dd>
+The height of the stage.
 
 
 
@@ -207,8 +243,9 @@ The height of the stage.
 
 
 <dt><a name="inAnyZone"></a><strong>inAnyZone</strong>&nbsp;(ship)</dt>
+<br/>
 <dd>
-Checks whether a ship is currently in any stage zone. <br/><br/>
+Checks whether a ship is currently in any stage zone.
 
 
 <h3>Parameters</h3>
@@ -249,8 +286,9 @@ Checks whether a ship is currently in any stage zone. <br/><br/>
 
 
 <dt><a name="inZone"></a><strong>inZone</strong>&nbsp;(ship, tag)</dt>
+<br/>
 <dd>
-Checks whether a ship is currently in a specific stage zone. <br/><br/>
+Checks whether a ship is currently in a specific stage zone.
 
 
 <h3>Parameters</h3>
@@ -295,8 +333,9 @@ Checks whether a ship is currently in a specific stage zone. <br/><br/>
 
 
 <dt><a name="numShips"></a><strong>numShips</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The total number of ships in the game. <br/><br/>
+The total number of ships in the game.
 
 
 
@@ -315,8 +354,9 @@ The total number of ships.
 
 
 <dt><a name="teamSize"></a><strong>teamSize</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The number of ships assigned to each user loaded ship program. <br/><br/>
+The number of ships assigned to each user loaded ship program.
 
 
 
@@ -335,8 +375,9 @@ The number of ships assigned to each team.
 
 
 <dt><a name="time"></a><strong>time</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The current time of the game. Time increases by one each tick and does not reset between rounds. <br/><br/>
+The current time of the game. Time increases by one each tick and does not reset between rounds.
 
 
 
@@ -355,8 +396,9 @@ The current time.
 
 
 <dt><a name="touchedAnyZone"></a><strong>touchedAnyZone</strong>&nbsp;(ship)</dt>
+<br/>
 <dd>
-Checks whether a ship's path from last tick to this tick intersects any part of any stage zone. <br/><br/>
+Checks whether a ship's path from last tick to this tick intersects any part of any stage zone.
 
 
 <h3>Parameters</h3>
@@ -397,8 +439,9 @@ Checks whether a ship's path from last tick to this tick intersects any part of 
 
 
 <dt><a name="touchedZone"></a><strong>touchedZone</strong>&nbsp;(ship, tag)</dt>
+<br/>
 <dd>
-Checks whether a ship's path from last tick to this tick intersects any part of a specific stage zone. <br/><br/>
+Checks whether a ship's path from last tick to this tick intersects any part of a specific stage zone.
 
 
 <h3>Parameters</h3>
@@ -443,8 +486,9 @@ Checks whether a ship's path from last tick to this tick intersects any part of 
 
 
 <dt><a name="walls"></a><strong>walls</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Returns a table with all the walls on the stage, including the outer walls. <br/><br/>
+A table of all the walls on the stage, including the outer walls.
 
 
 
@@ -472,8 +516,9 @@ A table with details of all the walls on the stage.
 
 
 <dt><a name="width"></a><strong>width</strong>&nbsp;()</dt>
+<br/>
 <dd>
-The width of the stage. <br/><br/>
+The width of the stage.
 
 
 
@@ -492,8 +537,9 @@ The width of the stage.
 
 
 <dt><a name="zones"></a><strong>zones</strong>&nbsp;()</dt>
+<br/>
 <dd>
-Returns a table with all the zones on the stage. <br/><br/>
+A table of all the zones on the stage.
 
 
 
@@ -527,10 +573,11 @@ A table with details of all the zones on the stage.
 <dl class="table">
 
 <dt><a name="Constants"></a><strong>Constants</strong></dt>
-<dd>Constants that help define the game rules and physics. <br/>
+<br/>
+<dd>Constants that help define the game rules and physics.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
@@ -588,10 +635,11 @@ A table with details of all the zones on the stage.
 
 
 <dt><a name="Wall"></a><strong>Wall</strong></dt>
-<dd>Specifies the position and size of a wall. <br/>
+<br/>
+<dd>Specifies the position and size of a wall.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
@@ -617,10 +665,11 @@ A table with details of all the zones on the stage.
 
 
 <dt><a name="Zone"></a><strong>Zone</strong></dt>
-<dd>Specifies the position, size, and tag of a zone. <br/>
+<br/>
+<dd>Specifies the position, size, and tag of a zone.
 
 
-<em>Fields</em>
+<h3>Fields:</h3>
 <ul>
 	
 	<li>
