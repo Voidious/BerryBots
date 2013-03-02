@@ -21,8 +21,8 @@
 #ifndef DOCK_FADER_H
 #define DOCK_FADER_H
 
-#define VOLUME_BASE     2.718
-#define MAX_VOLUME_EXP  3
+#define VOLUME_BASE     2
+#define MAX_VOLUME_EXP  5
 
 #include <SFML/Graphics.hpp>
 #include "dockitem.h"

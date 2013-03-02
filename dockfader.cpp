@@ -64,7 +64,7 @@ DockFader::~DockFader() {
 }
 
 void DockFader::setKnob(int x) {
-  int xNew = (abs(x - 2 - xZero_) < 6) ? xZero_ : limit(xMin_, x - 2, xMax_);
+  int xNew = (abs(x - 2 - xZero_) < 4) ? xZero_ : limit(xMin_, x - 2, xMax_);
   faderKnob_->setPosition(xNew, top_ + (height_ / 4));
 }
 

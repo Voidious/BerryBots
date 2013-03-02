@@ -33,7 +33,7 @@
 #include "guiprinthandler.h"
 
 #define ITEM_STAGE  1
-#define ITEM_SHIP    2
+#define ITEM_SHIP   2
 
 class GuiListener {
   public:

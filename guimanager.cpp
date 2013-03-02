@@ -716,8 +716,8 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
 
     // On Mac/Cocoa, when using a different Space, the rest of the OS UI slows
     // to a crawl unless you have a frame rate limit set. But the frame rate is
-    // smoother if we use vsync instead of a fixed frame rate, so do that when we
-    // have focus.
+    // smoother if we use vsync instead of a fixed frame rate, so do that when
+    // we have focus.
     // TODO: Determine if this is necessary/preferable on Linux/Windows.
     // TODO: Might be better to restrict this to the Space case specifically,
     //       or when window isn't visible to user.
