@@ -591,7 +591,7 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
   copyShips(ships_, oldShips_, numShips_);
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
-    if (team->shipsAlive > 0) {
+    if (team->shipsAlive > 0 && !team->disabled) {
       worlds_[x]->time = gameTime_;
       for (int y = 0; y < team->numShips; y++) {
         int shipIndex = y + team->firstShipIndex;

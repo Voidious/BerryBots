@@ -42,10 +42,10 @@ function updateEnemyShipData(enemyShips, sensors)
   for i, enemyShip in pairs(shipData) do
     enemyShip.visible = false
     if (newRound) then
-      enemyShip.alive = true
       enemyShip.lastSeenTime = -100
     end
   end
+  newRound = false
 
   for i, enemyShip in pairs(enemyShips) do
     local name = enemyShip.name
@@ -55,15 +55,12 @@ function updateEnemyShipData(enemyShips, sensors)
     shipData[name].lastSeenTime = time
   end
 
-  if (not newRound) then
-    for i, shipDestroyed in pairs(sensors:shipDestroyedEvents()) do
-      local name = shipDestroyed.shipName
-      if (shipData[name] ~= nil) then
-        shipData[name].alive = false
-      end
+  for i, shipDestroyed in pairs(sensors:shipDestroyedEvents()) do
+    local name = shipDestroyed.shipName
+    if (shipData[name] ~= nil) then
+      shipData[name].alive = false
     end
   end
-  newRound = false
 
   for i, enemyShip in pairs(shipData) do
     if (enemyShip.alive and not enemyShip.visible
