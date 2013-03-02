@@ -82,7 +82,7 @@ static const char *reader_file(lua_State *L, void *ud, size_t *size)
   return *size > 0 ? ctx->buf : NULL;
 }
 
-// @Voidious: Rmoves the middle of a string. Leaves sliced string on top of
+// @Voidious: Removes the middle of a string. Leaves sliced string on top of
 //            stack and removes old one from stack.
 const char *sliceString(
     lua_State *L, const char *string, int start, int rest) {
