@@ -21,7 +21,7 @@
 #include "basedir.h"
 #include "osxcfg.h"
 #include <string>
-#include <iostream.h>
+#include <iostream>
 
 OsxCfg *cfg = 0;
 
