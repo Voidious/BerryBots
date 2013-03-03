@@ -50,6 +50,7 @@ class EngineException : public std::exception {
   
   public:
     EngineException(const char *details);
+    EngineException(const char *filename, const char *details);
     ~EngineException() throw();
     virtual const char* what() const throw();
 };

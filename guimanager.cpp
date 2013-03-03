@@ -202,6 +202,8 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
       if (stageFilename != 0) {
         delete stageFilename;
       }
+      errorConsole_->print(srcFilename);
+      errorConsole_->print(": ");
       errorConsole_->println(ze->what());
       wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
                                    wxOK | wxICON_EXCLAMATION);
@@ -215,6 +217,8 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
       if (stageFilename != 0) {
         delete stageFilename;
       }
+      errorConsole_->print(srcFilename);
+      errorConsole_->print(": ");
       errorConsole_->println(pse->what());
       return false;
     }
@@ -294,6 +298,8 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
       if (shipFilename != 0) {
         delete shipFilename;
       }
+      errorConsole_->print(srcFilename);
+      errorConsole_->print(": ");
       errorConsole_->println(ze->what());
       wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
                                    wxOK | wxICON_EXCLAMATION);
@@ -307,6 +313,8 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
       if (shipFilename != 0) {
         delete shipFilename;
       }
+      errorConsole_->print(srcFilename);
+      errorConsole_->print(": ");
       errorConsole_->println(pse->what());
       return false;
     }
@@ -475,6 +483,8 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     delete window_;
     window_ = 0;
 #endif
+    errorConsole_->print(stageName);
+    errorConsole_->print(": ");
     errorConsole_->println(e->what());
     wxMessageDialog errorMessage(NULL, e->what(),
         "BerryBots engine init failed", wxOK | wxICON_EXCLAMATION);

@@ -270,22 +270,23 @@ void *BerryBotsEngine::timerThread(void *vargs) {
 void BerryBotsEngine::initStage(const char *stagesBaseDir,
     const char *stageName, const char *cacheDir) throw (EngineException*) {
   if (stagesDir_ != 0 || stageFilename_ != 0) {
-    throw new EngineException("Already initialized stage for this engine.");
+    throw new EngineException(stageName,
+                              "Already initialized stage for this engine.");
   }
 
   try {
     fileManager_->loadStageFileData(
         stagesBaseDir, stageName, &stagesDir_, &stageFilename_, cacheDir);
   } catch (FileNotFoundException *fnfe) {
-    EngineException *eie = new EngineException(fnfe->what());
+    EngineException *eie = new EngineException(stageName, fnfe->what());
     delete fnfe;
     throw eie;
   } catch (ZipperException *ze) {
-    EngineException *eie = new EngineException(ze->what());
+    EngineException *eie = new EngineException(stageName, ze->what());
     delete ze;
     throw eie;
   } catch (PackagedSymlinkException *pse) {
-    EngineException *eie = new EngineException(pse->what());
+    EngineException *eie = new EngineException(stageName, pse->what());
     delete pse;
     throw eie;
   }
@@ -349,7 +350,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     char *shipFilename = 0;
     try {
       fileManager_->loadShipFileData(baseDir, filename, &shipDir, &shipFilename,
-                                    cacheDir);
+                                     cacheDir);
     } catch (FileNotFoundException *fnfe) {
       if (deleteFilename) {
         delete filename;
@@ -361,7 +362,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
         delete shipFilename ;
       }
 
-      EngineException *eie = new EngineException(fnfe->what());
+      EngineException *eie = new EngineException(filename, fnfe->what());
       delete fnfe;
       throw eie;
     } catch (ZipperException *ze) {
@@ -375,7 +376,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
         delete shipFilename ;
       }
       
-      EngineException *eie = new EngineException(ze->what());
+      EngineException *eie = new EngineException(filename, ze->what());
       delete ze;
       throw eie;
     } catch (PackagedSymlinkException *pse) {
@@ -389,7 +390,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
         delete shipFilename ;
       }
       
-      EngineException *eie = new EngineException(pse->what());
+      EngineException *eie = new EngineException(filename, pse->what());
       delete pse;
       throw eie;
     }
@@ -804,6 +805,14 @@ char* BerryBotsEngine::formatLuaError(lua_State *L, const char *formatString) {
 EngineException::EngineException(const char *details) {
   message_ = new char[strlen(details) + 41];
   sprintf(message_, "Engine failure: %s", details);
+}
+
+EngineException::EngineException(const char *filename, const char *details) {
+  std::string errorMessage(filename);
+  errorMessage.append(": Engine failure: ");
+  errorMessage.append(details);
+  message_ = new char[errorMessage.size() + 1];
+  strcpy(message_, errorMessage.c_str());
 }
 
 const char* EngineException::what() const throw() {
