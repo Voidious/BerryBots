@@ -84,7 +84,7 @@ OSXCLI_LDFLAGS += -pagezero_size 10000 -image_base 100000000
 
 ##############################################################################
 # Sources and flags for building on Linux / GTK
-LINUX_EXTRA_SOURCES =  relativebasedir.cpp linuxresourcepath.cpp
+LINUX_EXTRA_SOURCES =  relativebasedir.cpp relativerespath.cpp
 LINUX_EXTRA_SOURCES += ./luajit/src/libluajit.a
 LINUX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
 
@@ -105,7 +105,7 @@ LINUXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
 
 ##############################################################################
 # Sources and flags for building on Windows
-WIN_EXTRA_SOURCES =  relativebasedir.cpp linuxresourcepath.cpp bbres.o
+WIN_EXTRA_SOURCES =  relativebasedir.cpp relativerespath.cpp bbres.o
 WIN_EXTRA_SOURCES += .\luajit\src\lua51.dll ${WIN_ZLIB_PATH}\zlib1.dll
 WIN_EXTRA_SOURCES += ${LIBARCHIVE_PATH}\build\libarchive\libarchive_static.a
 

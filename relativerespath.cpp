@@ -3,4 +3,3 @@
 std::string resourcePath() {
   return std::string("./");
 }
-
