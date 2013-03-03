@@ -208,8 +208,9 @@ void FileManager::loadUserFileData(const char *srcBaseDir,
            PackagedSymlinkException*) {
   char *filePath = getFilePath(srcBaseDir, srcFilename);
   if (!fileExists(filePath)) {
+    FileNotFoundException *e = new FileNotFoundException(filePath);
     delete filePath;
-    throw new FileNotFoundException(filePath);
+    throw e;
   }
 
   int srcFilenameLen = (int) strlen(srcFilename);
@@ -241,6 +242,7 @@ void FileManager::loadUserFileData(const char *srcBaseDir,
     *userFilename = new char[strlen(srcFilename) + 1];
     strcpy(*userFilename, srcFilename);
   }
+  delete filePath;
 }
 
 // TODO: Find a way to make this fail on broken symlinks, too. For now I don't
@@ -402,7 +404,10 @@ void FileManager::packageCommon(lua_State *userState,
           // TODO: Obfuscate Lua source code and save to outputFilename
 //          saveBytecode(packFilenames[x], outputFilename, userAbsBaseDir);
         } catch (LuaException *e) {
+          delete destFilename;
+          delete absMetaFilename;
           delete outputFilename;
+          delete outputDir;
           throw e;
         }
         
@@ -550,6 +555,7 @@ void FileManager::packageStage(const char *stagesBaseDir, const char *stageName,
       packFilenames[x] = new char[lenFilename + 1];
       strcpy(packFilenames[x], shipRelativePath);
     }
+    delete shipRelativePath;
   }
 
   try {
@@ -733,11 +739,11 @@ void FileManager::createDirectoryIfNecessary(const char *dir) {
   char *parentDir = parseDir(dir);
   if (strcmp(".", parentDir)) {
     createDirectoryIfNecessary(parentDir);
-    delete parentDir;
   }
   if (!fileExists(dir)) {
     createDirectory(dir);
   }
+  delete parentDir;
 }
 
 char* FileManager::parseDir(const char *dirAndFilename) {

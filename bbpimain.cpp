@@ -86,6 +86,7 @@ int main(int argc, char *argv[]) {
       } catch (std::exception *e) {
         std::cout << "BerryBots encountered an error:" << std::endl;
         std::cout << "  " << e->what() << std::endl;
+        delete e;
       }
       delete stageInfo;
     }
@@ -115,6 +116,7 @@ int main(int argc, char *argv[]) {
       } catch (std::exception *e) {
         std::cout << "BerryBots encountered an error:" << std::endl;
         std::cout << "  " << e->what() << std::endl;
+        delete e;
       }
       delete shipInfo;
     }
@@ -154,6 +156,7 @@ int main(int argc, char *argv[]) {
     delete stageName;
     std::cout << "BerryBots initialization failed:" << std::endl;
     std::cout << "  " << e->what() << std::endl;
+    delete e;
     return 0;
   }
   delete stageAbsName;
@@ -182,6 +185,7 @@ int main(int argc, char *argv[]) {
   } catch (EngineException *e) {
     std::cout << "BerryBots initialization failed:" << std::endl;
     std::cout << "  " << e->what() << std::endl;
+    delete e;
     return 0;
   }
 
@@ -224,6 +228,7 @@ int main(int argc, char *argv[]) {
   } catch (EngineException *e) {
     std::cout << "BerryBots encountered an error:" << std::endl;
     std::cout << "  " << e->what() << std::endl;
+    delete e;
     return 0;
   }
 
@@ -232,10 +237,9 @@ int main(int argc, char *argv[]) {
     finish();
   }
 
-  char* winnerName = engine->getWinnerName();
+  const char* winnerName = engine->getWinnerName();
   if (winnerName != 0) {
     std::cout << winnerName << " wins! Congratulations!" << std::endl;
-    delete winnerName;
   }
 
   std::cout << std::endl << "CPU time used per tick (microseconds):"
@@ -254,6 +258,9 @@ int main(int argc, char *argv[]) {
   }
 
   delete engine;
+  for (int x = 0; x < numTeams; x++) {
+    delete teams[x];
+  }
   delete teams;
   delete printHandler;
   delete packageReporter;

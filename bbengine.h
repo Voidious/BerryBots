@@ -111,7 +111,7 @@ class BerryBotsEngine {
     void setGameOver(bool gameOver);
     bool isGameOver();
     void setWinnerName(const char* winnerName);
-    char* getWinnerName();
+    const char* getWinnerName();
 
     void initStage(const char *stagesBaseDir, const char *stageName,
                    const char *cacheDir) throw (EngineException*);

@@ -34,6 +34,7 @@ DockText::DockText(const char *text, sf::Font *font, int fontSize, int left,
   shortcutDrawables_ = new sf::Drawable*[1];
   shortcutDrawables_[0] = highlightedDrawables_[0] = drawableText_;
   disabled_ = false;
+  errored_ = false;
   hidden_ = false;
   fontSize_ = fontSize;
   setTop(top);

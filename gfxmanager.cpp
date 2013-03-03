@@ -328,6 +328,14 @@ void GfxManager::destroyDockItems() {
     delete newMatchButton_;
     newMatchButton_ = 0;
   }
+  if (packageShipButton_ != 0) {
+    delete packageShipButton_;
+    packageShipButton_ = 0;
+  }
+  if (packageStageButton_ != 0) {
+    delete packageStageButton_;
+    packageStageButton_ = 0;
+  }
   if (stageButton_ != 0) {
     delete stageButton_;
     stageButton_ = 0;
@@ -341,15 +349,19 @@ void GfxManager::destroyDockItems() {
   }
   if (pauseButton_ != 0) {
     delete pauseButton_;
+    pauseButton_ = 0;
   }
   if (playButton_ != 0) {
     delete playButton_;
+    playButton_ = 0;
   }
   if (restartButton_ != 0) {
     delete restartButton_;
+    restartButton_ = 0;
   }
   if (tpsFader_ != 0) {
     delete tpsFader_;
+    tpsFader_ = 0;
   }
 }
 
@@ -362,7 +374,7 @@ void GfxManager::setListener(GfxViewListener *listener) {
 
 void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
                           int numShips, int time, GfxEventHandler *gfxHandler,
-                          bool paused, bool gameOver, char *winnerName) {
+                          bool paused, bool gameOver, const char *winnerName) {
   if (showDock_) {
     drawDock(window, stage, paused);
     window->setView(stageView_);
@@ -825,7 +837,7 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
 }
 
 void GfxManager::drawGameOver(sf::RenderWindow *window, Stage *stage,
-                              char *winnerName) {
+                              const char *winnerName) {
   sf::Text text;
   sf::RectangleShape borderShape;
   text.setFont(font_);

@@ -193,6 +193,7 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
       if (stageFilename != 0) {
         delete stageFilename;
       }
+      delete fnfe;
       return false;
     } catch (ZipperException *ze) {
       delete cacheDir;
@@ -208,6 +209,7 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
       wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
                                    wxOK | wxICON_EXCLAMATION);
       errorMessage.ShowModal();
+      delete ze;
       return false;
     } catch (PackagedSymlinkException *pse) {
       delete cacheDir;
@@ -220,6 +222,7 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
       errorConsole_->print(srcFilename);
       errorConsole_->print(": ");
       errorConsole_->println(pse->what());
+      delete pse;
       return false;
     }
     delete cacheDir;
@@ -289,6 +292,7 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
       if (shipFilename != 0) {
         delete shipFilename;
       }
+      delete fnfe;
       return false;
     } catch (ZipperException *ze) {
       delete cacheDir;
@@ -304,6 +308,7 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
       wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
                                    wxOK | wxICON_EXCLAMATION);
       errorMessage.ShowModal();
+      delete ze;
       return false;
     } catch (PackagedSymlinkException *pse) {
       delete cacheDir;
@@ -316,6 +321,7 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
       errorConsole_->print(srcFilename);
       errorConsole_->print(": ");
       errorConsole_->println(pse->what());
+      delete pse;
       return false;
     }
     delete cacheDir;
@@ -494,6 +500,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     delete cacheDir;
     restarting_ = false;
     newMatchDialog_->Show();
+    delete e;
     return;
   }
   delete cacheDir;
@@ -597,6 +604,7 @@ void GuiManager::runCurrentMatch() {
         "BerryBots encountered an error", wxOK | wxICON_EXCLAMATION);
     errorMessage.ShowModal();
     newMatchDialog_->Show();
+    delete e;
     return;
   }
 
@@ -866,6 +874,7 @@ void GuiManager::showStagePreview(const char *stageName) {
     wxMessageDialog errorMessage(NULL, e->what(), "Preview failure",
                                  wxOK | wxICON_EXCLAMATION);
     errorMessage.ShowModal();
+    delete e;
     return;
   }
   
@@ -1176,12 +1185,14 @@ void ShipPackager::package(const char *shipName, const char *version,
     } else {
       refresh = false;
     }
+    delete e;
   } catch (std::exception *e) {
     packagingConsole_->clear();
     packagingConsole_->Show();
     packagingConsole_->println("Packaging ship failed: ");
     packagingConsole_->print("  ");
     packagingConsole_->println(e->what());
+    delete e;
   }
   delete cacheDir;
   delete tmpDir;
@@ -1241,6 +1252,7 @@ void StagePackager::package(const char *stageName, const char *version,
     } else {
       refresh = false;
     }
+    delete e;
   } catch (std::exception *e) {
     packagingConsole_->clear();
     packagingConsole_->Show();
@@ -1248,6 +1260,7 @@ void StagePackager::package(const char *stageName, const char *version,
     packagingConsole_->print("  ");
     packagingConsole_->println(e->what());
     refresh = false;
+    delete e;
   }
   delete cacheDir;
   delete tmpDir;

@@ -363,9 +363,13 @@ void Stage::moveAndCheckCollisions(
   int intervals = 1;
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
+    ShipMoveData shipDatum = shipData[x];
+    shipDatum.initialized = false;
+    shipDatum.shipCircle = 0;
+    shipDatum.nextShipCircle = 0;
     if (ship->alive) {
+      shipDatum.initialized = true;
       Ship *oldShip = oldShips[x];
-      ShipMoveData shipDatum = shipData[x];
   
       double force = ship->thrusterForce;
       double forceAngle = ship->thrusterAngle;
@@ -391,13 +395,13 @@ void Stage::moveAndCheckCollisions(
         shipDatum.shipCollisionData[y] = 0;
       }
       shipDatum.stopped = false;
-      shipData[x] = shipDatum;
   
       double moveDistance =
           sqrt(square(ship->x - oldShip->x) + square(ship->y - oldShip->y));
       int moveIntervals = ceil(moveDistance / COLLISION_FRAME);
       intervals = std::max(intervals, moveIntervals);
     }
+    shipData[x] = shipDatum;
   }
 
   for (int x = 0; x < numShips; x++) {
@@ -619,11 +623,14 @@ void Stage::moveAndCheckCollisions(
     }
   }
   bool *wasAlive = new bool[numShips];
+  for (int x = 0; x < numShips; x++) {
+    wasAlive[x] = ships[x]->alive;
+  }
 
   // For lasers fired this tick, check if they intersect any other ships at
   // their initial position (0-25 from origin) before moving the first time.
-  checkLaserShipCollisions(ships, shipData, numShips, wasAlive, laserHits,
-                           numLasers_, gameTime, true);
+  checkLaserShipCollisions(ships, shipData, numShips, laserHits, numLasers_,
+                           gameTime, true);
 
   // Move lasers one whole tick.
   for (int x = 0; x < numLasers_; x++) {
@@ -633,8 +640,8 @@ void Stage::moveAndCheckCollisions(
     laserLines_[x]->shift(laser->dx, laser->dy);
   }
   
-  checkLaserShipCollisions(ships, shipData, numShips, wasAlive, laserHits,
-                           numLasers_, gameTime, false);
+  checkLaserShipCollisions(ships, shipData, numShips, laserHits, numLasers_,
+                           gameTime, false);
 
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
@@ -781,36 +788,35 @@ void Stage::moveAndCheckCollisions(
       }
     }
   }
+
   for (int x = 0; x < numShips; x++) {
     delete torpedoHits[x];
   }
   delete torpedoHits;
-  
   delete wasAlive;
 
   for (int x = 0; x < numShips; x++) {
-    ShipMoveData shipDatum = shipData[x];
-    if (ships[x]->alive) {
-      delete shipDatum.shipCircle;
-      delete shipDatum.nextShipCircle;
+    ShipMoveData *shipDatum = &(shipData[x]);
+    if (shipDatum->initialized) {
+      delete shipDatum->shipCircle;
+      delete shipDatum->nextShipCircle;
       for (int y = 0; y < numShips; y++) {
-        ShipCollisionData *collisionData = shipDatum.shipCollisionData[y];
+        ShipCollisionData *collisionData = shipDatum->shipCollisionData[y];
         if (collisionData != 0) {
           delete collisionData;
         }
       }
-      delete shipDatum.shipCollisionData;
+      delete shipDatum->shipCollisionData;
     }
   }
   delete shipData;
 }
 
 void Stage::checkLaserShipCollisions(Ship **ships, ShipMoveData *shipData,
-    int numShips, bool *wasAlive, bool **laserHits, int numLasers,
-    int gameTime, bool firstTickLasers) {
+    int numShips, bool **laserHits, int numLasers, int gameTime,
+    bool firstTickLasers) {
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
-    wasAlive[x] = ship->alive;
     if (ship->alive) {
       for (int y = 0; y < numLasers; y++) {
         Laser *laser = lasers_[y];
@@ -1012,6 +1018,7 @@ void Stage::reset() {
   startIndex_ = 0;
   for (int x = 0; x < numLasers_; x++) {
     delete lasers_[x];
+    delete laserLines_[x];
   }
   numLasers_ = 0;
   for (int x = 0; x < numTorpedos_; x++) {

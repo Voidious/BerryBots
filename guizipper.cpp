@@ -54,6 +54,7 @@ void GuiZipper::packageFiles(const char *outputFile, const char *baseDir,
       delete filePath;
       throw ze;
     }
+    delete filePath;
   }
   r = archive_write_close(a);
   checkForErrors("Error writing close", a, r);

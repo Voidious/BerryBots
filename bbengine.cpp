@@ -189,16 +189,16 @@ bool BerryBotsEngine::isGameOver() {
 }
 
 void BerryBotsEngine::setWinnerName(const char* winnerName) {
-  strcpy(winnerName_, winnerName);
+  int winnerNameLen = std::min((int) strlen(winnerName), MAX_NAME_LENGTH);
+  strncpy(winnerName_, winnerName, winnerNameLen);
+  winnerName_[winnerNameLen] = '\0';
 }
 
-char* BerryBotsEngine::getWinnerName() {
+const char* BerryBotsEngine::getWinnerName() {
   if (strlen(winnerName_) == 0) {
     return 0;
   } else {
-    char* newWinnerName = new char[strlen(winnerName_) + 1];
-    strcpy(newWinnerName, winnerName_);
-    return newWinnerName;
+    return winnerName_;
   }
 }
 

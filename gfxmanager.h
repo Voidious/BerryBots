@@ -165,7 +165,7 @@ class GfxManager {
     void setListener(GfxViewListener *listener);
     void drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
                   int numShips, int time, GfxEventHandler *gfxHandler,
-                  bool paused, bool gameOver, char *winnerName);
+                  bool paused, bool gameOver, const char *winnerName);
     void increaseWindowSize(sf::RenderWindow *window, int viewWidth,
                             int viewHeight);
     void decreaseWindowSize(sf::RenderWindow *window, int viewWidth,
@@ -217,7 +217,8 @@ class GfxManager {
                         bool gameOver, int time);
     void drawDock(sf::RenderWindow *window, Stage *stage, bool paused);
     void drawDockItem(sf::RenderWindow *window, DockItem *dockItem);
-    void drawGameOver(sf::RenderWindow *window, Stage *stage, char *winnerName);
+    void drawGameOver(sf::RenderWindow *window, Stage *stage,
+                      const char *winnerName);
     int getShipDockTop(int index);
     double adjustX(double x);
     double adjustY(double x, double height);

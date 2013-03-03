@@ -180,6 +180,8 @@ void PackageDialog::packageSelectedItem() {
  #endif
 
     listener_->package(name, version, false);
+    delete name;
+    delete version;
   }
 }
 

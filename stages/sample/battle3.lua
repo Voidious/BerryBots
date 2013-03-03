@@ -16,10 +16,12 @@ function configure(stageBuilder)
 end
 
 ships = nil
+world = nil
 admin = nil
 
 function init(shipsArg, worldArg, adminArg)
   ships = shipsArg
+  world = worldArg
   admin = adminArg
 end
 
