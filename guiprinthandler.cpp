@@ -44,28 +44,30 @@ void GuiPrintHandler::stagePrint(const char *text) {
 
 void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
   for (int x = 0; x < numTeams_; x++) {
-    if (teamStates_[x] == L) {
+    if (teams_[x]->state == L) {
       teamConsoles_[x]->println(text);
       break;
     }
   }
 }
 
-void GuiPrintHandler::registerTeam(lua_State *L, const char *filename) {
+void GuiPrintHandler::registerTeam(Team *team, const char *filename) {
   OutputConsole *teamConsole = 0;
   if (restartMode_) {
     if (nextTeamIndex_ >= numTeams_) {
       // Restarting should never have more teams than last time.
       exit(EXIT_FAILURE);
     }
-    teamStates_[nextTeamIndex_] = L;
+    teams_[nextTeamIndex_] = team;
     teamConsole = teamConsoles_[nextTeamIndex_];
+    teamConsole->setListener(new ConsoleErrorListener(team));
     teamConsole->clear();
     nextTeamIndex_++;
   } else {
     if (numTeams_ < MAX_TEAM_CONSOLES) {
-      teamStates_[numTeams_] = L;
+      teams_[numTeams_] = team;
       teamConsole = new OutputConsole(filename, menuBarMaker_);
+      teamConsole->setListener(new ConsoleErrorListener(team));
       teamConsole->Hide();
       teamConsoles_[numTeams_] = teamConsole;
       nextTeamIndex_ = numTeams_++;
@@ -84,4 +86,12 @@ void GuiPrintHandler::restartMode() {
 
 OutputConsole** GuiPrintHandler::getTeamConsoles() {
   return teamConsoles_;
+}
+
+ConsoleErrorListener::ConsoleErrorListener(Team *team) {
+  team_ = team;
+}
+
+void ConsoleErrorListener::onActive() {
+  team_->errored = false;
 }

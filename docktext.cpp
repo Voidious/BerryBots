@@ -46,8 +46,16 @@ DockText::~DockText() {
 void DockText::setDisabled(bool disabled) {
   if (disabled && !disabled_) {
     drawableText_->setColor(DISABLED_COLOR);
+    disabled_ = disabled;
   }
-  disabled_ = disabled;
+}
+
+void DockText::setErrored(bool errored) {
+  if (errored != errored_) {
+    drawableText_->setColor(disabled_ ? DISABLED_COLOR
+                            : errored ? ERRORED_COLOR : DEFAULT_COLOR);
+    errored_ = errored;
+  }
 }
 
 bool DockText::hidden() {
@@ -60,7 +68,8 @@ void DockText::setHidden(bool hidden) {
 
 void DockText::setHighlighted(bool highlighted) {
   drawableText_->setColor(highlighted ? HIGHLIGHTED_COLOR
-                          : disabled_ ? DISABLED_COLOR : DEFAULT_COLOR);
+                          : disabled_ ? DISABLED_COLOR
+                              : errored_ ? ERRORED_COLOR : DEFAULT_COLOR);
 }
 
 void DockText::setTop(int top) {

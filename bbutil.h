@@ -55,6 +55,7 @@ typedef struct {
   unsigned int totalCpuTicks;
   bool stageShip;
   bool disabled;
+  bool errored;
   bool ownedByLua;
 } Team;
 

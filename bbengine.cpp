@@ -394,8 +394,14 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
       throw eie;
     }
     initShipState(&teamState, shipDir);
+
+    Team *team = new Team;
+    team->index = x;
+    team->firstShipIndex = shipIndex;
+    team->state = teamState;
+    team->errored = false;
     if (listener_ != 0) {
-      listener_->newTeamState(teamState, filename);
+      listener_->newTeam(team, filename);
     }
 
     int numStateShips = (stageShip ? 1 : teamSize_);
@@ -417,11 +423,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
       lua_newtable(teamState);
     }
 
-    Team *team = new Team;
-    team->index = x;
-    team->firstShipIndex = shipIndex;
     team->numShips = numStateShips;
-    team->state = teamState;
     team->shipsAlive = 0;
     team->stageEventRef = 0;
     for (int y = 0; y < CPU_TIME_TICKS; y++) {
@@ -769,11 +771,17 @@ void BerryBotsEngine::copyShips(
 //       are considered fatal. We throw exceptions from the engine and the
 //       GUI or CLI displays them appropriately.
 void BerryBotsEngine::printLuaErrorToShipConsole(lua_State *L,
-                                             const char *formatString) {
+                                                 const char *formatString) {
   if (printHandler != 0) {
     char *errorMessage = formatLuaError(L, formatString);
     printHandler->shipPrint(L, errorMessage);
     delete errorMessage;
+  }
+  for (int x = 0; x < numInitializedTeams_; x++) {
+    Team *team = teams_[x];
+    if (team->state == L) {
+      team->errored = true;
+    }
   }
 }
 

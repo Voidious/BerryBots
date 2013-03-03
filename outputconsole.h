@@ -24,6 +24,12 @@
 #include <wx/wx.h>
 #include "menubarmaker.h"
 
+class ConsoleListener {
+  public:
+    virtual void onActive() = 0;
+    virtual ~ConsoleListener() {};
+};
+
 class OutputConsole : public wxFrame {
   wxTextCtrl *output_;
   MenuBarMaker *menuBarMaker_;
@@ -31,10 +37,12 @@ class OutputConsole : public wxFrame {
   wxEventFilter *eventFilter_;
   int defaultFontSize_;
   int fontSize_;
+  ConsoleListener *listener_;
 
   public:
     OutputConsole(const char *title, MenuBarMaker *menuBarMaker);
     ~OutputConsole();
+    void setListener(ConsoleListener *listener);
     void onActivate(wxActivateEvent &event);
     void print(const char *text);
     void println(const char *text);
@@ -49,7 +57,7 @@ class OutputConsole : public wxFrame {
 
 class OutputConsoleEventFilter : public wxEventFilter {
   OutputConsole *outputConsole_;
-  
+
   public:
     OutputConsoleEventFilter(OutputConsole *outputConsole);
     ~OutputConsoleEventFilter();

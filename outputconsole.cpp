@@ -27,6 +27,7 @@ OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
               wxDEFAULT_FRAME_STYLE) {
   output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0), wxSize(400, 350),
                           wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator);
+  listener_ = 0;
 
 #ifdef __WINDOWS__
   SetIcon(wxIcon("berrybots.ico", wxBITMAP_TYPE_ICO));
@@ -59,12 +60,25 @@ OutputConsole::~OutputConsole() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
   delete output_;
+  if (listener_ != 0) {
+    delete listener_;
+  }
+}
+
+void OutputConsole::setListener(ConsoleListener *listener) {
+  if (listener_ != 0) {
+    delete listener_;
+  }
+  listener_ = listener;
 }
 
 void OutputConsole::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
+  }
+  if (event.GetActive() && listener_ != 0) {
+    listener_->onActive();
   }
 }
 
@@ -123,9 +137,9 @@ OutputConsoleEventFilter::~OutputConsoleEventFilter() {
 
 int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
   const wxEventType type = event.GetEventType();
-  wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
-  int keyCode = keyEvent->GetKeyCode();
-  if (type == wxEVT_KEY_DOWN && outputConsole_->IsActive()) {
+  if (outputConsole_->IsActive() && type == wxEVT_KEY_DOWN) {
+    wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+    int keyCode = keyEvent->GetKeyCode();
     if (keyCode == WXK_ESCAPE
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       outputConsole_->Hide();

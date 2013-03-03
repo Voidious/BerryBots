@@ -29,7 +29,7 @@ CliPrintHandler::CliPrintHandler() {
 }
 
 CliPrintHandler::~CliPrintHandler() {
-  delete teamStates_;
+  delete teams_;
   for (int x = 0; x < nextTeamIndex_; x++) {
     delete teamNames_[x];
   }
@@ -38,7 +38,7 @@ CliPrintHandler::~CliPrintHandler() {
 
 void CliPrintHandler::setNumTeams(int numTeams) {
   numTeams_ = numTeams;
-  teamStates_ = new lua_State*[numTeams];
+  teams_ = new Team*[numTeams];
   teamNames_ = new char*[numTeams];
 }
 
@@ -48,17 +48,17 @@ void CliPrintHandler::stagePrint(const char *text) {
 
 void CliPrintHandler::shipPrint(lua_State *L, const char *text) {
   for (int x = 0; x < numTeams_; x++) {
-    lua_State *teamState = teamStates_[x];
-    if (teamState == L) {
+    Team *team = teams_[x];
+    if (team->state == L) {
       std::cout << "Ship: " << teamNames_[x] << ": " << text << std::endl;
       break;
     }
   }
 }
 
-void CliPrintHandler::registerTeam(lua_State *L, const char *name) {
+void CliPrintHandler::registerTeam(Team *team, const char *name) {
   if (nextTeamIndex_ < numTeams_) {
-    teamStates_[nextTeamIndex_] = L;
+    teams_[nextTeamIndex_] = team;
     teamNames_[nextTeamIndex_] = new char[strlen(name) + 1];
     strcpy(teamNames_[nextTeamIndex_], name);
     nextTeamIndex_++;
@@ -78,7 +78,6 @@ CliStateListener::CliStateListener(CliPrintHandler* cliPrintHandler) {
   cliPrintHandler_ = cliPrintHandler;
 }
 
-void CliStateListener::newTeamState(lua_State *teamState,
-                                    const char *filename) {
-  cliPrintHandler_->registerTeam(teamState, filename);
+void CliStateListener::newTeam(Team *team, const char *filename) {
+  cliPrintHandler_->registerTeam(team, filename);
 }

@@ -46,7 +46,7 @@ class PrintStateListener : public NewTeamStateListener {
   
   public:
     PrintStateListener(GuiPrintHandler *guiPrintHandler);
-    virtual void newTeamState(lua_State *teamState, const char *filename);
+    virtual void newTeam(Team *team, const char *filename);
     OutputConsole** getTeams();
 };
 
@@ -141,6 +141,7 @@ class GuiManager {
     sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
+    void clearTeamErroredForActiveConsoles(BerryBotsEngine *engine);
     void resumeMatch();
     void deleteStageConsole();
     void saveCurrentMatchSettings(
@@ -217,6 +218,7 @@ class PackageReporter : public PackagingListener {
 
 class ViewListener : public GfxViewListener {
   GuiManager *guiManager_;
+
   public:
     ViewListener(GuiManager *guiManager);
     virtual void onNewMatch();

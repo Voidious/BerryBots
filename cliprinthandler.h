@@ -30,7 +30,7 @@ extern "C" {
 #include "printhandler.h"
 
 class CliPrintHandler : public PrintHandler {
-  lua_State **teamStates_;
+  Team **teams_;
   char **teamNames_;
   int numTeams_;
   int nextTeamIndex_;
@@ -41,7 +41,7 @@ class CliPrintHandler : public PrintHandler {
     void setNumTeams(int numTeams);
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
-    void registerTeam(lua_State *L, const char *name);
+    void registerTeam(Team *team, const char *name);
     void updateTeams(Team** teams);
 };
 
@@ -50,7 +50,7 @@ class CliStateListener : public NewTeamStateListener {
   
   public:
     CliStateListener(CliPrintHandler *cliPrintHandler);
-    virtual void newTeamState(lua_State *teamState, const char *filename);
+    virtual void newTeam(Team *team, const char *filename);
 };
 
 #endif

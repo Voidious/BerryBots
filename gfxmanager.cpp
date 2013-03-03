@@ -891,6 +891,7 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
       }
     }
     teamButtons_[x]->setDisabled(team->disabled);
+    teamButtons_[x]->setErrored(team->errored);
     teamButtons_[x]->setHidden(!showTeam);
     if (showTeam) {
       teamButtons_[x]->setTop(getShipDockTop(dockIndex++));

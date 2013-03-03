@@ -569,6 +569,7 @@ void GuiManager::runCurrentMatch() {
              && (nextDrawTime_ <= engine_->getGameTime()
                  || engine_->isGameOver())) {
         processMainWindowEvents(window, gfxManager_, viewWidth_, viewHeight_);
+        clearTeamErroredForActiveConsoles(engine_);
         window->clear();
         gfxManager_->drawGame(window, engine_->getStage(), engine_->getShips(),
                               engine_->getNumShips(), engine_->getGameTime(),
@@ -600,6 +601,15 @@ void GuiManager::runCurrentMatch() {
     delete engine_;
     engine_ = 0;
     delete gfxHandler_;
+  }
+}
+
+void GuiManager::clearTeamErroredForActiveConsoles(BerryBotsEngine *engine) {
+  for (int x = 0; x < engine_->getNumTeams(); x++) {
+    Team *team = engine_->getTeam(x);
+    if (team->errored && teamConsoles_[x]->IsActive()) {
+      team->errored = false;
+    }
   }
 }
 
@@ -1279,9 +1289,8 @@ PrintStateListener::PrintStateListener(GuiPrintHandler *guiPrintHandler) {
   guiPrintHandler_ = guiPrintHandler;
 }
 
-void PrintStateListener::newTeamState(lua_State *teamState,
-                                      const char *filename) {
-  guiPrintHandler_->registerTeam(teamState, filename);
+void PrintStateListener::newTeam(Team *team, const char *filename) {
+  guiPrintHandler_->registerTeam(team, filename);
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

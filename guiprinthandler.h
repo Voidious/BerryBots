@@ -34,7 +34,7 @@ extern "C" {
 class GuiPrintHandler : public PrintHandler {
   OutputConsole *stageConsole_;
   OutputConsole* teamConsoles_[MAX_TEAM_CONSOLES];
-  lua_State* teamStates_[MAX_TEAM_CONSOLES];
+  Team* teams_[MAX_TEAM_CONSOLES];
   int numTeams_;
   int nextTeamIndex_;
   MenuBarMaker *menuBarMaker_;
@@ -45,9 +45,18 @@ class GuiPrintHandler : public PrintHandler {
     ~GuiPrintHandler();
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
-    void registerTeam(lua_State *L, const char *filename);
+    void registerTeam(Team *team, const char *filename);
     void restartMode();
     OutputConsole **getTeamConsoles();
+};
+
+class ConsoleErrorListener : public ConsoleListener {
+  Team *team_;
+
+  public:
+    ConsoleErrorListener(Team *team);
+    virtual void onActive();
+    virtual ~ConsoleErrorListener() {};
 };
 
 #endif
