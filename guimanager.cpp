@@ -207,6 +207,16 @@ bool GuiManager::isValidStageFile(const char *srcFilename,
                                    wxOK | wxICON_EXCLAMATION);
       errorMessage.ShowModal();
       return false;
+    } catch (PackagedSymlinkException *pse) {
+      delete cacheDir;
+      if (stagesDir != 0) {
+        delete stagesDir;
+      }
+      if (stageFilename != 0) {
+        delete stageFilename;
+      }
+      errorConsole_->println(pse->what());
+      return false;
     }
     delete cacheDir;
     lua_State *stageState;
@@ -288,6 +298,16 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
       wxMessageDialog errorMessage(NULL, ze->what(), "Unzip failure",
                                    wxOK | wxICON_EXCLAMATION);
       errorMessage.ShowModal();
+      return false;
+    } catch (PackagedSymlinkException *pse) {
+      delete cacheDir;
+      if (shipDir != 0) {
+        delete shipDir;
+      }
+      if (shipFilename != 0) {
+        delete shipFilename;
+      }
+      errorConsole_->println(pse->what());
       return false;
     }
     delete cacheDir;

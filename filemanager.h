@@ -70,6 +70,14 @@ class FileExistsException : public std::exception {
     virtual const char* what() const throw();
 };
 
+class PackagedSymlinkException : public std::exception {
+  char *message_;
+  public:
+    PackagedSymlinkException(const char *details);
+    ~PackagedSymlinkException() throw();
+    virtual const char* what() const throw();
+};
+
 class FileManager {
   Zipper *zipper_;
   PackagingListener *packagingListener_;
@@ -79,10 +87,12 @@ class FileManager {
     void setListener(PackagingListener *packagingListener);
     void loadStageFileData(const char *stagesBaseDir, const char *filename,
         char **stagesDir, char **stageFilename, const char *cacheDir)
-        throw (FileNotFoundException*, ZipperException*);
+        throw (FileNotFoundException*, ZipperException*,
+               PackagedSymlinkException*);
     void loadShipFileData(const char *shipsBaseDir, const char *filename,
         char **shipDir, char **shipFilename, const char *cacheDir)
-        throw (FileNotFoundException*, ZipperException*);
+        throw (FileNotFoundException*, ZipperException*,
+               PackagedSymlinkException*);
     bool isLuaFilename(const char *filename);
     bool isZipFilename(const char *filename);
     void packageStage(const char *stagesBaseDir, const char *stageName,
@@ -116,7 +126,9 @@ class FileManager {
     static void sliceString(char *filename, long start, long rest);
     void loadUserFileData(const char *srcBaseDir, const char *srcFilename,
         char **userDir, char **userFilename, const char *metaFilename,
-        const char *cacheDir) throw (FileNotFoundException*, ZipperException*);
+        const char *cacheDir) throw (FileNotFoundException*, ZipperException*,
+                                     PackagedSymlinkException*);
+    bool hasSymlinks(const char *userDir);
     bool hasExtension(const char *filename, const char *extension);
     void packageCommon(lua_State *userState, const char *userAbsBaseDir,
         const char *userFilename, const char *version, const char *metaFilename,

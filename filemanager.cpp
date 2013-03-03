@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #include <platformstl/filesystem/filesystem_traits.hpp>
 #include <platformstl/filesystem/readdir_sequence.hpp>
 #include "bbconst.h"
@@ -203,7 +204,8 @@ char* FileManager::stripExtension(const char *filename) {
 void FileManager::loadUserFileData(const char *srcBaseDir,
     const char *srcFilename, char **userDir, char **userFilename,
     const char *metaFilename, const char *cacheDir)
-    throw (FileNotFoundException*, ZipperException*) {
+    throw (FileNotFoundException*, ZipperException*,
+           PackagedSymlinkException*) {
   char *filePath = getFilePath(srcBaseDir, srcFilename);
   if (!fileExists(filePath)) {
     delete filePath;
@@ -227,6 +229,12 @@ void FileManager::loadUserFileData(const char *srcBaseDir,
       zipper_->unpackFile(filePath, *userDir);
     }
 
+    if (hasSymlinks(*userDir)) {
+      std::string symlinkError("Can't load package with symlinks: ");
+      symlinkError.append(srcFilename);
+      throw new PackagedSymlinkException(symlinkError.c_str());
+    }
+
     *userFilename = loadUserLuaFilename(*userDir, metaFilename);
   } else {
     *userDir = getAbsFilePath(srcBaseDir);
@@ -235,13 +243,48 @@ void FileManager::loadUserFileData(const char *srcBaseDir,
   }
 }
 
+// TODO: Find a way to make this fail on broken symlinks, too. For now I don't
+//       think it's a security concern.
+bool FileManager::hasSymlinks(const char *userDir) {
+#ifdef __WIN32__
+  return false;
+#else
+  bool foundLink = false;
+  if (isDirectory(userDir)) {
+    platformstl::readdir_sequence dir(userDir,
+        platformstl::readdir_sequence::files
+            | platformstl::readdir_sequence::directories);
+    platformstl::readdir_sequence::const_iterator first = dir.begin();
+    platformstl::readdir_sequence::const_iterator last = dir.end();
+    while (first != last && !foundLink) {
+      platformstl::readdir_sequence::const_iterator file = first++;
+      char *filename = (char *) *file;
+      char *filePath = getFilePath(userDir, filename);
+      struct stat lst;
+      lstat(filePath, &lst);
+      foundLink |= S_ISLNK(lst.st_mode);
+      if (isDirectory(filePath)) {
+        foundLink |= hasSymlinks(filePath);
+      } else {
+        struct stat st;
+        stat(filePath, &st);
+        foundLink |= !S_ISREG(st.st_mode);
+      }
+      delete filePath;
+    }
+  }
+  return foundLink;
+#endif
+}
+
 // Loads the stage from srcFilename in root directory stagesBaseDir, extracts it
 // to the cache if it is a packaged stage, and updates stagesDir/stageFilename
 // with the correct path to load the stage's .lua file. This will either be the
 // same as the input or the location in the cache that we extracted to.
 void FileManager::loadStageFileData(const char *stagesBaseDir,
     const char *srcFilename, char **stagesDir, char **stageFilename,
-    const char *cacheDir) throw (FileNotFoundException*, ZipperException*) {
+    const char *cacheDir) throw (FileNotFoundException*, ZipperException*,
+                                 PackagedSymlinkException*) {
   loadUserFileData(stagesBaseDir, srcFilename, stagesDir, stageFilename,
                    STAGE_METAFILE, cacheDir);
 }
@@ -252,7 +295,8 @@ void FileManager::loadStageFileData(const char *stagesBaseDir,
 // same as the input or the location in the cache that we extracted to.
 void FileManager::loadShipFileData(const char *shipsBaseDir,
     const char *srcFilename, char **shipDir, char **shipFilename,
-    const char *cacheDir) throw (FileNotFoundException*, ZipperException*) {
+    const char *cacheDir) throw (FileNotFoundException*, ZipperException*,
+                                 PackagedSymlinkException*) {
   loadUserFileData(shipsBaseDir, srcFilename, shipDir, shipFilename,
                    SHIP_METAFILE, cacheDir);
 }
@@ -826,4 +870,17 @@ FileExistsException::~FileExistsException() throw() {
 
 const char* FileExistsException::what() const throw() {
   return filename_;
+}
+
+PackagedSymlinkException::PackagedSymlinkException(const char *details) {
+  message_ = new char[strlen(details) + 41];
+  sprintf(message_, "Lua processing failure: %s", details);
+}
+
+const char* PackagedSymlinkException::what() const throw() {
+  return message_;
+}
+
+PackagedSymlinkException::~PackagedSymlinkException() throw() {
+  delete message_;
 }

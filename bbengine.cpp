@@ -284,6 +284,10 @@ void BerryBotsEngine::initStage(const char *stagesBaseDir,
     EngineException *eie = new EngineException(ze->what());
     delete ze;
     throw eie;
+  } catch (PackagedSymlinkException *pse) {
+    EngineException *eie = new EngineException(pse->what());
+    delete pse;
+    throw eie;
   }
   initStageState(&stageState_, stagesDir_);
 
@@ -373,6 +377,20 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
       
       EngineException *eie = new EngineException(ze->what());
       delete ze;
+      throw eie;
+    } catch (PackagedSymlinkException *pse) {
+      if (deleteFilename) {
+        delete filename;
+      }
+      if (shipDir != 0) {
+        delete shipDir;
+      }
+      if (shipFilename != 0) {
+        delete shipFilename ;
+      }
+      
+      EngineException *eie = new EngineException(pse->what());
+      delete pse;
       throw eie;
     }
     initShipState(&teamState, shipDir);
