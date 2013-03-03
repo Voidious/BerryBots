@@ -53,9 +53,9 @@ function init(shipsArg, worldArg, adminArg)
 end
 
 function run(stageSensors)
-  admin:drawText("Time: " .. world:time(), 20, 30)
+  admin:drawText("Time: " .. world:time(), 20, 15)
   if (printShipTimer > 0) then
-    admin:drawText(targetShip:name(), 525, 30, 32)
+    admin:drawText(targetShip:name(), 525, 30, 25)
     printShipTimer = printShipTimer - 1
   end
   admin:moveShip(userShip, PLAYER_LOCATION.x, PLAYER_LOCATION.y)

@@ -55,7 +55,7 @@ function init(shipsArg, worldArg, adminArg)
 end
 
 function run(stageSensors)
-  admin:drawText("Attempt: " .. tries, 15, 20)
+  admin:drawText("Attempt: " .. tries, 15, 12)
   if (userShip:hitWall() or userShip:hitShip()) then
     admin:destroyShip(userShip)
     admin:reviveShip(userShip)

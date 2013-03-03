@@ -27,13 +27,16 @@
 #include "stage.h"
 #include "gfxeventhandler.h"
 
+#define DRAW_SHIP_RADIUS          (SHIP_RADIUS - 1)
+#define SHIP_OUTLINE_THICKNESS    1.7
+
 #define SHIP_DOT_POSITION        SHIP_RADIUS * .39
 #define SHIP_DOT_RADIUS          SHIP_RADIUS * .2
 #define SHIP_DOT_SIZE            SHIP_DOT_RADIUS * 2
 #define SHIP_DOT_FRAMES          240
 #define LASER_THICKNESS          2
 #define THRUSTER_THICKNESS       6
-#define THRUSTER_LENGTH          SHIP_SIZE
+#define THRUSTER_LENGTH          12
 #define ENERGY_THICKNESS         2
 #define ENERGY_LENGTH            (SHIP_SIZE * 2)
 #define THRUSTER_ZERO            (SHIP_RADIUS + 1.0) / (SHIP_RADIUS + THRUSTER_LENGTH)
@@ -48,6 +51,9 @@
 #define LASER_SPARK_TIME         LASER_SPARK_FRAMES
 #define TORPEDO_BLAST_FRAMES     16
 #define TORPEDO_BLAST_TIME       TORPEDO_BLAST_FRAMES
+
+#define MIN_STAGE_TEXT_FONT_SIZE  8
+#define MAX_STAGE_TEXT_FONT_SIZE  192
 
 extern void initVgGfx(int screenWidth, int screenHeight, Stage *stage,
     Ship **ships, int numShips);

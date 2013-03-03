@@ -24,7 +24,7 @@ end
 
 function run()
   if (# ships > 1) then
-    admin:drawText("WARNING: This stage is only designed for 1 ship.", 20, 26)
+    admin:drawText("WARNING: This stage is only designed for 1 ship.", 20, 12)
   end
   for i,ship in pairs(ships) do
     if (world:touchedAnyZone(ship)) then

@@ -93,7 +93,7 @@ void initVgGfx(int screenWidth, int screenHeight, Stage *stage, Ship **ships,
   shipDotPath = newpath();
   vguEllipse(shipDotPath, 0, 0, SHIP_DOT_SIZE, SHIP_DOT_SIZE);
   thrusterPath = newpath();
-  vguLine(thrusterPath, 0, 0, SHIP_RADIUS + THRUSTER_LENGTH, 0);
+  vguLine(thrusterPath, 0, 0, DRAW_SHIP_RADIUS + THRUSTER_LENGTH, 0);
   laserPath = newpath();
   vguLine(laserPath, 0, 0, LASER_SPEED, 0);
   torpedoPath = newpath();
@@ -143,8 +143,8 @@ void initVgGfx(int screenWidth, int screenHeight, Stage *stage, Ship **ships,
   }
   for (int x = 0; x < LASER_SPARK_FRAMES; x++) {
     laserSparkPaths[x] = newpath();
-    vguLine(laserSparkPaths[x], SHIP_RADIUS + (x * LASER_SPARK_LENGTH), 0,
-        SHIP_RADIUS + ((x + 1) * LASER_SPARK_LENGTH), 0);
+    vguLine(laserSparkPaths[x], DRAW_SHIP_RADIUS + (x * LASER_SPARK_LENGTH), 0,
+        DRAW_SHIP_RADIUS + ((x + 1) * LASER_SPARK_LENGTH), 0);
   }
   for (int x = 0; x < TORPEDO_BLAST_FRAMES; x++) {
     torpedoBlastPaths[x] = newpath();
@@ -278,7 +278,7 @@ void drawWalls() {
 }
 
 void drawShips(Ship **ships, int numShips, int time) {
-  StrokeWidth(SHIP_RADIUS * .25);
+  StrokeWidth(SHIP_OUTLINE_THICKNESS);
   vgSetPaint(blackPaint, VG_FILL_PATH);
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
@@ -317,7 +317,7 @@ void drawShips(Ship **ships, int numShips, int time) {
       vgLoadIdentity();
       vgScale(scale, scale);
       vgTranslate(stageLeft + ship->x - (ENERGY_LENGTH / 2),
-                  stageBottom + ship->y - SHIP_RADIUS - 8);
+                  stageBottom + ship->y - DRAW_SHIP_RADIUS - 8);
       VGfloat lengthScale = (ship->energy / DEFAULT_ENERGY);
       vgScale(lengthScale, 1);
       vgDrawPath(energyPath, VG_STROKE_PATH);
@@ -445,7 +445,7 @@ void drawNames(Ship **ships, int numShips) {
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
     if (ship->alive && ship->showName) {
-      SansTextMid(stageLeft + ship->x, stageBottom + ship->y - SHIP_RADIUS - 30,
+      SansTextMid(stageLeft + ship->x, stageBottom + ship->y - DRAW_SHIP_RADIUS - 30,
                   ship->properties->name, 12);
     }
   }
@@ -463,7 +463,8 @@ void drawStageTexts(Stage *stage, int time) {
     for (int x = 0; x < numTexts; x++) {
       StageText *stageText = stageTexts[x];
       SansText(stageLeft + stageText->x, stageBottom + stageText->y,
-          stageText->text, 18);
+          stageText->text, limit(MIN_STAGE_TEXT_FONT_SIZE, (stageText->fontSize * 2 / 3),
+                                 MAX_STAGE_TEXT_FONT_SIZE));
     }
   }
 }
