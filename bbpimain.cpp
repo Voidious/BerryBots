@@ -63,51 +63,61 @@ int main(int argc, char *argv[]) {
   char *shipsBaseDir = FileManager::getAbsFilePath(SHIPS_SUBDIR);
   char *stagesBaseDir = FileManager::getAbsFilePath(STAGES_SUBDIR);
 
-  char **stageInfo = parseFlag(argc, argv, "packstage", 2);
-  if (stageInfo != 0) {
-    if (argc < 4) {
+  if (flagExists(argc, argv, "packstage")) {
+    char **stageInfo = parseFlag(argc, argv, "packstage", 2);
+    if (stageInfo == 0) {
       printUsage();
+    } else {
+      // TODO: add a new flag for obfuscating source code
+      bool obfuscate = false;
+      try {
+        char *stageAbsName = FileManager::getAbsFilePath(stageInfo[0]);
+        char *stageName =
+            FileManager::parseRelativeFilePath(stagesBaseDir, stageAbsName);
+        if (stageName == 0) {
+          std::cout << "Stage must be located under " << STAGES_SUBDIR
+                    << "/ subdirectory: " << stageInfo[0] << std::endl;
+        } else {
+          fileManager->packageStage(stagesBaseDir, stageName, stageInfo[1],
+                                    CACHE_SUBDIR, TMP_SUBDIR, obfuscate, true);
+          delete stageName;
+        }
+        delete stageAbsName;
+      } catch (std::exception *e) {
+        std::cout << "BerryBots encountered an error:" << std::endl;
+        std::cout << "  " << e->what() << std::endl;
+      }
+      delete stageInfo;
     }
-    // TODO: add a new flag for obfuscating source code
-    bool obfuscate = false;
-    try {
-      char *stageAbsName = FileManager::getAbsFilePath(stageInfo[0]);
-      char *stageName =
-          FileManager::parseRelativeFilePath(stagesBaseDir, stageAbsName);
-      fileManager->packageStage(stagesBaseDir, stageName, stageInfo[1],
-                                CACHE_SUBDIR, TMP_SUBDIR, obfuscate, true);
-      delete stageAbsName;
-      delete stageName;
-    } catch (std::exception *e) {
-      std::cout << "BerryBots encountered an error:" << std::endl;
-      std::cout << "  " << e->what() << std::endl;
-      exit(0);
-    }
-    delete stageInfo;
     return 0;
   }
 
-  char **shipInfo = parseFlag(argc, argv, "packbot", 2);
-  if (shipInfo != 0) {
-    if (argc < 4) {
+  if (flagExists(argc, argv, "packbot")) {
+    char **shipInfo = parseFlag(argc, argv, "packbot", 2);
+    if (shipInfo == 0) {
       printUsage();
+    } else {
+      // TODO: add a new flag for obfuscating source code
+      bool obfuscate = false;
+      try {
+        char *shipAbsName = FileManager::getAbsFilePath(shipInfo[0]);
+        char *shipName =
+           FileManager::parseRelativeFilePath(shipsBaseDir, shipAbsName);
+        if (shipName == 0) {
+          std::cout << "Ship must be located under " << SHIPS_SUBDIR
+                    << "/ subdirectory: " << shipInfo[0] << std::endl;
+        } else {
+          fileManager->packageShip(shipsBaseDir, shipName, shipInfo[1],
+                                   CACHE_SUBDIR, TMP_SUBDIR, obfuscate, true);
+          delete shipName;
+        }
+        delete shipAbsName;
+      } catch (std::exception *e) {
+        std::cout << "BerryBots encountered an error:" << std::endl;
+        std::cout << "  " << e->what() << std::endl;
+      }
+      delete shipInfo;
     }
-    // TODO: add a new flag for obfuscating source code
-    bool obfuscate = false;
-    try {
-      char *shipAbsName = FileManager::getAbsFilePath(shipInfo[0]);
-      char *shipName =
-         FileManager::parseRelativeFilePath(shipsBaseDir, shipAbsName);
-      fileManager->packageShip(shipsBaseDir, shipName, shipInfo[1],
-                               CACHE_SUBDIR, TMP_SUBDIR, obfuscate, true);
-      delete shipAbsName;
-      delete shipName;
-    } catch (std::exception *e) {
-      std::cout << "BerryBots encountered an error:" << std::endl;
-      std::cout << "  " << e->what() << std::endl;
-      exit(0);
-    }
-    delete shipInfo;
     return 0;
   }
 
@@ -132,6 +142,11 @@ int main(int argc, char *argv[]) {
   char *stageAbsName = FileManager::getAbsFilePath(argv[nodisplay ? 2 : 1]);
   char *stageName =
       FileManager::parseRelativeFilePath(stagesBaseDir, stageAbsName);
+  if (stageName == 0) {
+    std::cout << "Stage must be located under " << STAGES_SUBDIR
+              << "/ subdirectory: " << argv[nodisplay ? 2 : 1] << std::endl;
+    return 0;
+  }
   try {
     engine->initStage(stagesBaseDir, stageName, CACHE_SUBDIR);
   } catch (EngineException *e) {
@@ -139,7 +154,7 @@ int main(int argc, char *argv[]) {
     delete stageName;
     std::cout << "BerryBots initialization failed:" << std::endl;
     std::cout << "  " << e->what() << std::endl;
-    exit(0);
+    return 0;
   }
   delete stageAbsName;
   delete stageName;
@@ -151,6 +166,11 @@ int main(int argc, char *argv[]) {
     char *teamAbsName = FileManager::getAbsFilePath(argv[x + firstTeam]);
     char *teamName =
         FileManager::parseRelativeFilePath(shipsBaseDir, teamAbsName);
+    if (teamName == 0) {
+      std::cout << "Ship must be located under " << SHIPS_SUBDIR
+                << "/ subdirectory: " << argv[x + firstTeam] << std::endl;
+      return 0;
+    }
     teams[x] = teamName;
     delete teamAbsName;
   }
@@ -162,7 +182,7 @@ int main(int argc, char *argv[]) {
   } catch (EngineException *e) {
     std::cout << "BerryBots initialization failed:" << std::endl;
     std::cout << "  " << e->what() << std::endl;
-    exit(0);
+    return 0;
   }
 
   cliPrintHandler->updateTeams(engine->getTeams());
@@ -204,7 +224,7 @@ int main(int argc, char *argv[]) {
   } catch (EngineException *e) {
     std::cout << "BerryBots encountered an error:" << std::endl;
     std::cout << "  " << e->what() << std::endl;
-    exit(0);
+    return 0;
   }
 
   if (!nodisplay) {

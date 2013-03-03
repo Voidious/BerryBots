@@ -338,7 +338,10 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
       const char *localFilename = stage_->getStageShips()[x - userTeams];
       filename = FileManager::getStageShipRelativePath(
           stagesDir_, stageFilename_, localFilename);
-
+      if (filename == 0) {
+        throw new EngineException(localFilename,
+            "Stage ship must be located under stages directory.");
+      }
       deleteFilename = true;
     } else {
       baseDir = shipsBaseDir;

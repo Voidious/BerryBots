@@ -484,7 +484,8 @@ void FileManager::packageStage(const char *stagesBaseDir, const char *stageName,
     const char *version, const char *cacheDir, const char *tmpDir,
     bool obfuscate, bool force)
     throw (FileNotFoundException*, InvalidLuaFilenameException*,
-           LuaException*, ZipperException*, FileExistsException*) {
+           LuaException*, ZipperException*, FileExistsException*,
+           InvalidStageShipException*) {
   checkLuaFilename(stageName);
   char *stageAbsBaseDir = getAbsFilePath(stagesBaseDir);
   lua_State *stageState;
@@ -527,6 +528,16 @@ void FileManager::packageStage(const char *stagesBaseDir, const char *stageName,
     const char *stageShipFilename = stageShipFilenames[x];
     char *shipRelativePath = FileManager::getStageShipRelativePath(
         stagesBaseDir, stageName, stageShipFilename);
+    if (shipRelativePath == 0) {
+      for (int y = 0; y < x; y++) {
+        if (packFilenames[y] != 0) {
+          delete packFilenames[y];
+        }
+      }
+      delete packFilenames;
+      delete stageAbsBaseDir;
+      throw new InvalidStageShipException(stageShipFilename);
+    }
     bool dup = false;
     for (int y = 0; y < x && !dup; y++) {
       if (strcmp(packFilenames[y], shipRelativePath) == 0) {
@@ -847,8 +858,11 @@ const char* FileNotFoundException::what() const throw() {
 }
 
 InvalidLuaFilenameException::InvalidLuaFilenameException(const char *filename) {
-  message_ = new char[strlen(filename) + 17];
-  sprintf(message_, "Invalid Lua filename: %s (must end with .lua)", filename);
+  std::string errorMessage("Invalid Lua filename: ");
+  errorMessage.append(filename);
+  errorMessage.append(" (must end with .lua)");
+  message_ = new char[errorMessage.size() + 1];
+  strcpy(message_, errorMessage.c_str());
 }
 
 InvalidLuaFilenameException::~InvalidLuaFilenameException() throw() {
@@ -883,4 +897,19 @@ const char* PackagedSymlinkException::what() const throw() {
 
 PackagedSymlinkException::~PackagedSymlinkException() throw() {
   delete message_;
+}
+
+InvalidStageShipException::InvalidStageShipException(const char *filename) {
+  std::string errorMessage("Stage ship outside of stages directory: ");
+  errorMessage.append(filename);
+  message_ = new char[errorMessage.size() + 1];
+  strcpy(message_, errorMessage.c_str());
+}
+
+InvalidStageShipException::~InvalidStageShipException() throw() {
+  delete message_;
+}
+
+const char* InvalidStageShipException::what() const throw() {
+  return message_;
 }

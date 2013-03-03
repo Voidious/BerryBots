@@ -1247,6 +1247,7 @@ void StagePackager::package(const char *stageName, const char *version,
     packagingConsole_->println("Packaging stage failed: ");
     packagingConsole_->print("  ");
     packagingConsole_->println(e->what());
+    refresh = false;
   }
   delete cacheDir;
   delete tmpDir;

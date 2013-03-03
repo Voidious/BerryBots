@@ -78,6 +78,14 @@ class PackagedSymlinkException : public std::exception {
     virtual const char* what() const throw();
 };
 
+class InvalidStageShipException : public std::exception {
+  char *message_;
+  public:
+    InvalidStageShipException(const char *filename);
+    ~InvalidStageShipException() throw();
+    virtual const char* what() const throw();
+};
+
 class FileManager {
   Zipper *zipper_;
   PackagingListener *packagingListener_;
@@ -99,7 +107,8 @@ class FileManager {
                       const char *version, const char *cacheDir,
                       const char *tmpDir, bool obfuscate, bool force)
         throw (FileNotFoundException*, InvalidLuaFilenameException*,
-               LuaException*, ZipperException*, FileExistsException*);
+               LuaException*, ZipperException*, FileExistsException*,
+               InvalidStageShipException*);
     void packageShip(const char *shipBaseDir, const char *shipName,
                      const char *version, const char *cacheDir,
                      const char *tmpDir, bool obfuscate, bool force)
