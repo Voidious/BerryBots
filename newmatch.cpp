@@ -67,10 +67,24 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   gridSizer->Add(stageSizer, 0, wxALIGN_LEFT);
 
   wxBoxSizer *dirsSizer = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
-  stagesBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
-  shipsBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
+  wxBoxSizer *stagesBaseDirSizer = new wxBoxSizer(wxHORIZONTAL);
+  stagesBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Stages:");
+  stagesBaseDirValueLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
+                                              wxEmptyString);
+  stagesBaseDirValueLabel_->SetFont(GetFont().Smaller());
+  stagesBaseDirSizer->Add(stagesBaseDirLabel_);
+  stagesBaseDirSizer->AddSpacer(5);
+  stagesBaseDirSizer->Add(stagesBaseDirValueLabel_, 0 ,wxALIGN_BOTTOM);
+  wxBoxSizer *shipsBaseDirSizer = new wxBoxSizer(wxHORIZONTAL);
+  shipsBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Ships:");
+  shipsBaseDirValueLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
+                                             wxEmptyString);
+  shipsBaseDirValueLabel_->SetFont(GetFont().Smaller());
+  shipsBaseDirSizer->Add(shipsBaseDirLabel_);
+  shipsBaseDirSizer->AddSpacer(5);
+  shipsBaseDirSizer->Add(shipsBaseDirValueLabel_, 0 ,wxALIGN_BOTTOM);
   updateBaseDirLabels();
-  dirsSizer->Add(stagesBaseDirLabel_);
+  dirsSizer->Add(stagesBaseDirSizer);
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseStagesButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
 #ifndef __WINDOWS__
@@ -83,7 +97,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 #endif
 
   dirsSizer->AddSpacer(12);
-  dirsSizer->Add(shipsBaseDirLabel_);
+  dirsSizer->Add(shipsBaseDirSizer);
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseShipsButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
 #ifndef __WINDOWS__
@@ -237,7 +251,9 @@ NewMatchDialog::~NewMatchDialog() {
   delete startButton_;
   delete refreshButton_;
   delete stagesBaseDirLabel_;
+  delete stagesBaseDirValueLabel_;
   delete shipsBaseDirLabel_;
+  delete shipsBaseDirValueLabel_;
   delete keyboardLabel_;
   delete browseApidocsButton_;
 
@@ -431,11 +447,11 @@ void NewMatchDialog::browseDirectory(const char *dir) {
     cantBrowseMessage.ShowModal();
   } else {
 #if defined(__WXOSX__)
-    ::wxExecute(wxString::Format("open %s", dir), wxEXEC_ASYNC, NULL);
+    ::wxExecute(wxString::Format("open \"%s\"", dir), wxEXEC_ASYNC, NULL);
 #elif defined(__LINUX__)
-    ::wxExecute(wxString::Format("xdg-open %s", dir), wxEXEC_ASYNC, NULL);
+    ::wxExecute(wxString::Format("xdg-open \"%s\"", dir), wxEXEC_ASYNC, NULL);
 #elif defined(__WINDOWS__)
-    ::wxExecute(wxString::Format("explorer %s", dir), wxEXEC_ASYNC, NULL);
+    ::wxExecute(wxString::Format("explorer \"%s\"", dir), wxEXEC_ASYNC, NULL);
 #else
     wxMessageDialog cantBrowseMessage(this, "Couldn't browse directory",
         "Sorry, don't know how to open/browse files on your platform.", wxOK);
@@ -456,7 +472,7 @@ void NewMatchDialog::openHtmlFile(const char *file) {
     // the default browser. And what's worse, Safari doesn't load the CSS
     // properly when we open it that way. But we can trust the 'open' command.
 #if defined(__WXOSX__)
-    ::wxExecute(wxString::Format("open %s", file), wxEXEC_ASYNC, NULL);
+    ::wxExecute(wxString::Format("open \"%s\"", file), wxEXEC_ASYNC, NULL);
 #else
     wxMimeTypesManager *typeManager = new wxMimeTypesManager();
     wxFileType *htmlType = typeManager->GetFileTypeFromExtension(".html");
@@ -485,12 +501,20 @@ void NewMatchDialog::changeBaseDir() {
 }
 
 void NewMatchDialog::updateBaseDirLabels() {
-  wxString stagesBaseDirLabelText("Stages:  ");
-  stagesBaseDirLabelText.Append(getStagesDir());
-  stagesBaseDirLabel_->SetLabelText(stagesBaseDirLabelText);
-  wxString shipsBaseDirLabelText("Ships:  ");
-  shipsBaseDirLabelText.Append(getShipsDir());
-  shipsBaseDirLabel_->SetLabelText(shipsBaseDirLabelText);
+  stagesBaseDirValueLabel_->SetLabelText(condenseIfNecessary(getStagesDir()));
+  shipsBaseDirValueLabel_->SetLabelText(condenseIfNecessary(getShipsDir()));
+}
+
+std::string NewMatchDialog::condenseIfNecessary(std::string s) {
+  if (s.size() > 45) {
+    std::string cs;
+    cs.append(s.substr(0, 10));
+    cs.append("...");
+    cs.append(s.substr(s.size() - 32, 32));
+    return cs;
+  } else {
+    return s;
+  }
 }
 
 void NewMatchDialog::onEscape() {

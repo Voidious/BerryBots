@@ -57,7 +57,9 @@ class NewMatchDialog : public wxFrame {
   wxButton *browseShipsButton_;
   wxButton *browseApidocsButton_;
   wxStaticText *stagesBaseDirLabel_;
+  wxStaticText *stagesBaseDirValueLabel_;
   wxStaticText *shipsBaseDirLabel_;
+  wxStaticText *shipsBaseDirValueLabel_;
   wxStaticText *keyboardLabel_;
   int numStages_;
   int numShips_;
@@ -108,6 +110,7 @@ class NewMatchDialog : public wxFrame {
     void focusStageSelect();
   private:
     void updateBaseDirLabels();
+    std::string condenseIfNecessary(std::string s);
     void browseDirectory(const char *dir);
     void openHtmlFile(const char *file);
 };
