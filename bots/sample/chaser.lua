@@ -1,33 +1,52 @@
--- A battle ship that moves directly at any ship it sees and fires at them. This
--- also works as a basic strategy ofr sample.joust.
+-- A battle ship that moves directly at any ship it sees and fires at it. If
+-- Chaser doesn't see anyone, it just moves back and forth.
 --
--- If it doesn't see anyone, it just moves back and forth.
+-- This also works as a basic strategy for sample.joust. Can also be initialized
+-- as a team of any size, controlling each ship with the same logic and totally
+-- ignoring teammates.
 
-ship = nil
+ships = { }
+shipStates = { }
 world = nil
-targetName = nil
 
-function init(shipRef, worldArg)
-  ship = shipRef
+function init(shipsArg, worldArg)
+  if (type(shipsArg) == "userdata") then
+    table.insert(ships, shipsArg)
+  else
+    ships = shipsArg
+    ships[1]:setTeamName("ChaserTeam")
+  end
   world = worldArg
-  ship:setName("Chaser")
-  ship:setShipColor(0, 0, 255)
-  ship:setLaserColor(255, 255, 255)
-  ship:setThrusterColor(255, 255, 255)
+
+  for i, ship in pairs(ships) do
+    ship:setName("Chaser")
+    ship:setShipColor(0, 0, 255)
+    ship:setLaserColor(255, 255, 255)
+    ship:setThrusterColor(255, 255, 255)
+    local shipState = {angle=math.random() * 2 * math.pi, targetName = nil}
+    shipStates[ship] = shipState
+  end
 end
 
-angle = math.random() * 2 * math.pi
 function run(enemyShips)
+  for i, ship in pairs(ships) do
+    runShip(ship, enemyShips)
+  end
+end
+
+function runShip(ship, enemyShips)
+  local state = shipStates[ship]
   local time = world:time()
   local targetx, targety = nil, nil
   if (# enemyShips == 0) then
-    targetName = nil
+    state.targetName = nil
   else
-    if (targetName == nil or not seeTargetShip(enemyShips, targetName)) then
-      targetName = enemyShips[1].name
+    if (state.targetName == nil
+        or not seeTargetShip(enemyShips, state.targetName)) then
+      state.targetName = enemyShips[1].name
     end
     for i, enemyShip in pairs(enemyShips) do
-      if (targetName == enemyShip.name) then
+      if (state.targetName == enemyShip.name) then
         targetx = enemyShip.x
         targety = enemyShip.y
       end
@@ -36,15 +55,15 @@ function run(enemyShips)
 
   if (targetx == nil) then
     if (time % 12 == 0) then
-        angle = (angle + math.pi) % (2 * math.pi)
+        state.angle = (state.angle + math.pi) % (2 * math.pi)
     end
     if (time % 12 < 6 and ship:speed() > 0) then
       ship:fireThruster(ship:heading() + math.pi, ship:speed())
     else
-      ship:fireThruster(angle, 1)
+      ship:fireThruster(state.angle, 1)
     end
   else
-    shipGoto(targetx, targety)
+    shipGoto(ship, targetx, targety)
     local targetDistance = distance(targetx, targety, ship:x(), ship:y())
     local firingAngle = math.atan2(targety - ship:y(), targetx - ship:x())
     ship:fireLaser(firingAngle)
@@ -61,8 +80,8 @@ function seeTargetShip(enemyShips, targetName)
   return false
 end
 
-function shipGoto(x, y)
-  angle = math.atan2(y - ship:y(), x - ship:x())
+function shipGoto(ship, x, y)
+  local angle = math.atan2(y - ship:y(), x - ship:x())
   ship:fireThruster(angle, 1)
 end
 
