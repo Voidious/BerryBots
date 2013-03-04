@@ -915,6 +915,17 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
       drawDockItem(window, teamButtons_[x]);
     }
   }
+  if (dockTeamsViewHeight_ < dockTeamsScrollBottom_) {
+    double scrollPercentage = ((double) dockTeamsScrollPosition_)
+        / (dockTeamsScrollBottom_ - dockTeamsViewHeight_);
+    sf::CircleShape dockScrollCircle(3);
+    dockScrollCircle.setPosition(DOCK_SIZE - 20,
+        (scrollPercentage * (dockTeamsViewHeight_ - 20)) + DOCK_TOP_HEIGHT + 10
+            + dockTeamsScrollPosition_);
+    dockScrollCircle.setOutlineThickness(0);
+    dockScrollCircle.setFillColor(sf::Color::Green);
+    window->draw(dockScrollCircle);
+  }
   window->draw(dockLineShape_);
   window->draw(dockMarginShape_);
 }
@@ -927,7 +938,7 @@ void GfxManager::drawDockItem(sf::RenderWindow *window, DockItem *dockItem) {
 }
 
 int GfxManager::getShipDockTop(int index) {
-  return 130 + (index * 35);
+  return DOCK_TOP_HEIGHT + 10 + (index * 35);
 }
 
 double GfxManager::adjustX(double x) {
