@@ -67,7 +67,8 @@ class GfxEventHandler : public EventHandler {
         int time);
     virtual void handleShipHitWall(
         Ship *hittingShip, double bounceAngle, double bounceForce, int time);
-    virtual void handleShipDestroyed(Ship *destroyedShip, int time);
+    virtual void handleShipDestroyed(Ship *destroyedShip, int time,
+        Ship **destroyerShips, int numDestroyers);
     virtual void handleShipFiredLaser(
         Ship *firingShip, double laserHeading, int time);
     virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,

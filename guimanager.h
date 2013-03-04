@@ -50,6 +50,8 @@ class PrintStateListener : public NewTeamStateListener {
     OutputConsole** getTeams();
 };
 
+class ConsoleEventHandler;
+
 class GuiManager {
   GuiListener *listener_;
   NewMatchDialog *newMatchDialog_;
@@ -82,6 +84,7 @@ class GuiManager {
   unsigned int viewWidth_;
   unsigned int viewHeight_;
   GfxEventHandler *gfxHandler_;
+  ConsoleEventHandler *consoleHandler_;
   // Interrupted means the user brought up a modal dialog (eg, "New Match")...
   // The run loop exits but everything stays initialized. Match may be resumed
   // if user closes the New Match window, or clobbered to start a new match.
@@ -129,6 +132,7 @@ class GuiManager {
     void newMatchInitialFocus();
     void packageShipInitialFocus();
     void packageStageInitialFocus();
+    void printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip, int time);
     void togglePause();
     void restartMatch();
     void setTpsFactor(double tpsFactor);
@@ -214,6 +218,30 @@ class PackageReporter : public PackagingListener {
     PackageReporter(OutputConsole *packagingConsole);
     virtual void packagingComplete(char **sourceFiles, int numFiles,
                                    bool obfuscate, const char *destinationFile);
+};
+
+class ConsoleEventHandler : public EventHandler {
+  GuiManager *guiManager_;
+
+  public:
+    ConsoleEventHandler(GuiManager *guiManager);
+    virtual void handleShipDestroyed(Ship *destroyedShip, int time,
+        Ship **destroyerShips, int numDestroyers);
+
+    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip,
+        double laserX, double laserY, double laserHeading, int time) {};
+    virtual void handleTorpedoExploded(double x, double y, int time) {};
+    virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
+        double hitAngle, double hitForce, double hitDamage, int time) {};
+    virtual void handleShipHitShip(Ship *hittingShip, Ship *targetShip,
+        double inAngle, double inForce, double outAngle, double outForce,
+        int time) {};
+    virtual void handleShipHitWall(
+        Ship *hittingShip, double bounceAngle, double bounceForce, int time) {};
+    virtual void handleShipFiredLaser(
+        Ship *firingShip, double laserHeading, int time) {};
+    virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,
+        double torpedoDistance, int time) {};
 };
 
 class ViewListener : public GfxViewListener {

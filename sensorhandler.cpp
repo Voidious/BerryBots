@@ -221,7 +221,8 @@ void SensorHandler::handleShipHitWall(
   }
 }
 
-void SensorHandler::handleShipDestroyed(Ship *destroyedShip, int time) {
+void SensorHandler::handleShipDestroyed(Ship *destroyedShip, int time,
+    Ship **destroyerShips, int numDestroyers) {
   int destroyedShipIndex = destroyedShip->index;
   for (int x = 0; x < numTeams_; x++) {
     if (numShipDestroyeds_[x] < MAX_SHIP_DESTROYEDS) {

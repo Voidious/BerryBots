@@ -37,7 +37,8 @@ class EventHandler {
         int time) = 0;
     virtual void handleShipHitWall(Ship *hittingShip, double bounceAngle,
         double bounceForce, int time) = 0;
-    virtual void handleShipDestroyed(Ship *destroyedShip, int time) = 0;
+    virtual void handleShipDestroyed(Ship *destroyedShip, int time,
+        Ship **destroyerShips, int numDestroyers) = 0;
     virtual void handleShipFiredLaser(
         Ship *firingShip, double laserHeading, int time) = 0;
     virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,

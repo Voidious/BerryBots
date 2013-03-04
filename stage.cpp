@@ -613,7 +613,7 @@ void Stage::moveAndCheckCollisions(
     }
   }
 
-  // Check for laser-ship collisions, laser-wall collisions, log kills and
+  // Check for laser-ship collisions, laser-wall collisions, log destroys and
   // damage, remove dead lasers.
   bool **laserHits = new bool*[numShips];
   for (int x = 0; x < numShips; x++) {
@@ -646,25 +646,36 @@ void Stage::moveAndCheckCollisions(
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
     if (wasAlive[x] && !ship->alive) {
-      int numKillers = 0;
+      int numDestroyers = 0;
       for (int y = 0; y < numShips; y++) {
         if (laserHits[y][x]) {
-          numKillers++;
+          numDestroyers++;
         }
       }
+      Ship **destroyers = new Ship*[numDestroyers];
+      int destroyerIndex = 0;
       for (int y = 0; y < numShips; y++) {
         if (laserHits[y][x]) {
-          double killScore = 1.0 / numKillers;
+          destroyers[destroyerIndex++] = ships[y];
+        }
+      }
+      
+      for (int y = 0; y < numShips; y++) {
+        if (laserHits[y][x]) {
+          double destroyScore = 1.0 / numDestroyers;
           if (ship->teamIndex == ships[y]->teamIndex) {
-            ships[y]->friendlyKills += killScore;
+            ships[y]->friendlyKills += destroyScore;
           } else {
-            ships[y]->kills += killScore;
+            ships[y]->kills += destroyScore;
           }
         }
       }
+
       for (int z = 0; z < numEventHandlers_; z++) {
-        eventHandlers_[z]->handleShipDestroyed(ship, gameTime);
+        eventHandlers_[z]->handleShipDestroyed(ship, gameTime, destroyers,
+                                               numDestroyers);
       }
+      delete destroyers;
     }
   }
   for (int x = 0; x < numLasers_; x++) {
@@ -767,25 +778,35 @@ void Stage::moveAndCheckCollisions(
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
     if (wasAlive[x] && !ship->alive) {
-      int numKillers = 0;
+      int numDestroyers = 0;
       for (int y = 0; y < numShips; y++) {
         if (torpedoHits[y][x]) {
-          numKillers++;
+          numDestroyers++;
         }
       }
+      Ship **destroyers = new Ship*[numDestroyers];
+      int destroyerIndex = 0;
       for (int y = 0; y < numShips; y++) {
         if (torpedoHits[y][x]) {
-          double killScore = 1.0 / numKillers;
+          destroyers[destroyerIndex++] = ships[y];
+        }
+      }
+
+      for (int y = 0; y < numShips; y++) {
+        if (torpedoHits[y][x]) {
+          double destroyScore = 1.0 / numDestroyers;
           if (ship->teamIndex == ships[y]->teamIndex) {
-            ships[y]->friendlyKills += killScore;
+            ships[y]->friendlyKills += destroyScore;
           } else {
-            ships[y]->kills += killScore;
+            ships[y]->kills += destroyScore;
           }
         }
       }
       for (int z = 0; z < numEventHandlers_; z++) {
-        eventHandlers_[z]->handleShipDestroyed(ship, gameTime);
+        eventHandlers_[z]->handleShipDestroyed(ship, gameTime, destroyers,
+                                               numDestroyers);
       }
+      delete destroyers;
     }
   }
 
@@ -1001,7 +1022,7 @@ int Stage::getTorpedoCount() {
 void Stage::destroyShip(Ship *ship, int gameTime) {
   ship->alive = false;
   for (int z = 0; z < numEventHandlers_; z++) {
-    eventHandlers_[z]->handleShipDestroyed(ship, gameTime);
+    eventHandlers_[z]->handleShipDestroyed(ship, gameTime, 0, 0);
   }
 }
 

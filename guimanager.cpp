@@ -80,7 +80,9 @@ GuiManager::GuiManager(GuiListener *listener) {
   printStateListener_ = 0;
   newMatchDialog_->Show();
   newMatchDialog_->SetFocus();
+  consoleHandler_ = new ConsoleEventHandler(this);
   engine_ = 0;
+  gfxHandler_ = 0;
   currentStagePath_ = 0;
   currentTeamPaths_ = 0;
   currentNumTeams_ = 0;
@@ -119,6 +121,9 @@ GuiManager::~GuiManager() {
   if (previewWindow_ != 0) {
     delete previewWindow_;
   }
+  if (gfxHandler_ != 0) {
+    delete gfxHandler_;
+  }
   delete gfxManager_;
   delete viewListener_;
   delete zipper_;
@@ -135,6 +140,7 @@ GuiManager::~GuiManager() {
     delete printHandler;
     printHandler = 0;
   }
+  delete consoleHandler_;
 }
 
 void GuiManager::setBaseDirs(const char *stagesBaseDir,
@@ -542,6 +548,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   packageShipDialog_->Hide();
   gfxHandler_ = new GfxEventHandler();
   stage->addEventHandler((EventHandler*) gfxHandler_);
+  stage->addEventHandler(consoleHandler_);
 
   // TODO: If/when SFML getPosition() works, adjust the window position to
   //       keep the whole window on the screen (if necessary). Might be worth
@@ -619,6 +626,7 @@ void GuiManager::runCurrentMatch() {
     delete engine_;
     engine_ = 0;
     delete gfxHandler_;
+    gfxHandler_ = 0;
   }
 }
 
@@ -1015,6 +1023,29 @@ void GuiManager::packageStageInitialFocus() {
   packageStageDialog_->focusItemSelect();
 }
 
+void GuiManager::printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip,
+                                    int time) {
+  std::stringstream timeStream;
+  timeStream << " @ " << time;
+
+  OutputConsole *destroyerConsole = teamConsoles_[destroyerShip->teamIndex];
+  destroyerConsole->print("== ");
+  destroyerConsole->print(destroyerShip->properties->name);
+  destroyerConsole->print(" destroyed ");
+  destroyerConsole->print((destroyedShip->teamIndex == destroyerShip->teamIndex)
+      ? "friendly" : "enemy");
+  destroyerConsole->print(" ship: ");
+  destroyerConsole->print(destroyedShip->properties->name);
+  destroyerConsole->println(timeStream.str().c_str());
+  
+  OutputConsole *destroyeeConsole = teamConsoles_[destroyedShip->teamIndex];
+  destroyeeConsole->print("== ");
+  destroyeeConsole->print(destroyedShip->properties->name);
+  destroyeeConsole->print(" destroyed by: ");
+  destroyeeConsole->print(destroyerShip->properties->name);
+  destroyeeConsole->println(timeStream.str().c_str());
+}
+
 void GuiManager::saveCurrentMatchSettings(
     const char *stagePath, char **teamPaths, int numTeams) {
   deleteCurrentMatchSettings();
@@ -1315,6 +1346,17 @@ PrintStateListener::PrintStateListener(GuiPrintHandler *guiPrintHandler) {
 
 void PrintStateListener::newTeam(Team *team, const char *filename) {
   guiPrintHandler_->registerTeam(team, filename);
+}
+
+ConsoleEventHandler::ConsoleEventHandler(GuiManager *guiManager) {
+  guiManager_ = guiManager;
+}
+
+void ConsoleEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
+    Ship **destroyerShips, int numDestroyers) {
+  for (int x = 0; x < numDestroyers; x++) {
+    guiManager_->printShipDestroyed(destroyedShip, destroyerShips[x], time);
+  }
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

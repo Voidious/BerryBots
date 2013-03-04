@@ -68,7 +68,8 @@ void GfxEventHandler::handleShipHitWall(
 
 }
 
-void GfxEventHandler::handleShipDestroyed(Ship *destroyedShip, int time) {
+void GfxEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
+    Ship **destroyerShips, int numDestroyers) {
   if (numShipDeaths_ < MAX_SHIP_DEATHS) {
      ShipDeathGraphic *deathGraphic = new ShipDeathGraphic;
      deathGraphic->shipIndex = destroyedShip->index;
