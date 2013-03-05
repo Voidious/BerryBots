@@ -48,6 +48,14 @@ double abs(double x) {
   return x;
 }
 
+double round(double d, int x) {
+  int powerTen = 1;
+  for (int i = 0; i < x; i++) {
+    powerTen = powerTen * 10;
+  }
+  return floor((d * powerTen) + .5) / powerTen;
+}
+
 double normalRelativeAngle(double x) {
   while (x > M_PI) {
     x -= (2 * M_PI);

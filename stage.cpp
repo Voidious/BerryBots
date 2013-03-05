@@ -24,6 +24,7 @@
 #include <string.h>
 #include <algorithm>
 
+#include "bbutil.h"
 #include "stage.h"
 #include "wall.h"
 #include "zone.h"
@@ -872,8 +873,10 @@ void Stage::checkLaserShipCollisions(Ship **ships, ShipMoveData *shipData,
 
 void Stage::setSpeedAndHeading(
     Ship *oldShip, Ship *ship, ShipMoveData *shipDatum) {
-  ship->speed = sqrt(square(shipDatum->xSpeed) + square(shipDatum->ySpeed));
-  ship->heading = (ship->speed == 0
+  // Try to round off rounding errors so bot authors can check speed == 0
+  ship->speed =
+      round(sqrt(square(shipDatum->xSpeed) + square(shipDatum->ySpeed)), 5);
+  ship->heading = ((abs(ship->speed) < 0.000001)
       ? oldShip->heading : atan2(shipDatum->ySpeed, shipDatum->xSpeed));
 }
 

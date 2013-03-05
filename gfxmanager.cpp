@@ -889,7 +889,9 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
 
   window->setView(dockTeamsView_);
   int dockIndex = 0;
+  dockTeamsScrollBottom_ = 0;
   for (int x = 0; x < numTeams_; x++) {
+    int teamTop = getShipDockTop(x);
     Team *team = teams_[x];
     double teamEnergy = 0;
     double teamEnergyTotal = 0;
@@ -912,6 +914,8 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
         dockEnergyShape_.setScale(teamEnergy / teamEnergyTotal, 1);
         window->draw(dockEnergyShape_);
       }
+      dockTeamsScrollBottom_ = std::max(dockTeamsScrollBottom_,
+                                        teamTop + 30 - DOCK_TOP_HEIGHT);
       drawDockItem(window, teamButtons_[x]);
     }
   }
