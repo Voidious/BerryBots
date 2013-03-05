@@ -10,9 +10,9 @@
 #include "VG/vgu.h"
 #include "EGL/egl.h"
 #include "GLES/gl.h"
-#include "DejaVuSans.inc"    // font data
-#include "eglstate.h"        // data structures for graphics state
-#include "fontinfo.h"        // font data structure
+#include "resources/DejaVuSans.inc"  // font data
+#include "eglstate.h"                // data structures for graphics state
+#include "fontinfo.h"                // font data structure
 
 static STATE_T _state, *state = &_state;    // global graphics state
 static const int MAXFONTPATH = 256;

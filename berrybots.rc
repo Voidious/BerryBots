@@ -1,3 +1,3 @@
-berrybots ICON "berrybots.ico"
+berrybots ICON "resources/berrybots.ico"
 #include "wx/msw/wx.rc"
 

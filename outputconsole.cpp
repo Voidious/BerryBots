@@ -20,6 +20,7 @@
 
 #include <algorithm>
 #include <wx/wx.h>
+#include "bbwx.h"
 #include "outputconsole.h"
 
 OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
@@ -30,9 +31,9 @@ OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
   listener_ = 0;
 
 #ifdef __WINDOWS__
-  SetIcon(wxIcon("berrybots.ico", wxBITMAP_TYPE_ICO));
+  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
 #elif defined(__WXGTK__)
-  SetIcon(wxIcon("icon_128x128.png", wxBITMAP_TYPE_PNG));
+  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
 #ifdef __WXOSX__

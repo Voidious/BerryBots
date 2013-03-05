@@ -28,4 +28,8 @@
 #define ERROR_CONSOLE_MENU_ID    5
 #define FILE_QUIT_MENU_ID        6
 
+#define BERRYBOTS_ICO  "resources/berrybots.ico"
+#define BBICON_32      "resources/icon.iconset/icon_32x32.png"
+#define BBICON_128     "resources/icon.iconset/icon_128x128.png"
+
 #endif

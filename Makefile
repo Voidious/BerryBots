@@ -177,7 +177,6 @@ linux:
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
 	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
 	cp ./scripts/bb_gui_linux.sh ./berrybots.sh
-	cp ./icon.iconset/icon_128x128.png .
 	chmod 755 ./berrybots.sh
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
@@ -186,7 +185,6 @@ linuxcli:
 	$(CC) ${CLI_SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o bbgui
 	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
 	cp ./scripts/bb_gui_linux.sh ./berrybots.sh
-	cp ./icon.iconset/icon_128x128.png .
 	chmod 755 ./berrybots.sh
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
@@ -199,7 +197,6 @@ WIN_CLEAN_LUAJIT=cd luajit && $(MAKE) clean && cd ..
 
 windows:
 	windres --include-dir=${WXWIDGETS_PATH}\include berrybots.rc bbres.o
-	copy icon.iconset\icon_32x32.png .
 	$(WIN_MAKE_LUAJIT)	
 	$(CC) ${SOURCES} ${WIN_EXTRA_SOURCES} ${WIN_CFLAGS} ${WIN_LDFLAGS} -o BerryBots
 	copy ${WIN_SFML_BUILD_PATH}\lib\sfml-graphics-2.dll .
@@ -210,7 +207,6 @@ windows:
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
 wincli:
-	copy icon.iconset\icon_32x32.png .
 	$(WIN_MAKE_LUAJIT)	
 	$(CC) ${CLI_SOURCES} ${WIN_EXTRA_SOURCES} ${WINCLI_CFLAGS} ${WINCLI_LDFLAGS} -o berrybots
 	copy ${WIN_SFML_BUILD_PATH}\lib\sfml-graphics-2.dll .

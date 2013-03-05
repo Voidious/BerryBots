@@ -61,7 +61,7 @@
 #define TORPEDO_BLAST_TIME        TORPEDO_BLAST_FRAMES
 #define MIN_STAGE_TEXT_FONT_SIZE  12
 #define MAX_STAGE_TEXT_FONT_SIZE  256
-#define FONT_NAME                 "Questrial-Regular.ttf"
+#define FONT_NAME                 "resources/Questrial-Regular.ttf"
 
 #define DOCK_ENERGY_LENGTH        (DOCK_SIZE - 40)
 #define DOCK_BUTTON_FONT_SIZE     20

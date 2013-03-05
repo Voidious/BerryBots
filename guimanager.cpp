@@ -96,9 +96,9 @@ GuiManager::GuiManager(GuiListener *listener) {
   nextDrawTime_ = 1;
 
 #ifdef __WINDOWS__
-  windowIcon_.loadFromFile("icon_32x32.png");
+  windowIcon_.loadFromFile(BBICON_32);
 #elif defined(__WXGTK__)
-  windowIcon_.loadFromFile("icon_128x128.png");
+  windowIcon_.loadFromFile(BBICON_128);
 #endif
 }
 
