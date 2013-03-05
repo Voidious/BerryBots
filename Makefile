@@ -18,6 +18,8 @@ WIN_SFML_BUILD_PATH = ${SFML_PATH}\build
 
 # You shouldn't have to edit anything below this line. #######################
 
+VERSION = 1.1.0
+
 ##############################################################################
 # BerryBots GUI common source files
 SOURCES =  bbguimain.cpp guiprinthandler.cpp guimanager.cpp newmatch.cpp
@@ -152,6 +154,7 @@ rpi:
 	$(CC) ${RPI_SOURCES} ${RPI_CFLAGS} ${RPI_LDFLAGS} -o bbmain
 	cp ./scripts/bb_rpi.sh ./berrybots.sh
 	chmod 755 ./berrybots.sh
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
 osx:
 	$(MAKE_LUAJIT)
@@ -159,6 +162,7 @@ osx:
 	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
 	cp ./scripts/bb_gui_osx.sh ./berrybots.sh
 	chmod 755 ./berrybots.sh
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
 osxcli:
 	$(MAKE_LUAJIT)
@@ -166,6 +170,7 @@ osxcli:
 	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
 	cp ./scripts/bb_gui_osx.sh ./berrybots.sh
 	chmod 755 ./berrybots.sh
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
 linux:
 	$(MAKE_LUAJIT)
@@ -174,6 +179,7 @@ linux:
 	cp ./scripts/bb_gui_linux.sh ./berrybots.sh
 	cp ./icon.iconset/icon_128x128.png .
 	chmod 755 ./berrybots.sh
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
 linuxcli:
 	$(MAKE_LUAJIT)
@@ -182,6 +188,7 @@ linuxcli:
 	cp ./scripts/bb_gui_linux.sh ./berrybots.sh
 	cp ./icon.iconset/icon_128x128.png .
 	chmod 755 ./berrybots.sh
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
 clean:
 	$(CLEAN_LUAJIT)
@@ -200,6 +207,7 @@ windows:
 	copy ${WIN_SFML_BUILD_PATH}\lib\sfml-window-2.dll .
 	copy ${WIN_ZLIB_PATH}\zlib1.dll .
 	copy .\luajit\src\lua51.dll .
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
 wincli:
 	copy icon.iconset\icon_32x32.png .
@@ -210,6 +218,7 @@ wincli:
 	copy ${WIN_SFML_BUILD_PATH}\lib\sfml-window-2.dll .
 	copy ${WIN_ZLIB_PATH}\zlib1.dll .
 	copy .\luajit\src\lua51.dll .
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
 winclean:
 	$(WIN_CLEAN_LUAJIT)
