@@ -26,6 +26,7 @@
 #include <math.h>
 #include <SFML/Graphics.hpp>
 #include <wx/wx.h>
+#include <wx/mimetype.h>
 
 #include "bbwx.h"
 #include "stage.h"
@@ -39,7 +40,7 @@ using namespace std;
 
 PrintHandler *printHandler = 0;
 
-class BerryBotsApp: public wxApp {
+class BerryBotsApp : public wxApp {
   GuiManager *guiManager_;
   GuiListener *guiListener_;
 
@@ -52,6 +53,13 @@ class BerryBotsApp: public wxApp {
     virtual void OnPackageStage(wxCommandEvent &event);
     virtual void OnErrorConsole(wxCommandEvent &event);
     virtual void MacReopenApp();
+    void onChangeBaseDir(wxCommandEvent &event);
+    void onBrowseStages(wxCommandEvent &event);
+    void onBrowseShips(wxCommandEvent &event);
+    void onBrowseApidocs(wxCommandEvent &event);
+  private:
+    void browseDirectory(const char *dir);
+    void openHtmlFile(const char *file);
 };
 
 class AppGuiListener : public GuiListener {
@@ -134,6 +142,15 @@ bool BerryBotsApp::OnInit() {
           wxCommandEventHandler(BerryBotsApp::OnQuit));
 #endif
 
+  Connect(CHANGE_BASE_DIR_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::onChangeBaseDir));
+  Connect(BROWSE_SHIPS_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::onBrowseShips));
+  Connect(BROWSE_STAGES_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::onBrowseStages));
+  Connect(BROWSE_API_DOCS_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::onBrowseApidocs));
+  
   return true;
 }
 
@@ -177,6 +194,75 @@ void BerryBotsApp::MacReopenApp() {
   // No-op - When SFML window is only one open and user switches to app via icon
   // in Mac OS X dock, this stops wxWidgets from opening one of its windows
   // unnecessarily.
+}
+
+void BerryBotsApp::onChangeBaseDir(wxCommandEvent &event) {
+  chooseNewRootDir();
+  guiManager_->reloadBaseDirs();
+}
+
+void BerryBotsApp::onBrowseStages(wxCommandEvent &event) {
+  browseDirectory(getStagesDir().c_str());
+}
+
+void BerryBotsApp::onBrowseShips(wxCommandEvent &event) {
+  browseDirectory(getShipsDir().c_str());
+}
+
+void BerryBotsApp::onBrowseApidocs(wxCommandEvent &event) {
+  openHtmlFile(getApidocPath().c_str());
+}
+
+void BerryBotsApp::browseDirectory(const char *dir) {
+  if (!FileManager::fileExists(dir)) {
+    std::string fileNotFoundString("Directory not found: ");
+    fileNotFoundString.append(dir);
+    wxMessageDialog cantBrowseMessage(NULL, "Directory not found",
+                                      fileNotFoundString, wxOK);
+    cantBrowseMessage.ShowModal();
+  } else {
+#if defined(__WXOSX__)
+    ::wxExecute(wxString::Format("open \"%s\"", dir), wxEXEC_ASYNC, NULL);
+#elif defined(__LINUX__)
+    ::wxExecute(wxString::Format("xdg-open \"%s\"", dir), wxEXEC_ASYNC, NULL);
+#elif defined(__WINDOWS__)
+    ::wxExecute(wxString::Format("explorer \"%s\"", dir), wxEXEC_ASYNC, NULL);
+#else
+    wxMessageDialog cantBrowseMessage(NULL, "Couldn't browse directory",
+        "Sorry, don't know how to open/browse files on your platform.", wxOK);
+    cantBrowseMessage.ShowModal();
+#endif
+  }
+}
+
+void BerryBotsApp::openHtmlFile(const char *file) {
+  if (!FileManager::fileExists(file)) {
+    std::string fileNotFoundString("File not found: ");
+    fileNotFoundString.append(file);
+    wxMessageDialog cantBrowseMessage(NULL, "File not found",
+                                      fileNotFoundString, wxOK);
+    cantBrowseMessage.ShowModal();
+  } else {
+    // On Mac OS X, wxFileType::GetOpenCommand always returns Safari instead of
+    // the default browser. And what's worse, Safari doesn't load the CSS
+    // properly when we open it that way. But we can trust the 'open' command.
+#if defined(__WXOSX__)
+    ::wxExecute(wxString::Format("open \"%s\"", file), wxEXEC_ASYNC, NULL);
+#else
+    wxMimeTypesManager *typeManager = new wxMimeTypesManager();
+    wxFileType *htmlType = typeManager->GetFileTypeFromExtension(".html");
+    wxString openCommand = htmlType->GetOpenCommand(file);
+    if (openCommand.IsEmpty()) {
+      wxMessageDialog cantBrowseMessage(NULL, "Couldn't open file",
+          "Sorry, don't know how to open/browse files on your platform.", wxOK);
+      cantBrowseMessage.ShowModal();
+    } else {
+      ::wxExecute(openCommand, wxEXEC_ASYNC, NULL);
+    }
+    delete htmlType;
+    delete typeManager;
+#endif
+  }
 }
 
 AppGuiListener::AppGuiListener(BerryBotsApp *app) {

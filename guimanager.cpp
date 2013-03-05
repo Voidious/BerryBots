@@ -48,6 +48,7 @@ extern PrintHandler *printHandler;
 GuiManager::GuiManager(GuiListener *listener) {
   listener_ = listener;
   stagesBaseDir_ = shipsBaseDir_ = 0;
+  newMatchDialog_ = 0;
   reloadBaseDirs();
 
   window_ = 0;
@@ -156,6 +157,10 @@ void GuiManager::setBaseDirs(const char *stagesBaseDir,
   }
   shipsBaseDir_ = new char[strlen(shipsBaseDir) + 1];
   strcpy(shipsBaseDir_, shipsBaseDir);
+
+  if (newMatchDialog_ != 0) {
+    newMatchDialog_->onSetBaseDirs();
+  }
 }
 
 void GuiManager::reloadBaseDirs() {

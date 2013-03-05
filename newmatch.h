@@ -92,13 +92,12 @@ class NewMatchDialog : public wxFrame {
     void onBrowseStages(wxCommandEvent &event);
     void onBrowseShips(wxCommandEvent &event);
     void onBrowseApidocs(wxCommandEvent &event);
-    void browseApidocs();
     void onChangeBaseDir(wxCommandEvent &event);
-    void changeBaseDir();
     void onEscape();
     void onSelectStage(wxUpdateUIEvent &event);
     void onSelectShip(wxUpdateUIEvent &event);
     void onSelectLoadedShip(wxUpdateUIEvent &event);
+    void onSetBaseDirs();
     void previewSelectedStage();
     bool stageSelectHasFocus();
     bool shipsSelectHasFocus();
@@ -109,10 +108,7 @@ class NewMatchDialog : public wxFrame {
     void setMnemonicLabels(bool modifierDown);
     void focusStageSelect();
   private:
-    void updateBaseDirLabels();
     std::string condenseIfNecessary(std::string s);
-    void browseDirectory(const char *dir);
-    void openHtmlFile(const char *file);
 };
 
 class NewMatchEventFilter : public wxEventFilter {

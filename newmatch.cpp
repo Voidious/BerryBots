@@ -22,7 +22,6 @@
 #include <wx/wx.h>
 #include <wx/artprov.h>
 #include <wx/iconbndl.h>
-#include <wx/mimetype.h>
 #include "bbwx.h"
 #include "basedir.h"
 #include "filemanager.h"
@@ -83,7 +82,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   shipsBaseDirSizer->Add(shipsBaseDirLabel_);
   shipsBaseDirSizer->AddSpacer(5);
   shipsBaseDirSizer->Add(shipsBaseDirValueLabel_, 0 ,wxALIGN_BOTTOM);
-  updateBaseDirLabels();
+  onSetBaseDirs();
   dirsSizer->Add(stagesBaseDirSizer);
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseStagesButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
@@ -423,98 +422,29 @@ void NewMatchDialog::refreshFiles() {
 }
 
 void NewMatchDialog::onBrowseStages(wxCommandEvent &event) {
-  browseDirectory(getStagesDir().c_str());
+  wxCommandEvent menuEvent(wxEVT_COMMAND_MENU_SELECTED, BROWSE_STAGES_MENU_ID);
+  menuEvent.SetEventObject(this);
+  ProcessWindowEvent(menuEvent);
 }
 
 void NewMatchDialog::onBrowseShips(wxCommandEvent &event) {
-  browseDirectory(getShipsDir().c_str());
+  wxCommandEvent menuEvent(wxEVT_COMMAND_MENU_SELECTED, BROWSE_SHIPS_MENU_ID);
+  menuEvent.SetEventObject(this);
+  ProcessWindowEvent(menuEvent);
 }
 
 void NewMatchDialog::onBrowseApidocs(wxCommandEvent &event) {
-  browseApidocs();
-}
-
-void NewMatchDialog::browseApidocs() {
-  openHtmlFile(getApidocPath().c_str());
-}
-
-void NewMatchDialog::browseDirectory(const char *dir) {
-  if (!FileManager::fileExists(dir)) {
-    std::string fileNotFoundString("Directory not found: ");
-    fileNotFoundString.append(dir);
-    wxMessageDialog cantBrowseMessage(this, "Directory not found",
-                                      fileNotFoundString, wxOK);
-    cantBrowseMessage.ShowModal();
-  } else {
-#if defined(__WXOSX__)
-    ::wxExecute(wxString::Format("open \"%s\"", dir), wxEXEC_ASYNC, NULL);
-#elif defined(__LINUX__)
-    ::wxExecute(wxString::Format("xdg-open \"%s\"", dir), wxEXEC_ASYNC, NULL);
-#elif defined(__WINDOWS__)
-    ::wxExecute(wxString::Format("explorer \"%s\"", dir), wxEXEC_ASYNC, NULL);
-#else
-    wxMessageDialog cantBrowseMessage(this, "Couldn't browse directory",
-        "Sorry, don't know how to open/browse files on your platform.", wxOK);
-    cantBrowseMessage.ShowModal();
-#endif
-  }
-}
-
-void NewMatchDialog::openHtmlFile(const char *file) {
-  if (!FileManager::fileExists(file)) {
-    std::string fileNotFoundString("File not found: ");
-    fileNotFoundString.append(file);
-    wxMessageDialog cantBrowseMessage(this, "File not found",
-                                      fileNotFoundString, wxOK);
-    cantBrowseMessage.ShowModal();
-  } else {
-    // On Mac OS X, wxFileType::GetOpenCommand always returns Safari instead of
-    // the default browser. And what's worse, Safari doesn't load the CSS
-    // properly when we open it that way. But we can trust the 'open' command.
-#if defined(__WXOSX__)
-    ::wxExecute(wxString::Format("open \"%s\"", file), wxEXEC_ASYNC, NULL);
-#else
-    wxMimeTypesManager *typeManager = new wxMimeTypesManager();
-    wxFileType *htmlType = typeManager->GetFileTypeFromExtension(".html");
-    wxString openCommand = htmlType->GetOpenCommand(file);
-    if (openCommand.IsEmpty()) {
-      wxMessageDialog cantBrowseMessage(this, "Couldn't open file",
-          "Sorry, don't know how to open/browse files on your platform.", wxOK);
-      cantBrowseMessage.ShowModal();
-    } else {
-      ::wxExecute(openCommand, wxEXEC_ASYNC, NULL);
-    }
-    delete htmlType;
-    delete typeManager;
-#endif
-  }
+  wxCommandEvent menuEvent(wxEVT_COMMAND_MENU_SELECTED,
+                           BROWSE_API_DOCS_MENU_ID);
+  menuEvent.SetEventObject(this);
+  ProcessWindowEvent(menuEvent);
 }
 
 void NewMatchDialog::onChangeBaseDir(wxCommandEvent &event) {
-  changeBaseDir();
-}
-
-void NewMatchDialog::changeBaseDir() {
-  chooseNewRootDir();
-  updateBaseDirLabels();
-  listener_->reloadBaseDirs();
-}
-
-void NewMatchDialog::updateBaseDirLabels() {
-  stagesBaseDirValueLabel_->SetLabelText(condenseIfNecessary(getStagesDir()));
-  shipsBaseDirValueLabel_->SetLabelText(condenseIfNecessary(getShipsDir()));
-}
-
-std::string NewMatchDialog::condenseIfNecessary(std::string s) {
-  if (s.size() > 45) {
-    std::string cs;
-    cs.append(s.substr(0, 10));
-    cs.append("...");
-    cs.append(s.substr(s.size() - 32, 32));
-    return cs;
-  } else {
-    return s;
-  }
+  wxCommandEvent menuEvent(wxEVT_COMMAND_MENU_SELECTED,
+                           CHANGE_BASE_DIR_MENU_ID);
+  menuEvent.SetEventObject(this);
+  ProcessWindowEvent(menuEvent);
 }
 
 void NewMatchDialog::onEscape() {
@@ -531,6 +461,23 @@ void NewMatchDialog::onSelectShip(wxUpdateUIEvent &event) {
 
 void NewMatchDialog::onSelectLoadedShip(wxUpdateUIEvent &event) {
   validateButtons();
+}
+
+void NewMatchDialog::onSetBaseDirs() {
+  stagesBaseDirValueLabel_->SetLabelText(condenseIfNecessary(getStagesDir()));
+  shipsBaseDirValueLabel_->SetLabelText(condenseIfNecessary(getShipsDir()));
+}
+
+std::string NewMatchDialog::condenseIfNecessary(std::string s) {
+  if (s.size() > 45) {
+    std::string cs;
+    cs.append(s.substr(0, 10));
+    cs.append("...");
+    cs.append(s.substr(s.size() - 32, 32));
+    return cs;
+  } else {
+    return s;
+  }
 }
 
 void NewMatchDialog::previewSelectedStage() {

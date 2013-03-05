@@ -32,11 +32,33 @@ wxMenuBar* MenuBarMaker::getNewMenuBar() {
   fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "&Package Ship...\tCtrl+P", 0);
   fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package S&tage...\tCtrl+T", 0);
   fileMenu->Insert(3, ERROR_CONSOLE_MENU_ID, "&Error Console\tCtrl+E", 0);
-#ifndef __WXOSX__
   fileMenu->InsertSeparator(4);
+#ifdef __WXOSX__
+  fileMenu->Insert(5, CHANGE_BASE_DIR_MENU_ID,
+                   "Change &Base Directory\tCtrl+B");
+#else
   fileMenu->Insert(5, FILE_QUIT_MENU_ID, "&Quit");
+#endif
+  
+  wxMenu *browseMenu = new wxMenu();
+#ifdef __WXOSX__
+  browseMenu->Insert(0, BROWSE_SHIPS_MENU_ID,
+                     "&Ships Directory\tShift+Ctrl+S", 0);
+  browseMenu->Insert(1, BROWSE_STAGES_MENU_ID,
+                     "S&tages Directory\tShift+Ctrl+T", 0);
+  browseMenu->Insert(2, BROWSE_API_DOCS_MENU_ID,
+                     "&API Docs\tShift+Ctrl+A", 0);
+#else
+  browseMenu->Insert(0, BROWSE_SHIPS_MENU_ID,
+                     "&Ships Directory\tShift+Alt+S", 0);
+  browseMenu->Insert(1, BROWSE_STAGES_MENU_ID,
+                     "S&tages Directory\tShift+Alt+T", 0);
+  browseMenu->Insert(2, BROWSE_API_DOCS_MENU_ID,
+                     "&API Docs\tShift+Alt+A", 0);
 #endif
   wxMenuBar *menuBar = new wxMenuBar();
   menuBar->Insert(0, fileMenu, "&File");
+  menuBar->Insert(1, browseMenu, "&Browse");
+
   return menuBar;
 }
