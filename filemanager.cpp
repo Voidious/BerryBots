@@ -159,6 +159,16 @@ char* FileManager::getFilePath(const char *dir, const char *filename) {
   return absFilename;
 }
 
+bool FileManager::isWhitespace(const char *s) {
+  size_t len = strlen(s);
+  for (int x = 0; x < len; x++) {
+    if (s[x] != ' ' && s[x] != '\t' && s[x] != '\n' && s[x] != '\r') {
+      return false;
+    }
+  }
+  return true;
+}
+
 char* FileManager::getAbsFilePath(const char *filename) {
   char cwd[4096];
   getcwd(cwd, 4096);
@@ -301,6 +311,64 @@ void FileManager::loadShipFileData(const char *shipsBaseDir,
                                  PackagedSymlinkException*) {
   loadUserFileData(shipsBaseDir, srcFilename, shipDir, shipFilename,
                    SHIP_METAFILE, cacheDir);
+}
+
+char* FileManager::getStageDescription(const char *stagesBaseDir,
+    const char *srcFilename, const char *cacheDir)
+    throw (FileNotFoundException*, ZipperException*,
+           PackagedSymlinkException*) {
+  char *stagesDir;
+  char *stageFilename;
+  loadStageFileData(stagesBaseDir, srcFilename, &stagesDir, &stageFilename,
+                    cacheDir);
+  char *stagePath = getFilePath(stagesDir, stageFilename);
+  delete stagesDir;
+  delete stageFilename;
+
+  FILE *stageFile = fopen(stagePath, "r");
+  if (stageFile == NULL) {
+    FileNotFoundException *e = new FileNotFoundException(srcFilename);
+    delete stagePath;
+    throw e;
+  }
+  std::string description;
+  char *fileLine = new char[1024];
+  bool done = false;
+  bool blockComment = false;
+  while (!done) {
+    if (fgets(fileLine, 1024, stageFile) == NULL) {
+      done = true;
+    } else {
+      if (feof(stageFile)
+          || (!blockComment && !isWhitespace(fileLine)
+              && (strlen(fileLine) < 2 || strncmp(fileLine, "--", 2)))) {
+        done = true;
+      } else {
+        if (blockComment) {
+          const char *endBlock = strstr(fileLine, "]]");
+          if (endBlock != 0) {
+            description.append(fileLine, endBlock - fileLine);
+            done = true;
+          } else {
+            description.append(fileLine);
+          }
+        } else if (strlen(fileLine) >= 4 && strncmp(fileLine, "--[[", 4) == 0) {
+          blockComment = true;
+        } else if (isWhitespace(fileLine)) {
+          description.append(fileLine);
+        } else {
+          description.append(&(fileLine[2]));
+        }
+      }
+    }
+  }
+  delete fileLine;
+  delete stagePath;
+  fclose(stageFile);
+
+  char *descCopy = new char[description.length() + 1];
+  strcpy(descCopy, description.c_str());
+  return descCopy;
 }
 
 bool FileManager::hasExtension(const char *filename, const char *extension) {

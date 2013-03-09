@@ -58,6 +58,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   menuBarMaker_ = new MenuBarMaker();
   packagingConsole_ = new OutputConsole("Packaging Details", menuBarMaker_);
   errorConsole_ = new OutputConsole("Error Console", menuBarMaker_);
+  previewConsole_ = new OutputConsole("Description", menuBarMaker_);
   packagingConsole_->SetPosition(wxPoint(150, 100));
   newMatchListener_ = new MatchRunner(this, stagesBaseDir_, shipsBaseDir_);
   newMatchDialog_ = new NewMatchDialog(newMatchListener_, menuBarMaker_);
@@ -110,6 +111,8 @@ GuiManager::~GuiManager() {
   delete packageShipDialog_;
   delete packageStageDialog_;
   delete packagingConsole_;
+  delete errorConsole_;
+  delete previewConsole_;
   delete menuBarMaker_;
   delete stagesBaseDir_;
   delete shipsBaseDir_;
@@ -890,7 +893,7 @@ void GuiManager::showStagePreview(const char *stageName) {
     delete e;
     return;
   }
-  
+
   Stage *stage = engine->getStage();
   unsigned int viewWidth = stage->getWidth() + (2 * STAGE_MARGIN);
   unsigned int viewHeight = stage->getHeight() + (2 * STAGE_MARGIN);
@@ -901,26 +904,38 @@ void GuiManager::showStagePreview(const char *stageName) {
                              ((double) screenHeight) / viewHeight));
   unsigned int targetWidth = round(windowScale * viewWidth);
   unsigned int targetHeight = round(windowScale * viewHeight);
+  wxPoint newMatchPosition = newMatchDialog_->GetPosition();
+
+  std::string descTitle("Description: ");
+  descTitle.append(stageName);
+  previewConsole_->SetTitle(descTitle);
+  char *description = fileManager_->getStageDescription(
+      stagesBaseDir_, stageName, getCacheDir().c_str());
+  previewConsole_->clear();
+  previewConsole_->print(description);
+  previewConsole_->SetPosition(wxPoint(newMatchPosition.x + targetWidth + 30,
+                                       newMatchPosition.y + 25));
+  previewConsole_->Show();
+  previewConsole_->Raise();
+
   if (previewWindow_ != 0) {
     previewWindow_->close();
     delete previewWindow_;
     previewWindow_ = 0;
   }
-  std::string windowTitle("Preview: ");
-  windowTitle.append(stageName);
+  std::string previewTitle("Preview: ");
+  previewTitle.append(stageName);
   previewWindow_ = new sf::RenderWindow(
-      sf::VideoMode(targetWidth, targetHeight), windowTitle, sf::Style::Default,
-      sf::ContextSettings(0, 0, 16, 2, 0));
+      sf::VideoMode(targetWidth, targetHeight), previewTitle,
+      sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
 #ifdef __WINDOWS__
   previewWindow_->setIcon(32, 32, windowIcon_.getPixelsPtr());
 #elif defined(__WXGTK__)
   previewWindow_->setIcon(128, 128, windowIcon_.getPixelsPtr());
 #endif
 
-
-  wxPoint newMatchPosition = newMatchDialog_->GetPosition();
-  previewWindow_->setPosition(sf::Vector2i(newMatchPosition.x + 100,
-                                           newMatchPosition.y + 50));
+  previewWindow_->setPosition(sf::Vector2i(newMatchPosition.x + 25,
+                                           newMatchPosition.y + 25));
   Team **teams = new Team*[1];
   teams[0] = new Team;
   strcpy(teams[0]->name, "PreviewTeam");
@@ -972,6 +987,7 @@ void GuiManager::showStagePreview(const char *stageName) {
 
 void GuiManager::closeStagePreview() {
   closingPreview_ = true;
+  previewConsole_->Hide();
 }
 
 void GuiManager::deleteStageConsole() {

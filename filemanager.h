@@ -93,14 +93,17 @@ class FileManager {
     FileManager(Zipper *zipper);
     ~FileManager();
     void setListener(PackagingListener *packagingListener);
-    void loadStageFileData(const char *stagesBaseDir, const char *filename,
+    void loadStageFileData(const char *stagesBaseDir, const char *srcFilename,
         char **stagesDir, char **stageFilename, const char *cacheDir)
         throw (FileNotFoundException*, ZipperException*,
                PackagedSymlinkException*);
-    void loadShipFileData(const char *shipsBaseDir, const char *filename,
+    void loadShipFileData(const char *shipsBaseDir, const char *srcFilename,
         char **shipDir, char **shipFilename, const char *cacheDir)
         throw (FileNotFoundException*, ZipperException*,
                PackagedSymlinkException*);
+    char* getStageDescription(const char *stagesBaseDir, const char *srcFilename,
+        const char *cacheDir) throw (FileNotFoundException*, ZipperException*,
+                                     PackagedSymlinkException*);
     bool isLuaFilename(const char *filename);
     bool isZipFilename(const char *filename);
     void packageStage(const char *stagesBaseDir, const char *stageName,
@@ -138,6 +141,7 @@ class FileManager {
         const char *cacheDir) throw (FileNotFoundException*, ZipperException*,
                                      PackagedSymlinkException*);
     bool hasSymlinks(const char *userDir);
+    bool isWhitespace(const char *s);
     bool hasExtension(const char *filename, const char *extension);
     void packageCommon(lua_State *userState, const char *userAbsBaseDir,
         const char *userFilename, const char *version, const char *metaFilename,

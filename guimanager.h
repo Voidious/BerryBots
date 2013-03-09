@@ -63,6 +63,7 @@ class GuiManager {
   OutputConsole **teamConsoles_;
   OutputConsole *packagingConsole_;
   OutputConsole *errorConsole_;
+  OutputConsole *previewConsole_;
   MenuBarMaker *menuBarMaker_;
   GfxManager *gfxManager_;
   GfxManager *previewGfxManager_;
