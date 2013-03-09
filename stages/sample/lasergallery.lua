@@ -5,6 +5,8 @@
 --
 -- BasicBattler is the only sample ship that can hit all five movements.
 
+require "samplestage"
+
 PLAYER_LOCATION = {x = 100, y = 400}
 MAX_TIME = 100000
 
@@ -18,6 +20,7 @@ function configure(stageBuilder)
   stageBuilder:addShip("gallerybots/swirls.lua")
 end
 
+ships = nil
 userShip = nil
 world = nil
 admin = nil
@@ -28,16 +31,17 @@ numGalleryShips = 0
 printShipTimer = 90
 
 function init(shipsArg, worldArg, adminArg)
+  ships = shipsArg
   world = worldArg
   admin = adminArg
 
-  for i, ship in pairs(shipsArg) do
+  for i, ship in ipairs(shipsArg) do
     if (ship:isStageShip()) then
       table.insert(stageShips, ship)
       admin:setShipEnergyEnabled(ship, true)
       admin:setShipShowName(ship, false)
       numGalleryShips = numGalleryShips + 1
-    else
+    elseif (userShip == nil) then
       userShip = ship
     end
   end
@@ -55,6 +59,8 @@ function init(shipsArg, worldArg, adminArg)
 end
 
 function run(stageSensors)
+  samplestage.checkSinglePlayer(ships, admin)
+
   admin:drawText("Time: " .. world:time(), 20, 15)
   if (printShipTimer > 0) then
     admin:drawText(targetShip:name(), 525, 30, 25)

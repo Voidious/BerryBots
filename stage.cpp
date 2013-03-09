@@ -1023,9 +1023,11 @@ int Stage::getTorpedoCount() {
 }
 
 void Stage::destroyShip(Ship *ship, int gameTime) {
-  ship->alive = false;
-  for (int z = 0; z < numEventHandlers_; z++) {
-    eventHandlers_[z]->handleShipDestroyed(ship, gameTime, 0, 0);
+  if (ship->alive) {
+    ship->alive = false;
+    for (int z = 0; z < numEventHandlers_; z++) {
+      eventHandlers_[z]->handleShipDestroyed(ship, gameTime, 0, 0);
+    }
   }
 }
 

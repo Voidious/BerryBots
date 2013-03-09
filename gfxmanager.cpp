@@ -754,18 +754,16 @@ void GfxManager::drawShipDeaths(sf::RenderWindow *window, int time,
   ShipDeathGraphic **shipDeaths = gfxHandler->getShipDeaths();
   int numShipDeaths = gfxHandler->getShipDeathCount();
 
-  if (numShipDeaths > 0) {
-    for (int x = 0; x < numShipDeaths; x++) {
-      ShipDeathGraphic *shipDeath = shipDeaths[x];
-      int deathTime = (time - shipDeath->time) / SHIP_DEATH_FRAME_LENGTH;
-      destroyedShape_.setOutlineColor(shipDeathColors_[shipDeath->shipIndex]);
-      for (int y = std::max(0, deathTime - 3); y < deathTime; y++) {
-        double thisRadius = SHIP_DEATH_RADIUS * (1 + y);
-        destroyedShape_.setRadius(thisRadius);
-        destroyedShape_.setPosition(adjustX(shipDeath->x - thisRadius),
-            adjustY(shipDeath->y - thisRadius, thisRadius * 2));
-        window->draw(destroyedShape_);
-      }
+  for (int x = 0; x < numShipDeaths; x++) {
+    ShipDeathGraphic *shipDeath = shipDeaths[x];
+    int deathTime = (time - shipDeath->time) / SHIP_DEATH_FRAME_LENGTH;
+    destroyedShape_.setOutlineColor(shipDeathColors_[shipDeath->shipIndex]);
+    for (int y = std::max(0, deathTime - 3); y < deathTime; y++) {
+      double thisRadius = SHIP_DEATH_RADIUS * (1 + y);
+      destroyedShape_.setRadius(thisRadius);
+      destroyedShape_.setPosition(adjustX(shipDeath->x - thisRadius),
+          adjustY(shipDeath->y - thisRadius, thisRadius * 2));
+      window->draw(destroyedShape_);
     }
   }
 }

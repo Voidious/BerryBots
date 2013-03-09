@@ -3,6 +3,8 @@
 --
 -- Sample ships that can solve this maze: WallHugger and Snail.
 
+require "samplestage"
+
 function configure(stageBuilder)
   stageBuilder:setSize(1200, 600)
   stageBuilder:addStart(25, 300)
@@ -46,11 +48,10 @@ function init(shipsArg, worldArg, adminArg)
 end
 
 function run()
-  if (# ships > 1) then
-    admin:drawText("WARNING: This stage is only designed for 1 ship.", 20, 12)
-  end
-  for i,ship in pairs(ships) do
-    if (world:touchedAnyZone(ship)) then
+  samplestage.checkSinglePlayer(ships, admin)
+
+  for i, ship in pairs(ships) do
+    if (ship:alive() and world:touchedAnyZone(ship)) then
       admin:setWinner(ship:name())
       admin:gameOver()
       local timeLine = "Time: " .. world:time()

@@ -7,6 +7,8 @@
 --
 -- Sample ships that can joust: Jouster and Chaser.
 
+require "samplestage"
+
 function configure(stageBuilder)
   stageBuilder:setSize(1000, 700)
   stageBuilder:addStart(50, 350 + (20 * math.random()) - 10)
@@ -30,6 +32,8 @@ function init(shipsArg, worldArg, adminArg)
 end
 
 function run()
+  samplestage.checkNumPlayers(2, ships, admin)
+
   if (world:time() == 1) then
     for i, ship in pairs(ships) do
       admin:setShipSpeed(ship, 20)

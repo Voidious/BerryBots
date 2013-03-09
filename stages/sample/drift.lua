@@ -5,6 +5,8 @@
 --
 -- Drifter is the only sample ship designed for this stage.
 
+require "samplestage"
+
 DRIFT_SPEED = 5
 
 function configure(stageBuilder)
@@ -34,7 +36,7 @@ function init(shipsArg, worldArg, adminArg)
   ships = shipsArg
   world = worldArg
   admin = adminArg
-  for i, ship in pairs(ships) do
+  for i, ship in ipairs(ships) do
     if (ship:isStageShip()) then
       local event = { }
       event.speed = math.ceil(math.random() * 18) + 2
@@ -49,7 +51,7 @@ function init(shipsArg, worldArg, adminArg)
       shipSettings[ship:name()].speed = event.speed
       admin:reviveShip(ship)
       admin:setShipShowName(ship, false)
-    else
+    elseif (userShip == nil) then
       userShip = ship
       prevShipSpeed = 0
     end
@@ -57,6 +59,8 @@ function init(shipsArg, worldArg, adminArg)
 end
 
 function run(stageSensors)
+  samplestage.checkSinglePlayer(ships, admin)
+
   admin:drawText("Attempt: " .. tries, 15, 12)
   if (userShip:hitWall() or userShip:hitShip()) then
     admin:destroyShip(userShip)

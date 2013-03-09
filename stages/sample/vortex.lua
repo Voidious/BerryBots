@@ -8,6 +8,8 @@
 --
 -- Vortexer is the only sample ship designed for this stage.
 
+require "samplestage"
+
 START_DISTANCE = 150
 MAX_METEORS = 20
 NUM_ROUNDS = 25
@@ -60,11 +62,11 @@ function init(shipsArg, worldArg, adminArg)
   ships = shipsArg
   world = worldArg
   admin = adminArg
-  for i, ship in pairs(ships) do
+  for i, ship in ipairs(ships) do
     if (ship:isStageShip()) then
       table.insert(stageShips, ship)
       admin:setShipShowName(ship, false)
-    else
+    elseif (userShip == nil) then
       userShip = ship
     end
   end
@@ -88,6 +90,8 @@ function initWalls(walls)
 end
 
 function run(stageSensors)
+  samplestage.checkSinglePlayer(ships, admin)
+
   if (world:time() % METEOR_FREQUENCY == 0) then
     local meteorShip = nextMeteor()
     if (meteorShip ~= nil) then

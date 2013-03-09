@@ -18,9 +18,9 @@ function run(enemyShips)
   time = world:time()
 
   if (time % 20 == 0) then
-      angle = (angle + math.pi) % (2 * math.pi)
+    angle = (angle + math.pi) % (2 * math.pi)
   end
-  if (time % 20 < 10 and ship:speed() > 0) then
+  if (time % 20 < 10) then
     ship:fireThruster(ship:heading() + math.pi, ship:speed())
   else
     ship:fireThruster(angle, 1)
