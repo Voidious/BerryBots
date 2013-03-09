@@ -95,13 +95,13 @@ LINUX_CFLAGS += -I${SFML_PATH}/include
 LINUX_CFLAGS += `${WXWIDGETS_PATH}/wx-config --cflags`
 
 LINUX_LDFLAGS =  -L${SFML_BUILD_PATH}/lib `${WXWIDGETS_PATH}/wx-config --libs`
-LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
+LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
 
 LINUXCLI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
 LINUXCLI_CFLAGS += -I${LIBARCHIVE_PATH} -I${SFML_PATH}/include
 
 LINUXCLI_LDFLAGS =  -L${SFML_BUILD_PATH}/lib
-LINUXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
+LINUXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
 ##############################################################################
 
 
@@ -119,7 +119,7 @@ WIN_CFLAGS += -Wno-ctor-dtor-privacy -pipe -fmessage-length=0
 
 WIN_LDFLAGS =  -L${WIN_SFML_BUILD_PATH}\lib -lpthread
 WIN_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
-WIN_LDFLAGS += -mthreads -L${WXWIDGETS_PATH}\lib\gcc_lib
+WIN_LDFLAGS += -mwindows -mthreads -L${WXWIDGETS_PATH}\lib\gcc_lib
 WIN_LDFLAGS += -lwxmsw29u_html -lwxmsw29u_adv -lwxmsw29u_core -lwxbase29u_xml
 WIN_LDFLAGS += -lwxbase29u_net -lwxbase29u -lwxtiff -lwxjpeg -lwxpng -lwxzlib
 WIN_LDFLAGS += -lwxregexu -lwxexpat -lkernel32 -luser32 -lgdi32 -lcomdlg32
