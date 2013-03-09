@@ -1,5 +1,7 @@
--- A reasonably complex maze. Ship starts in middle left and needs to get to top
--- right corner without hitting any walls.
+-- A reasonably complex single player maze. Ship starts in middle left and needs
+-- to get to top right corner without hitting any walls.
+--
+-- Sample ships that can solve this maze: WallHugger and Snail.
 
 function configure(stageBuilder)
   stageBuilder:setSize(1200, 600)

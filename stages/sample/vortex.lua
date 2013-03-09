@@ -1,10 +1,12 @@
 -- A single player arcade style game. There is a gravity-like force pulling the
 -- player ship towards the center of the stage and meteors (stage ships) getting
--- sucked into the vortex to obstruct your path.
+-- sucked into the vortex to obstruct its path.
 --
 -- If a ship gets pulled too close to the center, it is destroyed. Since the
 -- gravity force is stronger than the ship's maximum thruster force, you must
 -- slingshot around the center to survive.
+--
+-- Vortexer is the only sample ship designed for this stage.
 
 START_DISTANCE = 150
 MAX_METEORS = 20

@@ -2,6 +2,8 @@
 -- the stage without hitting any enemy ships or walls. Movement is restricted to
 -- a single thruster action before each group of enemy ships, and your ship
 -- always moves at a speed of 5.
+--
+-- Drifter is the only sample ship designed for this stage.
 
 DRIFT_SPEED = 5
 

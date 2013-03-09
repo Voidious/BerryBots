@@ -1,6 +1,9 @@
 -- A "fixed shooter" arcade style game, sort of like Galaga or Space Invaders.
--- User ship can only move from side to side along the bottom of the stage and
--- gains points by destroying the drone ship loaded and managed by the stage.
+-- Player ship can only move from side to side along the bottom of the stage and
+-- gains points by destroying the drone ships.
+--
+-- Shooter is the only sample ship designed for this stage, but any ship that
+-- moves and fires will also work.
 
 function configure(stageBuilder)
   stageBuilder:setSize(600, 700)

@@ -1,4 +1,6 @@
 -- A 5v5 team battle stage.
+--
+-- Sample ships that support team play: Chaser, RandomBot, and WallHugger.
 
 require "battlestage"
 

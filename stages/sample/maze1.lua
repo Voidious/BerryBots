@@ -1,5 +1,8 @@
--- A sample maze with a few walls. Ship starts in bottom left corner
--- and needs to get to top left corner.
+-- A single player maze with a few walls. Ship starts in bottom left corner and
+-- needs to get to top left corner.
+--
+-- Sample ships that can solve this maze: Maze1bot, RandomBot, WallHugger,
+-- and Snail.
 
 function configure(stageBuilder)
   stageBuilder:setSize(1000, 700)

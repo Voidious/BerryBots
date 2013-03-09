@@ -1,7 +1,10 @@
--- A sample maze with a few randomly placed walls. Bot starts in bottom left
+-- A sample maze with a few randomly placed walls. Ship starts in bottom left
 -- corner and needs to get to top right corner without hitting any walls. Due
 -- to the randomness and lack of constraints on wall placement, it's possible
 -- some mazes will not be solvable.
+--
+-- Snail is the only sample ship that can generally solve the mazes created by
+-- this stage.
 
 function configure(stageBuilder)
   stageBuilder:setSize(800, 600)

@@ -1,6 +1,9 @@
 -- An oval race track. Ships need to cross each zone in a counter-clockwise
 -- pattern. The ship with the most laps is displayed as the leader on screen,
 -- along with the fastest lap.
+--
+-- Racer is the only sample ship designed for this stage, but WallHugger can
+-- also get around it if he gets lucky and gets onto a counter-clockwise path.
 
 function configure(stageBuilder)
   stageBuilder:setSize(1000, 700)

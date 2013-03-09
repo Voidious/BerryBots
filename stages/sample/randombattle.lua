@@ -1,4 +1,7 @@
 -- A basic battle field with a few randomly placed / sized walls.
+--
+-- Sample battle ships: Chaser, FloatingDuck, MyFirstShip, RandomBot,
+-- WallHugger, and BasicBattler.
 
 require "battlestage"
 

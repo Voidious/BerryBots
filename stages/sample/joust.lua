@@ -1,7 +1,11 @@
--- A stage for 2-ship jousting battles. Ships start on opposite sides of the
--- stage and start the battle moving at high speed towards each other. When a
--- ship is knocked into either of the zones to the side of the center battle
--- strip, it is disqualified and the other ship wins.
+-- A stage for 2-ship jousting battles.
+--
+-- Ships start on opposite sides of the stage and start the battle moving at
+-- high speed towards each other. When a ship is knocked into either of the
+-- zones to the side of the center battle strip, it is disqualified and the
+-- other ship wins.
+--
+-- Sample ships that can joust: Jouster and Chaser.
 
 function configure(stageBuilder)
   stageBuilder:setSize(1000, 700)

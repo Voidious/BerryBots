@@ -2,6 +2,8 @@
 -- only shoot its laser gun. A series of ships with different movement styles
 -- appear and move around until they are destroyed. The goal is to destroy all
 -- ships as quickly as possible.
+--
+-- BasicBattler is the only sample ship that can hit all five movements.
 
 PLAYER_LOCATION = {x = 100, y = 400}
 MAX_TIME = 100000
