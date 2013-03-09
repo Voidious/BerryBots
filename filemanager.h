@@ -141,7 +141,6 @@ class FileManager {
         const char *cacheDir) throw (FileNotFoundException*, ZipperException*,
                                      PackagedSymlinkException*);
     bool hasSymlinks(const char *userDir);
-    bool isWhitespace(const char *s);
     bool hasExtension(const char *filename, const char *extension);
     void packageCommon(lua_State *userState, const char *userAbsBaseDir,
         const char *userFilename, const char *version, const char *metaFilename,

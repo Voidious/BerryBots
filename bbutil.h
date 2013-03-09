@@ -179,5 +179,6 @@ extern double toDegrees(double x);
 extern char** parseFlag(
     int argc, char *argv[], const char *flag, int numValues);
 extern bool flagExists(int argc, char *argv[], const char *flag);
+extern bool isWhitespace(const char *s);
 
 #endif

@@ -906,17 +906,19 @@ void GuiManager::showStagePreview(const char *stageName) {
   unsigned int targetHeight = round(windowScale * viewHeight);
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
 
-  std::string descTitle("Description: ");
-  descTitle.append(stageName);
-  previewConsole_->SetTitle(descTitle);
   char *description = fileManager_->getStageDescription(
       stagesBaseDir_, stageName, getCacheDir().c_str());
-  previewConsole_->clear();
-  previewConsole_->print(description);
-  previewConsole_->SetPosition(wxPoint(newMatchPosition.x + targetWidth + 30,
-                                       newMatchPosition.y + 25));
-  previewConsole_->Show();
-  previewConsole_->Raise();
+  if (!isWhitespace(description)) {
+    std::string descTitle("Description: ");
+    descTitle.append(stageName);
+    previewConsole_->SetTitle(descTitle);
+    previewConsole_->clear();
+    previewConsole_->print(description);
+    previewConsole_->SetPosition(wxPoint(newMatchPosition.x + targetWidth + 30,
+                                         newMatchPosition.y + 25));
+    previewConsole_->Show();
+    previewConsole_->Raise();
+  }
 
   if (previewWindow_ != 0) {
     previewWindow_->close();

@@ -159,16 +159,6 @@ char* FileManager::getFilePath(const char *dir, const char *filename) {
   return absFilename;
 }
 
-bool FileManager::isWhitespace(const char *s) {
-  size_t len = strlen(s);
-  for (int x = 0; x < len; x++) {
-    if (s[x] != ' ' && s[x] != '\t' && s[x] != '\n' && s[x] != '\r') {
-      return false;
-    }
-  }
-  return true;
-}
-
 char* FileManager::getAbsFilePath(const char *filename) {
   char cwd[4096];
   getcwd(cwd, 4096);

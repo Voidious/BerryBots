@@ -103,3 +103,14 @@ bool flagExists(int argc, char *argv[], const char *flag) {
   }
   return false;
 }
+
+bool isWhitespace(const char *s) {
+  size_t len = strlen(s);
+  for (int x = 0; x < len; x++) {
+    if (s[x] != ' ' && s[x] != '\t' && s[x] != '\n' && s[x] != '\r') {
+      return false;
+    }
+  }
+  return true;
+}
+
