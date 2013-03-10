@@ -47,7 +47,8 @@ OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
 
   menuBarMaker_ = menuBarMaker;
   menusInitialized_ = false;
-
+  closeOnSpace_ = false;
+    
   Connect(this->GetId(), wxEVT_ACTIVATE,
           wxActivateEventHandler(OutputConsole::onActivate));
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
@@ -109,6 +110,15 @@ void OutputConsole::clear() {
 
 void OutputConsole::onClose(wxCommandEvent &event) {
   Hide();
+  if (listener_ != 0) {
+    listener_->onClose();
+  }
+}
+
+void OutputConsole::onSpace() {
+  if (closeOnSpace_) {
+    Close();
+  }
 }
 
 // TODO: delta based on current text size, eg 36 => 42, not 38
@@ -127,6 +137,10 @@ void OutputConsole::defaultTextSize() {
   output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
 }
 
+void OutputConsole::setCloseOnSpace() {
+  closeOnSpace_ = true;
+}
+
 OutputConsoleEventFilter::OutputConsoleEventFilter(
     OutputConsole *outputConsole) {
   outputConsole_ = outputConsole;
@@ -143,7 +157,7 @@ int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
     int keyCode = keyEvent->GetKeyCode();
     if (keyCode == WXK_ESCAPE
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
-      outputConsole_->Hide();
+      outputConsole_->Close();
       return Event_Processed;
     } else if (keyEvent->GetUnicodeKey() == '=' && keyEvent->ControlDown()) {
       outputConsole_->increaseTextSize();
@@ -151,6 +165,8 @@ int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
       outputConsole_->decreaseTextSize();
     } else if (keyEvent->GetUnicodeKey() == '0' && keyEvent->ControlDown()) {
       outputConsole_->defaultTextSize();
+    } else if (keyEvent->GetUnicodeKey() == ' ') {
+      outputConsole_->onSpace();
     }
   }
   return Event_Skip;

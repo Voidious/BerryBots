@@ -59,6 +59,9 @@ GuiManager::GuiManager(GuiListener *listener) {
   packagingConsole_ = new OutputConsole("Packaging Details", menuBarMaker_);
   errorConsole_ = new OutputConsole("Error Console", menuBarMaker_);
   previewConsole_ = new OutputConsole("Description", menuBarMaker_);
+  previewConsole_->setCloseOnSpace();
+  previewConsoleListener_ = new PreviewConsoleListener(this);
+  previewConsole_->setListener(previewConsoleListener_);
   packagingConsole_->SetPosition(wxPoint(150, 100));
   newMatchListener_ = new MatchRunner(this, stagesBaseDir_, shipsBaseDir_);
   newMatchDialog_ = new NewMatchDialog(newMatchListener_, menuBarMaker_);
@@ -113,6 +116,7 @@ GuiManager::~GuiManager() {
   delete packagingConsole_;
   delete errorConsole_;
   delete previewConsole_;
+  delete previewConsoleListener_;
   delete menuBarMaker_;
   delete stagesBaseDir_;
   delete shipsBaseDir_;
@@ -1410,6 +1414,14 @@ void ConsoleEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
   for (int x = 0; x < numDestroyers; x++) {
     guiManager_->printShipDestroyed(destroyedShip, destroyerShips[x], time);
   }
+}
+
+PreviewConsoleListener::PreviewConsoleListener(GuiManager *guiManager) {
+  guiManager_ = guiManager;
+}
+
+void PreviewConsoleListener::onClose() {
+  guiManager_->closeStagePreview();
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

@@ -27,6 +27,7 @@
 class ConsoleListener {
   public:
     virtual void onActive() = 0;
+    virtual void onClose() = 0;
     virtual ~ConsoleListener() {};
 };
 
@@ -37,6 +38,7 @@ class OutputConsole : public wxFrame {
   wxEventFilter *eventFilter_;
   int defaultFontSize_;
   int fontSize_;
+  bool closeOnSpace_;
   ConsoleListener *listener_;
 
   public:
@@ -49,9 +51,12 @@ class OutputConsole : public wxFrame {
     void println();
     void clear();
     void onClose(wxCommandEvent &event);
+    void onSpace();
     void increaseTextSize();
     void decreaseTextSize();
     void defaultTextSize();
+    void setCloseOnSpace();
+    
     virtual void OnEraseBackground(wxEraseEvent&);
 };
 

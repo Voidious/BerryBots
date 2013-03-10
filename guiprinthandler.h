@@ -56,6 +56,7 @@ class ConsoleErrorListener : public ConsoleListener {
   public:
     ConsoleErrorListener(Team *team);
     virtual void onActive();
+    virtual void onClose() {};
     virtual ~ConsoleErrorListener() {};
 };
 

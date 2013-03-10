@@ -64,6 +64,7 @@ class GuiManager {
   OutputConsole *packagingConsole_;
   OutputConsole *errorConsole_;
   OutputConsole *previewConsole_;
+  ConsoleListener *previewConsoleListener_;
   MenuBarMaker *menuBarMaker_;
   GfxManager *gfxManager_;
   GfxManager *previewGfxManager_;
@@ -248,6 +249,17 @@ class ConsoleEventHandler : public EventHandler {
         Ship *firingShip, double laserHeading, int time) {};
     virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,
         double torpedoDistance, int time) {};
+};
+
+class PreviewConsoleListener : public ConsoleListener {
+  GuiManager *guiManager_;
+
+  public:
+    PreviewConsoleListener(GuiManager *guiManager);
+    virtual void onActive() {};
+    virtual void onClose();
+    virtual ~PreviewConsoleListener() {};
+  
 };
 
 class ViewListener : public GfxViewListener {
