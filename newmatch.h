@@ -33,6 +33,7 @@ class NewMatchListener {
     virtual void onClose() = 0;
     virtual void onEscape() = 0;
     virtual void onActive() = 0;
+    virtual void onUpdateUi() = 0;
     virtual void reloadBaseDirs() = 0;
     virtual ~NewMatchListener() {};
 };
@@ -97,6 +98,7 @@ class NewMatchDialog : public wxFrame {
     void onSelectStage(wxUpdateUIEvent &event);
     void onSelectShip(wxUpdateUIEvent &event);
     void onSelectLoadedShip(wxUpdateUIEvent &event);
+    void onUpdateUi(wxUpdateUIEvent &event);
     void onSetBaseDirs();
     void previewSelectedStage();
     bool stageSelectHasFocus();

@@ -403,7 +403,9 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
 sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
                                              unsigned int height) {
   if (window_ != 0) {
-    delete window_;
+    sf::Window *oldWindow = window_;
+    window_ = 0;
+    delete oldWindow;
   }
 
   window_ = new sf::RenderWindow(sf::VideoMode(width, height), "BerryBots",
@@ -602,12 +604,7 @@ void GuiManager::runCurrentMatch() {
                  || engine_->isGameOver())) {
         processMainWindowEvents(window, gfxManager_, viewWidth_, viewHeight_);
         clearTeamErroredForActiveConsoles(engine_);
-        window->clear();
-        gfxManager_->drawGame(window, engine_->getStage(), engine_->getShips(),
-                              engine_->getNumShips(), engine_->getGameTime(),
-                              gfxHandler_, paused_, engine_->isGameOver(),
-                              engine_->getWinnerName());
-        window->display();
+        drawFrame(window);
         if (!paused_ && !engine_->isGameOver()) {
           nextDrawTime_ += tpsFactor_;
         }
@@ -636,6 +633,15 @@ void GuiManager::runCurrentMatch() {
     delete gfxHandler_;
     gfxHandler_ = 0;
   }
+}
+
+void GuiManager::drawFrame(sf::RenderWindow *window) {
+  window->clear();
+  gfxManager_->drawGame(window, engine_->getStage(), engine_->getShips(),
+                        engine_->getNumShips(), engine_->getGameTime(),
+                        gfxHandler_, paused_, engine_->isGameOver(),
+                        engine_->getWinnerName());
+  window->display();
 }
 
 void GuiManager::clearTeamErroredForActiveConsoles(BerryBotsEngine *engine) {
@@ -914,8 +920,14 @@ void GuiManager::showStagePreview(const char *stageName) {
     previewConsole_->SetTitle(descTitle);
     previewConsole_->clear();
     previewConsole_->print(description);
-    previewConsole_->SetPosition(wxPoint(newMatchPosition.x + targetWidth + 30,
-                                         newMatchPosition.y + 25));
+#ifdef __WINDOWS__
+    int spacer = 20;
+#else
+    int spacer = 5;
+#endif
+    previewConsole_->SetPosition(
+        wxPoint(newMatchPosition.x + targetWidth + 25 + spacer,
+                newMatchPosition.y + 25));
     previewConsole_->Show();
     previewConsole_->Raise();
   }
@@ -1124,6 +1136,12 @@ void GuiManager::quit() {
   quitting_ = true;
 }
 
+void GuiManager::redrawMainWindow() {
+  if (window_ != 0) {
+    drawFrame(window_);
+  }
+}
+
 void GuiManager::logErrorMessage(lua_State *L, const char *formatString) {
   const char *luaMessage = lua_tostring(L, -1);
   int messageLen = (int) (strlen(formatString) + strlen(luaMessage) - 2);
@@ -1199,6 +1217,10 @@ void MatchRunner::onActive() {
   guiManager_->closeStagePreview();
 }
 
+void MatchRunner::onUpdateUi() {
+  guiManager_->redrawMainWindow();
+}
+
 void MatchRunner::reloadBaseDirs() {
   guiManager_->reloadBaseDirs();
   refreshFiles();
@@ -1268,6 +1290,10 @@ void ShipPackager::onEscape() {
   guiManager_->dialogEscaped();
 }
 
+void ShipPackager::onUpdateUi() {
+  guiManager_->redrawMainWindow();
+}
+
 StagePackager::StagePackager(GuiManager *guiManager, FileManager *fileManager,
     OutputConsole *packagingConsole, char *stagesDir, char *shipsDir) {
   packagingConsole_ = packagingConsole;
@@ -1334,6 +1360,10 @@ void StagePackager::onClose() {
 
 void StagePackager::onEscape() {
   guiManager_->dialogEscaped();
+}
+
+void StagePackager::onUpdateUi() {
+  guiManager_->redrawMainWindow();
 }
 
 PackageReporter::PackageReporter(OutputConsole *packagingConsole) {

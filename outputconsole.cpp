@@ -24,10 +24,10 @@
 #include "outputconsole.h"
 
 OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
-    : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxSize(600, 450),
+    : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxSize(650, 450),
               wxDEFAULT_FRAME_STYLE) {
-  output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0), wxSize(400, 350),
-                          wxTE_MULTILINE | wxTE_READONLY, wxDefaultValidator);
+  output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0), wxDefaultSize,
+      wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP, wxDefaultValidator);
   listener_ = 0;
 
 #ifdef __WINDOWS__

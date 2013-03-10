@@ -18,7 +18,6 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <iostream>
 #include <wx/wx.h>
 #include <wx/artprov.h>
 #include <wx/iconbndl.h>
@@ -216,7 +215,14 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
           wxUpdateUIEventHandler(NewMatchDialog::onSelectLoadedShip));
   Connect(browseApidocsButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onBrowseApidocs));
-
+#ifdef __WINDOWS
+  // On Windows XP, not redrawing the game while interrupted (dialog shown)
+  // creates visual artifacts, so manually redraw it on update UI in Windows.
+  // The same kills the framerate in Linux/GTK. Either way works on Mac/Cocoa.
+  Connect(this->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(NewMatchDialog::onUpdateUi));
+#endif
+  
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
   browseStagesButton_->MoveAfterInTabOrder(startButton_);
   browseShipsButton_->MoveAfterInTabOrder(browseStagesButton_);
@@ -461,6 +467,10 @@ void NewMatchDialog::onSelectShip(wxUpdateUIEvent &event) {
 
 void NewMatchDialog::onSelectLoadedShip(wxUpdateUIEvent &event) {
   validateButtons();
+}
+
+void NewMatchDialog::onUpdateUi(wxUpdateUIEvent &event) {
+  listener_->onUpdateUi();
 }
 
 void NewMatchDialog::onSetBaseDirs() {

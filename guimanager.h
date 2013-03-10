@@ -138,6 +138,7 @@ class GuiManager {
     void restartMatch();
     void setTpsFactor(double tpsFactor);
     void quit();
+    void redrawMainWindow();
     char* getStagesDirCopy();
     char* getShipsDirCopy();
     char* getCacheDirCopy();
@@ -146,6 +147,7 @@ class GuiManager {
     sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
+    void drawFrame(sf::RenderWindow *window);
     void clearTeamErroredForActiveConsoles(BerryBotsEngine *engine);
     void resumeMatch();
     void deleteStageConsole();
@@ -174,6 +176,7 @@ class MatchRunner : public NewMatchListener {
     virtual void onClose();
     virtual void onEscape();
     virtual void onActive();
+    virtual void onUpdateUi();
     virtual void reloadBaseDirs();
 };
 
@@ -192,6 +195,7 @@ class ShipPackager : public PackageDialogListener {
     virtual void refreshFiles();
     virtual void onClose();
     virtual void onEscape();
+    virtual void onUpdateUi();
 };
 
 class StagePackager : public PackageDialogListener {
@@ -210,6 +214,7 @@ class StagePackager : public PackageDialogListener {
     virtual void refreshFiles();
     virtual void onClose();
     virtual void onEscape();
+    virtual void onUpdateUi();
 };
 
 class PackageReporter : public PackagingListener {

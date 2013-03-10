@@ -31,6 +31,7 @@ class PackageDialogListener {
     virtual void refreshFiles() = 0;
     virtual void onClose() = 0;
     virtual void onEscape() = 0;
+    virtual void onUpdateUi() = 0;
     virtual ~PackageDialogListener() {};
 };
 
@@ -68,6 +69,7 @@ class PackageDialog : public wxFrame {
     void onEscape();
     void onSelectItem(wxUpdateUIEvent &event);
     void onUpdateVersion(wxUpdateUIEvent &event);
+    void onUpdateUi(wxUpdateUIEvent &event);
     void validateButtons();
     void validateButtonSelectedListBox(wxButton *button, wxListBox *listBox);
     void setMnemonicLabels(bool modifierDown);
