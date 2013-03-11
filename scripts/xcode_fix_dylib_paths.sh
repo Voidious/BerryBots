@@ -18,3 +18,5 @@ for TARGET in ${TARGETS} ; do
     install_name_tool -change ${TARGETID} ${NEWTARGETID} ${LIBFILE2}
   done
 done
+
+# TODO: create symlinks here so we can use this copy for the library search path
