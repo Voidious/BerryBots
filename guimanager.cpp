@@ -407,14 +407,14 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
 sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
                                              unsigned int height) {
   if (window_ != 0) {
-    sf::Window *oldWindow = window_;
+    sf::RenderWindow *oldWindow = window_;
     window_ = 0;
     delete oldWindow;
   }
 
   window_ = new sf::RenderWindow(sf::VideoMode(width, height), "BerryBots",
-                                 sf::Style::Default,
-                                 sf::ContextSettings(0, 0, 16, 2, 0));
+      sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
+
 #ifdef __WINDOWS__
   window_->setIcon(32, 32, windowIcon_.getPixelsPtr());
 #elif defined(__WXGTK__)
@@ -422,6 +422,26 @@ sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
 #endif
 
   return window_;
+}
+
+sf::RenderWindow* GuiManager::initPreviewWindow(unsigned int width,
+                                                unsigned int height) {
+  if (previewWindow_ != 0) {
+    sf::RenderWindow *oldWindow = previewWindow_;
+    previewWindow_ = 0;
+    delete oldWindow;
+  }
+
+  previewWindow_ = new sf::RenderWindow(sf::VideoMode(width, height), "Preview",
+      sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
+
+#ifdef __WINDOWS__
+  previewWindow_->setIcon(32, 32, windowIcon_.getPixelsPtr());
+#elif defined(__WXGTK__)
+  previewWindow_->setIcon(128, 128, windowIcon_.getPixelsPtr());
+#endif
+
+  return previewWindow_;
 }
 
 sf::RenderWindow* GuiManager::getMainWindow() {
@@ -450,8 +470,10 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   }
   
 #ifdef __WXOSX__
-  // On Mac OS X, we need to initialize before the wxWidgets stuff below to
-  // avoid some weird errors.
+  // On Mac OS X, we need to initialize before the wxWidgets stuff below or we
+  // hit some unexplainable crashes when we delete an SFML window. I don't know
+  // why, I've merely devised a work-around. Judging from some SFML forum
+  // threads, it sounds likely to be an issue with nightmare-ish video drivers.
   window = initMainWindow(1200, 800);
 #endif
 
@@ -889,6 +911,14 @@ void GuiManager::showStagePreview(const char *stageName) {
   previewing_ = true;
   closingPreview_ = false;
 
+#ifdef __WXOSX__
+  // On Mac OS X, we need to initialize before the wxWidgets stuff below or we
+  // hit some unexplainable crashes when we delete an SFML window. I don't know
+  // why, I've merely devised a work-around. Judging from some SFML forum
+  // threads, it sounds likely to be an issue with nightmare-ish video drivers.
+  initPreviewWindow(600, 600);
+#endif
+
   GfxEventHandler *gfxHandler = new GfxEventHandler();
   BerryBotsEngine *engine = new BerryBotsEngine(fileManager_);
   try {
@@ -936,16 +966,18 @@ void GuiManager::showStagePreview(const char *stageName) {
     previewConsole_->Raise();
   }
 
-  if (previewWindow_ != 0) {
-    previewWindow_->close();
-    delete previewWindow_;
-    previewWindow_ = 0;
-  }
   std::string previewTitle("Preview: ");
   previewTitle.append(stageName);
-  previewWindow_ = new sf::RenderWindow(
-      sf::VideoMode(targetWidth, targetHeight), previewTitle,
-      sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
+#ifdef __WXOSX__
+  previewWindow_->setSize(sf::Vector2u(targetWidth, targetHeight));
+  sf::Vector2i pos = previewWindow_->getPosition();
+  int x = limit(0, pos.x, (int) round(screenWidth - targetWidth));
+  int y = limit(0, pos.y, (int) round(screenHeight - targetHeight));
+  previewWindow_->setPosition(sf::Vector2i(x, y));
+#else
+  initPreviewWindow(targetWidth, targetHeight);
+#endif
+
 #ifdef __WINDOWS__
   previewWindow_->setIcon(32, 32, windowIcon_.getPixelsPtr());
 #elif defined(__WXGTK__)

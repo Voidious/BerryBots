@@ -146,6 +146,8 @@ class GuiManager {
     char* getTmpDirCopy();
   private:
     sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
+    sf::RenderWindow* initPreviewWindow(unsigned int width,
+                                        unsigned int height);
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
     void drawFrame(sf::RenderWindow *window);
