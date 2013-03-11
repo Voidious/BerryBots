@@ -38,6 +38,8 @@ OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
 
 #ifdef __WXOSX__
   defaultFontSize_ = 12;
+#elif defined(__WINDOWS__)
+  defaultFontSize_ = 9;
 #else
   defaultFontSize_ = 10;
 #endif
