@@ -2,6 +2,7 @@
 
 #include "EGL/egl.h"
 #include "GLES/gl.h"
+#include "bcm_host.h"
 #include "eglstate.h"
 #include <assert.h>
 

@@ -10,6 +10,7 @@
 #include "VG/vgu.h"
 #include "EGL/egl.h"
 #include "GLES/gl.h"
+#include "bcm_host.h"
 #include "resources/DejaVuSans.inc"  // font data
 #include "eglstate.h"                // data structures for graphics state
 #include "fontinfo.h"                // font data structure

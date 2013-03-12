@@ -42,6 +42,7 @@ RPI_SOURCES += zipper.cpp tarzipper.cpp ./luajit/src/libluajit.a
 
 RPI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include -I/opt/vc/include
 RPI_CFLAGS += -I/opt/vc/include/interface/vcos/pthreads
+RPI_CFLAGS += -I/opt/vc/include/interface/vmcs_host/linux
 
 RPI_LDFLAGS = -L/opt/vc/lib -lGLESv2 -ldl
 ##############################################################################
