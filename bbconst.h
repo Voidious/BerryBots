@@ -53,7 +53,9 @@
 #define MAX_LASERS            8192
 #define MAX_TORPEDOS          2048
 #define MAX_STAGE_SHIPS       1024
-#define MAX_STAGE_TEXTS       1024
+#define MAX_STAGE_TEXTS       4096
+#define MAX_SHIP_RECTANGLES   4096
+#define MAX_SHIP_CIRCLES      4096
 #define MAX_NAME_LENGTH       128
 #define CPU_TIME_TICKS        1000
 

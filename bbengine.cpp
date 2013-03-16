@@ -60,6 +60,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   oldShips_ = 0;
   shipProperties_ = 0;
   worlds_ = 0;
+  shipGfxs_ = 0;
   teamVision_ = 0;
   sensorHandler_ = 0;
   fileManager_ = fileManager;
@@ -106,6 +107,12 @@ BerryBotsEngine::~BerryBotsEngine() {
     if (team->ownedByLua) {
       lua_close(team->state);
     }
+    for (int y = 0; y < team->numRectangles; y++) {
+      delete team->shipGfxRectangles[y];
+    }
+    for (int y = 0; y < team->numCircles; y++) {
+      delete team->shipGfxCircles[y];
+    }
     delete team;
   }
   delete teams_;
@@ -115,6 +122,9 @@ BerryBotsEngine::~BerryBotsEngine() {
 
   if (worlds_ != 0) {
     delete worlds_;
+  }
+  if (shipGfxs_ != 0) {
+    delete shipGfxs_;
   }
   if (teamVision_ != 0) {
     for (int x = 0; x < numTeams_; x++) {
@@ -327,6 +337,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   shipProperties_ = new ShipProperties*[numShips_];
   teams_ = new Team*[numTeams_];
   worlds_ = new World*[numTeams_];
+  shipGfxs_ = new ShipGfx*[numTeams_];
   int shipIndex = 0;
   for (int x = 0; x < numTeams_; x++) {
     const char *baseDir;
@@ -436,6 +447,8 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->totalCpuTime = 0;
     team->totalCpuTicks = 0;
     team->disabled = disabled;
+    team->shipGfxEnabled = true;
+    team->numRectangles = team->numCircles = 0;
 
     lua_getglobal(teamState, "roundOver");
     team->hasRoundOver = (strcmp(luaL_typename(teamState, -1), "nil") != 0);
@@ -508,8 +521,11 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     if (!disabled) {
       worlds_[x] = pushWorld(teamState, stage_, numShips_, teamSize_);
       worlds_[x]->engine = this;
+      shipGfxs_[x] = pushShipGfx(teamState);
+      shipGfxs_[x]->teamIndex = team->index;
+      shipGfxs_[x]->engine = this;
 
-      int r = callUserLuaCode(teamState, 2,
+      int r = callUserLuaCode(teamState, 3,
           "Error calling ship function: 'init'", PCALL_SHIP);
       if (r != 0) {
         team->disabled = true;

@@ -41,7 +41,7 @@ Stage::Stage(int width, int height) {
   numZones_ = 0;
   numStarts_ = 0;
   numStageShips_ = 0;
-  numTexts_ = 0;
+  numStageTexts_ = 0;
   startIndex_ = 0;
   for (int x = 0; x < 4; x++) {
     baseWallLines_[x] = 0;
@@ -306,9 +306,9 @@ bool Stage::isShipInShip(int shipIndex, double x, double y) {
   return shipInShip;
 }
 
-int Stage::addText(int x, int y, const char *text, int gameTime,
-                   int fontSize, int drawTicks) {
-  if (numTexts_ >= MAX_STAGE_TEXTS) {
+int Stage::addStageText(double x, double y, const char *text, int gameTime,
+                        int fontSize, int drawTicks) {
+  if (numStageTexts_ >= MAX_STAGE_TEXTS) {
     return 0;
   } else {
     char *newText = new char[strlen(text) + 1];
@@ -320,38 +320,154 @@ int Stage::addText(int x, int y, const char *text, int gameTime,
     stageText->startTime = gameTime;
     stageText->fontSize = fontSize;
     stageText->drawTicks = 1;
-    stageTexts_[numTexts_++] = stageText;
+    stageTexts_[numStageTexts_++] = stageText;
     return 1;
   }
 }
 
-StageText** Stage::getTexts() {
+StageText** Stage::getStageTexts() {
   return stageTexts_;
 }
 
-int Stage::getTextCount() {
-  return numTexts_;
+int Stage::getStageTextCount() {
+  return numStageTexts_;
 }
 
-void Stage::clearStaleTexts(int gameTime) {
-  for (int x = 0; x < numTexts_; x++) {
+void Stage::clearStaleStageTexts(int gameTime) {
+  for (int x = 0; x < numStageTexts_; x++) {
     StageText *stageText = stageTexts_[x];
     if (gameTime - stageText->startTime >= stageText->drawTicks) {
-      if (numTexts_ > 1) {
-        stageTexts_[x] = stageTexts_[numTexts_ - 1];
+      if (numStageTexts_ > 1) {
+        stageTexts_[x] = stageTexts_[numStageTexts_ - 1];
       }
       delete stageText->text;
       delete stageText;
-      numTexts_--;
+      numStageTexts_--;
       x--;
     }
+  }
+}
+
+int Stage::addShipGfxRectangle(int teamIndex, int gameTime, double left,
+    double bottom, double width, double height, double rotation,
+    RgbaColor fillColor, double outlineThickness, RgbaColor outlineColor,
+    int drawTicks) {
+  Team *team = teams_[teamIndex];
+  if (team->numRectangles >= MAX_SHIP_RECTANGLES) {
+    return 0;
+  } else {
+    ShipGfxRectangle *rectangle = new ShipGfxRectangle;
+    rectangle->left = left;
+    rectangle->bottom = bottom;
+    rectangle->width = width;
+    rectangle->height = height;
+    rectangle->rotation = rotation;
+    rectangle->fillR = fillColor.r;
+    rectangle->fillG = fillColor.g;
+    rectangle->fillB = fillColor.b;
+    rectangle->fillA = fillColor.a;
+    rectangle->outlineThickness = outlineThickness;
+    rectangle->outlineR = outlineColor.r;
+    rectangle->outlineG = outlineColor.g;
+    rectangle->outlineB = outlineColor.b;
+    rectangle->outlineA = outlineColor.a;
+    rectangle->startTime = gameTime;
+    rectangle->drawTicks = drawTicks;
+    team->shipGfxRectangles[team->numRectangles++] = rectangle;
+    return 1;
+  }
+}
+
+ShipGfxRectangle** Stage::getShipGfxRectangles(int teamIndex) {
+  return teams_[teamIndex]->shipGfxRectangles;
+}
+
+int Stage::getShipGfxRectangleCount(int teamIndex) {
+  return teams_[teamIndex]->numRectangles;
+}
+
+void Stage::clearStaleShipGfxRectangles(int gameTime) {
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    ShipGfxRectangle **shipGfxRectangles = team->shipGfxRectangles;
+    int numRectangles = team->numRectangles;
+    for (int y = 0; y < numRectangles; y++) {
+      ShipGfxRectangle *rectangle = shipGfxRectangles[y];
+      if (gameTime - rectangle->startTime >= rectangle->drawTicks) {
+        // Shift down to make sure later drawn items are still drawn on top.
+        for (int z = y; z < numRectangles - 1; z++) {
+          shipGfxRectangles[z] = shipGfxRectangles[z + 1];
+        }
+        delete rectangle;
+        numRectangles--;
+        y--;
+      }
+    }
+    team->numRectangles = numRectangles;
+  }
+}
+
+int Stage::addShipGfxCircle(int teamIndex, int gameTime, double x, double y,
+    double radius, RgbaColor fillColor, double outlineThickness,
+    RgbaColor outlineColor, int drawTicks)
+{
+  Team *team = teams_[teamIndex];
+  if (team->numCircles >= MAX_SHIP_CIRCLES) {
+    return 0;
+  } else {
+    ShipGfxCircle *circle = new ShipGfxCircle;
+    circle->x = x;
+    circle->y = y;
+    circle->radius = radius;
+    circle->fillR = fillColor.r;
+    circle->fillG = fillColor.g;
+    circle->fillB = fillColor.b;
+    circle->fillA = fillColor.a;
+    circle->outlineThickness = outlineThickness;
+    circle->outlineR = outlineColor.r;
+    circle->outlineG = outlineColor.g;
+    circle->outlineB = outlineColor.b;
+    circle->outlineA = outlineColor.a;
+    circle->startTime = gameTime;
+    circle->drawTicks = drawTicks;
+    team->shipGfxCircles[team->numCircles++] = circle;
+    return 1;
+  }
+}
+
+ShipGfxCircle** Stage::getShipGfxCircles(int teamIndex) {
+  return teams_[teamIndex]->shipGfxCircles;
+}
+
+int Stage::getShipGfxCircleCount(int teamIndex) {
+  return teams_[teamIndex]->numCircles;
+}
+
+void Stage::clearStaleShipGfxCircles(int gameTime) {
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    ShipGfxCircle **shipGfxCircles = team->shipGfxCircles;
+    int numCircles = team->numCircles;
+    for (int y = 0; y < numCircles; y++) {
+      ShipGfxCircle *circle = shipGfxCircles[y];
+      if (gameTime - circle->startTime >= circle->drawTicks) {
+        // Shift down to make sure later drawn items are still drawn on top.
+        for (int z = y; z < numCircles - 1; z++) {
+          shipGfxCircles[z] = shipGfxCircles[z + 1];
+        }
+        delete circle;
+        numCircles--;
+        y--;
+      }
+    }
+    team->numCircles = numCircles;
   }
 }
 
 void Stage::setTeamsAndShips(
     Team **teams, int numTeams, Ship **ships, int numShips) {
   teams_ = teams;
-  numTeams = numTeams;
+  numTeams_ = numTeams;
   ships_ = ships;
   numShips_ = numShips;
 }
@@ -1051,11 +1167,11 @@ void Stage::reset() {
     delete torpedos_[x];
   }
   numTorpedos_ = 0;
-  for (int x = 0; x < numTexts_; x++) {
+  for (int x = 0; x < numStageTexts_; x++) {
     delete stageTexts_[x]->text;
     delete stageTexts_[x];
   }
-  numTexts_ = 0;
+  numStageTexts_ = 0;
 }
 
 Stage::~Stage() {
@@ -1076,7 +1192,7 @@ Stage::~Stage() {
       delete baseWallLines_[x];
     }
   }
-  for (int x = 0; x < numTexts_; x++) {
+  for (int x = 0; x < numStageTexts_; x++) {
     delete stageTexts_[x]->text;
     delete stageTexts_[x];
   }

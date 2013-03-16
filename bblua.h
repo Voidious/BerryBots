@@ -35,7 +35,10 @@
 #define PCALL_TIME_LIMIT    500000 //  0.5s
 #endif
 
-#define DEFAULT_STAGE_TEXT_SIZE  28
+#define DEFAULT_STAGE_TEXT_SIZE    28
+#define DEFAULT_FILL_COLOR         {0, 0, 0, 0}
+#define DEFAULT_OUTLINE_COLOR      {255, 255, 255, 255}
+#define DEFAULT_OUTLINE_THICKNESS  2
 
 extern "C" {
   #include "lua.h"
@@ -50,6 +53,7 @@ extern int registerStageBuilder(lua_State *L);
 extern int registerWall(lua_State *L);
 extern int registerZone(lua_State *L);
 extern int registerWorld(lua_State *L);
+extern int registerShipGfx(lua_State *L);
 extern int registerAdmin(lua_State *L);
 extern int registerShipGlobals(lua_State *L);
 extern int registerStageGlobals(lua_State *L);
@@ -73,6 +77,7 @@ extern void pushZones(lua_State *L, Zone** zones, int zoneCount);
 extern void pushCopyOfShips(
     lua_State *L, Ship** ships, Ship **shipsCopy, int numShips);
 extern World* pushWorld(lua_State *L, Stage *stage, int numShips, int teamSize);
+extern ShipGfx* pushShipGfx(lua_State *L);
 extern Admin* pushAdmin(lua_State *L);
 extern void crawlFiles(lua_State *L, const char *startFile);
 

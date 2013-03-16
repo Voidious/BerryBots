@@ -34,10 +34,68 @@ extern "C" {
 #define WALL           "Wall"
 #define ZONE           "Zone"
 #define WORLD          "World"
+#define SHIP_GFX       "ShipGfx"
 #define ADMIN          "Admin"
 #define STAGE_SENSORS  "StageSensors"
 
 class BerryBotsEngine;
+
+// Graphic definition structs
+
+typedef struct {
+  int r;
+  int g;
+  int b;
+  int a;
+} RgbaColor;
+
+typedef struct {
+  double x;
+  double y;
+  int fontSize;
+  char *text;
+  int startTime;
+  int drawTicks;
+} StageText;
+
+typedef struct {
+  double left;
+  double bottom;
+  double width;
+  double height;
+  double rotation;
+  short fillR;
+  short fillG;
+  short fillB;
+  short fillA;
+  double outlineThickness;
+  short outlineR;
+  short outlineG;
+  short outlineB;
+  short outlineA;
+  int startTime;
+  int drawTicks;
+} ShipGfxRectangle;
+
+typedef struct {
+  double x;
+  double y;
+  double radius;
+  short fillR;
+  short fillG;
+  short fillB;
+  short fillA;
+  double outlineThickness;
+  short outlineR;
+  short outlineG;
+  short outlineB;
+  short outlineA;
+  int startTime;
+  int drawTicks;
+} ShipGfxCircle;
+
+
+// Game engine structs
 
 typedef struct {
   short index;
@@ -57,6 +115,11 @@ typedef struct {
   bool disabled;
   bool errored;
   bool ownedByLua;
+  bool shipGfxEnabled;
+  ShipGfxRectangle* shipGfxRectangles[MAX_SHIP_RECTANGLES];
+  int numRectangles;
+  ShipGfxCircle* shipGfxCircles[MAX_SHIP_RECTANGLES];
+  int numCircles;
 } Team;
 
 // Static ship properties that we don't need to copy around.
@@ -155,6 +218,11 @@ typedef struct {
 } World;
 
 typedef struct {
+  short teamIndex;
+  BerryBotsEngine *engine;
+} ShipGfx;
+
+typedef struct {
   BerryBotsEngine *engine;
 } Admin;
 
@@ -167,6 +235,7 @@ typedef struct {
   int shipFiredLaserRef;
   int shipFiredTorpedoRef;
 } StageSensors;
+
 
 extern double limit(double p, double q, double r);
 extern int signum(double x);

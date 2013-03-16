@@ -452,14 +452,14 @@ void drawNames(Ship **ships, int numShips) {
 }
 
 void drawStageTexts(Stage *stage, int time) {
-  stage->clearStaleTexts(time);
-  int numTexts = stage->getTextCount();
+  stage->clearStaleStageTexts(time);
+  int numTexts = stage->getStageTextCount();
   if (numTexts > 0) {
     vgLoadIdentity();
     vgScale(scale, scale);
     StrokeWidth(.01);
     vgSetPaint(whitePaint, VG_STROKE_PATH | VG_FILL_PATH);
-    StageText **stageTexts = stage->getTexts();
+    StageText **stageTexts = stage->getStageTexts();
     for (int x = 0; x < numTexts; x++) {
       StageText *stageText = stageTexts[x];
       SansText(stageLeft + stageText->x, stageBottom + stageText->y,

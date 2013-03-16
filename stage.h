@@ -60,20 +60,11 @@ typedef struct {
   bool stopped;
 } ShipMoveData;
 
-typedef struct {
-  int x;
-  int y;
-  int fontSize;
-  char *text;
-  int startTime;
-  int drawTicks;
-} StageText;
-
 class Stage {
   char *name_;
   int width_, height_;
   int numWalls_, numWallLines_, numInnerWallLines_;
-  int numZones_, numStarts_, numStageShips_, numTexts_, startIndex_;
+  int numZones_, numStarts_, numStageShips_, numStageTexts_, startIndex_;
   Wall* walls_[MAX_WALLS];
   Line2D* wallLines_[MAX_WALLS * 4];
   Line2D* innerWallLines_[MAX_WALLS * 4];
@@ -126,11 +117,26 @@ class Stage {
     char** getStageShips();
     int getStageShipCount();
 
-    int addText(int x, int y, const char *text, int gameTime, int fontSize,
-                int drawTicks);
-    StageText** getTexts();
-    int getTextCount();
-    void clearStaleTexts(int gameTime);
+    int addStageText(double x, double y, const char *text, int gameTime,
+                     int fontSize, int drawTicks);
+    StageText** getStageTexts();
+    int getStageTextCount();
+    void clearStaleStageTexts(int gameTime);
+
+    int addShipGfxRectangle(int teamIndex, int gameTime, double left,
+        double bottom, double width, double height, double rotation,
+        RgbaColor fillColor, double outlineThickness, RgbaColor outlineColor,
+        int drawTicks);
+    ShipGfxRectangle** getShipGfxRectangles(int teamIndex);
+    int getShipGfxRectangleCount(int teamIndex);
+    void clearStaleShipGfxRectangles(int gameTime);
+
+    int addShipGfxCircle(int teamIndex, int gameTime, double x, double y,
+        double radius, RgbaColor fillColor, double outlineThickness,
+        RgbaColor outlineColor, int drawTicks);
+    ShipGfxCircle** getShipGfxCircles(int teamIndex);
+    int getShipGfxCircleCount(int teamIndex);
+    void clearStaleShipGfxCircles(int gameTime);
 
     void setTeamsAndShips(
         Team **teams, int numTeams, Ship **ships, int numShips);

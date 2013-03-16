@@ -82,6 +82,7 @@ class BerryBotsEngine {
   int numShips_;
   int numInitializedShips_;
   World **worlds_;
+  ShipGfx **shipGfxs_;
   bool** teamVision_;
   pthread_t timerThread_;
   TimerSettings *timerSettings_;
