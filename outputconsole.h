@@ -28,21 +28,27 @@ class ConsoleListener {
   public:
     virtual void onActive() = 0;
     virtual void onClose() = 0;
+    virtual void onCheck(bool checked) = 0;
     virtual ~ConsoleListener() {};
 };
 
 class OutputConsole : public wxFrame {
+  wxPanel *mainPanel_;
+  wxBoxSizer *mainSizer_;
   wxTextCtrl *output_;
+  wxCheckBox *gfxCheckBox_;
   MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
   wxEventFilter *eventFilter_;
   int defaultFontSize_;
   int fontSize_;
   bool closeOnSpace_;
+  bool enableCheckBox_;
   ConsoleListener *listener_;
 
   public:
-    OutputConsole(const char *title, MenuBarMaker *menuBarMaker);
+    OutputConsole(const char *title, bool enableCheckBox,
+                  MenuBarMaker *menuBarMaker);
     ~OutputConsole();
     void setListener(ConsoleListener *listener);
     void onActivate(wxActivateEvent &event);
@@ -52,6 +58,8 @@ class OutputConsole : public wxFrame {
     void clear();
     void onClose(wxCommandEvent &event);
     void onSpace();
+    void onCheck(wxCommandEvent &event);
+    bool isChecked();
     void increaseTextSize();
     void decreaseTextSize();
     void defaultTextSize();

@@ -60,14 +60,15 @@ void GuiPrintHandler::registerTeam(Team *team, const char *filename) {
     }
     teams_[nextTeamIndex_] = team;
     teamConsole = teamConsoles_[nextTeamIndex_];
-    teamConsole->setListener(new ConsoleErrorListener(team));
+    team->shipGfxEnabled = teamConsole->isChecked();
+    teamConsole->setListener(new TeamConsoleListener(team));
     teamConsole->clear();
     nextTeamIndex_++;
   } else {
     if (numTeams_ < MAX_TEAM_CONSOLES) {
       teams_[numTeams_] = team;
-      teamConsole = new OutputConsole(filename, menuBarMaker_);
-      teamConsole->setListener(new ConsoleErrorListener(team));
+      teamConsole = new OutputConsole(filename, true, menuBarMaker_);
+      teamConsole->setListener(new TeamConsoleListener(team));
       teamConsole->Hide();
       teamConsoles_[numTeams_] = teamConsole;
       nextTeamIndex_ = numTeams_++;
@@ -88,10 +89,14 @@ OutputConsole** GuiPrintHandler::getTeamConsoles() {
   return teamConsoles_;
 }
 
-ConsoleErrorListener::ConsoleErrorListener(Team *team) {
+TeamConsoleListener::TeamConsoleListener(Team *team) {
   team_ = team;
 }
 
-void ConsoleErrorListener::onActive() {
+void TeamConsoleListener::onActive() {
   team_->errored = false;
+}
+
+void TeamConsoleListener::onCheck(bool checked) {
+  team_->shipGfxEnabled = checked;
 }

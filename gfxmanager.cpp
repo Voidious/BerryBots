@@ -851,10 +851,10 @@ void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
                               int time) {
   stage->clearStaleShipGfxRectangles(time);
   for (int x = 0; x < numTeams_; x++) {
-    int numShipGfxs = stage->getShipGfxRectangleCount(x);
-    if (numShipGfxs > 0) {
+    int numRectangles = stage->getShipGfxRectangleCount(x);
+    if (teams_[x]->shipGfxEnabled && numRectangles > 0) {
       ShipGfxRectangle **shipGfxRectangles = stage->getShipGfxRectangles(x);
-      for (int y = 0; y < numShipGfxs; y++) {
+      for (int y = 0; y < numRectangles; y++) {
         ShipGfxRectangle *shipGfxRectangle = shipGfxRectangles[y];
         sf::RectangleShape rectangle(sf::Vector2f(shipGfxRectangle->width,
                                                   shipGfxRectangle->height));
@@ -879,10 +879,10 @@ void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
 
   stage->clearStaleShipGfxCircles(time);
   for (int x = 0; x < numTeams_; x++) {
-    int numShipGfxs = stage->getShipGfxCircleCount(x);
-    if (numShipGfxs > 0) {
+    int numCircles = stage->getShipGfxCircleCount(x);
+    if (teams_[x]->shipGfxEnabled && numCircles > 0) {
       ShipGfxCircle **shipGfxCircles = stage->getShipGfxCircles(x);
-      for (int y = 0; y < numShipGfxs; y++) {
+      for (int y = 0; y < numCircles; y++) {
         ShipGfxCircle *shipGfxCircle = shipGfxCircles[y];
         sf::CircleShape circle(shipGfxCircle->radius);
         circle.setPosition(adjustX(shipGfxCircle->x),

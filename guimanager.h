@@ -260,6 +260,7 @@ class PreviewConsoleListener : public ConsoleListener {
     PreviewConsoleListener(GuiManager *guiManager);
     virtual void onActive() {};
     virtual void onClose();
+    virtual void onCheck(bool checked) {};
     virtual ~PreviewConsoleListener() {};
   
 };

@@ -23,11 +23,28 @@
 #include "bbwx.h"
 #include "outputconsole.h"
 
-OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
-    : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxSize(650, 450),
+OutputConsole::OutputConsole(const char *title, bool enableCheckBox,
+                             MenuBarMaker *menuBarMaker)
+    : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxDefaultSize,
               wxDEFAULT_FRAME_STYLE) {
-  output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0), wxDefaultSize,
-      wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP, wxDefaultValidator);
+  enableCheckBox_ = enableCheckBox;
+  menuBarMaker_ = menuBarMaker;
+  mainPanel_ = new wxPanel(this);
+  mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
+  mainSizer_->Add(mainPanel_);
+  wxBoxSizer *outerSizer = new wxBoxSizer(wxVERTICAL);
+  output_ = new wxTextCtrl(mainPanel_, wxID_ANY, "", wxPoint(0, 0),
+      wxSize(650, 450), wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP,
+      wxDefaultValidator);
+  outerSizer->Add(output_);
+  gfxCheckBox_ = 0;
+  if (enableCheckBox_) {
+    wxBoxSizer *bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+    gfxCheckBox_ = new wxCheckBox(mainPanel_, wxID_ANY, "Enable Gfx");
+    bottomSizer->AddStretchSpacer(1);
+    bottomSizer->Add(gfxCheckBox_, 0, wxALIGN_RIGHT);
+    outerSizer->Add(bottomSizer, 0, wxEXPAND | wxALL, 4);
+  }
   listener_ = 0;
 
 #ifdef __WINDOWS__
@@ -46,15 +63,20 @@ OutputConsole::OutputConsole(const char *title, MenuBarMaker *menuBarMaker)
 
   fontSize_ = defaultFontSize_;
   output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
+  mainPanel_->SetSizerAndFit(outerSizer);
+  SetSizerAndFit(mainSizer_);
 
-  menuBarMaker_ = menuBarMaker;
   menusInitialized_ = false;
   closeOnSpace_ = false;
-    
+
   Connect(this->GetId(), wxEVT_ACTIVATE,
           wxActivateEventHandler(OutputConsole::onActivate));
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(OutputConsole::onClose));
+  if (enableCheckBox_) {
+    Connect(gfxCheckBox_->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED,
+            wxCommandEventHandler(OutputConsole::onCheck));
+  }
   
   eventFilter_ = new OutputConsoleEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
@@ -64,9 +86,13 @@ OutputConsole::~OutputConsole() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
   delete output_;
+  if (gfxCheckBox_ != 0) {
+    delete gfxCheckBox_;
+  }
   if (listener_ != 0) {
     delete listener_;
   }
+  delete mainPanel_;
 }
 
 void OutputConsole::setListener(ConsoleListener *listener) {
@@ -84,6 +110,10 @@ void OutputConsole::onActivate(wxActivateEvent &event) {
   if (event.GetActive() && listener_ != 0) {
     listener_->onActive();
   }
+  if (gfxCheckBox_ != 0) {
+    gfxCheckBox_->SetFocus();
+  }
+  SetSizerAndFit(mainSizer_);
 }
 
 // This is the only wxWidgets dialog that needs to be drawn concurrently with
@@ -121,6 +151,16 @@ void OutputConsole::onSpace() {
   if (closeOnSpace_) {
     Close();
   }
+}
+
+void OutputConsole::onCheck(wxCommandEvent &event) {
+  if (listener_ != 0 && gfxCheckBox_ != 0) {
+    listener_->onCheck(gfxCheckBox_->IsChecked());
+  }
+}
+
+bool OutputConsole::isChecked() {
+  return gfxCheckBox_->IsChecked();
 }
 
 // TODO: delta based on current text size, eg 36 => 42, not 38

@@ -56,9 +56,10 @@ GuiManager::GuiManager(GuiListener *listener) {
   zipper_ = new GuiZipper();
   fileManager_ = new FileManager(zipper_);
   menuBarMaker_ = new MenuBarMaker();
-  packagingConsole_ = new OutputConsole("Packaging Details", menuBarMaker_);
-  errorConsole_ = new OutputConsole("Error Console", menuBarMaker_);
-  previewConsole_ = new OutputConsole("Description", menuBarMaker_);
+  packagingConsole_ = new OutputConsole("Packaging Details", false,
+                                        menuBarMaker_);
+  errorConsole_ = new OutputConsole("Error Console", false, menuBarMaker_);
+  previewConsole_ = new OutputConsole("Description", false, menuBarMaker_);
   previewConsole_->setCloseOnSpace();
   previewConsoleListener_ = new PreviewConsoleListener(this);
   previewConsole_->setListener(previewConsoleListener_);
@@ -492,7 +493,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     guiPrintHandler->restartMode();
   } else {
     deleteStageConsole();
-    stageConsole_ = new OutputConsole(stageName, menuBarMaker_);
+    stageConsole_ = new OutputConsole(stageName, false, menuBarMaker_);
     stageConsole_->Hide();
 
     if (printHandler != 0) {
@@ -989,6 +990,7 @@ void GuiManager::showStagePreview(const char *stageName) {
   Team **teams = new Team*[1];
   teams[0] = new Team;
   strcpy(teams[0]->name, "PreviewTeam");
+  teams[0]->numCircles = teams[0]->numRectangles = 0;
   Ship **ships = new Ship*[1];
   Ship *ship = new Ship;
   ShipProperties *properties = new ShipProperties;
@@ -1006,6 +1008,7 @@ void GuiManager::showStagePreview(const char *stageName) {
   ship->alive = true;
   ship->showName = ship->energyEnabled = false;
   ships[0] = ship;
+  stage->setTeamsAndShips(teams, 1, ships, 1);
 
   previewGfxManager_->initBbGfx(previewWindow_, viewHeight, stage, teams, 1,
                                 ships, 1, resourcePath());
@@ -1025,9 +1028,7 @@ void GuiManager::showStagePreview(const char *stageName) {
   delete gfxHandler;
   delete engine;
   delete properties;
-  delete ships[0];
   delete teams[0];
-  delete ships;
   delete teams;
 
   newMatchDialog_->Show();

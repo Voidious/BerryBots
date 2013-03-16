@@ -415,6 +415,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->firstShipIndex = shipIndex;
     team->state = teamState;
     team->errored = false;
+    team->shipGfxEnabled = false;
     if (listener_ != 0) {
       listener_->newTeam(team, filename);
     }
@@ -447,7 +448,6 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->totalCpuTime = 0;
     team->totalCpuTicks = 0;
     team->disabled = disabled;
-    team->shipGfxEnabled = true;
     team->numRectangles = team->numCircles = 0;
 
     lua_getglobal(teamState, "roundOver");

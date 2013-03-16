@@ -73,7 +73,9 @@ class BerryBotsEngine {
 
   Team **teams_;
   Ship **ships_;
-  Ship **stageShips_;
+  // TODO: Rename stageShips to something else to avoid confusion with ships
+  //       loaded by the stage 'configure' function.
+  Ship **stageShips_;  // the copy of all ships owned by the stage program
   Ship **oldShips_;
   ShipProperties **shipProperties_;
   int numTeams_;

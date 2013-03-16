@@ -50,14 +50,15 @@ class GuiPrintHandler : public PrintHandler {
     OutputConsole **getTeamConsoles();
 };
 
-class ConsoleErrorListener : public ConsoleListener {
+class TeamConsoleListener : public ConsoleListener {
   Team *team_;
 
   public:
-    ConsoleErrorListener(Team *team);
+    TeamConsoleListener(Team *team);
     virtual void onActive();
     virtual void onClose() {};
-    virtual ~ConsoleErrorListener() {};
+    virtual void onCheck(bool checked);
+    virtual ~TeamConsoleListener() {};
 };
 
 #endif

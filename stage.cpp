@@ -464,6 +464,7 @@ void Stage::clearStaleShipGfxCircles(int gameTime) {
   }
 }
 
+// TODO: It's very confusing that this class takes ownership of ships.
 void Stage::setTeamsAndShips(
     Team **teams, int numTeams, Ship **ships, int numShips) {
   teams_ = teams;

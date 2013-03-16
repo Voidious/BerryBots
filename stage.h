@@ -71,7 +71,7 @@ class Stage {
   Line2D* baseWallLines_[4];
   Zone* zones_[MAX_ZONES];
   Point2D* starts_[MAX_STARTS];
-  char* stageShips_[MAX_STAGE_SHIPS];
+  char* stageShips_[MAX_STAGE_SHIPS]; // the ships loaded by the stage
   StageText* stageTexts_[MAX_STAGE_TEXTS];
   Team** teams_;
   int numTeams_;
