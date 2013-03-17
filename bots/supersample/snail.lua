@@ -122,7 +122,9 @@ function run()
       thrust = 5 - ship:speed()
       ship:fireThruster(bearingToPoint(destination), thrust)
     end
-    drawPath(source, destination)
+    if (gfx:enabled()) then
+      drawPath(source, destination)
+    end
   end
 end
 

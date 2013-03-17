@@ -1388,11 +1388,18 @@ int ShipGfx_text(lua_State *L) {
   return 1;
 }
 
+int ShipGfx_enabled(lua_State *L) {
+  ShipGfx *shipGfx = checkShipGfx(L, 1);
+  lua_pushboolean(L, shipGfx->team->shipGfxEnabled);
+  return 1;
+}
+
 const luaL_Reg ShipGfx_methods[] = {
   {"rectangle",  ShipGfx_rectangle},
   {"line",       ShipGfx_line},
   {"circle",     ShipGfx_circle},
   {"text",       ShipGfx_text},
+  {"enabled",    ShipGfx_enabled},
   {0, 0}
 };
 
