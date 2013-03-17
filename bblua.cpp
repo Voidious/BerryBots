@@ -1308,6 +1308,37 @@ int ShipGfx_rectangle(lua_State *L) {
   return 1;
 }
 
+int ShipGfx_line(lua_State *L) {
+  ShipGfx *shipGfx = checkShipGfx(L, 1);
+  double x = luaL_checknumber(L, 2);
+  double y = luaL_checknumber(L, 3);
+  double angle = luaL_checknumber(L, 4);
+  double length = std::max(0.0, luaL_checknumber(L, 5));
+  double thickness = std::max(0.0, luaL_optnumber(L, 6, 0));
+  RgbaColor fillColor;
+  if (lua_istable(L, 7)) {
+    fillColor = getRgbaColor(L, 7);
+  } else {
+    fillColor = getDefaultFillColor();
+  }
+  double outlineThickness =
+      std::max(0.0, luaL_optnumber(L, 8, DEFAULT_OUTLINE_THICKNESS));
+  RgbaColor outlineColor;
+  if (lua_istable(L, 9)) {
+    outlineColor = getRgbaColor(L, 9);
+  } else {
+    outlineColor = getDefaultOutlineColor();
+  }
+  int drawTicks = std::max(1, luaL_optint(L, 10, 1));
+
+  BerryBotsEngine *engine = shipGfx->engine;
+  engine->getStage()->addShipGfxLine(shipGfx->teamIndex,
+      engine->getGameTime(), x, y, angle, length, thickness, fillColor,
+      outlineThickness, outlineColor, drawTicks);
+
+  return 1;
+}
+
 int ShipGfx_circle(lua_State *L) {
   ShipGfx *shipGfx = checkShipGfx(L, 1);
   double x = luaL_checknumber(L, 2);
@@ -1337,9 +1368,31 @@ int ShipGfx_circle(lua_State *L) {
   return 1;
 }
 
+int ShipGfx_text(lua_State *L) {
+  ShipGfx *shipGfx = checkShipGfx(L, 1);
+  const char *text = luaL_checkstring(L, 2);
+  double x = luaL_checknumber(L, 3);
+  double y = luaL_checknumber(L, 4);
+  int fontSize = luaL_optint(L, 5, DEFAULT_SHIP_TEXT_SIZE);
+  RgbaColor textColor;
+  if (lua_istable(L, 6)) {
+    textColor = getRgbaColor(L, 6);
+  } else {
+    textColor = getDefaultOutlineColor();
+  }
+  int drawTicks = std::max(1, luaL_optint(L, 7, 1));
+
+  BerryBotsEngine *engine = shipGfx->engine;
+  engine->getStage()->addShipGfxText(shipGfx->teamIndex, engine->getGameTime(),
+      text, x, y, fontSize, textColor, drawTicks);
+  return 1;
+}
+
 const luaL_Reg ShipGfx_methods[] = {
   {"rectangle",  ShipGfx_rectangle},
+  {"line",       ShipGfx_line},
   {"circle",     ShipGfx_circle},
+  {"text",       ShipGfx_text},
   {0, 0}
 };
 
@@ -1554,7 +1607,7 @@ int Admin_drawText(lua_State *L) {
   double x = luaL_checknumber(L, 3);
   double y = luaL_checknumber(L, 4);
   int fontSize = luaL_optint(L, 5, DEFAULT_STAGE_TEXT_SIZE);
-  admin->engine->getStage()->addStageText(x, y, text, engine->getGameTime(),
+  admin->engine->getStage()->addStageText(engine->getGameTime(), text, x, y,
                                           fontSize, 1);
   return 1;
 }

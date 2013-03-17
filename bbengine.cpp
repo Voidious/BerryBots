@@ -110,8 +110,14 @@ BerryBotsEngine::~BerryBotsEngine() {
     for (int y = 0; y < team->numRectangles; y++) {
       delete team->shipGfxRectangles[y];
     }
+    for (int y = 0; y < team->numLines; y++) {
+      delete team->shipGfxLines[y];
+    }
     for (int y = 0; y < team->numCircles; y++) {
       delete team->shipGfxCircles[y];
+    }
+    for (int y = 0; y < team->numTexts; y++) {
+      delete team->shipGfxTexts[y];
     }
     delete team;
   }
@@ -448,7 +454,10 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->totalCpuTime = 0;
     team->totalCpuTicks = 0;
     team->disabled = disabled;
-    team->numRectangles = team->numCircles = 0;
+    team->numRectangles = 0;
+    team->numLines = 0;
+    team->numCircles = 0;
+    team->numTexts = 0;
 
     lua_getglobal(teamState, "roundOver");
     team->hasRoundOver = (strcmp(luaL_typename(teamState, -1), "nil") != 0);

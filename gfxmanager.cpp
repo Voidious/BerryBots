@@ -824,8 +824,7 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
     for (int x = 0; x < numTexts; x++) {
       StageText *stageText = stageTexts[x];
       sf::Text text(stageText->text, font_,
-          limit(MIN_STAGE_TEXT_FONT_SIZE, stageText->fontSize,
-                MAX_STAGE_TEXT_FONT_SIZE));
+          limit(MIN_TEXT_FONT_SIZE, stageText->fontSize, MAX_TEXT_FONT_SIZE));
       text.setColor(sf::Color::White);
       sf::FloatRect textRect = text.getLocalBounds();
       text.setPosition(adjustX(stageText->x),
@@ -845,6 +844,15 @@ void GfxManager::adjustShipGfxRectanglePosition(
   sf::Vector2f rectangleOffset = transform.transformPoint(rectanglePoint);
   rectangleShape->move(centerX - rectangleOffset.x,
                        centerY - rectangleOffset.y);
+}
+
+void GfxManager::adjustShipGfxLinePosition(sf::RectangleShape *rectangleShape,
+                                           double angle) {
+  sf::Vector2f rectanglePoint(0, rectangleShape->getSize().y / 2);
+  sf::Transform transform;
+  transform.rotate(angle);
+  sf::Vector2f rectangleOffset = transform.transformPoint(rectanglePoint);
+  rectangleShape->move(-rectangleOffset.x, -rectangleOffset.y);
 }
 
 void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
@@ -877,6 +885,31 @@ void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
     }
   }
 
+  stage->clearStaleShipGfxLines(time);
+  for (int x = 0; x < numTeams_; x++) {
+    int numLines = stage->getShipGfxLineCount(x);
+    if (teams_[x]->shipGfxEnabled && numLines > 0) {
+      ShipGfxLine **shipGfxLines = stage->getShipGfxLines(x);
+      for (int y = 0; y < numLines; y++) {
+        ShipGfxLine *shipGfxLine = shipGfxLines[y];
+        sf::RectangleShape line(sf::Vector2f(shipGfxLine->length,
+                                             shipGfxLine->thickness));
+        double rotateAngle =
+            toDegrees(-normalAbsoluteAngle(shipGfxLine->angle));
+        line.setRotation(rotateAngle);
+        line.setPosition(adjustX(shipGfxLine->x), adjustY(shipGfxLine->y));
+        line.setFillColor(sf::Color(shipGfxLine->fillR, shipGfxLine->fillG,
+                                    shipGfxLine->fillB, shipGfxLine->fillA));
+        line.setOutlineThickness(shipGfxLine->outlineThickness);
+        line.setOutlineColor(sf::Color(shipGfxLine->outlineR,
+            shipGfxLine->outlineG, shipGfxLine->outlineB,
+            shipGfxLine->outlineA));
+        adjustShipGfxLinePosition(&line, rotateAngle);
+        window->draw(line);
+      }
+    }
+  }
+
   stage->clearStaleShipGfxCircles(time);
   for (int x = 0; x < numTeams_; x++) {
     int numCircles = stage->getShipGfxCircleCount(x);
@@ -885,7 +918,7 @@ void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
       for (int y = 0; y < numCircles; y++) {
         ShipGfxCircle *shipGfxCircle = shipGfxCircles[y];
         sf::CircleShape circle(shipGfxCircle->radius);
-        circle.setPosition(adjustX(shipGfxCircle->x),
+        circle.setPosition(adjustX(shipGfxCircle->x) - shipGfxCircle->radius,
             adjustY(shipGfxCircle->y - shipGfxCircle->radius,
                     shipGfxCircle->radius * 2));
         circle.setFillColor(sf::Color(shipGfxCircle->fillR,
@@ -895,6 +928,26 @@ void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
             shipGfxCircle->outlineG, shipGfxCircle->outlineB,
             shipGfxCircle->outlineA));
         window->draw(circle);
+      }
+    }
+  }
+
+  stage->clearStaleShipGfxTexts(time);
+  for (int x = 0; x < numTeams_; x++) {
+    int numTexts = stage->getShipGfxTextCount(x);
+    if (teams_[x]->shipGfxEnabled && numTexts > 0) {
+      ShipGfxText **shipGfxTexts = stage->getShipGfxTexts(x);
+      for (int y = 0; y < numTexts; y++) {
+        ShipGfxText *shipGfxText = shipGfxTexts[y];
+        sf::Text text(shipGfxText->text, font_,
+            limit(MIN_TEXT_FONT_SIZE, shipGfxText->fontSize,
+                  MAX_TEXT_FONT_SIZE));
+        text.setColor(sf::Color(shipGfxText->textR,
+            shipGfxText->textG, shipGfxText->textB, shipGfxText->textA));
+        sf::FloatRect textRect = text.getLocalBounds();
+        text.setPosition(adjustX(shipGfxText->x),
+            adjustY(shipGfxText->y + round(textRect.height * 1.5)));
+        window->draw(text);
       }
     }
   }

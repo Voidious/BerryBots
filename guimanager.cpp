@@ -990,7 +990,10 @@ void GuiManager::showStagePreview(const char *stageName) {
   Team **teams = new Team*[1];
   teams[0] = new Team;
   strcpy(teams[0]->name, "PreviewTeam");
-  teams[0]->numCircles = teams[0]->numRectangles = 0;
+  teams[0]->numRectangles = 0;
+  teams[0]->numLines = 0;
+  teams[0]->numCircles = 0;
+  teams[0]->numTexts = 0;
   Ship **ships = new Ship*[1];
   Ship *ship = new Ship;
   ShipProperties *properties = new ShipProperties;

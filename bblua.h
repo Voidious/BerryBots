@@ -36,6 +36,7 @@
 #endif
 
 #define DEFAULT_STAGE_TEXT_SIZE    28
+#define DEFAULT_SHIP_TEXT_SIZE     28
 #define DEFAULT_FILL_COLOR         {0, 0, 0, 0}
 #define DEFAULT_OUTLINE_COLOR      {255, 255, 255, 255}
 #define DEFAULT_OUTLINE_THICKNESS  2

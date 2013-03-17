@@ -306,7 +306,7 @@ bool Stage::isShipInShip(int shipIndex, double x, double y) {
   return shipInShip;
 }
 
-int Stage::addStageText(double x, double y, const char *text, int gameTime,
+int Stage::addStageText(int gameTime, const char *text, double x, double y,
                         int fontSize, int drawTicks) {
   if (numStageTexts_ >= MAX_STAGE_TEXTS) {
     return 0;
@@ -314,9 +314,9 @@ int Stage::addStageText(double x, double y, const char *text, int gameTime,
     char *newText = new char[strlen(text) + 1];
     strcpy(newText, text);
     StageText *stageText = new StageText;
+    stageText->text = newText;
     stageText->x = x;
     stageText->y = y;
-    stageText->text = newText;
     stageText->startTime = gameTime;
     stageText->fontSize = fontSize;
     stageText->drawTicks = 1;
@@ -407,10 +407,67 @@ void Stage::clearStaleShipGfxRectangles(int gameTime) {
   }
 }
 
+int Stage::addShipGfxLine(int teamIndex, int gameTime, double x, double y,
+    double angle, double length, double thickness, RgbaColor fillColor,
+    double outlineThickness, RgbaColor outlineColor, int drawTicks) {
+  Team *team = teams_[teamIndex];
+  if (team->numLines >= MAX_SHIP_LINES) {
+    return 0;
+  } else {
+    ShipGfxLine *line = new ShipGfxLine;
+    line->x = x;
+    line->y = y;
+    line->angle = angle;
+    line->length = length;
+    line->thickness = thickness;
+    line->fillR = fillColor.r;
+    line->fillG = fillColor.g;
+    line->fillB = fillColor.b;
+    line->fillA = fillColor.a;
+    line->outlineThickness = outlineThickness;
+    line->outlineR = outlineColor.r;
+    line->outlineG = outlineColor.g;
+    line->outlineB = outlineColor.b;
+    line->outlineA = outlineColor.a;
+    line->startTime = gameTime;
+    line->drawTicks = drawTicks;
+    team->shipGfxLines[team->numLines++] = line;
+    return 1;
+  }
+}
+
+ShipGfxLine** Stage::getShipGfxLines(int teamIndex) {
+  return teams_[teamIndex]->shipGfxLines;
+}
+
+int Stage::getShipGfxLineCount(int teamIndex) {
+  return teams_[teamIndex]->numLines;
+}
+
+void Stage::clearStaleShipGfxLines(int gameTime) {
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    ShipGfxLine **shipGfxLines = team->shipGfxLines;
+    int numLines = team->numLines;
+    for (int y = 0; y < numLines; y++) {
+      ShipGfxLine *line = shipGfxLines[y];
+      if (gameTime - line->startTime >= line->drawTicks) {
+        // Shift down to make sure later drawn items are still drawn on top.
+        for (int z = y; z < numLines - 1; z++) {
+          shipGfxLines[z] = shipGfxLines[z + 1];
+        }
+        delete line;
+        numLines--;
+        y--;
+      }
+    }
+    team->numLines = numLines;
+  }
+}
+
 int Stage::addShipGfxCircle(int teamIndex, int gameTime, double x, double y,
     double radius, RgbaColor fillColor, double outlineThickness,
-    RgbaColor outlineColor, int drawTicks)
-{
+    RgbaColor outlineColor, int drawTicks) {
   Team *team = teams_[teamIndex];
   if (team->numCircles >= MAX_SHIP_CIRCLES) {
     return 0;
@@ -461,6 +518,59 @@ void Stage::clearStaleShipGfxCircles(int gameTime) {
       }
     }
     team->numCircles = numCircles;
+  }
+}
+
+int Stage::addShipGfxText(int teamIndex, int gameTime, const char *text,
+    double x, double y, int fontSize, RgbaColor textColor, int drawTicks) {
+  Team *team = teams_[teamIndex];
+  if (team->numTexts >= MAX_SHIP_TEXTS) {
+    return 0;
+  } else {
+    ShipGfxText *shipText = new ShipGfxText;
+    char *newText = new char[strlen(text) + 1];
+    strcpy(newText, text);
+    shipText->text = newText;
+    shipText->x = x;
+    shipText->y = y;
+    shipText->fontSize = fontSize;
+    shipText->textR = textColor.r;
+    shipText->textG = textColor.g;
+    shipText->textB = textColor.b;
+    shipText->textA = textColor.a;
+    shipText->startTime = gameTime;
+    shipText->drawTicks = drawTicks;
+    team->shipGfxTexts[team->numTexts++] = shipText;
+    return 1;
+  }
+}
+
+ShipGfxText** Stage::getShipGfxTexts(int teamIndex) {
+  return teams_[teamIndex]->shipGfxTexts;
+}
+
+int Stage::getShipGfxTextCount(int teamIndex) {
+  return teams_[teamIndex]->numTexts;
+}
+
+void Stage::clearStaleShipGfxTexts(int gameTime) {
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    ShipGfxText **shipGfxTexts = team->shipGfxTexts;
+    int numTexts = team->numTexts;
+    for (int y = 0; y < numTexts; y++) {
+      ShipGfxText *shipText = shipGfxTexts[y];
+      if (gameTime - shipText->startTime >= shipText->drawTicks) {
+        // Shift down to make sure later drawn items are still drawn on top.
+        for (int z = y; z < numTexts - 1; z++) {
+          shipGfxTexts[z] = shipGfxTexts[z + 1];
+        }
+        delete shipText;
+        numTexts--;
+        y--;
+      }
+    }
+    team->numTexts = numTexts;
   }
 }
 

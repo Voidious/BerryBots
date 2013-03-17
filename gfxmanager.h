@@ -59,8 +59,8 @@
 #define LASER_SPARK_TIME          LASER_SPARK_FRAMES
 #define TORPEDO_BLAST_FRAMES      16
 #define TORPEDO_BLAST_TIME        TORPEDO_BLAST_FRAMES
-#define MIN_STAGE_TEXT_FONT_SIZE  12
-#define MAX_STAGE_TEXT_FONT_SIZE  256
+#define MIN_TEXT_FONT_SIZE        12
+#define MAX_TEXT_FONT_SIZE        256
 #define FONT_NAME                 "resources/Questrial-Regular.ttf"
 
 #define DOCK_ENERGY_LENGTH        (DOCK_SIZE - 40)
@@ -216,6 +216,8 @@ class GfxManager {
     void drawStageTexts(sf::RenderWindow *window, Stage *stage, int time);
     void adjustShipGfxRectanglePosition(sf::RectangleShape *rectangleShape,
                                         double angle);
+    void adjustShipGfxLinePosition(sf::RectangleShape *rectangleShape,
+                                   double angle);
     void drawShipGfxs(sf::RenderWindow *window, Stage *stage, int time);
     void drawDock(sf::RenderWindow *window, Stage *stage, bool paused);
     void drawDockItem(sf::RenderWindow *window, DockItem *dockItem);

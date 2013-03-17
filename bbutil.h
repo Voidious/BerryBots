@@ -50,10 +50,10 @@ typedef struct {
 } RgbaColor;
 
 typedef struct {
+  char *text;
   double x;
   double y;
   int fontSize;
-  char *text;
   int startTime;
   int drawTicks;
 } StageText;
@@ -80,6 +80,25 @@ typedef struct {
 typedef struct {
   double x;
   double y;
+  double angle;
+  double length;
+  double thickness;
+  short fillR;
+  short fillG;
+  short fillB;
+  short fillA;
+  double outlineThickness;
+  short outlineR;
+  short outlineG;
+  short outlineB;
+  short outlineA;
+  int startTime;
+  int drawTicks;
+} ShipGfxLine;
+
+typedef struct {
+  double x;
+  double y;
   double radius;
   short fillR;
   short fillG;
@@ -93,6 +112,19 @@ typedef struct {
   int startTime;
   int drawTicks;
 } ShipGfxCircle;
+
+typedef struct {
+  char *text;
+  double x;
+  double y;
+  int fontSize;
+  short textR;
+  short textG;
+  short textB;
+  short textA;
+  int startTime;
+  int drawTicks;
+} ShipGfxText;
 
 
 // Game engine structs
@@ -118,8 +150,12 @@ typedef struct {
   bool shipGfxEnabled;
   ShipGfxRectangle* shipGfxRectangles[MAX_SHIP_RECTANGLES];
   int numRectangles;
+  ShipGfxLine* shipGfxLines[MAX_SHIP_LINES];
+  int numLines;
   ShipGfxCircle* shipGfxCircles[MAX_SHIP_RECTANGLES];
   int numCircles;
+  ShipGfxText* shipGfxTexts[MAX_SHIP_TEXTS];
+  int numTexts;
 } Team;
 
 // Static ship properties that we don't need to copy around.

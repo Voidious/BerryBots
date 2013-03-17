@@ -117,7 +117,7 @@ class Stage {
     char** getStageShips();
     int getStageShipCount();
 
-    int addStageText(double x, double y, const char *text, int gameTime,
+    int addStageText(int gameTime, const char *text, double x, double y,
                      int fontSize, int drawTicks);
     StageText** getStageTexts();
     int getStageTextCount();
@@ -131,12 +131,25 @@ class Stage {
     int getShipGfxRectangleCount(int teamIndex);
     void clearStaleShipGfxRectangles(int gameTime);
 
+    int addShipGfxLine(int teamIndex, int gameTime, double x, double y,
+        double angle, double length, double thickness, RgbaColor fillColor,
+        double outlineThickness, RgbaColor outlineColor, int drawTicks);
+    ShipGfxLine** getShipGfxLines(int teamIndex);
+    int getShipGfxLineCount(int teamIndex);
+    void clearStaleShipGfxLines(int gameTime);
+
     int addShipGfxCircle(int teamIndex, int gameTime, double x, double y,
         double radius, RgbaColor fillColor, double outlineThickness,
         RgbaColor outlineColor, int drawTicks);
     ShipGfxCircle** getShipGfxCircles(int teamIndex);
     int getShipGfxCircleCount(int teamIndex);
     void clearStaleShipGfxCircles(int gameTime);
+
+    int addShipGfxText(int teamIndex, int gameTime, const char *text,
+        double x, double y, int fontSize, RgbaColor textColor, int drawTicks);
+    ShipGfxText** getShipGfxTexts(int teamIndex);
+    int getShipGfxTextCount(int teamIndex);
+    void clearStaleShipGfxTexts(int gameTime);
 
     void setTeamsAndShips(
         Team **teams, int numTeams, Ship **ships, int numShips);
