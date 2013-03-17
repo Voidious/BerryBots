@@ -107,7 +107,7 @@ int registerClass(
   lua_pushliteral(L, "__metatable");
   lua_pushvalue(L, -3);
   lua_rawset(L, -3);
-  lua_pop(L, 1);
+  lua_pop(L, 2);
   return 1;
 }
 
@@ -1385,6 +1385,7 @@ int ShipGfx_text(lua_State *L) {
   BerryBotsEngine *engine = shipGfx->engine;
   engine->getStage()->addShipGfxText(shipGfx->teamIndex, engine->getGameTime(),
       text, x, y, fontSize, textColor, drawTicks);
+
   return 1;
 }
 

@@ -18,7 +18,6 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <iostream>
 #include <sstream>
 #include <stdio.h>
 #include <string.h>
@@ -242,6 +241,12 @@ int BerryBotsEngine::getNumTeams() {
 
 int BerryBotsEngine::callUserLuaCode(lua_State *L, int nargs,
     const char *errorMsg, int callStyle) throw (EngineException*) {
+  // TODO: Without this, Snail's "drawLine" function is hitting an lj_alloc_free
+  //       crash related to passing a table as a Lua function argument.
+  //       Disabling GC for user calls fixes it, but it seems like a bug in
+  //       LuaJIT or my Lua API usage somewhere. So far I'm stumped.
+  lua_gc(L, LUA_GCSTOP, 0);
+
   // TODO: I'm not completely convinced we're safe without a mutex here. Do
   //       more tests and maybe add one.
   timerSettings_->timerExpiration = timerSettings_->timerTick + 2;
@@ -249,6 +254,8 @@ int BerryBotsEngine::callUserLuaCode(lua_State *L, int nargs,
   int pcallValue = lua_pcall(L, nargs, 0, 0);
   timerSettings_->L = 0;
   timerSettings_->timerExpiration = LONG_MAX;
+
+  lua_gc(L, LUA_GCRESTART, 0);
 
   if (pcallValue != 0) {
     std::string errorString(errorMsg);
