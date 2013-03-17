@@ -127,27 +127,27 @@ class Stage {
         double bottom, double width, double height, double rotation,
         RgbaColor fillColor, double outlineThickness, RgbaColor outlineColor,
         int drawTicks);
-    ShipGfxRectangle** getShipGfxRectangles(int teamIndex);
+    UserGfxRectangle** getShipGfxRectangles(int teamIndex);
     int getShipGfxRectangleCount(int teamIndex);
     void clearStaleShipGfxRectangles(int gameTime);
 
     int addShipGfxLine(Team *team, int gameTime, double x, double y,
         double angle, double length, double thickness, RgbaColor fillColor,
         double outlineThickness, RgbaColor outlineColor, int drawTicks);
-    ShipGfxLine** getShipGfxLines(int teamIndex);
+    UserGfxLine** getShipGfxLines(int teamIndex);
     int getShipGfxLineCount(int teamIndex);
     void clearStaleShipGfxLines(int gameTime);
 
     int addShipGfxCircle(Team *team, int gameTime, double x, double y,
         double radius, RgbaColor fillColor, double outlineThickness,
         RgbaColor outlineColor, int drawTicks);
-    ShipGfxCircle** getShipGfxCircles(int teamIndex);
+    UserGfxCircle** getShipGfxCircles(int teamIndex);
     int getShipGfxCircleCount(int teamIndex);
     void clearStaleShipGfxCircles(int gameTime);
 
     int addShipGfxText(Team *team, int gameTime, const char *text,
         double x, double y, int fontSize, RgbaColor textColor, int drawTicks);
-    ShipGfxText** getShipGfxTexts(int teamIndex);
+    UserGfxText** getShipGfxTexts(int teamIndex);
     int getShipGfxTextCount(int teamIndex);
     void clearStaleShipGfxTexts(int gameTime);
 

@@ -355,7 +355,7 @@ int Stage::addShipGfxRectangle(Team *team, int gameTime, double left,
   if (team->numRectangles >= MAX_SHIP_RECTANGLES) {
     return 0;
   } else {
-    ShipGfxRectangle *rectangle = new ShipGfxRectangle;
+    UserGfxRectangle *rectangle = new UserGfxRectangle;
     rectangle->left = left;
     rectangle->bottom = bottom;
     rectangle->width = width;
@@ -372,13 +372,13 @@ int Stage::addShipGfxRectangle(Team *team, int gameTime, double left,
     rectangle->outlineA = outlineColor.a;
     rectangle->startTime = gameTime;
     rectangle->drawTicks = drawTicks;
-    team->shipGfxRectangles[team->numRectangles++] = rectangle;
+    team->gfxRectangles[team->numRectangles++] = rectangle;
     return 1;
   }
 }
 
-ShipGfxRectangle** Stage::getShipGfxRectangles(int teamIndex) {
-  return teams_[teamIndex]->shipGfxRectangles;
+UserGfxRectangle** Stage::getShipGfxRectangles(int teamIndex) {
+  return teams_[teamIndex]->gfxRectangles;
 }
 
 int Stage::getShipGfxRectangleCount(int teamIndex) {
@@ -388,14 +388,14 @@ int Stage::getShipGfxRectangleCount(int teamIndex) {
 void Stage::clearStaleShipGfxRectangles(int gameTime) {
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
-    ShipGfxRectangle **shipGfxRectangles = team->shipGfxRectangles;
+    UserGfxRectangle **gfxRectangles = team->gfxRectangles;
     int numRectangles = team->numRectangles;
     for (int y = 0; y < numRectangles; y++) {
-      ShipGfxRectangle *rectangle = shipGfxRectangles[y];
+      UserGfxRectangle *rectangle = gfxRectangles[y];
       if (gameTime - rectangle->startTime >= rectangle->drawTicks) {
         // Shift down to make sure later drawn items are still drawn on top.
         for (int z = y; z < numRectangles - 1; z++) {
-          shipGfxRectangles[z] = shipGfxRectangles[z + 1];
+          gfxRectangles[z] = gfxRectangles[z + 1];
         }
         delete rectangle;
         numRectangles--;
@@ -412,7 +412,7 @@ int Stage::addShipGfxLine(Team *team, int gameTime, double x, double y,
   if (team->numLines >= MAX_SHIP_LINES) {
     return 0;
   } else {
-    ShipGfxLine *line = new ShipGfxLine;
+    UserGfxLine *line = new UserGfxLine;
     line->x = x;
     line->y = y;
     line->angle = angle;
@@ -429,13 +429,13 @@ int Stage::addShipGfxLine(Team *team, int gameTime, double x, double y,
     line->outlineA = outlineColor.a;
     line->startTime = gameTime;
     line->drawTicks = drawTicks;
-    team->shipGfxLines[team->numLines++] = line;
+    team->gfxLines[team->numLines++] = line;
     return 1;
   }
 }
 
-ShipGfxLine** Stage::getShipGfxLines(int teamIndex) {
-  return teams_[teamIndex]->shipGfxLines;
+UserGfxLine** Stage::getShipGfxLines(int teamIndex) {
+  return teams_[teamIndex]->gfxLines;
 }
 
 int Stage::getShipGfxLineCount(int teamIndex) {
@@ -445,14 +445,14 @@ int Stage::getShipGfxLineCount(int teamIndex) {
 void Stage::clearStaleShipGfxLines(int gameTime) {
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
-    ShipGfxLine **shipGfxLines = team->shipGfxLines;
+    UserGfxLine **gfxLines = team->gfxLines;
     int numLines = team->numLines;
     for (int y = 0; y < numLines; y++) {
-      ShipGfxLine *line = shipGfxLines[y];
+      UserGfxLine *line = gfxLines[y];
       if (gameTime - line->startTime >= line->drawTicks) {
         // Shift down to make sure later drawn items are still drawn on top.
         for (int z = y; z < numLines - 1; z++) {
-          shipGfxLines[z] = shipGfxLines[z + 1];
+          gfxLines[z] = gfxLines[z + 1];
         }
         delete line;
         numLines--;
@@ -469,7 +469,7 @@ int Stage::addShipGfxCircle(Team *team, int gameTime, double x, double y,
   if (team->numCircles >= MAX_SHIP_CIRCLES) {
     return 0;
   } else {
-    ShipGfxCircle *circle = new ShipGfxCircle;
+    UserGfxCircle *circle = new UserGfxCircle;
     circle->x = x;
     circle->y = y;
     circle->radius = radius;
@@ -484,13 +484,13 @@ int Stage::addShipGfxCircle(Team *team, int gameTime, double x, double y,
     circle->outlineA = outlineColor.a;
     circle->startTime = gameTime;
     circle->drawTicks = drawTicks;
-    team->shipGfxCircles[team->numCircles++] = circle;
+    team->gfxCircles[team->numCircles++] = circle;
     return 1;
   }
 }
 
-ShipGfxCircle** Stage::getShipGfxCircles(int teamIndex) {
-  return teams_[teamIndex]->shipGfxCircles;
+UserGfxCircle** Stage::getShipGfxCircles(int teamIndex) {
+  return teams_[teamIndex]->gfxCircles;
 }
 
 int Stage::getShipGfxCircleCount(int teamIndex) {
@@ -500,14 +500,14 @@ int Stage::getShipGfxCircleCount(int teamIndex) {
 void Stage::clearStaleShipGfxCircles(int gameTime) {
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
-    ShipGfxCircle **shipGfxCircles = team->shipGfxCircles;
+    UserGfxCircle **gfxCircles = team->gfxCircles;
     int numCircles = team->numCircles;
     for (int y = 0; y < numCircles; y++) {
-      ShipGfxCircle *circle = shipGfxCircles[y];
+      UserGfxCircle *circle = gfxCircles[y];
       if (gameTime - circle->startTime >= circle->drawTicks) {
         // Shift down to make sure later drawn items are still drawn on top.
         for (int z = y; z < numCircles - 1; z++) {
-          shipGfxCircles[z] = shipGfxCircles[z + 1];
+          gfxCircles[z] = gfxCircles[z + 1];
         }
         delete circle;
         numCircles--;
@@ -523,7 +523,7 @@ int Stage::addShipGfxText(Team *team, int gameTime, const char *text,
   if (team->numTexts >= MAX_SHIP_TEXTS) {
     return 0;
   } else {
-    ShipGfxText *shipText = new ShipGfxText;
+    UserGfxText *shipText = new UserGfxText;
     char *newText = new char[strlen(text) + 1];
     strcpy(newText, text);
     shipText->text = newText;
@@ -536,13 +536,13 @@ int Stage::addShipGfxText(Team *team, int gameTime, const char *text,
     shipText->textA = textColor.a;
     shipText->startTime = gameTime;
     shipText->drawTicks = drawTicks;
-    team->shipGfxTexts[team->numTexts++] = shipText;
+    team->gfxTexts[team->numTexts++] = shipText;
     return 1;
   }
 }
 
-ShipGfxText** Stage::getShipGfxTexts(int teamIndex) {
-  return teams_[teamIndex]->shipGfxTexts;
+UserGfxText** Stage::getShipGfxTexts(int teamIndex) {
+  return teams_[teamIndex]->gfxTexts;
 }
 
 int Stage::getShipGfxTextCount(int teamIndex) {
@@ -552,14 +552,14 @@ int Stage::getShipGfxTextCount(int teamIndex) {
 void Stage::clearStaleShipGfxTexts(int gameTime) {
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
-    ShipGfxText **shipGfxTexts = team->shipGfxTexts;
+    UserGfxText **gfxTexts = team->gfxTexts;
     int numTexts = team->numTexts;
     for (int y = 0; y < numTexts; y++) {
-      ShipGfxText *shipText = shipGfxTexts[y];
+      UserGfxText *shipText = gfxTexts[y];
       if (gameTime - shipText->startTime >= shipText->drawTicks) {
         // Shift down to make sure later drawn items are still drawn on top.
         for (int z = y; z < numTexts - 1; z++) {
-          shipGfxTexts[z] = shipGfxTexts[z + 1];
+          gfxTexts[z] = gfxTexts[z + 1];
         }
         delete shipText;
         numTexts--;

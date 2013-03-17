@@ -1390,7 +1390,7 @@ int ShipGfx_text(lua_State *L) {
 
 int ShipGfx_enabled(lua_State *L) {
   ShipGfx *shipGfx = checkShipGfx(L, 1);
-  lua_pushboolean(L, shipGfx->team->shipGfxEnabled);
+  lua_pushboolean(L, shipGfx->team->gfxEnabled);
   return 1;
 }
 

@@ -75,7 +75,7 @@ typedef struct {
   short outlineA;
   int startTime;
   int drawTicks;
-} ShipGfxRectangle;
+} UserGfxRectangle;
 
 typedef struct {
   double x;
@@ -94,7 +94,7 @@ typedef struct {
   short outlineA;
   int startTime;
   int drawTicks;
-} ShipGfxLine;
+} UserGfxLine;
 
 typedef struct {
   double x;
@@ -111,7 +111,7 @@ typedef struct {
   short outlineA;
   int startTime;
   int drawTicks;
-} ShipGfxCircle;
+} UserGfxCircle;
 
 typedef struct {
   char *text;
@@ -124,7 +124,7 @@ typedef struct {
   short textA;
   int startTime;
   int drawTicks;
-} ShipGfxText;
+} UserGfxText;
 
 
 // Game engine structs
@@ -147,14 +147,14 @@ typedef struct {
   bool disabled;
   bool errored;
   bool ownedByLua;
-  bool shipGfxEnabled;
-  ShipGfxRectangle* shipGfxRectangles[MAX_SHIP_RECTANGLES];
+  bool gfxEnabled;
+  UserGfxRectangle* gfxRectangles[MAX_SHIP_RECTANGLES];
   int numRectangles;
-  ShipGfxLine* shipGfxLines[MAX_SHIP_LINES];
+  UserGfxLine* gfxLines[MAX_SHIP_LINES];
   int numLines;
-  ShipGfxCircle* shipGfxCircles[MAX_SHIP_RECTANGLES];
+  UserGfxCircle* gfxCircles[MAX_SHIP_RECTANGLES];
   int numCircles;
-  ShipGfxText* shipGfxTexts[MAX_SHIP_TEXTS];
+  UserGfxText* gfxTexts[MAX_SHIP_TEXTS];
   int numTexts;
 } Team;
 

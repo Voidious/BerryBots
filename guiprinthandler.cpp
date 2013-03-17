@@ -60,7 +60,7 @@ void GuiPrintHandler::registerTeam(Team *team, const char *filename) {
     }
     teams_[nextTeamIndex_] = team;
     teamConsole = teamConsoles_[nextTeamIndex_];
-    team->shipGfxEnabled = teamConsole->isChecked();
+    team->gfxEnabled = teamConsole->isChecked();
     teamConsole->setListener(new TeamConsoleListener(team));
     teamConsole->clear();
     nextTeamIndex_++;
@@ -98,5 +98,5 @@ void TeamConsoleListener::onActive() {
 }
 
 void TeamConsoleListener::onCheck(bool checked) {
-  team_->shipGfxEnabled = checked;
+  team_->gfxEnabled = checked;
 }

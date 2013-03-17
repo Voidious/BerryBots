@@ -214,11 +214,11 @@ class GfxManager {
                          GfxEventHandler *gfxHandler, Ship **ships);
     void drawNames(sf::RenderWindow *window, Ship **ships, int numShips);
     void drawStageTexts(sf::RenderWindow *window, Stage *stage, int time);
-    void adjustShipGfxRectanglePosition(sf::RectangleShape *rectangleShape,
+    void adjustUserGfxRectanglePosition(sf::RectangleShape *rectangleShape,
                                         double angle);
-    void adjustShipGfxLinePosition(sf::RectangleShape *rectangleShape,
+    void adjustUserGfxLinePosition(sf::RectangleShape *rectangleShape,
                                    double angle);
-    void drawShipGfxs(sf::RenderWindow *window, Stage *stage, int time);
+    void drawUserGfxs(sf::RenderWindow *window, Stage *stage, int time);
     void drawDock(sf::RenderWindow *window, Stage *stage, bool paused);
     void drawDockItem(sf::RenderWindow *window, DockItem *dockItem);
     void drawGameOver(sf::RenderWindow *window, Stage *stage,

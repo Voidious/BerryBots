@@ -394,10 +394,10 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   drawLasers(window, stage);
   drawShips(window, ships, numShips, time);
   drawStageTexts(window, stage, time);
-  drawShipGfxs(window, stage, time);
   if (gameOver) {
     drawGameOver(window, stage, winnerName);
   }
+  drawUserGfxs(window, stage, time);
 }
 
 void GfxManager::increaseWindowSize(sf::RenderWindow *window, int viewWidth,
@@ -834,7 +834,7 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
   }
 }
 
-void GfxManager::adjustShipGfxRectanglePosition(
+void GfxManager::adjustUserGfxRectanglePosition(
     sf::RectangleShape *rectangleShape, double angle) {
   int centerX = rectangleShape->getSize().x / 2;
   int centerY = rectangleShape->getSize().y / 2;
@@ -846,7 +846,7 @@ void GfxManager::adjustShipGfxRectanglePosition(
                        centerY - rectangleOffset.y);
 }
 
-void GfxManager::adjustShipGfxLinePosition(sf::RectangleShape *rectangleShape,
+void GfxManager::adjustUserGfxLinePosition(sf::RectangleShape *rectangleShape,
                                            double angle) {
   sf::Vector2f rectanglePoint(0, rectangleShape->getSize().y / 2);
   sf::Transform transform;
@@ -855,31 +855,31 @@ void GfxManager::adjustShipGfxLinePosition(sf::RectangleShape *rectangleShape,
   rectangleShape->move(-rectangleOffset.x, -rectangleOffset.y);
 }
 
-void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
+void GfxManager::drawUserGfxs(sf::RenderWindow *window, Stage *stage,
                               int time) {
   stage->clearStaleShipGfxRectangles(time);
   for (int x = 0; x < numTeams_; x++) {
     int numRectangles = stage->getShipGfxRectangleCount(x);
-    if (teams_[x]->shipGfxEnabled && numRectangles > 0) {
-      ShipGfxRectangle **shipGfxRectangles = stage->getShipGfxRectangles(x);
+    if (teams_[x]->gfxEnabled && numRectangles > 0) {
+      UserGfxRectangle **gfxRectangles = stage->getShipGfxRectangles(x);
       for (int y = 0; y < numRectangles; y++) {
-        ShipGfxRectangle *shipGfxRectangle = shipGfxRectangles[y];
-        sf::RectangleShape rectangle(sf::Vector2f(shipGfxRectangle->width,
-                                                  shipGfxRectangle->height));
+        UserGfxRectangle *gfxRectangle = gfxRectangles[y];
+        sf::RectangleShape rectangle(sf::Vector2f(gfxRectangle->width,
+                                                  gfxRectangle->height));
         double rotateAngle =
-            toDegrees(-normalAbsoluteAngle(shipGfxRectangle->rotation));
+            toDegrees(-normalAbsoluteAngle(gfxRectangle->rotation));
         rectangle.setRotation(rotateAngle);
         rectangle.setPosition(
-            adjustX(shipGfxRectangle->left),
-            adjustY(shipGfxRectangle->bottom, shipGfxRectangle->height));
-        rectangle.setFillColor(sf::Color(shipGfxRectangle->fillR,
-            shipGfxRectangle->fillG, shipGfxRectangle->fillB,
-            shipGfxRectangle->fillA));
-        rectangle.setOutlineThickness(shipGfxRectangle->outlineThickness);
-        rectangle.setOutlineColor(sf::Color(shipGfxRectangle->outlineR,
-            shipGfxRectangle->outlineG, shipGfxRectangle->outlineB,
-            shipGfxRectangle->outlineA));
-        adjustShipGfxRectanglePosition(&rectangle, rotateAngle);
+            adjustX(gfxRectangle->left),
+            adjustY(gfxRectangle->bottom, gfxRectangle->height));
+        rectangle.setFillColor(sf::Color(gfxRectangle->fillR,
+            gfxRectangle->fillG, gfxRectangle->fillB,
+            gfxRectangle->fillA));
+        rectangle.setOutlineThickness(gfxRectangle->outlineThickness);
+        rectangle.setOutlineColor(sf::Color(gfxRectangle->outlineR,
+            gfxRectangle->outlineG, gfxRectangle->outlineB,
+            gfxRectangle->outlineA));
+        adjustUserGfxRectanglePosition(&rectangle, rotateAngle);
         window->draw(rectangle);
       }
     }
@@ -888,23 +888,22 @@ void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
   stage->clearStaleShipGfxLines(time);
   for (int x = 0; x < numTeams_; x++) {
     int numLines = stage->getShipGfxLineCount(x);
-    if (teams_[x]->shipGfxEnabled && numLines > 0) {
-      ShipGfxLine **shipGfxLines = stage->getShipGfxLines(x);
+    if (teams_[x]->gfxEnabled && numLines > 0) {
+      UserGfxLine **gfxLines = stage->getShipGfxLines(x);
       for (int y = 0; y < numLines; y++) {
-        ShipGfxLine *shipGfxLine = shipGfxLines[y];
-        sf::RectangleShape line(sf::Vector2f(shipGfxLine->length,
-                                             shipGfxLine->thickness));
+        UserGfxLine *gfxLine = gfxLines[y];
+        sf::RectangleShape line(sf::Vector2f(gfxLine->length,
+                                             gfxLine->thickness));
         double rotateAngle =
-            toDegrees(-normalAbsoluteAngle(shipGfxLine->angle));
+            toDegrees(-normalAbsoluteAngle(gfxLine->angle));
         line.setRotation(rotateAngle);
-        line.setPosition(adjustX(shipGfxLine->x), adjustY(shipGfxLine->y));
-        line.setFillColor(sf::Color(shipGfxLine->fillR, shipGfxLine->fillG,
-                                    shipGfxLine->fillB, shipGfxLine->fillA));
-        line.setOutlineThickness(shipGfxLine->outlineThickness);
-        line.setOutlineColor(sf::Color(shipGfxLine->outlineR,
-            shipGfxLine->outlineG, shipGfxLine->outlineB,
-            shipGfxLine->outlineA));
-        adjustShipGfxLinePosition(&line, rotateAngle);
+        line.setPosition(adjustX(gfxLine->x), adjustY(gfxLine->y));
+        line.setFillColor(sf::Color(gfxLine->fillR, gfxLine->fillG,
+                                    gfxLine->fillB, gfxLine->fillA));
+        line.setOutlineThickness(gfxLine->outlineThickness);
+        line.setOutlineColor(sf::Color(gfxLine->outlineR,
+            gfxLine->outlineG, gfxLine->outlineB, gfxLine->outlineA));
+        adjustUserGfxLinePosition(&line, rotateAngle);
         window->draw(line);
       }
     }
@@ -913,20 +912,18 @@ void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
   stage->clearStaleShipGfxCircles(time);
   for (int x = 0; x < numTeams_; x++) {
     int numCircles = stage->getShipGfxCircleCount(x);
-    if (teams_[x]->shipGfxEnabled && numCircles > 0) {
-      ShipGfxCircle **shipGfxCircles = stage->getShipGfxCircles(x);
+    if (teams_[x]->gfxEnabled && numCircles > 0) {
+      UserGfxCircle **gfxCircles = stage->getShipGfxCircles(x);
       for (int y = 0; y < numCircles; y++) {
-        ShipGfxCircle *shipGfxCircle = shipGfxCircles[y];
-        sf::CircleShape circle(shipGfxCircle->radius);
-        circle.setPosition(adjustX(shipGfxCircle->x) - shipGfxCircle->radius,
-            adjustY(shipGfxCircle->y - shipGfxCircle->radius,
-                    shipGfxCircle->radius * 2));
-        circle.setFillColor(sf::Color(shipGfxCircle->fillR,
-            shipGfxCircle->fillG, shipGfxCircle->fillB, shipGfxCircle->fillA));
-        circle.setOutlineThickness(shipGfxCircle->outlineThickness);
-        circle.setOutlineColor(sf::Color(shipGfxCircle->outlineR,
-            shipGfxCircle->outlineG, shipGfxCircle->outlineB,
-            shipGfxCircle->outlineA));
+        UserGfxCircle *gfxCircle = gfxCircles[y];
+        sf::CircleShape circle(gfxCircle->radius);
+        circle.setPosition(adjustX(gfxCircle->x) - gfxCircle->radius,
+            adjustY(gfxCircle->y - gfxCircle->radius, gfxCircle->radius * 2));
+        circle.setFillColor(sf::Color(gfxCircle->fillR, gfxCircle->fillG,
+                                      gfxCircle->fillB, gfxCircle->fillA));
+        circle.setOutlineThickness(gfxCircle->outlineThickness);
+        circle.setOutlineColor(sf::Color(gfxCircle->outlineR,
+            gfxCircle->outlineG, gfxCircle->outlineB, gfxCircle->outlineA));
         window->draw(circle);
       }
     }
@@ -935,18 +932,17 @@ void GfxManager::drawShipGfxs(sf::RenderWindow *window, Stage *stage,
   stage->clearStaleShipGfxTexts(time);
   for (int x = 0; x < numTeams_; x++) {
     int numTexts = stage->getShipGfxTextCount(x);
-    if (teams_[x]->shipGfxEnabled && numTexts > 0) {
-      ShipGfxText **shipGfxTexts = stage->getShipGfxTexts(x);
+    if (teams_[x]->gfxEnabled && numTexts > 0) {
+      UserGfxText **gfxTexts = stage->getShipGfxTexts(x);
       for (int y = 0; y < numTexts; y++) {
-        ShipGfxText *shipGfxText = shipGfxTexts[y];
-        sf::Text text(shipGfxText->text, font_,
-            limit(MIN_TEXT_FONT_SIZE, shipGfxText->fontSize,
-                  MAX_TEXT_FONT_SIZE));
-        text.setColor(sf::Color(shipGfxText->textR,
-            shipGfxText->textG, shipGfxText->textB, shipGfxText->textA));
+        UserGfxText *gfxText = gfxTexts[y];
+        sf::Text text(gfxText->text, font_,
+            limit(MIN_TEXT_FONT_SIZE, gfxText->fontSize, MAX_TEXT_FONT_SIZE));
+        text.setColor(sf::Color(gfxText->textR, gfxText->textG, gfxText->textB,
+                                gfxText->textA));
         sf::FloatRect textRect = text.getLocalBounds();
-        text.setPosition(adjustX(shipGfxText->x),
-            adjustY(shipGfxText->y + round(textRect.height * 1.5)));
+        text.setPosition(adjustX(gfxText->x),
+            adjustY(gfxText->y + round(textRect.height * 1.5)));
         window->draw(text);
       }
     }

@@ -107,16 +107,16 @@ BerryBotsEngine::~BerryBotsEngine() {
       lua_close(team->state);
     }
     for (int y = 0; y < team->numRectangles; y++) {
-      delete team->shipGfxRectangles[y];
+      delete team->gfxRectangles[y];
     }
     for (int y = 0; y < team->numLines; y++) {
-      delete team->shipGfxLines[y];
+      delete team->gfxLines[y];
     }
     for (int y = 0; y < team->numCircles; y++) {
-      delete team->shipGfxCircles[y];
+      delete team->gfxCircles[y];
     }
     for (int y = 0; y < team->numTexts; y++) {
-      delete team->shipGfxTexts[y];
+      delete team->gfxTexts[y];
     }
     delete team;
   }
@@ -428,7 +428,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->firstShipIndex = shipIndex;
     team->state = teamState;
     team->errored = false;
-    team->shipGfxEnabled = false;
+    team->gfxEnabled = false;
     if (listener_ != 0) {
       listener_->newTeam(team, filename);
     }
