@@ -53,6 +53,11 @@ Stage::Stage(int width, int height) {
   numLasers_ = 0;
   numTorpedos_ = 0;
   numEventHandlers_ = 0;
+  gfxEnabled_ = false;
+  numGfxRectangles_ = 0;
+  numGfxLines_ = 0;
+  numGfxCircles_ = 0;
+  numGfxTexts_ = 0;
 }
 
 void Stage::setName(char *name) {
@@ -348,11 +353,19 @@ void Stage::clearStaleStageTexts(int gameTime) {
   }
 }
 
-int Stage::addShipGfxRectangle(Team *team, int gameTime, double left,
+bool Stage::getGfxEnabled() {
+  return gfxEnabled_;
+}
+
+void Stage::setGfxEnabled(bool enabled) {
+  gfxEnabled_ = enabled;
+}
+
+int Stage::addUserGfxRectangle(Team *team, int gameTime, double left,
     double bottom, double width, double height, double rotation,
     RgbaColor fillColor, double outlineThickness, RgbaColor outlineColor,
     int drawTicks) {
-  if (team->numRectangles >= MAX_SHIP_RECTANGLES) {
+  if ((team == 0 ? numGfxRectangles_ : team->numRectangles) >= MAX_USER_RECTANGLES) {
     return 0;
   } else {
     UserGfxRectangle *rectangle = new UserGfxRectangle;
@@ -372,7 +385,11 @@ int Stage::addShipGfxRectangle(Team *team, int gameTime, double left,
     rectangle->outlineA = outlineColor.a;
     rectangle->startTime = gameTime;
     rectangle->drawTicks = drawTicks;
-    team->gfxRectangles[team->numRectangles++] = rectangle;
+    if (team == 0) {
+      gfxRectangles_[numGfxRectangles_++] = rectangle;
+    } else {
+      team->gfxRectangles[team->numRectangles++] = rectangle;
+    }
     return 1;
   }
 }
@@ -385,31 +402,45 @@ int Stage::getShipGfxRectangleCount(int teamIndex) {
   return teams_[teamIndex]->numRectangles;
 }
 
-void Stage::clearStaleShipGfxRectangles(int gameTime) {
-  for (int x = 0; x < numTeams_; x++) {
-    Team *team = teams_[x];
-    UserGfxRectangle **gfxRectangles = team->gfxRectangles;
-    int numRectangles = team->numRectangles;
-    for (int y = 0; y < numRectangles; y++) {
-      UserGfxRectangle *rectangle = gfxRectangles[y];
-      if (gameTime - rectangle->startTime >= rectangle->drawTicks) {
-        // Shift down to make sure later drawn items are still drawn on top.
-        for (int z = y; z < numRectangles - 1; z++) {
-          gfxRectangles[z] = gfxRectangles[z + 1];
-        }
-        delete rectangle;
-        numRectangles--;
-        y--;
-      }
-    }
-    team->numRectangles = numRectangles;
-  }
+UserGfxRectangle** Stage::getStageGfxRectangles() {
+  return gfxRectangles_;
 }
 
-int Stage::addShipGfxLine(Team *team, int gameTime, double x, double y,
+int Stage::getStageGfxRectangleCount() {
+  return numGfxRectangles_;
+}
+
+void Stage::clearStaleUserGfxRectangles(int gameTime) {
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    team->numRectangles =
+        clearStaleUserGfxRectangles(gameTime, team->gfxRectangles,
+                                    team->numRectangles);
+  }
+  numGfxRectangles_ = clearStaleUserGfxRectangles(gameTime, gfxRectangles_,
+                                                  numGfxRectangles_);
+}
+
+int Stage::clearStaleUserGfxRectangles(int gameTime,
+      UserGfxRectangle** gfxRectangles, int numRectangles) {
+  for (int y = 0; y < numRectangles; y++) {
+    UserGfxRectangle *rectangle = gfxRectangles[y];
+    if (gameTime - rectangle->startTime >= rectangle->drawTicks) {
+      for (int z = y; z < numRectangles - 1; z++) {
+        gfxRectangles[z] = gfxRectangles[z + 1];
+      }
+      delete rectangle;
+      numRectangles--;
+      y--;
+    }
+  }
+  return numRectangles;
+}
+
+int Stage::addUserGfxLine(Team *team, int gameTime, double x, double y,
     double angle, double length, double thickness, RgbaColor fillColor,
     double outlineThickness, RgbaColor outlineColor, int drawTicks) {
-  if (team->numLines >= MAX_SHIP_LINES) {
+  if ((team == 0 ? numGfxLines_ : team->numLines) >= MAX_USER_LINES) {
     return 0;
   } else {
     UserGfxLine *line = new UserGfxLine;
@@ -429,7 +460,11 @@ int Stage::addShipGfxLine(Team *team, int gameTime, double x, double y,
     line->outlineA = outlineColor.a;
     line->startTime = gameTime;
     line->drawTicks = drawTicks;
-    team->gfxLines[team->numLines++] = line;
+    if (team == 0) {
+      gfxLines_[numGfxLines_++] = line;
+    } else {
+      team->gfxLines[team->numLines++] = line;
+    }
     return 1;
   }
 }
@@ -442,31 +477,43 @@ int Stage::getShipGfxLineCount(int teamIndex) {
   return teams_[teamIndex]->numLines;
 }
 
-void Stage::clearStaleShipGfxLines(int gameTime) {
-  for (int x = 0; x < numTeams_; x++) {
-    Team *team = teams_[x];
-    UserGfxLine **gfxLines = team->gfxLines;
-    int numLines = team->numLines;
-    for (int y = 0; y < numLines; y++) {
-      UserGfxLine *line = gfxLines[y];
-      if (gameTime - line->startTime >= line->drawTicks) {
-        // Shift down to make sure later drawn items are still drawn on top.
-        for (int z = y; z < numLines - 1; z++) {
-          gfxLines[z] = gfxLines[z + 1];
-        }
-        delete line;
-        numLines--;
-        y--;
-      }
-    }
-    team->numLines = numLines;
-  }
+UserGfxLine** Stage::getStageGfxLines() {
+  return gfxLines_;
 }
 
-int Stage::addShipGfxCircle(Team *team, int gameTime, double x, double y,
+int Stage::getStageGfxLineCount() {
+  return numGfxLines_;
+}
+
+void Stage::clearStaleUserGfxLines(int gameTime) {
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    team->numLines = clearStaleUserGfxLines(gameTime, team->gfxLines,
+                                            team->numLines);
+  }
+  numGfxLines_ = clearStaleUserGfxLines(gameTime, gfxLines_, numGfxLines_);
+}
+
+int Stage::clearStaleUserGfxLines(int gameTime, UserGfxLine** gfxLines,
+                                  int numLines) {
+  for (int y = 0; y < numLines; y++) {
+    UserGfxLine *line = gfxLines[y];
+    if (gameTime - line->startTime >= line->drawTicks) {
+      for (int z = y; z < numLines - 1; z++) {
+        gfxLines[z] = gfxLines[z + 1];
+      }
+      delete line;
+      numLines--;
+      y--;
+    }
+  }
+  return numLines;
+}
+
+int Stage::addUserGfxCircle(Team *team, int gameTime, double x, double y,
     double radius, RgbaColor fillColor, double outlineThickness,
     RgbaColor outlineColor, int drawTicks) {
-  if (team->numCircles >= MAX_SHIP_CIRCLES) {
+  if ((team == 0 ? numGfxCircles_ : team->numCircles) >= MAX_USER_CIRCLES) {
     return 0;
   } else {
     UserGfxCircle *circle = new UserGfxCircle;
@@ -484,7 +531,11 @@ int Stage::addShipGfxCircle(Team *team, int gameTime, double x, double y,
     circle->outlineA = outlineColor.a;
     circle->startTime = gameTime;
     circle->drawTicks = drawTicks;
-    team->gfxCircles[team->numCircles++] = circle;
+    if (team == 0) {
+      gfxCircles_[numGfxCircles_++] = circle;
+    } else {
+      team->gfxCircles[team->numCircles++] = circle;
+    }
     return 1;
   }
 }
@@ -497,46 +548,63 @@ int Stage::getShipGfxCircleCount(int teamIndex) {
   return teams_[teamIndex]->numCircles;
 }
 
-void Stage::clearStaleShipGfxCircles(int gameTime) {
-  for (int x = 0; x < numTeams_; x++) {
-    Team *team = teams_[x];
-    UserGfxCircle **gfxCircles = team->gfxCircles;
-    int numCircles = team->numCircles;
-    for (int y = 0; y < numCircles; y++) {
-      UserGfxCircle *circle = gfxCircles[y];
-      if (gameTime - circle->startTime >= circle->drawTicks) {
-        // Shift down to make sure later drawn items are still drawn on top.
-        for (int z = y; z < numCircles - 1; z++) {
-          gfxCircles[z] = gfxCircles[z + 1];
-        }
-        delete circle;
-        numCircles--;
-        y--;
-      }
-    }
-    team->numCircles = numCircles;
-  }
+UserGfxCircle** Stage::getStageGfxCircles() {
+  return gfxCircles_;
 }
 
-int Stage::addShipGfxText(Team *team, int gameTime, const char *text,
+int Stage::getStageGfxCircleCount() {
+  return numGfxCircles_;
+}
+
+void Stage::clearStaleUserGfxCircles(int gameTime) {
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    team->numCircles = clearStaleUserGfxCircles(gameTime, team->gfxCircles,
+                                                team->numCircles);
+  }
+  numGfxCircles_ = clearStaleUserGfxCircles(gameTime, gfxCircles_,
+                                            numGfxCircles_);
+}
+
+int Stage::clearStaleUserGfxCircles(int gameTime, UserGfxCircle** gfxCircles,
+                                    int numCircles) {
+  for (int y = 0; y < numCircles; y++) {
+    UserGfxCircle *circle = gfxCircles[y];
+    if (gameTime - circle->startTime >= circle->drawTicks) {
+      for (int z = y; z < numCircles - 1; z++) {
+        gfxCircles[z] = gfxCircles[z + 1];
+      }
+      delete circle;
+      numCircles--;
+      y--;
+    }
+  }
+  return numCircles;
+}
+
+int Stage::addUserGfxText(Team *team, int gameTime, const char *text,
     double x, double y, int fontSize, RgbaColor textColor, int drawTicks) {
-  if (team->numTexts >= MAX_SHIP_TEXTS) {
+  if ((team == 0 ? numGfxTexts_ : team->numTexts) >= MAX_USER_TEXTS) {
     return 0;
   } else {
-    UserGfxText *shipText = new UserGfxText;
+    UserGfxText *userText = new UserGfxText;
     char *newText = new char[strlen(text) + 1];
     strcpy(newText, text);
-    shipText->text = newText;
-    shipText->x = x;
-    shipText->y = y;
-    shipText->fontSize = fontSize;
-    shipText->textR = textColor.r;
-    shipText->textG = textColor.g;
-    shipText->textB = textColor.b;
-    shipText->textA = textColor.a;
-    shipText->startTime = gameTime;
-    shipText->drawTicks = drawTicks;
-    team->gfxTexts[team->numTexts++] = shipText;
+    userText->text = newText;
+    userText->x = x;
+    userText->y = y;
+    userText->fontSize = fontSize;
+    userText->textR = textColor.r;
+    userText->textG = textColor.g;
+    userText->textB = textColor.b;
+    userText->textA = textColor.a;
+    userText->startTime = gameTime;
+    userText->drawTicks = drawTicks;
+    if (team == 0) {
+      gfxTexts_[numGfxTexts_++] = userText;
+    } else {
+      team->gfxTexts[team->numTexts++] = userText;
+    }
     return 1;
   }
 }
@@ -549,25 +617,37 @@ int Stage::getShipGfxTextCount(int teamIndex) {
   return teams_[teamIndex]->numTexts;
 }
 
-void Stage::clearStaleShipGfxTexts(int gameTime) {
+UserGfxText** Stage::getStageGfxTexts() {
+  return gfxTexts_;
+}
+
+int Stage::getStageGfxTextCount() {
+  return numGfxTexts_;
+}
+
+void Stage::clearStaleUserGfxTexts(int gameTime) {
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
-    UserGfxText **gfxTexts = team->gfxTexts;
-    int numTexts = team->numTexts;
-    for (int y = 0; y < numTexts; y++) {
-      UserGfxText *shipText = gfxTexts[y];
-      if (gameTime - shipText->startTime >= shipText->drawTicks) {
-        // Shift down to make sure later drawn items are still drawn on top.
-        for (int z = y; z < numTexts - 1; z++) {
-          gfxTexts[z] = gfxTexts[z + 1];
-        }
-        delete shipText;
-        numTexts--;
-        y--;
-      }
-    }
-    team->numTexts = numTexts;
+    team->numTexts = clearStaleUserGfxTexts(gameTime, team->gfxTexts,
+                                            team->numTexts);
   }
+  numGfxTexts_ = clearStaleUserGfxTexts(gameTime, gfxTexts_, numGfxTexts_);
+}
+
+int Stage::clearStaleUserGfxTexts(int gameTime, UserGfxText** gfxTexts,
+                                  int numTexts) {
+  for (int y = 0; y < numTexts; y++) {
+    UserGfxText *userText = gfxTexts[y];
+    if (gameTime - userText->startTime >= userText->drawTicks) {
+      for (int z = y; z < numTexts - 1; z++) {
+        gfxTexts[z] = gfxTexts[z + 1];
+      }
+      delete userText;
+      numTexts--;
+      y--;
+    }
+  }
+  return numTexts;
 }
 
 // TODO: It's very confusing that this class takes ownership of ships.

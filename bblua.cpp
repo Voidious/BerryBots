@@ -58,6 +58,7 @@ void initStageState(lua_State **stageState, const char *stageCwd) {
   registerWorld(*stageState);
   registerAdmin(*stageState);
   registerStageSensors(*stageState);
+  registerStageGfx(*stageState);
   registerStageGlobals(*stageState);
 }
 
@@ -1267,18 +1268,17 @@ RgbaColor getRgbaColor(lua_State *L, int index) {
   return fillColor;
 }
 
-RgbaColor getDefaultFillColor() {
-  RgbaColor fillColor = DEFAULT_FILL_COLOR;
-  return fillColor;
+RgbaColor getTransparentColor() {
+  RgbaColor color = TRANSPARENT_COLOR;
+  return color;
 }
 
-RgbaColor getDefaultOutlineColor() {
-  RgbaColor outlineColor = DEFAULT_OUTLINE_COLOR;
-  return outlineColor;
+RgbaColor getSolidWhiteColor() {
+  RgbaColor color = SOLID_WHITE_COLOR;
+  return color;
 }
 
-int ShipGfx_rectangle(lua_State *L) {
-  ShipGfx *shipGfx = checkShipGfx(L, 1);
+void addUserGfxRectangle(lua_State *L, BerryBotsEngine *engine, Team *team) {
   double left = luaL_checknumber(L, 2);
   double bottom = luaL_checknumber(L, 3);
   double width = std::max(0.0, luaL_checknumber(L, 4));
@@ -1288,7 +1288,7 @@ int ShipGfx_rectangle(lua_State *L) {
   if (lua_istable(L, 7)) {
     fillColor = getRgbaColor(L, 7);
   } else {
-    fillColor = getDefaultFillColor();
+    fillColor = getTransparentColor();
   }
   double outlineThickness =
       std::max(0.0, luaL_optnumber(L, 8, DEFAULT_OUTLINE_THICKNESS));
@@ -1296,20 +1296,16 @@ int ShipGfx_rectangle(lua_State *L) {
   if (lua_istable(L, 9)) {
     outlineColor = getRgbaColor(L, 9);
   } else {
-    outlineColor = getDefaultOutlineColor();
+    outlineColor = getSolidWhiteColor();
   }
   int drawTicks = std::max(1, luaL_optint(L, 10, 1));
 
-  BerryBotsEngine *engine = shipGfx->engine;
-  engine->getStage()->addShipGfxRectangle(shipGfx->team, engine->getGameTime(),
-      left, bottom, width, height, rotation, fillColor, outlineThickness,
+  engine->getStage()->addUserGfxRectangle(team, engine->getGameTime(), left,
+      bottom, width, height, rotation, fillColor, outlineThickness,
       outlineColor, drawTicks);
-
-  return 1;
 }
 
-int ShipGfx_line(lua_State *L) {
-  ShipGfx *shipGfx = checkShipGfx(L, 1);
+void addUserGfxLine(lua_State *L, BerryBotsEngine *engine, Team *team) {
   double x = luaL_checknumber(L, 2);
   double y = luaL_checknumber(L, 3);
   double angle = luaL_checknumber(L, 4);
@@ -1319,28 +1315,22 @@ int ShipGfx_line(lua_State *L) {
   if (lua_istable(L, 7)) {
     fillColor = getRgbaColor(L, 7);
   } else {
-    fillColor = getDefaultFillColor();
+    fillColor = getSolidWhiteColor();
   }
-  double outlineThickness =
-      std::max(0.0, luaL_optnumber(L, 8, DEFAULT_OUTLINE_THICKNESS));
+  double outlineThickness = std::max(0.0, luaL_optnumber(L, 8, 0));
   RgbaColor outlineColor;
   if (lua_istable(L, 9)) {
     outlineColor = getRgbaColor(L, 9);
   } else {
-    outlineColor = getDefaultOutlineColor();
+    outlineColor = getTransparentColor();
   }
   int drawTicks = std::max(1, luaL_optint(L, 10, 1));
 
-  BerryBotsEngine *engine = shipGfx->engine;
-  engine->getStage()->addShipGfxLine(shipGfx->team, engine->getGameTime(), x, y,
-      angle, length, thickness, fillColor, outlineThickness, outlineColor,
-      drawTicks);
-
-  return 1;
+  engine->getStage()->addUserGfxLine(team, engine->getGameTime(), x, y, angle,
+      length, thickness, fillColor, outlineThickness, outlineColor, drawTicks);
 }
 
-int ShipGfx_circle(lua_State *L) {
-  ShipGfx *shipGfx = checkShipGfx(L, 1);
+void addUserGfxCircle(lua_State *L, BerryBotsEngine *engine, Team *team) {
   double x = luaL_checknumber(L, 2);
   double y = luaL_checknumber(L, 3);
   double radius = std::max(0.0, luaL_checknumber(L, 4));
@@ -1348,7 +1338,7 @@ int ShipGfx_circle(lua_State *L) {
   if (lua_istable(L, 5)) {
     fillColor = getRgbaColor(L, 5);
   } else {
-    fillColor = getDefaultFillColor();
+    fillColor = getTransparentColor();
   }
   double outlineThickness =
       std::max(0.0, luaL_optnumber(L, 6, DEFAULT_OUTLINE_THICKNESS));
@@ -1356,19 +1346,15 @@ int ShipGfx_circle(lua_State *L) {
   if (lua_istable(L, 7)) {
     outlineColor = getRgbaColor(L, 7);
   } else {
-    outlineColor = getDefaultOutlineColor();
+    outlineColor = getSolidWhiteColor();
   }
   int drawTicks = std::max(1, luaL_optint(L, 8, 1));
 
-  BerryBotsEngine *engine = shipGfx->engine;
-  engine->getStage()->addShipGfxCircle(shipGfx->team, engine->getGameTime(), x,
-      y, radius, fillColor, outlineThickness, outlineColor, drawTicks);
-
-  return 1;
+  engine->getStage()->addUserGfxCircle(team, engine->getGameTime(), x, y,
+      radius, fillColor, outlineThickness, outlineColor, drawTicks);
 }
 
-int ShipGfx_text(lua_State *L) {
-  ShipGfx *shipGfx = checkShipGfx(L, 1);
+void addUserGfxText(lua_State *L, BerryBotsEngine *engine, Team *team) {
   const char *text = luaL_checkstring(L, 2);
   double x = luaL_checknumber(L, 3);
   double y = luaL_checknumber(L, 4);
@@ -1377,14 +1363,35 @@ int ShipGfx_text(lua_State *L) {
   if (lua_istable(L, 6)) {
     textColor = getRgbaColor(L, 6);
   } else {
-    textColor = getDefaultOutlineColor();
+    textColor = getSolidWhiteColor();
   }
   int drawTicks = std::max(1, luaL_optint(L, 7, 1));
 
-  BerryBotsEngine *engine = shipGfx->engine;
-  engine->getStage()->addShipGfxText(shipGfx->team, engine->getGameTime(), text,
-      x, y, fontSize, textColor, drawTicks);
+  engine->getStage()->addUserGfxText(team, engine->getGameTime(), text, x, y,
+                                     fontSize, textColor, drawTicks);
+}
 
+int ShipGfx_rectangle(lua_State *L) {
+  ShipGfx *shipGfx = checkShipGfx(L, 1);
+  addUserGfxRectangle(L, shipGfx->engine, shipGfx->team);
+  return 1;
+}
+
+int ShipGfx_line(lua_State *L) {
+  ShipGfx *shipGfx = checkShipGfx(L, 1);
+  addUserGfxLine(L, shipGfx->engine, shipGfx->team);
+  return 1;
+}
+
+int ShipGfx_circle(lua_State *L) {
+  ShipGfx *shipGfx = checkShipGfx(L, 1);
+  addUserGfxCircle(L, shipGfx->engine, shipGfx->team);
+  return 1;
+}
+
+int ShipGfx_text(lua_State *L) {
+  ShipGfx *shipGfx = checkShipGfx(L, 1);
+  addUserGfxText(L, shipGfx->engine, shipGfx->team);
   return 1;
 }
 
@@ -1645,6 +1652,65 @@ const luaL_Reg Admin_methods[] = {
 
 int registerAdmin(lua_State *L) {
   return registerClass(L, ADMIN, Admin_methods);
+}
+
+StageGfx* checkStageGfx(lua_State *L, int index) {
+  luaL_checktype(L, index, LUA_TUSERDATA);
+  StageGfx *stageGfx = (StageGfx *) luaL_checkudata(L, index, SHIP_GFX);
+  if (stageGfx == NULL) luaL_error(L, "error in checkStageGfx");
+  return stageGfx;
+}
+
+StageGfx* pushStageGfx(lua_State *L) {
+  StageGfx *stageGfx = (StageGfx *) lua_newuserdata(L, sizeof(StageGfx));
+  luaL_getmetatable(L, SHIP_GFX);
+  lua_setmetatable(L, -2);
+  int stageGfxRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
+  lua_rawgeti(L, LUA_REGISTRYINDEX, stageGfxRef);
+  return stageGfx;
+}
+
+int StageGfx_rectangle(lua_State *L) {
+  StageGfx *stageGfx = checkStageGfx(L, 1);
+  addUserGfxRectangle(L, stageGfx->engine, 0);
+  return 1;
+}
+
+int StageGfx_line(lua_State *L) {
+  StageGfx *stageGfx = checkStageGfx(L, 1);
+  addUserGfxLine(L, stageGfx->engine, 0);
+  return 1;
+}
+
+int StageGfx_circle(lua_State *L) {
+  StageGfx *stageGfx = checkStageGfx(L, 1);
+  addUserGfxCircle(L, stageGfx->engine, 0);
+  return 1;
+}
+
+int StageGfx_text(lua_State *L) {
+  StageGfx *stageGfx = checkStageGfx(L, 1);
+  addUserGfxText(L, stageGfx->engine, 0);
+  return 1;
+}
+
+int StageGfx_enabled(lua_State *L) {
+  StageGfx *stageGfx = checkStageGfx(L, 1);
+  lua_pushboolean(L, stageGfx->engine->getStage()->getGfxEnabled());
+  return 1;
+}
+
+const luaL_Reg StageGfx_methods[] = {
+  {"rectangle",  StageGfx_rectangle},
+  {"line",       StageGfx_line},
+  {"circle",     StageGfx_circle},
+  {"text",       StageGfx_text},
+  {"enabled",    StageGfx_enabled},
+  {0, 0}
+};
+
+int registerStageGfx(lua_State *L) {
+  return registerClass(L, SHIP_GFX, StageGfx_methods);
 }
 
 int ShipGlobals_print(lua_State *L) {

@@ -60,6 +60,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   shipProperties_ = 0;
   worlds_ = 0;
   shipGfxs_ = 0;
+  stageGfx_ = 0;
   teamVision_ = 0;
   sensorHandler_ = 0;
   fileManager_ = fileManager;
@@ -580,7 +581,9 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     stageWorld_->engine = this;
     Admin *admin = pushAdmin(stageState_);
     admin->engine = this;
-    callUserLuaCode(stageState_, 3, "Error calling stage function: 'init'",
+    stageGfx_ = pushStageGfx(stageState_);
+    stageGfx_->engine = this;
+    callUserLuaCode(stageState_, 4, "Error calling stage function: 'init'",
                     PCALL_STAGE);
   }
 

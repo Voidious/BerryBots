@@ -219,6 +219,14 @@ class GfxManager {
     void adjustUserGfxLinePosition(sf::RectangleShape *rectangleShape,
                                    double angle);
     void drawUserGfxs(sf::RenderWindow *window, Stage *stage, int time);
+    void drawUserGfxRectangles(sf::RenderWindow *window,
+        UserGfxRectangle** gfxRectangles, int numRectangles);
+    void drawUserGfxLines(sf::RenderWindow *window, UserGfxLine** gfxLines,
+                          int numLines);
+    void drawUserGfxCircles(sf::RenderWindow *window,
+                            UserGfxCircle** gfxCircles, int numCircles);
+    void drawUserGfxTexts(sf::RenderWindow *window, UserGfxText** gfxTexts,
+                          int numTexts);
     void drawDock(sf::RenderWindow *window, Stage *stage, bool paused);
     void drawDockItem(sf::RenderWindow *window, DockItem *dockItem);
     void drawGameOver(sf::RenderWindow *window, Stage *stage,

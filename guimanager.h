@@ -254,6 +254,17 @@ class ConsoleEventHandler : public EventHandler {
         double torpedoDistance, int time) {};
 };
 
+class StageConsoleListener : public ConsoleListener {
+  Stage *stage_;
+
+  public:
+    StageConsoleListener(Stage *stage);
+    virtual void onActive() {};
+    virtual void onClose() {};
+    virtual void onCheck(bool checked);
+    virtual ~StageConsoleListener() {};
+};
+
 class PreviewConsoleListener : public ConsoleListener {
   GuiManager *guiManager_;
 

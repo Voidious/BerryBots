@@ -500,7 +500,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     guiPrintHandler->restartMode();
   } else {
     deleteStageConsole();
-    stageConsole_ = new OutputConsole(stageName, false, menuBarMaker_);
+    stageConsole_ = new OutputConsole(stageName, true, menuBarMaker_);
     stageConsole_->Hide();
 
     if (printHandler != 0) {
@@ -522,6 +522,10 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   engine_ = new BerryBotsEngine(fileManager_);
   engine_->setListener(printStateListener_);
   Stage *stage = engine_->getStage();
+  if (restarting_) {
+    stage->setGfxEnabled(stageConsole_->isChecked());
+  }
+  stageConsole_->setListener(new StageConsoleListener(stage));
   char *cacheDir = getCacheDirCopy();
   try {
     engine_->initStage(stagesBaseDir_, stageName, cacheDir);
@@ -1453,6 +1457,14 @@ void ConsoleEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
   for (int x = 0; x < numDestroyers; x++) {
     guiManager_->printShipDestroyed(destroyedShip, destroyerShips[x], time);
   }
+}
+
+StageConsoleListener::StageConsoleListener(Stage *stage) {
+  stage_ = stage;
+}
+
+void StageConsoleListener::onCheck(bool checked) {
+  stage_->setGfxEnabled(checked);
 }
 
 PreviewConsoleListener::PreviewConsoleListener(GuiManager *guiManager) {

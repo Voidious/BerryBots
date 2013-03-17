@@ -148,13 +148,13 @@ typedef struct {
   bool errored;
   bool ownedByLua;
   bool gfxEnabled;
-  UserGfxRectangle* gfxRectangles[MAX_SHIP_RECTANGLES];
+  UserGfxRectangle* gfxRectangles[MAX_USER_RECTANGLES];
   int numRectangles;
-  UserGfxLine* gfxLines[MAX_SHIP_LINES];
+  UserGfxLine* gfxLines[MAX_USER_LINES];
   int numLines;
-  UserGfxCircle* gfxCircles[MAX_SHIP_RECTANGLES];
+  UserGfxCircle* gfxCircles[MAX_USER_RECTANGLES];
   int numCircles;
-  UserGfxText* gfxTexts[MAX_SHIP_TEXTS];
+  UserGfxText* gfxTexts[MAX_USER_TEXTS];
   int numTexts;
 } Team;
 
@@ -261,6 +261,10 @@ typedef struct {
 typedef struct {
   BerryBotsEngine *engine;
 } Admin;
+
+typedef struct {
+  BerryBotsEngine *engine;
+} StageGfx;
 
 typedef struct {
   int shipHitShipRef;

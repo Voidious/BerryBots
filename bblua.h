@@ -37,8 +37,8 @@
 
 #define DEFAULT_STAGE_TEXT_SIZE    28
 #define DEFAULT_SHIP_TEXT_SIZE     28
-#define DEFAULT_FILL_COLOR         {0, 0, 0, 0}
-#define DEFAULT_OUTLINE_COLOR      {255, 255, 255, 255}
+#define TRANSPARENT_COLOR          {0, 0, 0, 0}
+#define SOLID_WHITE_COLOR          {255, 255, 255, 255}
 #define DEFAULT_OUTLINE_THICKNESS  2
 
 extern "C" {
@@ -56,6 +56,7 @@ extern int registerZone(lua_State *L);
 extern int registerWorld(lua_State *L);
 extern int registerShipGfx(lua_State *L);
 extern int registerAdmin(lua_State *L);
+extern int registerStageGfx(lua_State *L);
 extern int registerShipGlobals(lua_State *L);
 extern int registerStageGlobals(lua_State *L);
 
@@ -80,6 +81,7 @@ extern void pushCopyOfShips(
 extern World* pushWorld(lua_State *L, Stage *stage, int numShips, int teamSize);
 extern ShipGfx* pushShipGfx(lua_State *L);
 extern Admin* pushAdmin(lua_State *L);
+extern StageGfx* pushStageGfx(lua_State *L);
 extern void crawlFiles(lua_State *L, const char *startFile);
 
 #endif
