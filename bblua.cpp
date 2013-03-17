@@ -1301,9 +1301,9 @@ int ShipGfx_rectangle(lua_State *L) {
   int drawTicks = std::max(1, luaL_optint(L, 10, 1));
 
   BerryBotsEngine *engine = shipGfx->engine;
-  engine->getStage()->addShipGfxRectangle(shipGfx->teamIndex,
-      engine->getGameTime(), left, bottom, width, height, rotation, fillColor,
-      outlineThickness, outlineColor, drawTicks);
+  engine->getStage()->addShipGfxRectangle(shipGfx->team, engine->getGameTime(),
+      left, bottom, width, height, rotation, fillColor, outlineThickness,
+      outlineColor, drawTicks);
 
   return 1;
 }
@@ -1332,9 +1332,9 @@ int ShipGfx_line(lua_State *L) {
   int drawTicks = std::max(1, luaL_optint(L, 10, 1));
 
   BerryBotsEngine *engine = shipGfx->engine;
-  engine->getStage()->addShipGfxLine(shipGfx->teamIndex,
-      engine->getGameTime(), x, y, angle, length, thickness, fillColor,
-      outlineThickness, outlineColor, drawTicks);
+  engine->getStage()->addShipGfxLine(shipGfx->team, engine->getGameTime(), x, y,
+      angle, length, thickness, fillColor, outlineThickness, outlineColor,
+      drawTicks);
 
   return 1;
 }
@@ -1361,9 +1361,8 @@ int ShipGfx_circle(lua_State *L) {
   int drawTicks = std::max(1, luaL_optint(L, 8, 1));
 
   BerryBotsEngine *engine = shipGfx->engine;
-  engine->getStage()->addShipGfxCircle(shipGfx->teamIndex,
-      engine->getGameTime(), x, y, radius, fillColor, outlineThickness,
-      outlineColor, drawTicks);
+  engine->getStage()->addShipGfxCircle(shipGfx->team, engine->getGameTime(), x,
+      y, radius, fillColor, outlineThickness, outlineColor, drawTicks);
 
   return 1;
 }
@@ -1383,8 +1382,8 @@ int ShipGfx_text(lua_State *L) {
   int drawTicks = std::max(1, luaL_optint(L, 7, 1));
 
   BerryBotsEngine *engine = shipGfx->engine;
-  engine->getStage()->addShipGfxText(shipGfx->teamIndex, engine->getGameTime(),
-      text, x, y, fontSize, textColor, drawTicks);
+  engine->getStage()->addShipGfxText(shipGfx->team, engine->getGameTime(), text,
+      x, y, fontSize, textColor, drawTicks);
 
   return 1;
 }

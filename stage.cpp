@@ -348,11 +348,10 @@ void Stage::clearStaleStageTexts(int gameTime) {
   }
 }
 
-int Stage::addShipGfxRectangle(int teamIndex, int gameTime, double left,
+int Stage::addShipGfxRectangle(Team *team, int gameTime, double left,
     double bottom, double width, double height, double rotation,
     RgbaColor fillColor, double outlineThickness, RgbaColor outlineColor,
     int drawTicks) {
-  Team *team = teams_[teamIndex];
   if (team->numRectangles >= MAX_SHIP_RECTANGLES) {
     return 0;
   } else {
@@ -407,10 +406,9 @@ void Stage::clearStaleShipGfxRectangles(int gameTime) {
   }
 }
 
-int Stage::addShipGfxLine(int teamIndex, int gameTime, double x, double y,
+int Stage::addShipGfxLine(Team *team, int gameTime, double x, double y,
     double angle, double length, double thickness, RgbaColor fillColor,
     double outlineThickness, RgbaColor outlineColor, int drawTicks) {
-  Team *team = teams_[teamIndex];
   if (team->numLines >= MAX_SHIP_LINES) {
     return 0;
   } else {
@@ -465,10 +463,9 @@ void Stage::clearStaleShipGfxLines(int gameTime) {
   }
 }
 
-int Stage::addShipGfxCircle(int teamIndex, int gameTime, double x, double y,
+int Stage::addShipGfxCircle(Team *team, int gameTime, double x, double y,
     double radius, RgbaColor fillColor, double outlineThickness,
     RgbaColor outlineColor, int drawTicks) {
-  Team *team = teams_[teamIndex];
   if (team->numCircles >= MAX_SHIP_CIRCLES) {
     return 0;
   } else {
@@ -521,9 +518,8 @@ void Stage::clearStaleShipGfxCircles(int gameTime) {
   }
 }
 
-int Stage::addShipGfxText(int teamIndex, int gameTime, const char *text,
+int Stage::addShipGfxText(Team *team, int gameTime, const char *text,
     double x, double y, int fontSize, RgbaColor textColor, int drawTicks) {
-  Team *team = teams_[teamIndex];
   if (team->numTexts >= MAX_SHIP_TEXTS) {
     return 0;
   } else {

@@ -254,7 +254,7 @@ typedef struct {
 } World;
 
 typedef struct {
-  short teamIndex;
+  Team *team;
   BerryBotsEngine *engine;
 } ShipGfx;
 

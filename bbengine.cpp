@@ -538,7 +538,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
       worlds_[x] = pushWorld(teamState, stage_, numShips_, teamSize_);
       worlds_[x]->engine = this;
       shipGfxs_[x] = pushShipGfx(teamState);
-      shipGfxs_[x]->teamIndex = team->index;
+      shipGfxs_[x]->team = team;
       shipGfxs_[x]->engine = this;
 
       int r = callUserLuaCode(teamState, 3,
