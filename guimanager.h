@@ -111,6 +111,7 @@ class GuiManager {
     bool isValidStageFile(const char *srcFilename, BerryBotsEngine *engine);
     void loadShips();
     bool isValidShipFile(const char *srcFilename, BerryBotsEngine *engine);
+    void startMatch(const char *stageName, char **teamNames, int numTeams);
     void runNewMatch(const char *stageName, char **teamNames, int numTeams);
     void processMainWindowEvents(sf::RenderWindow *window,
         GfxManager *gfxManager, int viewWidth, int viewHeight);

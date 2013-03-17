@@ -449,6 +449,13 @@ sf::RenderWindow* GuiManager::getMainWindow() {
   return window_;
 }
 
+void GuiManager::startMatch(const char *stageName, char **teamNames,
+                            int numUserTeams) {
+  do {
+    runNewMatch(stageName, teamNames, numUserTeams);
+  } while (restarting_);
+}
+
 void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                              int numUserTeams) {
   tpsFactor_ = 1;
@@ -608,10 +615,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   window->display();
 
   runCurrentMatch();
-
-  while (restarting_) {
-    runNewMatch(currentStagePath_, currentTeamPaths_, currentNumTeams_);
-  }
 }
 
 // TODO: Track and display TPS in GUI.
@@ -1233,7 +1236,7 @@ MatchRunner::~MatchRunner() {
 
 void MatchRunner::startMatch(const char *stageName, char **teamNames,
                              int numTeams) {
-  guiManager_->runNewMatch(stageName, teamNames, numTeams);
+  guiManager_->startMatch(stageName, teamNames, numTeams);
 }
 
 void MatchRunner::previewStage(const char *stageName) {
