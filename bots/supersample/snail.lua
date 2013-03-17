@@ -4,7 +4,7 @@
 -- This is the only sample ship with any real pathfinding for navigating walls.
 
 ship = nil
-world = nil
+gfx = nil
 zones = nil
 width = nil
 height = nil
@@ -16,12 +16,13 @@ wallLines = { }
 
 targetx, targety, targetPoint = nil, nil, nil
 
-function init(shipArg, world)
+function init(shipArg, world, gfxArg)
   ship = shipArg
   walls = world:walls()
   zones = world:zones()
   width = world:width()
   height = world:height()
+  gfx = gfxArg
   ship:setName("Snail")
   ship:setShipColor(0, 0, 255)
   ship:setLaserColor(0, 0, 0)
@@ -120,13 +121,14 @@ function run()
       thrust = 5 - ship:speed()
       ship:fireThruster(bearingToPoint(destination), thrust)
     end
+    drawGrid(source, destination)
   end
 end
 
 function nearestGridPoint(x, y)
   nearestDistanceSq = math.huge
   nearest = nil
-  for i,p in pairs(gridPoints) do
+  for i, p in pairs(gridPoints) do
     distSq = square(p.x - x) + square(p.y - y)
     if (p ~= targetPoint and distSq < nearestDistanceSq
         and validPath(x, y, p.x, p.y)) then
@@ -139,7 +141,7 @@ end
 
 function nextPointOnPath(p)
   source = nil
-  for i,gridPoint in pairs(gridPoints) do
+  for i, gridPoint in pairs(gridPoints) do
     if (p:distanceSq(gridPoint) < 25) then
       source = gridPoint
     else
@@ -157,7 +159,7 @@ function nextPointOnPath(p)
   source.visited = false
   thisPoint = source
   while (not done) do
-    for i,edgePoint in pairs(thisPoint.edges) do
+    for i, edgePoint in pairs(thisPoint.edges) do
       if (thisPoint.distance + 1 < edgePoint.distance) then
         edgePoint.distance = thisPoint.distance + 1
         edgePoint.previous = thisPoint
@@ -183,7 +185,7 @@ end
 function nextUnvisitedGridPoint()
   minDistance = math.huge
   nextPoint = nil
-  for i,p in pairs(gridPoints) do
+  for i, p in pairs(gridPoints) do
     if (not p.visited and p.distance < minDistance) then
       minDistance = p.distance
       nextPoint = p
@@ -216,6 +218,37 @@ function normalRelativeAngle(x)
     x = x + (2 * math.pi)
   end
   return x
+end
+
+function drawGrid(source, destination)
+  nextPoint = targetPoint
+  for i, p in pairs(gridPoints) do
+    for j, p2 in pairs(p.edges) do
+      drawLine(p, p2, {r=50, g=50, b=50, a=255})
+    end
+
+    local color
+    if (p == source) then
+      color = {r=255}
+    elseif (p == destination) then
+      color = {r=255, g=255}
+    else
+      color = {r=50, g=50, b=50}
+    end
+    gfx:circle(p.x, p.y, 3, color, 0)
+  end
+  while (nextPoint ~= nil and nextPoint.previous ~= source) do
+    gfx:circle(nextPoint.x, nextPoint.y, 3, {r=255, g=255, b=255}, 0)
+    if (nextPoint.previous ~= nil) then
+      drawLine(nextPoint, nextPoint.previous, {r=255, g=255, b=255, a=255})
+    end
+    nextPoint = nextPoint.previous
+  end
+end
+
+function drawLine(p, p2, color)
+  gfx:line(p.x, p.y, math.atan2(p2.y - p.y, p2.x - p.x),
+      math.sqrt(square(p2.x - p.x) + square(p2.y - p.y)), 1, color, 0)
 end
 
 Point = {}
