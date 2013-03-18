@@ -40,7 +40,7 @@ module "DebugGfx"
 --     Default is white.
 -- @param duration (optional) The number of ticks, in game time, that the
 --     rectangle will stay on screen. Default is 1.
-function rectangle(left, bottom, width, height, rotation, fillColor, outlineThickness, outlineColor, duration)
+function drawRectangle(left, bottom, width, height, rotation, fillColor, outlineThickness, outlineColor, duration)
 
 --- Draws a line.
 -- @see RgbaColor
@@ -59,7 +59,7 @@ function rectangle(left, bottom, width, height, rotation, fillColor, outlineThic
 --     is transparent.
 -- @param duration (optional) The number of ticks, in game time, that the line
 --     will stay on screen. Default is 1.
-function line(x, y, angle, length, thickness, fillColor, outlineThickness, outlineColor, duration)
+function drawLine(x, y, angle, length, thickness, fillColor, outlineThickness, outlineColor, duration)
 
 --- Draws a circle.
 -- @see RgbaColor
@@ -74,16 +74,16 @@ function line(x, y, angle, length, thickness, fillColor, outlineThickness, outli
 --     Default is white.
 -- @param duration (optional) The number of ticks, in game time, that the circle
 --     will stay on screen. Default is 1.
-function circle(x, y, radius, fillColor, outlineThickness, outlineColor, duration)
+function drawCircle(x, y, radius, fillColor, outlineThickness, outlineColor, duration)
 
 --- Draws some text.
 -- @see RgbaColor
--- @param string The text to draw on the screen.
+-- @param text The text to draw on the screen.
 -- @param x The x coordinate of the left side of the text.
 -- @param y The y coordinate of the bottom of the text.
 -- @param size (optional) Size of characters, in pixels. Default is 28.
 -- @param color (optional) The color of the text. Default is white.
 -- @param duration (optional) The number of ticks, in game time, that the text
 --     will stay on screen. Default is 1.
-function text(string, x, y, size, color, duration)
+function drawText(text, x, y, size, color, duration)
 

@@ -1372,25 +1372,25 @@ void addUserGfxText(lua_State *L, BerryBotsEngine *engine, Team *team) {
                                      fontSize, textColor, drawTicks);
 }
 
-int ShipGfx_rectangle(lua_State *L) {
+int ShipGfx_drawRectangle(lua_State *L) {
   ShipGfx *shipGfx = checkShipGfx(L, 1);
   addUserGfxRectangle(L, shipGfx->engine, shipGfx->team);
   return 1;
 }
 
-int ShipGfx_line(lua_State *L) {
+int ShipGfx_drawLine(lua_State *L) {
   ShipGfx *shipGfx = checkShipGfx(L, 1);
   addUserGfxLine(L, shipGfx->engine, shipGfx->team);
   return 1;
 }
 
-int ShipGfx_circle(lua_State *L) {
+int ShipGfx_drawCircle(lua_State *L) {
   ShipGfx *shipGfx = checkShipGfx(L, 1);
   addUserGfxCircle(L, shipGfx->engine, shipGfx->team);
   return 1;
 }
 
-int ShipGfx_text(lua_State *L) {
+int ShipGfx_drawText(lua_State *L) {
   ShipGfx *shipGfx = checkShipGfx(L, 1);
   addUserGfxText(L, shipGfx->engine, shipGfx->team);
   return 1;
@@ -1403,11 +1403,11 @@ int ShipGfx_enabled(lua_State *L) {
 }
 
 const luaL_Reg ShipGfx_methods[] = {
-  {"rectangle",  ShipGfx_rectangle},
-  {"line",       ShipGfx_line},
-  {"circle",     ShipGfx_circle},
-  {"text",       ShipGfx_text},
-  {"enabled",    ShipGfx_enabled},
+  {"drawRectangle",  ShipGfx_drawRectangle},
+  {"drawLine",       ShipGfx_drawLine},
+  {"drawCircle",     ShipGfx_drawCircle},
+  {"drawText",       ShipGfx_drawText},
+  {"enabled",        ShipGfx_enabled},
   {0, 0}
 };
 
@@ -1671,25 +1671,25 @@ StageGfx* pushStageGfx(lua_State *L) {
   return stageGfx;
 }
 
-int StageGfx_rectangle(lua_State *L) {
+int StageGfx_drawRectangle(lua_State *L) {
   StageGfx *stageGfx = checkStageGfx(L, 1);
   addUserGfxRectangle(L, stageGfx->engine, 0);
   return 1;
 }
 
-int StageGfx_line(lua_State *L) {
+int StageGfx_drawLine(lua_State *L) {
   StageGfx *stageGfx = checkStageGfx(L, 1);
   addUserGfxLine(L, stageGfx->engine, 0);
   return 1;
 }
 
-int StageGfx_circle(lua_State *L) {
+int StageGfx_drawCircle(lua_State *L) {
   StageGfx *stageGfx = checkStageGfx(L, 1);
   addUserGfxCircle(L, stageGfx->engine, 0);
   return 1;
 }
 
-int StageGfx_text(lua_State *L) {
+int StageGfx_drawText(lua_State *L) {
   StageGfx *stageGfx = checkStageGfx(L, 1);
   addUserGfxText(L, stageGfx->engine, 0);
   return 1;
@@ -1702,11 +1702,11 @@ int StageGfx_enabled(lua_State *L) {
 }
 
 const luaL_Reg StageGfx_methods[] = {
-  {"rectangle",  StageGfx_rectangle},
-  {"line",       StageGfx_line},
-  {"circle",     StageGfx_circle},
-  {"text",       StageGfx_text},
-  {"enabled",    StageGfx_enabled},
+  {"drawRectangle",  StageGfx_drawRectangle},
+  {"drawLine",       StageGfx_drawLine},
+  {"drawCircle",     StageGfx_drawCircle},
+  {"drawText",       StageGfx_drawText},
+  {"enabled",        StageGfx_enabled},
   {0, 0}
 };
 

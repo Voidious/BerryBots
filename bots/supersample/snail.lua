@@ -231,10 +231,11 @@ function drawGrid(source)
     end
 
     local color = {r=50, g=50, b=50}
-    gfx:circle(p.x, p.y, 3, color, 0, { }, 1)
+    gfx:drawCircle(p.x, p.y, 3, color, 0, { }, 1)
   end
   while (nextPoint ~= nil and nextPoint.previous ~= source) do
-    gfx:circle(nextPoint.x, nextPoint.y, 3, {r=255, g=255, b=255}, 0, { }, 1)
+    gfx:drawCircle(nextPoint.x, nextPoint.y, 3, {r=255, g=255, b=255}, 0, { },
+                   1)
     if (nextPoint.previous ~= nil) then
       drawLine(nextPoint, nextPoint.previous, {r=255, g=255, b=255, a=255},
                1000000)
@@ -248,13 +249,13 @@ function drawPath(source, destination)
   for i, p in pairs(gridPoints) do
     local color
     if (p == source) then
-      gfx:circle(p.x, p.y, 3, {r=255}, 0)
+      gfx:drawCircle(p.x, p.y, 3, {r=255}, 0)
     elseif (p == destination) then
-      gfx:circle(p.x, p.y, 3, {r=255, g=255}, 0)
+      gfx:drawCircle(p.x, p.y, 3, {r=255, g=255}, 0)
     end
   end
   while (nextPoint ~= nil and nextPoint.previous ~= source) do
-    gfx:circle(nextPoint.x, nextPoint.y, 3, {r=255, g=255, b=255}, 0)
+    gfx:drawCircle(nextPoint.x, nextPoint.y, 3, {r=255, g=255, b=255}, 0)
     if (nextPoint.previous ~= nil) then
       drawLine(nextPoint, nextPoint.previous, {r=255, g=255, b=255, a=255}, 1)
     end
@@ -263,7 +264,7 @@ function drawPath(source, destination)
 end
 
 function drawLine(p, p2, color, duration)
-  gfx:line(p.x, p.y, math.atan2(p2.y - p.y, p2.x - p.x),
+  gfx:drawLine(p.x, p.y, math.atan2(p2.y - p.y, p2.x - p.x),
       math.sqrt(square(p2.x - p.x) + square(p2.y - p.y)), 1, color, 0, { },
       duration)
 end
