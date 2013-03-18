@@ -123,7 +123,7 @@ div.header, div.footer { margin-left: 0em; }
 #navigation
 {
     float: left;
-    width: 18em;
+    width: 15em;
     margin: 0;
     vertical-align: top;
     background-color: #f0f0f0;
@@ -164,7 +164,7 @@ div.header, div.footer { margin-left: 0em; }
 
 #content
 {
-    margin-left: 18em;
+    margin-left: 15em;
     padding: 1em;
     border-left: 2px solid #cccccc;
     border-right: 2px solid #cccccc;

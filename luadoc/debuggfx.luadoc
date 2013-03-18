@@ -14,7 +14,7 @@ module "DebugGfx"
 --   <li>Yellow: <code>{r=255, g=255}</code></li>
 --   <li>Transparent blue: <code>{b=255, a=150}</code></li>
 --   <li>Black: <code>{ }</code></li>
---   <li>Transparent: <code>{a=255}</code></li>
+--   <li>Transparent: <code>{a=0}</code></li>
 -- </ul>
 -- @class table
 -- @name RgbaColor
