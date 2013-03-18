@@ -39,6 +39,10 @@ In binary form:
 * Questrial font (SIL Open Font)
 * pthreads for win32 (LGPL)
 
+Indirectly:
+* LuaDoc to generate the BerryBots API documentation.
+  http://keplerproject.github.com/luadoc/
+
 Full licenses below.
 
 
