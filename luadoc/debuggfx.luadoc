@@ -1,0 +1,89 @@
+--- Provides graphical debugging for ships and stages.
+-- These are only enabled in the GUI version of BerryBots on Mac, Linux, and
+-- Windows. For now there is no graphical debugging on the Raspberry Pi.
+module "DebugGfx"
+
+--- Defines a color in RGBA format to be passed to graphical debugging
+-- functions. Values are in the range of 0-255 and all fields are optional.
+-- Default values are 0 for <code>r</code>, <code>g</code>, and <code>b</code>,
+-- and 255 (totally opaque) for <code>a</code>.
+--<br/><br/>
+-- Examples:
+-- <ul>
+--   <li>Red: <code>{r=255}</code></li>
+--   <li>Yellow: <code>{r=255, g=255}</code></li>
+--   <li>Transparent blue: <code>{b=255, a=150}</code></li>
+--   <li>Black: <code>{ }</code></li>
+--   <li>Transparent: <code>{a=255}</code></li>
+-- </ul>
+-- @class table
+-- @name RgbaColor
+-- @field r The red color channel.
+-- @field g The green color channel.
+-- @field b The blue color channel.
+-- @field a The alpha (opacity) channel.
+
+--- Draws a rectangle.
+-- @see RgbaColor
+-- @param left The x coordinate of the left side of the rectangle.
+-- @param bottom The y coordinate of the bottom side of the rectangle.
+-- @param width The width of the rectangle.
+-- @param height The height of the rectangle.
+-- @param rotation (optional) The angle to rotate the rectangle around its
+--     center point, in radians (0 is east, pi / 2 is north). Default is 0.
+-- @param fillColor (optional) The color of the inside of the rectangle.
+--     Default is transparent.
+-- @param outlineThickness (optional) The thickness of the outline around the
+--     rectangle. The area inside the rectangle is <code>width</code> by
+--     <code>height</code> - the outline is in addition to that. Default is 2.
+-- @param outlineColor (optional) The color of the outline of the rectangle.
+--     Default is white.
+-- @param duration (optional) The number of ticks, in game time, that the
+--     rectangle will stay on screen. Default is 1.
+function rectangle(left, bottom, width, height, rotation, fillColor, outlineThickness, outlineColor, duration)
+
+--- Draws a line.
+-- @see RgbaColor
+-- @param x The x coordinate where the line starts.
+-- @param y The y coordinate where the line starts.
+-- @param angle The angle at which the line extends from its starting point, in
+--     radians (0 is east, pi / 2 is north)
+-- @param length The length of the line.
+-- @param thickness (optional) The thickness of the line. Default is 2.
+-- @param fillColor (optional) The color of the line. Default is white.
+-- @param outlineThickness (optional) The thickness of the outline around the
+--     line. The area of the line itself is <code>length</code> by
+--     <code>thickness</code> - the outline is in addition to that. Default is
+--     0.
+-- @param outlineColor (optional) The color of the outline of the line. Default
+--     is transparent.
+-- @param duration (optional) The number of ticks, in game time, that the line
+--     will stay on screen. Default is 1.
+function line(x, y, angle, length, thickness, fillColor, outlineThickness, outlineColor, duration)
+
+--- Draws a circle.
+-- @see RgbaColor
+-- @param x The x coordinate of the center of the circle.
+-- @param y The y coordinate of the center of the circle.
+-- @param radius The radius of the circle
+-- @param fillColor (optional) The color of the inside of the circle.
+--     Default is transparent.
+-- @param outlineThickness (optional) The thickness of the outline around the
+--     circle. Default is 2.
+-- @param outlineColor (optional) The color of the outline of the circle.
+--     Default is white.
+-- @param duration (optional) The number of ticks, in game time, that the circle
+--     will stay on screen. Default is 1.
+function circle(x, y, radius, fillColor, outlineThickness, outlineColor, duration)
+
+--- Draws some text.
+-- @see RgbaColor
+-- @param string The text to draw on the screen.
+-- @param x The x coordinate of the left side of the text.
+-- @param y The y coordinate of the bottom of the text.
+-- @param size (optional) Size of characters, in pixels. Default is 28.
+-- @param color (optional) The color of the text. Default is white.
+-- @param duration (optional) The number of ticks, in game time, that the text
+--     will stay on screen. Default is 1.
+function text(string, x, y, size, color, duration)
+

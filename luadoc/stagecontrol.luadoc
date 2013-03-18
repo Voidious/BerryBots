@@ -13,7 +13,7 @@ function configure(stageBuilder)
 --- Initializes the stage.
 -- Passes references to all ships, the world, and an administrator object used
 -- to modify the state of the stage and ships.
--- @see Ship, World, Admin
+-- @see Ship, World, Admin, DebugGfx
 -- @param ships A table of all ships loaded for this game.
 -- @param world A userdata object used to query information about the game
 --     world, such as stage size, locations of walls and zones, and current
@@ -22,7 +22,10 @@ function configure(stageBuilder)
 --     available to the stage program, such as modifying a ship's speed,
 --     location, or energy, destroying or reviving ships, ending a round or the
 --     game, and deciding on a winner.
-function init(ships, world, admin)
+-- @param gfx A userdata object used to draw debug graphics on the screen.
+--     Graphics are hidden unless the user checks the checkbox in the stage's
+--     output console.
+function init(ships, world, admin, gfx)
 
 --- Executes stage code each tick.
 -- Allows the stage to monitor the game, modify the stage and ships, and decide

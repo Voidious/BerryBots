@@ -1310,7 +1310,8 @@ void addUserGfxLine(lua_State *L, BerryBotsEngine *engine, Team *team) {
   double y = luaL_checknumber(L, 3);
   double angle = luaL_checknumber(L, 4);
   double length = std::max(0.0, luaL_checknumber(L, 5));
-  double thickness = std::max(0.0, luaL_optnumber(L, 6, 0));
+  double thickness =
+      std::max(0.0, luaL_optnumber(L, 6, DEFAULT_LINE_THICKNESS));
   RgbaColor fillColor;
   if (lua_istable(L, 7)) {
     fillColor = getRgbaColor(L, 7);

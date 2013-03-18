@@ -117,5 +117,5 @@ function gameOver()
 -- @param text The text to draw on the screen.
 -- @param x The x coordinate of the left side of the text.
 -- @param y The y coordinate of the bottom of the text.
--- @param size (optional) Size of characters, in pixels.
+-- @param size (optional) Size of characters, in pixels. Default is 28.
 function drawText(text, x, y, size)

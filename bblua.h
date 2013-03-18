@@ -40,6 +40,7 @@
 #define TRANSPARENT_COLOR          {0, 0, 0, 0}
 #define SOLID_WHITE_COLOR          {255, 255, 255, 255}
 #define DEFAULT_OUTLINE_THICKNESS  2
+#define DEFAULT_LINE_THICKNESS     2
 
 extern "C" {
   #include "lua.h"

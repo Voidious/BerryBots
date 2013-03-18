@@ -35,6 +35,10 @@
 	</li>
 
 	<li>
+		<a href="../modules/DebugGfx.html">DebugGfx</a>
+	</li>
+
+	<li>
 		<a href="../modules/Sensors.html">Sensors</a>
 	</li>
 
@@ -100,7 +104,7 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#init">init</a>&nbsp;(ships, world)</td>
+	<td class="name" nowrap><a href="#init">init</a>&nbsp;(ships, world, gfx)</td>
 	<td class="summary">Initializes a ship control program.</td>
 	</tr>
 
@@ -159,7 +163,7 @@
 
 
 
-<dt><a name="init"></a><strong>init</strong>&nbsp;(ships, world)</dt>
+<dt><a name="init"></a><strong>init</strong>&nbsp;(ships, world, gfx)</dt>
 <br/>
 <dd>
 Initializes a ship control program. Passes references to <code>ships</code> and <code>world</code> objects. These can be used to query information about the state of the game world, information about ships under this program's control, and to issue commands to those ships. Only called once at the start of the match. Some ship initialization functions, like <code>setName</code>, can only be called from init.
@@ -174,6 +178,10 @@ Initializes a ship control program. Passes references to <code>ships</code> and 
 	
 	<li>
 	  world: A userdata object used to query information about the game world, such as stage size, locations of walls and zones, and current time.
+	</li>
+	
+	<li>
+	  gfx: A userdata object used to draw debug graphics on the screen. Graphics are hidden unless the user checks the checkbox in the output console for this ship/team.
 	</li>
 	
 </ul>
@@ -194,6 +202,10 @@ Initializes a ship control program. Passes references to <code>ships</code> and 
 	
 	<li><a href="../modules/World.html">
 		World
+	</a>
+	
+	<li><a href="../modules/DebugGfx.html">
+		DebugGfx
 	</a>
 	
 </ul>

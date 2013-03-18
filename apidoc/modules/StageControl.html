@@ -35,6 +35,10 @@
 	</li>
 
 	<li>
+		<a href="../modules/DebugGfx.html">DebugGfx</a>
+	</li>
+
+	<li>
 		<a href="../modules/Sensors.html">Sensors</a>
 	</li>
 
@@ -100,7 +104,7 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#init">init</a>&nbsp;(ships, world, admin)</td>
+	<td class="name" nowrap><a href="#init">init</a>&nbsp;(ships, world, admin, gfx)</td>
 	<td class="summary">Initializes the stage.</td>
 	</tr>
 
@@ -162,7 +166,7 @@ Configures the stage settings. Passes a builder object used to define static con
 
 
 
-<dt><a name="init"></a><strong>init</strong>&nbsp;(ships, world, admin)</dt>
+<dt><a name="init"></a><strong>init</strong>&nbsp;(ships, world, admin, gfx)</dt>
 <br/>
 <dd>
 Initializes the stage. Passes references to all ships, the world, and an administrator object used to modify the state of the stage and ships.
@@ -181,6 +185,10 @@ Initializes the stage. Passes references to all ships, the world, and an adminis
 	
 	<li>
 	  admin: A userdata object used to perform administrative operations only available to the stage program, such as modifying a ship's speed, location, or energy, destroying or reviving ships, ending a round or the game, and deciding on a winner.
+	</li>
+	
+	<li>
+	  gfx: A userdata object used to draw debug graphics on the screen. Graphics are hidden unless the user checks the checkbox in the stage's output console.
 	</li>
 	
 </ul>
@@ -205,6 +213,10 @@ Initializes the stage. Passes references to all ships, the world, and an adminis
 	
 	<li><a href="../modules/Admin.html">
 		Admin
+	</a>
+	
+	<li><a href="../modules/DebugGfx.html">
+		DebugGfx
 	</a>
 	
 </ul>
