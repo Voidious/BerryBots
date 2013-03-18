@@ -136,6 +136,8 @@ int main(int argc, char *argv[]) {
 
   engine = new BerryBotsEngine(fileManager);
   stage = engine->getStage();
+  // TODO: Enable graphical debugging on Raspberry Pi. Main barrier is UI.
+  stage->disableUserGfx();
 
   CliPrintHandler *cliPrintHandler = new CliPrintHandler();
   printHandler = (PrintHandler*) cliPrintHandler;

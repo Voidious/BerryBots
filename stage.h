@@ -93,6 +93,7 @@ class Stage {
   int numGfxCircles_;
   UserGfxText* gfxTexts_[MAX_USER_TEXTS];
   int numGfxTexts_;
+  bool userGfxDisabled_;
 
   public:
     Stage(int width, int height);
@@ -134,6 +135,7 @@ class Stage {
 
     bool getGfxEnabled();
     void setGfxEnabled(bool enabled);
+    void disableUserGfx();
 
     int addUserGfxRectangle(Team *team, int gameTime, double left,
         double bottom, double width, double height, double rotation,
