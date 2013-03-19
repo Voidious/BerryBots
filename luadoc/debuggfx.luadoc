@@ -87,3 +87,9 @@ function drawCircle(x, y, radius, fillColor, outlineThickness, outlineColor, dur
 --     will stay on screen. Default is 1.
 function drawText(text, x, y, size, color, duration)
 
+--- Whether graphical debugging is enabled.
+-- To enable graphical debugging for a ship or stage, open its output console by
+-- clicking its name in the dock, then check the "Enable Gfx" checkbox.
+-- @return <code>true</code> if graphical debugging is enabled,
+--     <code>false</code> otherwise
+function enabled()
