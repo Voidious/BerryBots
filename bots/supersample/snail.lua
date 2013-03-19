@@ -231,7 +231,7 @@ function drawGrid(source)
     end
 
     local color = {r=50, g=50, b=50}
-    gfx:drawCircle(p.x, p.y, 3, color, 0, { }, 1)
+    gfx:drawCircle(p.x, p.y, 3, color, 0, { }, 1000000)
   end
   while (nextPoint ~= nil and nextPoint.previous ~= source) do
     gfx:drawCircle(nextPoint.x, nextPoint.y, 3, {r=255, g=255, b=255}, 0, { },
