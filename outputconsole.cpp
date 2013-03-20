@@ -29,21 +29,20 @@ OutputConsole::OutputConsole(const char *title, bool enableCheckBox,
               wxDEFAULT_FRAME_STYLE) {
   enableCheckBox_ = enableCheckBox;
   menuBarMaker_ = menuBarMaker;
-  mainPanel_ = new wxPanel(this);
-  mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
-  mainSizer_->Add(mainPanel_);
-  wxBoxSizer *outerSizer = new wxBoxSizer(wxVERTICAL);
-  output_ = new wxTextCtrl(mainPanel_, wxID_ANY, "", wxPoint(0, 0),
+  outerSizer_ = new wxBoxSizer(wxVERTICAL);
+  output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0),
       wxSize(650, 450), wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP,
       wxDefaultValidator);
-  outerSizer->Add(output_);
+  outerSizer_->Add(output_, 1, wxEXPAND);
   gfxCheckBox_ = 0;
   if (enableCheckBox_) {
     wxBoxSizer *bottomSizer = new wxBoxSizer(wxHORIZONTAL);
-    gfxCheckBox_ = new wxCheckBox(mainPanel_, wxID_ANY, "Enable Gfx");
+    wxPanel *bottomPanel = new wxPanel(this);
+    gfxCheckBox_ = new wxCheckBox(bottomPanel, wxID_ANY, "Enable Gfx");
     bottomSizer->AddStretchSpacer(1);
     bottomSizer->Add(gfxCheckBox_, 0, wxALIGN_RIGHT);
-    outerSizer->Add(bottomSizer, 0, wxEXPAND | wxALL, 4);
+    bottomPanel->SetSizerAndFit(bottomSizer);
+    outerSizer_->Add(bottomPanel, 0, wxEXPAND | wxALL, 4);
   }
   listener_ = 0;
 
@@ -62,9 +61,7 @@ OutputConsole::OutputConsole(const char *title, bool enableCheckBox,
 #endif
 
   fontSize_ = defaultFontSize_;
-  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
-  mainPanel_->SetSizerAndFit(outerSizer);
-  SetSizerAndFit(mainSizer_);
+  SetSizerAndFit(outerSizer_);
 
   menusInitialized_ = false;
   closeOnSpace_ = false;
@@ -92,7 +89,6 @@ OutputConsole::~OutputConsole() {
   if (listener_ != 0) {
     delete listener_;
   }
-  delete mainPanel_;
 }
 
 void OutputConsole::setListener(ConsoleListener *listener) {
@@ -106,6 +102,8 @@ void OutputConsole::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
+    outerSizer_->Layout();
+    Fit();
   }
   if (event.GetActive() && listener_ != 0) {
     listener_->onActive();
@@ -113,7 +111,6 @@ void OutputConsole::onActivate(wxActivateEvent &event) {
   if (gfxCheckBox_ != 0) {
     gfxCheckBox_->SetFocus();
   }
-  SetSizerAndFit(mainSizer_);
 }
 
 // This is the only wxWidgets dialog that needs to be drawn concurrently with

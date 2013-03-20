@@ -33,8 +33,7 @@ class ConsoleListener {
 };
 
 class OutputConsole : public wxFrame {
-  wxPanel *mainPanel_;
-  wxBoxSizer *mainSizer_;
+  wxBoxSizer *outerSizer_;
   wxTextCtrl *output_;
   wxCheckBox *gfxCheckBox_;
   MenuBarMaker *menuBarMaker_;
