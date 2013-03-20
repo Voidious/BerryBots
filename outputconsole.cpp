@@ -40,9 +40,9 @@ OutputConsole::OutputConsole(const char *title, bool enableCheckBox,
     wxPanel *bottomPanel = new wxPanel(this);
     gfxCheckBox_ = new wxCheckBox(bottomPanel, wxID_ANY, "Enable Gfx");
     bottomSizer->AddStretchSpacer(1);
-    bottomSizer->Add(gfxCheckBox_, 0, wxALIGN_RIGHT);
+    bottomSizer->Add(gfxCheckBox_, 0, wxALIGN_RIGHT | wxALL, 4);
     bottomPanel->SetSizerAndFit(bottomSizer);
-    outerSizer_->Add(bottomPanel, 0, wxEXPAND | wxALL, 4);
+    outerSizer_->Add(bottomPanel, 0, wxEXPAND);
   }
   listener_ = 0;
 

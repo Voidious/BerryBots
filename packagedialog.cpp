@@ -149,8 +149,8 @@ void PackageDialog::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
+    Fit();
   }
-  SetSizerAndFit(mainSizer_);
 }
 
 void PackageDialog::onShow(wxShowEvent &event) {
