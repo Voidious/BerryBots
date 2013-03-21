@@ -49,6 +49,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   listener_ = listener;
   stagesBaseDir_ = shipsBaseDir_ = 0;
   newMatchDialog_ = 0;
+  srand((unsigned int) time(NULL));
   reloadBaseDirs();
 
   window_ = 0;
@@ -518,7 +519,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   stageConsole_->print("== Stage control program loaded: ");
   stageConsole_->println(stageName);
 
-  srand((unsigned int) time(NULL));
   engine_ = new BerryBotsEngine(fileManager_);
   engine_->setListener(printStateListener_);
   Stage *stage = engine_->getStage();
