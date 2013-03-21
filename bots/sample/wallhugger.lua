@@ -146,7 +146,7 @@ function wouldHitWall(wallLines, moveLine)
 end
 
 function round(d, x)
-  local powerTen = 1;
+  local powerTen = 1
   for i = 1, x do
     powerTen = powerTen * 10
   end

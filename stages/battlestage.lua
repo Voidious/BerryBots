@@ -1,6 +1,6 @@
 -- A module that defines some common functions required by battle stages.
 
-module("battlestage", package.seeall);
+module("battlestage", package.seeall)
 
 local NUM_ROUNDS = 9
 local ROUND_TIME_LIMIT = 5000
@@ -208,7 +208,7 @@ function checkRoundTimeLimit(ships, world, admin)
 end
 
 function round(d, x)
-  local powerTen = 1;
+  local powerTen = 1
   for i = 1, x do
     powerTen = powerTen * 10
   end

@@ -1,6 +1,6 @@
 -- A module that defines some common functions required by the sample stages.
 
-module("samplestage", package.seeall);
+module("samplestage", package.seeall)
 
 function checkSinglePlayer(ships, admin)
   checkNumPlayers(1, ships, admin)

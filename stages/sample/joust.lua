@@ -61,6 +61,6 @@ function run()
         admin:setWinner(ship:name())
       end
     end
-    admin:gameOver();
+    admin:gameOver()
   end
 end

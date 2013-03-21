@@ -1,6 +1,6 @@
 -- A module that defines some common functions required by battle ships.
 
-module("battlebot", package.seeall);
+module("battlebot", package.seeall)
 
 function newLine(x1, y1, x2, y2)
   local wallLine = { }
