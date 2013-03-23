@@ -240,8 +240,25 @@ int BerryBotsEngine::getNumTeams() {
   return numTeams_;
 }
 
+// Taken from luajit.c
+static int traceback(lua_State *L) {
+  if (!lua_isstring(L, 1)) { /* Non-string error object? Try metamethod. */
+    if (lua_isnoneornil(L, 1) || !luaL_callmeta(L, 1, "__tostring")
+        || !lua_isstring(L, -1)) {
+      return 1;  /* Return non-string error object. */
+    }
+    lua_remove(L, 1);  /* Replace object by result of __tostring metamethod. */
+  }
+  luaL_traceback(L, L, lua_tostring(L, 1), 1);
+  return 1;
+}
+
 int BerryBotsEngine::callUserLuaCode(lua_State *L, int nargs,
     const char *errorMsg, int callStyle) throw (EngineException*) {
+  int base = lua_gettop(L) - nargs;
+  lua_pushcfunction(L, traceback);
+  lua_insert(L, base);
+
   // TODO: Without this, Snail's "drawLine" function is hitting an lj_alloc_free
   //       crash related to passing a table as a Lua function argument.
   //       Disabling GC for user calls fixes it, but it seems like a bug in
@@ -252,10 +269,11 @@ int BerryBotsEngine::callUserLuaCode(lua_State *L, int nargs,
   //       more tests and maybe add one.
   timerSettings_->timerExpiration = timerSettings_->timerTick + 2;
   timerSettings_->L = L;
-  int pcallValue = lua_pcall(L, nargs, 0, 0);
+  int pcallValue = lua_pcall(L, nargs, 0, base);
   timerSettings_->L = 0;
   timerSettings_->timerExpiration = LONG_MAX;
 
+  lua_remove(L, base);
   lua_gc(L, LUA_GCRESTART, 0);
 
   if (pcallValue != 0) {
