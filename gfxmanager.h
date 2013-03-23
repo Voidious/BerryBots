@@ -57,6 +57,9 @@
 #define LASER_SPARK_THICKNESS     1.5
 #define LASER_SPARK_FRAMES        8
 #define LASER_SPARK_TIME          LASER_SPARK_FRAMES
+#define TORPEDO_SPARK_RADIUS      2
+#define TORPEDO_SPARK_FRAMES      30
+#define TORPEDO_SPARK_TIME        TORPEDO_SPARK_FRAMES
 #define TORPEDO_BLAST_FRAMES      16
 #define TORPEDO_BLAST_TIME        TORPEDO_BLAST_FRAMES
 #define MIN_TEXT_FONT_SIZE        12
@@ -68,12 +71,11 @@
 #define DOCK_SHORTCUT_FONT_SIZE   16
 #define SHIP_STAGE_FONT_SIZE      16
 
-#define SPARK_COLOR               sf::Color(40, 100, 255, 255);
-#define TORPEDO_COLOR             sf::Color(255, 89, 38, 255);
-#define BLAST_COLOR               sf::Color(255, 128, 51, 255);
-#define ENERGY_COLOR              sf::Color(255, 255, 0, 255);
-#define ZONE_COLOR                sf::Color(100, 68, 68, 255);
-#define DOCK_LINE_COLOR           sf::Color(100, 100, 100);
+#define TORPEDO_COLOR             sf::Color(255, 89, 38, 255)
+#define BLAST_COLOR               sf::Color(255, 128, 51, 255)
+#define ENERGY_COLOR              sf::Color(255, 255, 0, 255)
+#define ZONE_COLOR                sf::Color(100, 68, 68, 255)
+#define DOCK_LINE_COLOR           sf::Color(100, 100, 100)
 
 class GfxViewListener {
   public:
@@ -116,10 +118,12 @@ class GfxManager {
   sf::CircleShape shipDotShape_;
   sf::Vector2f shipDotPoint_;
   sf::CircleShape destroyedShape_;
-  sf::RectangleShape sparkShape_;
-  sf::Vector2f sparkPoint_;
+  sf::RectangleShape laserSparkShape_;
+  sf::Vector2f laserSparkPoint_;
   sf::RectangleShape laserShape_;
   sf::Vector2f laserPoint_;
+  sf::CircleShape torpedoSparkShape_;
+  sf::Vector2f torpedoSparkPoint_;
   sf::CircleShape torpedoCircleShape_;
   sf::RectangleShape torpedoRay_;
   sf::Vector2f torpedoRayPoint_;
@@ -142,7 +146,6 @@ class GfxManager {
   sf::Color* shipDeathColors_;
   sf::Color* laserColors_;
   sf::Color* thrusterColors_;
-  sf::Color sparkColor_;
   sf::Color torpedoColor_;
   sf::Color blastColor_;
   sf::Color energyColor_;
@@ -212,6 +215,10 @@ class GfxManager {
                                   int sparkTime);
     void drawLaserSparks(sf::RenderWindow *window, int time,
                          GfxEventHandler *gfxHandler, Ship **ships);
+    void adjustTorpedoSparkPosition(sf::CircleShape *sparkShape, double angle,
+                                    int sparkTime);
+    void drawTorpedoSparks(sf::RenderWindow *window, int time,
+                           GfxEventHandler *gfxHandler, Ship **ships);
     void drawNames(sf::RenderWindow *window, Ship **ships, int numShips);
     void drawStageTexts(sf::RenderWindow *window, Stage *stage, int time);
     void adjustUserGfxRectanglePosition(sf::RectangleShape *rectangleShape,

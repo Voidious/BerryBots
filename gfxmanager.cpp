@@ -57,10 +57,13 @@ GfxManager::GfxManager(bool showDock) {
   shipDotShape_.setRadius(SHIP_DOT_RADIUS);
   shipDotPoint_ = sf::Vector2f(SHIP_DOT_POSITION, 0);
   destroyedShape_.setRadius(SHIP_DEATH_RADIUS);
-  sparkShape_.setSize(sf::Vector2f(LASER_SPARK_LENGTH, LASER_SPARK_THICKNESS));
-  sparkPoint_ = sf::Vector2f(DRAW_SHIP_RADIUS, -0.5);
+  laserSparkShape_.setSize(sf::Vector2f(LASER_SPARK_LENGTH,
+                                        LASER_SPARK_THICKNESS));
+  laserSparkPoint_ = sf::Vector2f(DRAW_SHIP_RADIUS, -0.5);
   laserShape_.setSize(sf::Vector2f(LASER_SPEED, LASER_THICKNESS));
   laserPoint_ = sf::Vector2f(0, LASER_THICKNESS / 2);
+  torpedoSparkShape_.setRadius(TORPEDO_SPARK_RADIUS);
+  torpedoSparkPoint_ = sf::Vector2f(DRAW_SHIP_RADIUS, -TORPEDO_SPARK_RADIUS);
   torpedoCircleShape_.setRadius(TORPEDO_RADIUS);
   torpedoRay_.setSize(sf::Vector2f(TORPEDO_SIZE * 2, 1));
   torpedoRayPoint_ = sf::Vector2f(TORPEDO_SIZE, .5);
@@ -74,7 +77,6 @@ GfxManager::GfxManager(bool showDock) {
   dockLineShape_.setSize(sf::Vector2f(1, 8192));
   dockMarginShape_.setSize(sf::Vector2f(8, 8192));
 
-  sparkColor_ = SPARK_COLOR;
   torpedoColor_ = TORPEDO_COLOR;
   blastColor_ = BLAST_COLOR;
   energyColor_ = ENERGY_COLOR;
@@ -139,7 +141,7 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
   destroyedShape_.setOutlineThickness(2);
   destroyedShape_.setFillColor(sf::Color::Transparent);
   
-  sparkShape_.setOutlineThickness(0);
+  laserSparkShape_.setOutlineThickness(0);
   laserShape_.setOutlineThickness(0);
   
   torpedoCircleShape_.setOutlineColor(torpedoColor_);
@@ -381,6 +383,7 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   }
   gfxHandler->removeShipDeaths(time - SHIP_DEATH_TIME);
   gfxHandler->removeLaserHits(time - LASER_SPARK_TIME);
+  gfxHandler->removeTorpedoHits(time - TORPEDO_SPARK_TIME);
   gfxHandler->removeTorpedoBlasts(time - TORPEDO_BLAST_TIME);
   
   drawZones(window);
@@ -389,6 +392,7 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   drawWalls(window);
   drawShipDeaths(window, time, gfxHandler);
   drawLaserSparks(window, time, gfxHandler, ships);
+  drawTorpedoSparks(window, time, gfxHandler, ships);
   drawThrusters(window, ships, numShips);
   drawNames(window, ships, numShips);
   drawLasers(window, stage);
@@ -637,23 +641,21 @@ void GfxManager::drawTorpedoBlasts(sf::RenderWindow *window, int time,
   TorpedoBlastGraphic **torpedoBlasts = gfxHandler->getTorpedoBlasts();
   int numTorpedoBlasts = gfxHandler->getTorpedoBlastCount();
   
-  if (numTorpedoBlasts > 0) {
-    for (int x = 0; x < numTorpedoBlasts; x++) {
-      TorpedoBlastGraphic *torpedoBlast = torpedoBlasts[x];
-      int blastTime = time - torpedoBlast->time;
-      double blastScale;
-      if (blastTime < 5) {
-        blastScale = ((double) (4 - blastTime)) / 4;
-      } else {
-        blastScale = ((double) (blastTime - 3)) / (TORPEDO_BLAST_FRAMES - 4);
-      }
-
-      double blastOffset = blastScale * TORPEDO_BLAST_RADIUS;
-      torpedoBlastShape_.setRadius(blastScale * TORPEDO_BLAST_RADIUS);
-      torpedoBlastShape_.setPosition(adjustX(torpedoBlast->x - blastOffset),
-          adjustY(torpedoBlast->y - blastOffset, blastOffset * 2));
-      window->draw(torpedoBlastShape_);
+  for (int x = 0; x < numTorpedoBlasts; x++) {
+    TorpedoBlastGraphic *torpedoBlast = torpedoBlasts[x];
+    int blastTime = time - torpedoBlast->time;
+    double blastScale;
+    if (blastTime < 5) {
+      blastScale = ((double) (4 - blastTime)) / 4;
+    } else {
+      blastScale = ((double) (blastTime - 3)) / (TORPEDO_BLAST_FRAMES - 4);
     }
+
+    double blastOffset = blastScale * TORPEDO_BLAST_RADIUS;
+    torpedoBlastShape_.setRadius(blastScale * TORPEDO_BLAST_RADIUS);
+    torpedoBlastShape_.setPosition(adjustX(torpedoBlast->x - blastOffset),
+        adjustY(torpedoBlast->y - blastOffset, blastOffset * 2));
+    window->draw(torpedoBlastShape_);
   }
 }
 
@@ -775,7 +777,7 @@ void GfxManager::adjustLaserSparkPosition(sf::RectangleShape *sparkShape,
   transform.rotate(angle);
   double scale = 1 + (((double) sparkTime) / 1.25);
   transform.scale(scale, scale);
-  sf::Vector2f sparkOffset = transform.transformPoint(sparkPoint_);
+  sf::Vector2f sparkOffset = transform.transformPoint(laserSparkPoint_);
   sparkShape->move(sparkOffset.x, sparkOffset.y);
 }
 
@@ -784,18 +786,46 @@ void GfxManager::drawLaserSparks(sf::RenderWindow *window, int time,
   LaserHitShipGraphic **laserHits = gfxHandler->getLaserHits();
   int numLaserHits = gfxHandler->getLaserHitCount();
   
-  if (numLaserHits > 0) {
-    for (int x = 0; x < numLaserHits; x++) {
-      LaserHitShipGraphic *laserHit = laserHits[x];
-      Ship *ship = ships[laserHit->hitShipIndex];
-      int sparkTime = (time - laserHit->time);
-      sparkShape_.setFillColor(laserColors_[laserHit->srcShipIndex]);
-      for (int x = 0; x < 4; x++) {
-        sparkShape_.setPosition(adjustX(ship->x), adjustY(ship->y));
-        sparkShape_.setRotation(laserHit->offsets[x]);
-        adjustLaserSparkPosition(&sparkShape_, laserHit->offsets[x], sparkTime);
-        window->draw(sparkShape_);
-      }
+  for (int x = 0; x < numLaserHits; x++) {
+    LaserHitShipGraphic *laserHit = laserHits[x];
+    int sparkTime = (time - laserHit->time);
+    laserSparkShape_.setFillColor(laserColors_[laserHit->srcShipIndex]);
+    for (int x = 0; x < 4; x++) {
+      laserSparkShape_.setPosition(adjustX(laserHit->x), adjustY(laserHit->y));
+      laserSparkShape_.setRotation(laserHit->offsets[x]);
+      adjustLaserSparkPosition(&laserSparkShape_, laserHit->offsets[x],
+                               sparkTime);
+      window->draw(laserSparkShape_);
+    }
+  }
+}
+
+void GfxManager::adjustTorpedoSparkPosition(sf::CircleShape *sparkShape,
+                                            double angle, int sparkTime) {
+  sf::Transform transform;
+  transform.rotate(angle);
+  double scale = 1 + (((double) sparkTime) / 3);
+  transform.scale(scale, scale);
+  sf::Vector2f sparkOffset = transform.transformPoint(torpedoSparkPoint_);
+  sparkShape->move(sparkOffset.x, sparkOffset.y);
+}
+
+void GfxManager::drawTorpedoSparks(sf::RenderWindow *window, int time,
+                                   GfxEventHandler *gfxHandler, Ship **ships) {
+  TorpedoHitShipGraphic **torpedoHits = gfxHandler->getTorpedoHits();
+  int numTorpedoHits = gfxHandler->getTorpedoHitCount();
+  
+  for (int x = 0; x < numTorpedoHits; x++) {
+    TorpedoHitShipGraphic *torpedoHit = torpedoHits[x];
+    int sparkTime = (time - torpedoHit->time);
+    torpedoSparkShape_.setFillColor(shipColors_[torpedoHit->hitShipIndex]);
+    for (int x = 0; x < torpedoHit->numTorpedoSparks; x++) {
+      torpedoSparkShape_.setPosition(adjustX(torpedoHit->x),
+                                     adjustY(torpedoHit->y));
+      torpedoSparkShape_.setRotation(torpedoHit->offsets[x]);
+      adjustTorpedoSparkPosition(&torpedoSparkShape_, torpedoHit->offsets[x],
+                                 sparkTime);
+      window->draw(torpedoSparkShape_);
     }
   }
 }

@@ -19,10 +19,12 @@
 */
 
 #include <stdlib.h>
+#include <math.h>
 #include "gfxeventhandler.h"
 
 GfxEventHandler::GfxEventHandler() {
   numLaserHits_ = 0;
+  numTorpedoHits_ = 0;
   numShipDeaths_ = 0;
   numTorpedoBlasts_ = 0;
 }
@@ -30,31 +32,46 @@ GfxEventHandler::GfxEventHandler() {
 void GfxEventHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
     double laserX, double laserY, double hitAngle, int time) {
   if (numLaserHits_ < MAX_LASERS) {
-     LaserHitShipGraphic *hitGraphic = new LaserHitShipGraphic;
-     hitGraphic->srcShipIndex = srcShip->index;
-     hitGraphic->hitShipIndex = targetShip->index;
-     hitGraphic->time = time;
-     hitGraphic->offsets[0] = rand() % 360;
-     hitGraphic->offsets[1] = rand() % 360;
-     hitGraphic->offsets[2] = rand() % 360;
-     hitGraphic->offsets[3] = rand() % 360;
-     laserHits_[numLaserHits_++] = hitGraphic;
+    LaserHitShipGraphic *hitGraphic = new LaserHitShipGraphic;
+    hitGraphic->srcShipIndex = srcShip->index;
+    hitGraphic->hitShipIndex = targetShip->index;
+    hitGraphic->time = time;
+    hitGraphic->x = targetShip->x;
+    hitGraphic->y = targetShip->y;
+    for (int x = 0; x < NUM_LASER_SPARKS; x++) {
+      hitGraphic->offsets[x] = rand() % 360;
+    }
+    laserHits_[numLaserHits_++] = hitGraphic;
   }
 }
 
 void GfxEventHandler::handleTorpedoExploded(double x, double y, int time) {
   if (numTorpedoBlasts_ < MAX_TORPEDOS) {
-     TorpedoBlastGraphic *blastGraphic = new TorpedoBlastGraphic;
-     blastGraphic->x = x;
-     blastGraphic->y = y;
-     blastGraphic->time = time;
-     torpedoBlasts_[numTorpedoBlasts_++] = blastGraphic;
+    TorpedoBlastGraphic *blastGraphic = new TorpedoBlastGraphic;
+    blastGraphic->x = x;
+    blastGraphic->y = y;
+    blastGraphic->time = time;
+    torpedoBlasts_[numTorpedoBlasts_++] = blastGraphic;
   }
 }
 
 void GfxEventHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
     double hitAngle, double hitForce, double hitDamage, int time) {
-
+  if (numTorpedoHits_ < MAX_TORPEDOS) {
+    TorpedoHitShipGraphic *hitGraphic = new TorpedoHitShipGraphic;
+    hitGraphic->srcShipIndex = srcShip->index;
+    hitGraphic->hitShipIndex = targetShip->index;
+    hitGraphic->time = time;
+    hitGraphic->x = targetShip->x;
+    hitGraphic->y = targetShip->y;
+    short numSparks =
+        ceil((hitDamage / TORPEDO_BLAST_DAMAGE) * MAX_TORPEDO_SPARKS);
+    for (int x = 0; x < numSparks; x++) {
+      hitGraphic->offsets[x] = rand() % 360;
+    }
+    hitGraphic->numTorpedoSparks = numSparks;
+    torpedoHits_[numTorpedoHits_++] = hitGraphic;
+  }
 }
 
 void GfxEventHandler::handleShipHitShip(Ship *hittingShip, Ship *targetShip,
@@ -71,12 +88,12 @@ void GfxEventHandler::handleShipHitWall(
 void GfxEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
     Ship **destroyerShips, int numDestroyers) {
   if (numShipDeaths_ < MAX_SHIP_DEATHS) {
-     ShipDeathGraphic *deathGraphic = new ShipDeathGraphic;
-     deathGraphic->shipIndex = destroyedShip->index;
-     deathGraphic->x = destroyedShip->x;
-     deathGraphic->y = destroyedShip->y;
-     deathGraphic->time = time;
-     shipDeaths_[numShipDeaths_++] = deathGraphic;
+    ShipDeathGraphic *deathGraphic = new ShipDeathGraphic;
+    deathGraphic->shipIndex = destroyedShip->index;
+    deathGraphic->x = destroyedShip->x;
+    deathGraphic->y = destroyedShip->y;
+    deathGraphic->time = time;
+    shipDeaths_[numShipDeaths_++] = deathGraphic;
   }
 }
 
@@ -108,6 +125,28 @@ void GfxEventHandler::removeLaserHits(int time) {
       x--;
       numLaserHits_--;
       delete laserHit;
+    }
+  }
+}
+
+TorpedoHitShipGraphic** GfxEventHandler::getTorpedoHits() {
+  return torpedoHits_;
+}
+
+int GfxEventHandler::getTorpedoHitCount() {
+  return numTorpedoHits_;
+}
+
+void GfxEventHandler::removeTorpedoHits(int time) {
+  for (int x = 0; x < numTorpedoHits_; x++) {
+    TorpedoHitShipGraphic *torpedoHit = torpedoHits_[x];
+    if (torpedoHit->time <= time) {
+      if (numTorpedoHits_ > 1) {
+        torpedoHits_[x] = torpedoHits_[numTorpedoHits_ - 1];
+      }
+      x--;
+      numTorpedoHits_--;
+      delete torpedoHit;
     }
   }
 }

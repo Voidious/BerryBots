@@ -24,7 +24,9 @@
 #include "bbutil.h"
 #include "eventhandler.h"
 
-#define MAX_SHIP_DEATHS  64
+#define MAX_SHIP_DEATHS     256
+#define NUM_LASER_SPARKS    4
+#define MAX_TORPEDO_SPARKS  30
 
 typedef struct {
   short shipIndex;
@@ -37,7 +39,9 @@ typedef struct {
   short srcShipIndex;
   short hitShipIndex;
   int time;
-  short offsets[4];
+  double x;
+  double y;
+  short offsets[NUM_LASER_SPARKS];
 } LaserHitShipGraphic;
 
 typedef struct {
@@ -46,9 +50,21 @@ typedef struct {
   int time;
 } TorpedoBlastGraphic;
 
+typedef struct {
+  short srcShipIndex;
+  short hitShipIndex;
+  int time;
+  double x;
+  double y;
+  short numTorpedoSparks;
+  short offsets[MAX_TORPEDO_SPARKS];
+} TorpedoHitShipGraphic;
+
 class GfxEventHandler : public EventHandler {
   LaserHitShipGraphic* laserHits_[MAX_LASERS];
   int numLaserHits_;
+  TorpedoHitShipGraphic* torpedoHits_[MAX_TORPEDOS];
+  int numTorpedoHits_;
   ShipDeathGraphic* shipDeaths_[MAX_SHIP_DEATHS];
   int numShipDeaths_;
   TorpedoBlastGraphic* torpedoBlasts_[MAX_TORPEDOS];
@@ -77,6 +93,9 @@ class GfxEventHandler : public EventHandler {
     LaserHitShipGraphic** getLaserHits();
     int getLaserHitCount();
     void removeLaserHits(int time);
+    TorpedoHitShipGraphic** getTorpedoHits();
+    int getTorpedoHitCount();
+    void removeTorpedoHits(int time);
     ShipDeathGraphic** getShipDeaths();
     int getShipDeathCount();
     void removeShipDeaths(int time);

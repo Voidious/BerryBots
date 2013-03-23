@@ -49,6 +49,7 @@ VGPath laserPath;
 VGPath torpedoPath;
 VGPath shipDeathPaths[SHIP_DEATH_FRAMES];
 VGPath laserSparkPaths[LASER_SPARK_FRAMES];
+VGPath torpedoSparkPaths[TORPEDO_SPARK_FRAMES];
 VGPath torpedoBlastPaths[TORPEDO_BLAST_FRAMES];
 VGPath energyPath;
 VGPath** zonePaths;
@@ -141,11 +142,19 @@ void initVgGfx(int screenWidth, int screenHeight, Stage *stage, Ship **ships,
     shipDeathPaths[x] = newpath();
     vguEllipse(shipDeathPaths[x], 0, 0, (x + 1) * 12, (x + 1) * 12);
   }
+
   for (int x = 0; x < LASER_SPARK_FRAMES; x++) {
     laserSparkPaths[x] = newpath();
     vguLine(laserSparkPaths[x], DRAW_SHIP_RADIUS + (x * LASER_SPARK_LENGTH), 0,
         DRAW_SHIP_RADIUS + ((x + 1) * LASER_SPARK_LENGTH), 0);
   }
+
+  for (int x = 0; x < TORPEDO_SPARK_FRAMES; x++) {
+    torpedoSparkPaths[x] = newpath();
+    vguEllipse(torpedoSparkPaths[x], (((double) x) / 3) * DRAW_SHIP_RADIUS, 0,
+        TORPEDO_SPARK_RADIUS * 2, TORPEDO_SPARK_RADIUS * 2);
+  }
+
   for (int x = 0; x < TORPEDO_BLAST_FRAMES; x++) {
     torpedoBlastPaths[x] = newpath();
     int blastSize;
@@ -224,6 +233,9 @@ void destroyVgGfx() {
   }
   for (int x = 0; x < LASER_SPARK_FRAMES; x++) {
     vgDestroyPath(laserSparkPaths[x]);
+  }
+  for (int x = 0; x < TORPEDO_SPARK_FRAMES; x++) {
+    vgDestroyPath(torpedoSparkPaths[x]);
   }
   for (int x = 0; x < TORPEDO_BLAST_FRAMES; x++) {
     vgDestroyPath(torpedoBlastPaths[x]);
@@ -353,16 +365,33 @@ void drawLaserSparks(int time, GfxEventHandler *gfxHandler, Ship **ships) {
     StrokeWidth(LASER_SPARK_THICKNESS);
     for (int x = 0; x < numLaserHits; x++) {
       LaserHitShipGraphic *laserHit = laserHits[x];
-      Ship *ship = ships[laserHit->hitShipIndex];
       int sparkTime = (time - laserHit->time);
       vgSetPaint(laserPaints[laserHit->srcShipIndex], VG_STROKE_PATH);
       for (int y = 0; y < 4; y++) {
         vgLoadIdentity();
         vgScale(scale, scale);
-        vgTranslate(stageLeft + ship->x, stageBottom + ship->y);
+        vgTranslate(stageLeft + laserHit->x, stageBottom + laserHit->y);
         vgRotate(laserHit->offsets[y]);
         vgDrawPath(laserSparkPaths[sparkTime], VG_STROKE_PATH);
       }
+    }
+  }
+}
+
+void drawTorpedoSparks(int time, GfxEventHandler *gfxHandler, Ship **ships) {
+  TorpedoHitShipGraphic **torpedoHits = gfxHandler->getTorpedoHits();
+  int numTorpedoHits = gfxHandler->getTorpedoHitCount();
+
+  for (int x = 0; x < numTorpedoHits; x++) {
+    TorpedoHitShipGraphic *torpedoHit = torpedoHits[x];
+    int sparkTime = (time - torpedoHit->time);
+    vgSetPaint(shipPaints[torpedoHit->hitShipIndex], VG_FILL_PATH);
+    for (int y = 0; y < torpedoHit->numTorpedoSparks; y++) {
+      vgLoadIdentity();
+      vgScale(scale, scale);
+      vgTranslate(stageLeft + torpedoHit->x, stageBottom + torpedoHit->y);
+      vgRotate(torpedoHit->offsets[y]);
+      vgDrawPath(torpedoSparkPaths[sparkTime], VG_FILL_PATH);
     }
   }
 }
@@ -474,6 +503,7 @@ void drawGame(int screenWidth, int screenHeight, Stage *stage, Ship **ships,
 
   gfxHandler->removeShipDeaths(time - SHIP_DEATH_TIME);
   gfxHandler->removeLaserHits(time - LASER_SPARK_TIME);
+  gfxHandler->removeTorpedoHits(time - TORPEDO_SPARK_TIME);
   gfxHandler->removeTorpedoBlasts(time - TORPEDO_BLAST_TIME);
 
   Start(screenWidth, screenHeight);
@@ -487,6 +517,7 @@ void drawGame(int screenWidth, int screenHeight, Stage *stage, Ship **ships,
   drawWalls();
   drawShipDeaths(time, gfxHandler);
   drawLaserSparks(time, gfxHandler, ships);
+  drawTorpedoSparks(time, gfxHandler, ships);
   drawThrusters(ships, numShips);
   drawNames(ships, numShips);
   drawLasers(stage);
