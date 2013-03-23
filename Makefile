@@ -160,7 +160,7 @@ rpi:
 osx:
 	$(MAKE_LUAJIT)
 	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
-	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
+	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
 	cp ./scripts/bb_gui_osx.sh ./berrybots.sh
 	chmod 755 ./berrybots.sh
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
@@ -168,7 +168,7 @@ osx:
 osxcli:
 	$(MAKE_LUAJIT)
 	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o bbgui
-	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
+	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
 	cp ./scripts/bb_gui_osx.sh ./berrybots.sh
 	chmod 755 ./berrybots.sh
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
