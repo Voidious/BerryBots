@@ -591,7 +591,6 @@ void FileManager::packageStage(const char *stagesBaseDir, const char *stageName,
     throw e;
   } catch (LuaException *e) {
     delete stageAbsBaseDir;
-    lua_close(stageState);
     throw e;
   }
 
