@@ -79,6 +79,11 @@ char* FileManager::loadUserLuaFilename(char *userDirPath,
       break;
     }
   }
+  for (int x = 0; x < userLuaLen; x++) {
+    if (userLuaFilename[x] == '/' || userLuaFilename[x] == '\\') {
+      userLuaFilename[x] = BB_DIRSEP_CHR;
+    }
+  }
   return userLuaFilename;
 }
 
@@ -390,7 +395,6 @@ void FileManager::packageCommon(lua_State *userState,
     const char *tmpDir, bool obfuscate, bool force)
     throw (InvalidLuaFilenameException*, LuaException*, ZipperException*,
            FileExistsException*) {
-
   // For stages, prevFiles stage ships are already loaded into packFilenames.
   // Load the rest from the Lua __FILES table, on the stack.
   int x = prevFiles;
@@ -443,10 +447,19 @@ void FileManager::packageCommon(lua_State *userState,
   char *absTmpDir = getAbsFilePath(tmpDir);
   absMetaFilename = getFilePath(absTmpDir, metaFilename);
   delete absTmpDir;
+  long lenUserFilename = strlen(userFilename);
+  char *slashedUserFilename = new char[lenUserFilename + 1];
+  strcpy(slashedUserFilename, userFilename);
+  for (int x = 0; x < lenUserFilename; x++) {
+    if (slashedUserFilename[x] == '\\') {
+      slashedUserFilename[x] = '/';
+    }
+  }
   std::ofstream fout(absMetaFilename);
-  fout << userFilename;
+  fout << slashedUserFilename;
   fout.flush();
   fout.close();
+  delete slashedUserFilename;
   
   if (obfuscate) {
     for (int x = 0; x < numFiles; x++) {
