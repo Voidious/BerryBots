@@ -1109,23 +1109,33 @@ void GuiManager::printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip,
                                     int time) {
   std::stringstream timeStream;
   timeStream << " @ " << time;
+  std::string timeString = timeStream.str();
+  const char *atTime = timeString.c_str();
 
-  OutputConsole *destroyerConsole = teamConsoles_[destroyerShip->teamIndex];
-  destroyerConsole->print("== ");
-  destroyerConsole->print(destroyerShip->properties->name);
-  destroyerConsole->print(" destroyed ");
-  destroyerConsole->print((destroyedShip->teamIndex == destroyerShip->teamIndex)
-      ? "friendly" : "enemy");
-  destroyerConsole->print(" ship: ");
-  destroyerConsole->print(destroyedShip->properties->name);
-  destroyerConsole->println(timeStream.str().c_str());
-  
-  OutputConsole *destroyeeConsole = teamConsoles_[destroyedShip->teamIndex];
-  destroyeeConsole->print("== ");
-  destroyeeConsole->print(destroyedShip->properties->name);
-  destroyeeConsole->print(" destroyed by: ");
-  destroyeeConsole->print(destroyerShip->properties->name);
-  destroyeeConsole->println(timeStream.str().c_str());
+  if (destroyedShip->index == destroyerShip->index) {
+    OutputConsole *console = teamConsoles_[destroyerShip->teamIndex];
+    console->print("== ");
+    console->print(destroyerShip->properties->name);
+    console->print(" destroyed itself");
+    console->println(atTime);
+  } else {
+    OutputConsole *destroyerConsole = teamConsoles_[destroyerShip->teamIndex];
+    destroyerConsole->print("== ");
+    destroyerConsole->print(destroyerShip->properties->name);
+    destroyerConsole->print(" destroyed ");
+    destroyerConsole->print((destroyedShip->teamIndex == destroyerShip->teamIndex)
+        ? "friendly" : "enemy");
+    destroyerConsole->print(" ship: ");
+    destroyerConsole->print(destroyedShip->properties->name);
+    destroyerConsole->println(atTime);
+    
+    OutputConsole *destroyeeConsole = teamConsoles_[destroyedShip->teamIndex];
+    destroyeeConsole->print("== ");
+    destroyeeConsole->print(destroyedShip->properties->name);
+    destroyeeConsole->print(" destroyed by: ");
+    destroyeeConsole->print(destroyerShip->properties->name);
+    destroyeeConsole->println(atTime);
+  }
 }
 
 void GuiManager::saveCurrentMatchSettings(
