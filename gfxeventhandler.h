@@ -41,6 +41,8 @@ typedef struct {
   int time;
   double x;
   double y;
+  double dx;
+  double dy;
   short offsets[NUM_LASER_SPARKS];
 } LaserHitShipGraphic;
 
@@ -56,6 +58,8 @@ typedef struct {
   int time;
   double x;
   double y;
+  double dx;
+  double dy;
   short numTorpedoSparks;
   short offsets[MAX_TORPEDO_SPARKS];
 } TorpedoHitShipGraphic;
@@ -73,11 +77,12 @@ class GfxEventHandler : public EventHandler {
   public:
     GfxEventHandler();
     ~GfxEventHandler();
-    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip,
-        double laserX, double laserY, double laserHeading, int time);
+    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip, double dx,
+        double dy, double laserX, double laserY, double laserHeading, int time);
     virtual void handleTorpedoExploded(double x, double y, int time);
     virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
-        double hitAngle, double hitForce, double hitDamage, int time);
+        double dx, double dy, double hitAngle, double hitForce,
+        double hitDamage, int time);
     virtual void handleShipHitShip(Ship *hittingShip, Ship *targetShip,
         double inAngle, double inForce, double outAngle, double outForce,
         int time);

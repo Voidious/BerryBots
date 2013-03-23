@@ -25,11 +25,13 @@
 
 class EventHandler {
   public:
-    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip,
-        double laserX, double laserY, double laserHeading, int time) = 0;
+    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip, double dx,
+        double dy, double laserX, double laserY, double laserHeading,
+        int time) = 0;
     virtual void handleTorpedoExploded(double x, double y, int time) = 0;
     virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
-        double hitAngle, double hitForce, double hitDamage, int time) = 0;
+        double dx, double dy, double hitAngle, double hitForce,
+        double hitDamage, int time) = 0;
     // hittingShip hit targetShip, sending a momentum of inAngle / inForce,
     // receiving momentum of outAngle / outForce
     virtual void handleShipHitShip(Ship *hittingShip, Ship *targetShip,

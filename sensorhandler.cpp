@@ -90,7 +90,8 @@ SensorHandler::SensorHandler(Team **teams, int numTeams, bool **teamVision) {
 }
 
 void SensorHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
-    double laserX, double laserY, double laserHeading, int time) {
+    double dx, double dy, double laserX, double laserY, double laserHeading,
+    int time) {
   int targetShipIndex = targetShip->index;
   int teamIndex = targetShip->teamIndex;
   if (numHitByLasers_[teamIndex] < MAX_HIT_BY_LASERS) {
@@ -133,7 +134,8 @@ void SensorHandler::handleTorpedoExploded(double x, double y, int time) {
 }
 
 void SensorHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
-    double hitAngle, double hitForce, double hitDamage, int time) {
+    double dx, double dy, double hitAngle, double hitForce, double hitDamage,
+    int time) {
   int targetShipIndex = targetShip->index;
   int teamIndex = targetShip->teamIndex;
   if (numHitByTorpedos_[teamIndex] < MAX_HIT_BY_TORPEDOS) {

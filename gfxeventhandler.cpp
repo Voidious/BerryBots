@@ -30,7 +30,8 @@ GfxEventHandler::GfxEventHandler() {
 }
 
 void GfxEventHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
-    double laserX, double laserY, double hitAngle, int time) {
+    double dx, double dy, double laserX, double laserY, double hitAngle,
+    int time) {
   if (numLaserHits_ < MAX_LASERS) {
     LaserHitShipGraphic *hitGraphic = new LaserHitShipGraphic;
     hitGraphic->srcShipIndex = srcShip->index;
@@ -38,6 +39,8 @@ void GfxEventHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
     hitGraphic->time = time;
     hitGraphic->x = targetShip->x;
     hitGraphic->y = targetShip->y;
+    hitGraphic->dx = dx;
+    hitGraphic->dy = dy;
     for (int x = 0; x < NUM_LASER_SPARKS; x++) {
       hitGraphic->offsets[x] = rand() % 360;
     }
@@ -56,7 +59,8 @@ void GfxEventHandler::handleTorpedoExploded(double x, double y, int time) {
 }
 
 void GfxEventHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
-    double hitAngle, double hitForce, double hitDamage, int time) {
+    double dx, double dy, double hitAngle, double hitForce, double hitDamage,
+    int time) {
   if (numTorpedoHits_ < MAX_TORPEDOS) {
     TorpedoHitShipGraphic *hitGraphic = new TorpedoHitShipGraphic;
     hitGraphic->srcShipIndex = srcShip->index;
@@ -64,6 +68,8 @@ void GfxEventHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
     hitGraphic->time = time;
     hitGraphic->x = targetShip->x;
     hitGraphic->y = targetShip->y;
+    hitGraphic->dx = dx;
+    hitGraphic->dy = dy;
     short numSparks =
         ceil((hitDamage / TORPEDO_BLAST_DAMAGE) * MAX_TORPEDO_SPARKS);
     for (int x = 0; x < numSparks; x++) {

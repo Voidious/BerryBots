@@ -238,11 +238,13 @@ class ConsoleEventHandler : public EventHandler {
     virtual void handleShipDestroyed(Ship *destroyedShip, int time,
         Ship **destroyerShips, int numDestroyers);
 
-    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip,
-        double laserX, double laserY, double laserHeading, int time) {};
+    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip, double dx,
+        double dy, double laserX, double laserY, double laserHeading,
+        int time) {};
     virtual void handleTorpedoExploded(double x, double y, int time) {};
     virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
-        double hitAngle, double hitForce, double hitDamage, int time) {};
+        double dx, double dy, double hitAngle, double hitForce,
+        double hitDamage, int time) {};
     virtual void handleShipHitShip(Ship *hittingShip, Ship *targetShip,
         double inAngle, double inForce, double outAngle, double outForce,
         int time) {};

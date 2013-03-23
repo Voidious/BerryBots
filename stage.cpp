@@ -1067,7 +1067,8 @@ void Stage::moveAndCheckCollisions(
 
             for (int z = 0; z < numEventHandlers_; z++) {
               eventHandlers_[z]->handleTorpedoHitShip(ships[torpedo->shipIndex],
-                  ship, blastAngle, blastForce, blastDamage, gameTime);
+                  ship, shipDatum->dx, shipDatum->dy, blastAngle, blastForce,
+                  blastDamage, gameTime);
             }
   
             if (ship->energy <= 0) {
@@ -1152,13 +1153,14 @@ void Stage::checkLaserShipCollisions(Ship **ships, ShipMoveData *shipData,
     bool firstTickLasers) {
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
+    ShipMoveData *shipDatum = &(shipData[x]);
     if (ship->alive) {
       for (int y = 0; y < numLasers; y++) {
         Laser *laser = lasers_[y];
         if (((firstTickLasers && laser->fireTime == gameTime
                  && laser->shipIndex != ship->index)
             || !firstTickLasers)
-            && shipData[x].shipCircle->intersects(laserLines_[y])) {
+            && shipDatum->shipCircle->intersects(laserLines_[y])) {
           int firingShipIndex = laser->shipIndex;
           laserHits[firingShipIndex][x] = true;
           double laserDamage = (ship->energyEnabled ? LASER_DAMAGE : 0);
@@ -1171,7 +1173,8 @@ void Stage::checkLaserShipCollisions(Ship **ships, ShipMoveData *shipData,
           ship->energy -= laserDamage;
           for (int z = 0; z < numEventHandlers_; z++) {
             eventHandlers_[z]->handleLaserHitShip(ships[laser->shipIndex],
-                ship, laser->x, laser->y, laser->heading, gameTime);
+                ship, shipDatum->dx, shipDatum->dy, laser->x, laser->y,
+                laser->heading, gameTime);
           }
 
           if (ship->energy <= 0) {

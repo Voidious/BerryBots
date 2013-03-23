@@ -366,11 +366,14 @@ void drawLaserSparks(int time, GfxEventHandler *gfxHandler, Ship **ships) {
     for (int x = 0; x < numLaserHits; x++) {
       LaserHitShipGraphic *laserHit = laserHits[x];
       int sparkTime = (time - laserHit->time);
+      double dx = sparkTime * laserHit->dx;
+      double dy = sparkTime * laserHit->dy;
       vgSetPaint(laserPaints[laserHit->srcShipIndex], VG_STROKE_PATH);
       for (int y = 0; y < 4; y++) {
         vgLoadIdentity();
         vgScale(scale, scale);
-        vgTranslate(stageLeft + laserHit->x, stageBottom + laserHit->y);
+        vgTranslate(stageLeft + laserHit->x + dx,
+                    stageBottom + laserHit->y + dy);
         vgRotate(laserHit->offsets[y]);
         vgDrawPath(laserSparkPaths[sparkTime], VG_STROKE_PATH);
       }
@@ -385,11 +388,14 @@ void drawTorpedoSparks(int time, GfxEventHandler *gfxHandler, Ship **ships) {
   for (int x = 0; x < numTorpedoHits; x++) {
     TorpedoHitShipGraphic *torpedoHit = torpedoHits[x];
     int sparkTime = (time - torpedoHit->time);
+    double dx = (sparkTime * torpedoHit->dx);
+    double dy = (sparkTime * torpedoHit->dy);
     vgSetPaint(shipPaints[torpedoHit->hitShipIndex], VG_FILL_PATH);
     for (int y = 0; y < torpedoHit->numTorpedoSparks; y++) {
       vgLoadIdentity();
       vgScale(scale, scale);
-      vgTranslate(stageLeft + torpedoHit->x, stageBottom + torpedoHit->y);
+      vgTranslate(stageLeft + torpedoHit->x + dx,
+                  stageBottom + torpedoHit->y + dy);
       vgRotate(torpedoHit->offsets[y]);
       vgDrawPath(torpedoSparkPaths[sparkTime], VG_FILL_PATH);
     }
