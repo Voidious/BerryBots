@@ -57,8 +57,8 @@
 #define LASER_SPARK_THICKNESS     1.5
 #define LASER_SPARK_FRAMES        8
 #define LASER_SPARK_TIME          LASER_SPARK_FRAMES
-#define TORPEDO_SPARK_RADIUS      2
-#define TORPEDO_SPARK_FRAMES      30
+#define TORPEDO_SPARK_RADIUS      1.5
+#define TORPEDO_SPARK_FRAMES      40
 #define TORPEDO_SPARK_TIME        TORPEDO_SPARK_FRAMES
 #define TORPEDO_BLAST_FRAMES      16
 #define TORPEDO_BLAST_TIME        TORPEDO_BLAST_FRAMES
@@ -216,7 +216,7 @@ class GfxManager {
     void drawLaserSparks(sf::RenderWindow *window, int time,
                          GfxEventHandler *gfxHandler, Ship **ships);
     void adjustTorpedoSparkPosition(sf::CircleShape *sparkShape, double angle,
-                                    int sparkTime);
+                                    int sparkTime, int sparkSpeed);
     void drawTorpedoSparks(sf::RenderWindow *window, int time,
                            GfxEventHandler *gfxHandler, Ship **ships);
     void drawNames(sf::RenderWindow *window, Ship **ships, int numShips);

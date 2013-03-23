@@ -74,6 +74,7 @@ void GfxEventHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
         ceil((hitDamage / TORPEDO_BLAST_DAMAGE) * MAX_TORPEDO_SPARKS);
     for (int x = 0; x < numSparks; x++) {
       hitGraphic->offsets[x] = rand() % 360;
+      hitGraphic->speeds[x] = 50 + (rand() % 50);
     }
     hitGraphic->numTorpedoSparks = numSparks;
     torpedoHits_[numTorpedoHits_++] = hitGraphic;

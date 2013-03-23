@@ -392,12 +392,14 @@ void drawTorpedoSparks(int time, GfxEventHandler *gfxHandler, Ship **ships) {
     double dy = (sparkTime * torpedoHit->dy);
     vgSetPaint(shipPaints[torpedoHit->hitShipIndex], VG_FILL_PATH);
     for (int y = 0; y < torpedoHit->numTorpedoSparks; y++) {
+      int sparkFrame =
+          round(((double) sparkTime * torpedoHit->speeds[y]) / 100);
       vgLoadIdentity();
       vgScale(scale, scale);
       vgTranslate(stageLeft + torpedoHit->x + dx,
                   stageBottom + torpedoHit->y + dy);
       vgRotate(torpedoHit->offsets[y]);
-      vgDrawPath(torpedoSparkPaths[sparkTime], VG_FILL_PATH);
+      vgDrawPath(torpedoSparkPaths[sparkFrame], VG_FILL_PATH);
     }
   }
 }

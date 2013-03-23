@@ -62,6 +62,7 @@ typedef struct {
   double dy;
   short numTorpedoSparks;
   short offsets[MAX_TORPEDO_SPARKS];
+  short speeds[MAX_TORPEDO_SPARKS];
 } TorpedoHitShipGraphic;
 
 class GfxEventHandler : public EventHandler {

@@ -804,10 +804,10 @@ void GfxManager::drawLaserSparks(sf::RenderWindow *window, int time,
 }
 
 void GfxManager::adjustTorpedoSparkPosition(sf::CircleShape *sparkShape,
-                                            double angle, int sparkTime) {
+    double angle, int sparkTime, int sparkSpeed) {
   sf::Transform transform;
   transform.rotate(angle);
-  double scale = 1 + (((double) sparkTime) / 3);
+  double scale = 1 + ((((double) sparkTime) / 3) * sparkSpeed / 100);
   transform.scale(scale, scale);
   sf::Vector2f sparkOffset = transform.transformPoint(torpedoSparkPoint_);
   sparkShape->move(sparkOffset.x, sparkOffset.y);
@@ -829,7 +829,7 @@ void GfxManager::drawTorpedoSparks(sf::RenderWindow *window, int time,
                                      adjustY(torpedoHit->y + dy));
       torpedoSparkShape_.setRotation(torpedoHit->offsets[x]);
       adjustTorpedoSparkPosition(&torpedoSparkShape_, torpedoHit->offsets[x],
-                                 sparkTime);
+                                 sparkTime, torpedoHit->speeds[x]);
       window->draw(torpedoSparkShape_);
     }
   }
