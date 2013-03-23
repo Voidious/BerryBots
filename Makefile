@@ -68,7 +68,7 @@ OSX_EXTRA_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
 OSX_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include -I${LIBARCHIVE_PATH}
 OSX_CFLAGS += -I${SFML_PATH}/include `${WXWIDGETS_PATH}/wx-config --cflags`
 
-OSX_LDFLAGS =  -L${SFML_BUILD_PATH}/lib `${WXWIDGETS_PATH}/wx-config --libs`
+OSX_LDFLAGS =  -L./sfml-lib `${WXWIDGETS_PATH}/wx-config --libs`
 OSX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
 OSX_LDFLAGS += -pagezero_size 10000 -image_base 100000000 -std=c99
 
@@ -79,7 +79,7 @@ OSXCLI_EXTRA_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
 OSXCLI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include -I${LIBARCHIVE_PATH}
 OSXCLI_CFLAGS += -I${SFML_PATH}/include
 
-OSXCLI_LDFLAGS =  -L${SFML_BUILD_PATH}/lib
+OSXCLI_LDFLAGS =  -L./sfml-lib
 OSXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
 OSXCLI_LDFLAGS += -pagezero_size 10000 -image_base 100000000
 ##############################################################################
@@ -159,16 +159,16 @@ rpi:
 
 osx:
 	$(MAKE_LUAJIT)
-	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
 	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
+	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
 	cp ./scripts/bb_gui_osx.sh ./berrybots.sh
 	chmod 755 ./berrybots.sh
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 
 osxcli:
 	$(MAKE_LUAJIT)
-	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o bbgui
 	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
+	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o bbgui
 	cp ./scripts/bb_gui_osx.sh ./berrybots.sh
 	chmod 755 ./berrybots.sh
 	@echo "==== Successfully built BerryBots $(VERSION) ===="

@@ -18,10 +18,10 @@ if [ ! -e ./sfml-lib ]
     LIBFILE=sfml-lib/${TARGET}.2.0.dylib
     TARGETID=`otool -DX ${LIBFILE}`
     install_name_tool -id ${LIBFILE} ${LIBFILE}
-    install_name_tool -change ${TARGETID} ${LIBFILE} bbgui
     for TARGET2 in ${SFML_LIBNAMES} ; do
       LIBFILE2=sfml-lib/${TARGET2}.2.0.dylib
       install_name_tool -change ${TARGETID} ${LIBFILE} ${LIBFILE2}
     done
   done
+  echo "  done!"
 fi
