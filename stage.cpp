@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012 - Voidious
+  Copyright (C) 2012-2013 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
