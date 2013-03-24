@@ -22,9 +22,9 @@
 #import "osxcfg.h"
 
 @interface OsxCfg()
-
-- (void) copySampleFiles:(NSString *) srcDir toDir:(NSString *) targetDir;
-
+- (void) copyAllAppFiles:(NSString *) srcDir forceAll:(bool) forceAll;
+- (void) copyAppFiles:(NSString *) srcDir toDir:(NSString *) targetDir
+         forceOverwrite:(bool) force;
 @end
 
 @implementation OsxCfg
@@ -34,7 +34,7 @@
 @synthesize cacheDir;
 @synthesize tmpDir;
 @synthesize apidocPath;
-@synthesize appVersion;
+@synthesize samplesVersion;
 
 bool fileExists(const char *filename) {
   FILE *testFile = fopen(filename, "r");
@@ -50,7 +50,21 @@ bool fileExists(const char *filename) {
   return self;
 }
 
-- (void) copySampleFiles:(NSString *) srcDir toDir:(NSString *) targetDir {
+- (void) copyAllAppFiles:(NSString *) srcDir forceAll:(bool) forceAll {
+  overwrite = asked = false;
+  NSString *stagesSrc = [NSString stringWithFormat:@"%@/stages", srcDir];
+  [self copyAppFiles:stagesSrc toDir:self.stagesDir forceOverwrite:forceAll];
+
+  NSString *shipsSrc = [NSString stringWithFormat:@"%@/bots", srcDir];
+  [self copyAppFiles:shipsSrc toDir:self.shipsDir forceOverwrite:forceAll];
+
+  NSString *apidocSrc = [NSString stringWithFormat:@"%@/apidoc", srcDir];
+  NSString *apidocDest = [self.apidocPath stringByDeletingLastPathComponent];
+  [self copyAppFiles:apidocSrc toDir:apidocDest forceOverwrite:true];
+}
+
+- (void) copyAppFiles:(NSString *) srcDir toDir:(NSString *) targetDir
+         forceOverwrite:(bool) force {
   NSFileManager *fileManager = [NSFileManager defaultManager];
   if (![fileManager isReadableFileAtPath:targetDir]) {
     if (![fileManager createDirectoryAtPath:targetDir
@@ -67,9 +81,23 @@ bool fileExists(const char *filename) {
 
     BOOL isDir;
     if ([fileManager fileExistsAtPath:srcFile isDirectory:&isDir] && !isDir) {
-      NSLog(@"Copying %@ to %@", srcFile, destFile);
+      bool destFileExists = [fileManager isReadableFileAtPath:destFile];
+      if (destFileExists && !force && !asked) {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"OK"];
+        [alert addButtonWithTitle:@"Skip"];
+        [alert setMessageText:@"Overwrite samples?"];
+        [alert setInformativeText:
+             @"Sample ships and stages already exist in this directory. OK to overwrite them?"];
+        [alert setAlertStyle:NSInformationalAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn) {
+          overwrite = true;
+        }
+        asked = true;
+      }
 
-      if ([fileManager isReadableFileAtPath:destFile]) {
+      bool doCopy = (force || overwrite || !destFileExists);
+      if (destFileExists && doCopy) {
         NSLog(@"Deleting %@", destFile);
         int success = [fileManager removeItemAtPath:destFile error:&dError];
         if (success != YES) {
@@ -77,18 +105,21 @@ bool fileExists(const char *filename) {
         }
       }
 
-      NSString *parentDir = [destFile stringByDeletingLastPathComponent];
-      if (![fileManager isReadableFileAtPath:parentDir]) {
-        if (![fileManager createDirectoryAtPath:parentDir
-                    withIntermediateDirectories:YES attributes:nil error:NULL]) {
-          NSLog(@"Error creating directory: %@", parentDir);
+      if (doCopy) {
+        NSLog(@"Copying %@ to %@", srcFile, destFile);
+        NSString *parentDir = [destFile stringByDeletingLastPathComponent];
+        if (![fileManager isReadableFileAtPath:parentDir]) {
+          if (![fileManager createDirectoryAtPath:parentDir
+                  withIntermediateDirectories:YES attributes:nil error:NULL]) {
+            NSLog(@"Error creating directory: %@", parentDir);
+          }
         }
-      }
 
-      int success = [fileManager copyItemAtPath:srcFile toPath:destFile
-                                          error:&dError];
-      if (success != YES) {
-        NSLog(@"Error: %@", dError);
+        int success =
+            [fileManager copyItemAtPath:srcFile toPath:destFile error:&dError];
+        if (success != YES) {
+          NSLog(@"Error: %@", dError);
+        }
       }
     }
   }
@@ -134,9 +165,9 @@ bool fileExists(const char *filename) {
       self.cacheDir = [temp objectForKey:@"Cache dir"];
       self.tmpDir = [temp objectForKey:@"Tmp dir"];
       self.apidocPath = [temp objectForKey:@"Apidoc Path"];
-      self.appVersion = [temp objectForKey:@"App Version"];
-      if (self.appVersion == nil) {
-        self.appVersion = @"1.1.0";
+      self.samplesVersion = [temp objectForKey:@"Samples Version"];
+      if (self.samplesVersion == nil) {
+        self.samplesVersion = @"1.1.0";
       }
 
       if ([fileManager fileExistsAtPath:self.stagesDir]
@@ -144,11 +175,42 @@ bool fileExists(const char *filename) {
         selectRoot = false;
       }
     }
+    bool returnValue;
     if (selectRoot) {
-      return [self chooseNewRootDir];
+      returnValue = [self chooseNewRootDir];
     } else {
-      return true;
+      returnValue = true;
     }
+
+    if (returnValue && ![self.samplesVersion isEqualToString:@SAMPLES_VERSION]) {
+      NSString *srcDir = [[NSBundle mainBundle] resourcePath];
+      if ([fileManager isReadableFileAtPath:srcDir]) {
+        NSAlert *alert = [[NSAlert alloc] init];
+        [alert addButtonWithTitle:@"OK"];
+        [alert addButtonWithTitle:@"Skip"];
+        [alert setMessageText:@"Update samples and docs?"];
+        [alert setInformativeText:[NSString stringWithFormat:
+            @"BerryBots sample ships, stages, and API docs have been updated to version %@. OK to update the files in your base directory?", @SAMPLES_VERSION ]];
+        [alert setAlertStyle:NSInformationalAlertStyle];
+        if ([alert runModal] == NSAlertFirstButtonReturn) {
+          [self copyAllAppFiles:srcDir forceAll:true];
+          
+          NSAlert *alert2 = [[NSAlert alloc] init];
+          [alert2 addButtonWithTitle:@"OK"];
+          [alert2 setMessageText:@"Samples and docs updated"];
+          [alert2 setInformativeText:[NSString stringWithFormat:
+              @"BerryBots samples and API docs have been updated to v%@.",
+              @SAMPLES_VERSION]];
+          [alert2 setAlertStyle:NSInformationalAlertStyle];
+          [alert2 runModal];
+        }
+
+        self.samplesVersion = @SAMPLES_VERSION;
+        [self save];
+      }
+    }
+
+    return returnValue;
   }
   return false;
 }
@@ -164,22 +226,13 @@ bool fileExists(const char *filename) {
                  newRootDir, @TMP_SUBDIR];
   self.apidocPath = [NSString stringWithFormat:@"%@/%@",
                      newRootDir, @"apidoc/index.html"];
-  self.appVersion = @BERRYBOTS_VERSION;
+  self.samplesVersion = @SAMPLES_VERSION;
   [self save];
 
-  NSString *srcPath = [[NSBundle mainBundle] resourcePath];
+  NSString *srcDir = [[NSBundle mainBundle] resourcePath];
   NSFileManager *fileManager = [NSFileManager defaultManager];
-  if ([fileManager isReadableFileAtPath:srcPath]) {
-    NSString *stagesSrc = [NSString stringWithFormat:@"%@/stages", srcPath];
-    [self copySampleFiles:stagesSrc toDir:self.stagesDir];
-
-    NSString *shipsSrc = [NSString stringWithFormat:@"%@/bots", srcPath];
-    [self copySampleFiles:shipsSrc toDir:self.shipsDir];
-
-    NSString *apidocSrc = [NSString stringWithFormat:@"%@/apidoc", srcPath];
-    NSString *apidocDest =
-        [NSString stringWithFormat:@"%@/%@", newRootDir, @"apidoc"];
-    [self copySampleFiles:apidocSrc toDir:apidocDest];
+  if ([fileManager isReadableFileAtPath:srcDir]) {
+    [self copyAllAppFiles:srcDir forceAll:false];
   }
 }
 
@@ -218,10 +271,10 @@ bool fileExists(const char *filename) {
   NSDictionary *plistDict =
       [NSDictionary dictionaryWithObjects:
        [NSArray arrayWithObjects:stagesDir, shipsDir, cacheDir, tmpDir,
-                                 apidocPath, appVersion, nil]
+                                 apidocPath, samplesVersion, nil]
         forKeys:[NSArray arrayWithObjects:
                  @"Stage dir", @"Ships dir", @"Cache dir", @"Tmp dir",
-                 @"Apidoc Path", @"App Version", nil]];
+                 @"Apidoc Path", @"Samples Version", nil]];
   NSData *plistData =
       [NSPropertyListSerialization dataFromPropertyList:plistDict
           format:NSPropertyListXMLFormat_v1_0
