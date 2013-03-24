@@ -27,6 +27,7 @@
   NSString *cacheDir;
   NSString *tmpDir;
   NSString *apidocPath;
+  NSString *appVersion;
 }
 
 - (Boolean) hasPlist;
@@ -39,5 +40,6 @@
 @property (copy, nonatomic) NSString *cacheDir;
 @property (copy, nonatomic) NSString *tmpDir;
 @property (copy, nonatomic) NSString *apidocPath;
+@property (copy, nonatomic) NSString *appVersion;
 
 @end

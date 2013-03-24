@@ -21,6 +21,8 @@
 #ifndef BBCONST_H
 #define BBCONST_H
 
+#define BERRYBOTS_VERSION    "1.1.2"
+
 #define SHIPS_SUBDIR          "bots"
 #define STAGES_SUBDIR         "stages"
 #define CACHE_SUBDIR          "cache"

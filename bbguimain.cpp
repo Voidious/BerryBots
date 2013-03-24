@@ -199,6 +199,8 @@ void BerryBotsApp::MacReopenApp() {
 void BerryBotsApp::onChangeBaseDir(wxCommandEvent &event) {
   chooseNewRootDir();
   guiManager_->reloadBaseDirs();
+  guiManager_->loadStages();
+  guiManager_->loadShips();
 }
 
 void BerryBotsApp::onBrowseStages(wxCommandEvent &event) {
