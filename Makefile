@@ -18,7 +18,7 @@ WIN_SFML_BUILD_PATH = ${SFML_PATH}\build
 
 # You shouldn't have to edit anything below this line. #######################
 
-VERSION = 1.1.1
+VERSION = 1.1.2
 
 ##############################################################################
 # BerryBots GUI common source files
