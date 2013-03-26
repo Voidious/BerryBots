@@ -165,14 +165,14 @@ class GuiManager {
     void logErrorMessage(lua_State *L, const char *formatString);
 };
 
-class MatchRunner : public NewMatchListener {
+class MatchStarter : public NewMatchListener {
   GuiManager *guiManager_;
   char *stagesDir_;
   char *shipsDir_;
 
   public:
-    MatchRunner(GuiManager *guiManager, char *stagesDir, char *shipsDir);
-    ~MatchRunner();
+    MatchStarter(GuiManager *guiManager, char *stagesDir, char *shipsDir);
+    ~MatchStarter();
     virtual void startMatch(const char *stageName, char **teamNames,
                             int numTeams);
     virtual void previewStage(const char *stagePath);

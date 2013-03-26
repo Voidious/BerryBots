@@ -65,7 +65,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   previewConsoleListener_ = new PreviewConsoleListener(this);
   previewConsole_->setListener(previewConsoleListener_);
   packagingConsole_->SetPosition(wxPoint(150, 100));
-  newMatchListener_ = new MatchRunner(this, stagesBaseDir_, shipsBaseDir_);
+  newMatchListener_ = new MatchStarter(this, stagesBaseDir_, shipsBaseDir_);
   newMatchDialog_ = new NewMatchDialog(newMatchListener_, menuBarMaker_);
   shipPackager_ = new ShipPackager(this, fileManager_, packagingConsole_,
                                    shipsBaseDir_);
@@ -1234,8 +1234,8 @@ char* GuiManager::getTmpDirCopy() {
   return tmpDir;
 }
 
-MatchRunner::MatchRunner(GuiManager *guiManager, char *stagesDir,
-                         char *shipsDir) {
+MatchStarter::MatchStarter(GuiManager *guiManager, char *stagesDir,
+                           char *shipsDir) {
   guiManager_ = guiManager;
   stagesDir_ = new char[strlen(stagesDir) + 1];
   strcpy(stagesDir_, stagesDir);
@@ -1243,42 +1243,42 @@ MatchRunner::MatchRunner(GuiManager *guiManager, char *stagesDir,
   strcpy(shipsDir_, shipsDir);
 }
 
-MatchRunner::~MatchRunner() {
+MatchStarter::~MatchStarter() {
   delete stagesDir_;
   delete shipsDir_;
 }
 
-void MatchRunner::startMatch(const char *stageName, char **teamNames,
-                             int numTeams) {
+void MatchStarter::startMatch(const char *stageName, char **teamNames,
+                              int numTeams) {
   guiManager_->startMatch(stageName, teamNames, numTeams);
 }
 
-void MatchRunner::previewStage(const char *stageName) {
+void MatchStarter::previewStage(const char *stageName) {
   guiManager_->showStagePreview(stageName);
 }
 
-void MatchRunner::refreshFiles() {
+void MatchStarter::refreshFiles() {
   guiManager_->loadStages();
   guiManager_->loadShips();
 }
 
-void MatchRunner::onClose() {
+void MatchStarter::onClose() {
   guiManager_->dialogClosed();
 }
 
-void MatchRunner::onEscape() {
+void MatchStarter::onEscape() {
   guiManager_->dialogEscaped();
 }
 
-void MatchRunner::onActive() {
+void MatchStarter::onActive() {
   guiManager_->closeStagePreview();
 }
 
-void MatchRunner::onUpdateUi() {
+void MatchStarter::onUpdateUi() {
   guiManager_->redrawMainWindow();
 }
 
-void MatchRunner::reloadBaseDirs() {
+void MatchStarter::reloadBaseDirs() {
   guiManager_->reloadBaseDirs();
   refreshFiles();
 }
