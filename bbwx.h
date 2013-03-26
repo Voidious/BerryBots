@@ -25,12 +25,13 @@
 #define NEW_MATCH_MENU_ID        2
 #define PACKAGE_SHIP_MENU_ID     3
 #define PACKAGE_STAGE_MENU_ID    4
-#define ERROR_CONSOLE_MENU_ID    5
-#define CHANGE_BASE_DIR_MENU_ID  6
-#define FILE_QUIT_MENU_ID        7
-#define BROWSE_SHIPS_MENU_ID     8
-#define BROWSE_STAGES_MENU_ID    9
-#define BROWSE_API_DOCS_MENU_ID  10
+#define GAME_RUNNER_MENU_ID    5
+#define ERROR_CONSOLE_MENU_ID    6
+#define CHANGE_BASE_DIR_MENU_ID  7
+#define FILE_QUIT_MENU_ID        8
+#define BROWSE_SHIPS_MENU_ID     9
+#define BROWSE_STAGES_MENU_ID    10
+#define BROWSE_API_DOCS_MENU_ID  11
 
 #define BERRYBOTS_ICO  "resources/berrybots.ico"
 #define BBICON_32      "resources/icon.iconset/icon_32x32.png"

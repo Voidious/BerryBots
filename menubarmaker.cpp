@@ -31,13 +31,18 @@ wxMenuBar* MenuBarMaker::getNewMenuBar() {
   fileMenu->Insert(0, NEW_MATCH_MENU_ID, "&New Match...\tCtrl+N", 0);
   fileMenu->Insert(1, PACKAGE_SHIP_MENU_ID, "&Package Ship...\tCtrl+P", 0);
   fileMenu->Insert(2, PACKAGE_STAGE_MENU_ID, "Package S&tage...\tCtrl+T", 0);
-  fileMenu->Insert(3, ERROR_CONSOLE_MENU_ID, "&Error Console\tCtrl+E", 0);
-  fileMenu->InsertSeparator(4);
 #ifdef __WXOSX__
-  fileMenu->Insert(5, CHANGE_BASE_DIR_MENU_ID,
+  fileMenu->Insert(3, GAME_RUNNER_MENU_ID, "&Game Runner...\tShift+Ctrl+G", 0);
+#else
+  fileMenu->Insert(3, GAME_RUNNER_MENU_ID, "&Game Runner...\tShift+Alt+G", 0);
+#endif
+  fileMenu->Insert(4, ERROR_CONSOLE_MENU_ID, "&Error Console\tCtrl+E", 0);
+  fileMenu->InsertSeparator(5);
+#ifdef __WXOSX__
+  fileMenu->Insert(6, CHANGE_BASE_DIR_MENU_ID,
                    "Change &Base Directory\tCtrl+B");
 #else
-  fileMenu->Insert(5, FILE_QUIT_MENU_ID, "&Quit");
+  fileMenu->Insert(6, FILE_QUIT_MENU_ID, "&Quit");
 #endif
   
   wxMenu *browseMenu = new wxMenu();

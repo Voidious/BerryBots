@@ -1051,6 +1051,10 @@ void GuiManager::closeStagePreview() {
   previewConsole_->Hide();
 }
 
+void GuiManager::launchGameRunner() {
+  
+}
+
 void GuiManager::deleteStageConsole() {
   if (stageConsole_ != 0) {
     stageConsole_->Hide();

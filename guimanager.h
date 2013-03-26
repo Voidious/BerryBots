@@ -125,6 +125,7 @@ class GuiManager {
     void showErrorConsole();
     void showStagePreview(const char *stageName);
     void closeStagePreview();
+    void launchGameRunner();
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
