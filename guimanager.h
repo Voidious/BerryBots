@@ -28,6 +28,7 @@
 #include "packagedialog.h"
 #include "packageship.h"
 #include "packagestage.h"
+#include "runnerdialog.h"
 #include "outputconsole.h"
 #include "menubarmaker.h"
 #include "guiprinthandler.h"
@@ -57,12 +58,14 @@ class GuiManager {
   NewMatchDialog *newMatchDialog_;
   PackageShipDialog *packageShipDialog_;
   PackageStageDialog *packageStageDialog_;
+  RunnerDialog *runnerDialog_;
   sf::RenderWindow *window_;
   sf::RenderWindow *previewWindow_;
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
   OutputConsole *packagingConsole_;
   OutputConsole *errorConsole_;
+  OutputConsole *runnerConsole_;
   OutputConsole *previewConsole_;
   ConsoleListener *previewConsoleListener_;
   MenuBarMaker *menuBarMaker_;
@@ -75,6 +78,7 @@ class GuiManager {
   NewMatchListener *newMatchListener_;
   PackageDialogListener *shipPackager_;
   PackageDialogListener *stagePackager_;
+  RunnerDialogListener *runnerLauncher_;
   PackagingListener *packageReporter_;
   PrintStateListener *printStateListener_;
   BerryBotsEngine *engine_;
@@ -120,15 +124,16 @@ class GuiManager {
     void showNewMatchDialog();
     void showPackageShipDialog();
     void showPackageStageDialog();
+    void showGameRunnerDialog();
     void showStageConsole();
     void showTeamConsole(int teamIndex);
     void showErrorConsole();
     void showStagePreview(const char *stageName);
     void closeStagePreview();
-    void launchGameRunner();
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
+    void hideGameRunnerDialog();
     void hidePackagingConsole();
     void hideErrorConsole();
     void dialogClosed();
@@ -136,6 +141,7 @@ class GuiManager {
     void newMatchInitialFocus();
     void packageShipInitialFocus();
     void packageStageInitialFocus();
+    void gameRunnerInitialFocus();
     void printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip, int time);
     void togglePause();
     void restartMatch();
@@ -155,6 +161,7 @@ class GuiManager {
     void drawFrame(sf::RenderWindow *window);
     void clearTeamErroredForActiveConsoles(BerryBotsEngine *engine);
     void resumeMatch();
+    void showDialog(wxFrame *dialog);
     void deleteStageConsole();
     void saveCurrentMatchSettings(
         const char *stageName, char **teamNames, int numTeams);
@@ -220,6 +227,23 @@ class StagePackager : public PackageDialogListener {
     virtual void onClose();
     virtual void onEscape();
     virtual void onUpdateUi();
+};
+
+class RunnerLauncher : public RunnerDialogListener {
+  GuiManager *guiManager_;
+  FileManager *fileManager_;
+  OutputConsole *runnerConsole_;
+  char *runnersDir_;
+  
+public:
+  RunnerLauncher(GuiManager *guiManager, FileManager *fileManager,
+                 OutputConsole *runnerConsole, char *runnersDir);
+  ~RunnerLauncher();
+  virtual void launch(const char *runnerName);
+  virtual void refreshFiles();
+  virtual void onClose();
+  virtual void onEscape();
+  virtual void onUpdateUi();
 };
 
 class PackageReporter : public PackagingListener {

@@ -35,6 +35,10 @@
 #include "gfxmanager.h"
 #include "filemanager.h"
 #include "newmatch.h"
+#include "packagedialog.h"
+#include "packageship.h"
+#include "packagestage.h"
+#include "runnerdialog.h"
 #include "outputconsole.h"
 #include "printhandler.h"
 #include "guiprinthandler.h"
@@ -60,6 +64,8 @@ GuiManager::GuiManager(GuiListener *listener) {
   packagingConsole_ = new OutputConsole("Packaging Details", false,
                                         menuBarMaker_);
   errorConsole_ = new OutputConsole("Error Console", false, menuBarMaker_);
+  runnerConsole_ = new OutputConsole("Game Runner Console", false,
+                                     menuBarMaker_);
   previewConsole_ = new OutputConsole("Description", false, menuBarMaker_);
   previewConsole_->setCloseOnSpace();
   previewConsoleListener_ = new PreviewConsoleListener(this);
@@ -73,6 +79,9 @@ GuiManager::GuiManager(GuiListener *listener) {
   stagePackager_ = new StagePackager(this, fileManager_, packagingConsole_,
                                      stagesBaseDir_, shipsBaseDir_);
   packageStageDialog_ = new PackageStageDialog(stagePackager_, menuBarMaker_);
+  runnerLauncher_ = new RunnerLauncher(this, fileManager_, runnerConsole_,
+                                       stagesBaseDir_);
+  runnerDialog_ = new RunnerDialog(runnerLauncher_, menuBarMaker_);
   loadStages();
   loadShips();
 
@@ -115,8 +124,10 @@ GuiManager::~GuiManager() {
   delete newMatchDialog_;
   delete packageShipDialog_;
   delete packageStageDialog_;
+  delete runnerDialog_;
   delete packagingConsole_;
   delete errorConsole_;
+  delete runnerConsole_;
   delete previewConsole_;
   delete previewConsoleListener_;
   delete menuBarMaker_;
@@ -141,6 +152,7 @@ GuiManager::~GuiManager() {
   delete newMatchListener_;
   delete shipPackager_;
   delete stagePackager_;
+  delete runnerLauncher_;
   delete packageReporter_;
   if (printStateListener_ != 0) {
     delete printStateListener_;
@@ -693,6 +705,7 @@ void GuiManager::resumeMatch() {
     hideNewMatchDialog();
     hidePackageShipDialog();
     hidePackageStageDialog();
+    hideGameRunnerDialog();
     hidePackagingConsole();
     hideErrorConsole();
     runCurrentMatch();
@@ -778,6 +791,9 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
           break;
         case sf::Keyboard::T:
           showPackageStageDialog();
+          break;
+        case sf::Keyboard::G:
+          showGameRunnerDialog();
           break;
         case sf::Keyboard::Equal:
         case sf::Keyboard::Add:
@@ -872,28 +888,37 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
 }
 
 void GuiManager::showNewMatchDialog() {
-  interrupted_ = true;
-  packagingConsole_->Hide();
-  newMatchDialog_->Show();
-  newMatchDialog_->Raise();
+  showDialog(newMatchDialog_);
 }
 
 void GuiManager::showPackageShipDialog() {
-  interrupted_ = true;
-  if (!packageShipDialog_->IsShown()) {
-    packagingConsole_->Hide();
-  }
-  packageShipDialog_->Show();
-  packageShipDialog_->Raise();
+  showDialog(packageShipDialog_);
 }
 
 void GuiManager::showPackageStageDialog() {
+  showDialog(packageStageDialog_);
+}
+
+void GuiManager::showGameRunnerDialog() {
+  showDialog(runnerDialog_);
+}
+
+void GuiManager::showDialog(wxFrame *dialog) {
   interrupted_ = true;
-  if (!packageStageDialog_->IsShown()) {
-    packagingConsole_->Hide();
+  if (newMatchDialog_ != dialog && newMatchDialog_->IsShown()) {
+    newMatchDialog_->Hide();
   }
-  packageStageDialog_->Show();
-  packageStageDialog_->Raise();
+  if (packageShipDialog_ != dialog && packageShipDialog_->IsShown()) {
+    packageShipDialog_->Hide();
+  }
+  if (packageStageDialog_ != dialog && packageStageDialog_->IsShown()) {
+    packageStageDialog_->Hide();
+  }
+  if (runnerDialog_ != dialog && runnerDialog_->IsShown()) {
+    runnerDialog_->Hide();
+  }
+  dialog->Show();
+  dialog->Raise();
 }
 
 void GuiManager::showStageConsole() {
@@ -1051,10 +1076,6 @@ void GuiManager::closeStagePreview() {
   previewConsole_->Hide();
 }
 
-void GuiManager::launchGameRunner() {
-  
-}
-
 void GuiManager::deleteStageConsole() {
   if (stageConsole_ != 0) {
     stageConsole_->Hide();
@@ -1073,6 +1094,10 @@ void GuiManager::hidePackageShipDialog() {
 
 void GuiManager::hidePackageStageDialog() {
   packageStageDialog_->Hide();
+}
+
+void GuiManager::hideGameRunnerDialog() {
+  runnerDialog_->Hide();
 }
 
 void GuiManager::hidePackagingConsole() {
@@ -1107,6 +1132,10 @@ void GuiManager::packageShipInitialFocus() {
 
 void GuiManager::packageStageInitialFocus() {
   packageStageDialog_->focusItemSelect();
+}
+
+void GuiManager::gameRunnerInitialFocus() {
+  runnerDialog_->focusItemSelect();
 }
 
 void GuiManager::printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip,
@@ -1424,6 +1453,39 @@ void StagePackager::onEscape() {
 }
 
 void StagePackager::onUpdateUi() {
+  guiManager_->redrawMainWindow();
+}
+
+RunnerLauncher::RunnerLauncher(GuiManager *guiManager, FileManager *fileManager,
+    OutputConsole *runnerConsole, char *runnersDir) {
+  runnerConsole_ = runnerConsole;
+  guiManager_ = guiManager;
+  fileManager_ = fileManager;
+  runnersDir_ = new char[strlen(runnersDir) + 1];
+  strcpy(runnersDir_, runnersDir);
+}
+
+RunnerLauncher::~RunnerLauncher() {
+  delete runnersDir_;
+}
+
+void RunnerLauncher::launch(const char *runnerName) {
+
+}
+
+void RunnerLauncher::refreshFiles() {
+
+}
+
+void RunnerLauncher::onClose() {
+  guiManager_->dialogClosed();
+}
+
+void RunnerLauncher::onEscape() {
+  guiManager_->dialogEscaped();
+}
+
+void RunnerLauncher::onUpdateUi() {
   guiManager_->redrawMainWindow();
 }
 

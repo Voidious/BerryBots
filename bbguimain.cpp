@@ -170,27 +170,22 @@ void BerryBotsApp::quit() {
 
 void BerryBotsApp::OnNewMatch(wxCommandEvent &event) {
   guiManager_->showNewMatchDialog();
-  guiManager_->hidePackageShipDialog();
-  guiManager_->hidePackageStageDialog();
   guiManager_->newMatchInitialFocus();
 }
 
 void BerryBotsApp::OnPackageShip(wxCommandEvent &event) {
   guiManager_->showPackageShipDialog();
-  guiManager_->hideNewMatchDialog();
-  guiManager_->hidePackageStageDialog();
   guiManager_->packageShipInitialFocus();
 }
 
 void BerryBotsApp::OnPackageStage(wxCommandEvent &event) {
   guiManager_->showPackageStageDialog();
-  guiManager_->hideNewMatchDialog();
-  guiManager_->hidePackageShipDialog();
   guiManager_->packageStageInitialFocus();
 }
 
 void BerryBotsApp::OnGameRunner(wxCommandEvent &event) {
-  guiManager_->launchGameRunner();
+  guiManager_->showGameRunnerDialog();
+  guiManager_->gameRunnerInitialFocus();
 }
 
 void BerryBotsApp::OnErrorConsole(wxCommandEvent &event) {
