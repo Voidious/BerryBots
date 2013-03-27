@@ -68,7 +68,7 @@ RunnerDialog::RunnerDialog(RunnerDialogListener *listener,
   launchLabel_.Append("    ");
   modifiedLaunchLabel_.Append("&Launch");
 #ifdef __WXOSX__
-  modifiedLaunchLabel_.Append(" \u2318K");
+  modifiedLaunchLabel_.Append(" \u2318L");
 #else
   modifiedLaunchLabel_.Append("  alt-L");
 #endif

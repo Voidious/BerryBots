@@ -64,6 +64,7 @@ extern int registerStageGlobals(lua_State *L);
 extern void killHook(lua_State *L, lua_Debug *ar);
 extern void initStageState(lua_State **stageState, const char *stageCwd);
 extern void initShipState(lua_State **shipState, const char *shipCwd);
+extern void initRunnerState(lua_State **runnerState, const char *runnerCwd);
 extern Ship* pushShip(lua_State *L);
 extern void pushVisibleEnemyShips(
     lua_State *L, bool *teamVision, int teamIndex, Ship **ships, int numShips);

@@ -31,6 +31,7 @@
 
 @synthesize stagesDir;
 @synthesize shipsDir;
+@synthesize runnersDir;
 @synthesize cacheDir;
 @synthesize tmpDir;
 @synthesize apidocPath;
@@ -57,6 +58,9 @@ bool fileExists(const char *filename) {
 
   NSString *shipsSrc = [NSString stringWithFormat:@"%@/bots", srcDir];
   [self copyAppFiles:shipsSrc toDir:self.shipsDir forceOverwrite:forceAll];
+
+  NSString *runnersSrc = [NSString stringWithFormat:@"%@/runners", srcDir];
+  [self copyAppFiles:runnersSrc toDir:self.runnersDir forceOverwrite:forceAll];
 
   NSString *apidocSrc = [NSString stringWithFormat:@"%@/apidoc", srcDir];
   NSString *apidocDest = [self.apidocPath stringByDeletingLastPathComponent];
@@ -162,6 +166,7 @@ bool fileExists(const char *filename) {
       }
       self.stagesDir = [temp objectForKey:@"Stage dir"];
       self.shipsDir = [temp objectForKey:@"Ships dir"];
+      self.runnersDir = [temp objectForKey:@"Runners dir"];
       self.cacheDir = [temp objectForKey:@"Cache dir"];
       self.tmpDir = [temp objectForKey:@"Tmp dir"];
       self.apidocPath = [temp objectForKey:@"Apidoc Path"];
@@ -170,8 +175,11 @@ bool fileExists(const char *filename) {
         self.samplesVersion = @"1.1.0";
       }
 
+      // TODO: Handle upgrade to first version that contains sample runners more
+      //       smoothly than asking user to reselect base dir.
       if ([fileManager fileExistsAtPath:self.stagesDir]
-          && [fileManager fileExistsAtPath:self.shipsDir]) {
+          && [fileManager fileExistsAtPath:self.shipsDir]
+          && [fileManager fileExistsAtPath:self.runnersDir]) {
         selectRoot = false;
       }
     }
@@ -220,6 +228,8 @@ bool fileExists(const char *filename) {
                     newRootDir, @"stages"];
   self.shipsDir = [NSString stringWithFormat:@"%@/%@",
                   newRootDir, @"bots"];
+  self.runnersDir = [NSString stringWithFormat:@"%@/%@",
+                     newRootDir, @"runners"];
   self.cacheDir = [NSString stringWithFormat:@"%@/%@",
                    newRootDir, @CACHE_SUBDIR];
   self.tmpDir = [NSString stringWithFormat:@"%@/%@",
@@ -270,11 +280,11 @@ bool fileExists(const char *filename) {
       [rootPath stringByAppendingPathComponent:@"config.plist"];
   NSDictionary *plistDict =
       [NSDictionary dictionaryWithObjects:
-       [NSArray arrayWithObjects:stagesDir, shipsDir, cacheDir, tmpDir,
-                                 apidocPath, samplesVersion, nil]
+       [NSArray arrayWithObjects:stagesDir, shipsDir, runnersDir, cacheDir,
+                                 tmpDir, apidocPath, samplesVersion, nil]
         forKeys:[NSArray arrayWithObjects:
-                 @"Stage dir", @"Ships dir", @"Cache dir", @"Tmp dir",
-                 @"Apidoc Path", @"Samples Version", nil]];
+                 @"Stage dir", @"Ships dir", @"Runners dir", @"Cache dir",
+                 @"Tmp dir", @"Apidoc Path", @"Samples Version", nil]];
   NSData *plistData =
       [NSPropertyListSerialization dataFromPropertyList:plistDict
           format:NSPropertyListXMLFormat_v1_0

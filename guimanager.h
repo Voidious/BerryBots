@@ -33,8 +33,9 @@
 #include "menubarmaker.h"
 #include "guiprinthandler.h"
 
-#define ITEM_STAGE  1
-#define ITEM_SHIP   2
+#define ITEM_STAGE   1
+#define ITEM_SHIP    2
+#define ITEM_RUNNER  3
 
 class GuiListener {
   public:
@@ -84,6 +85,7 @@ class GuiManager {
   BerryBotsEngine *engine_;
   char *stagesBaseDir_;
   char *shipsBaseDir_;
+  char *runnersBaseDir_;
   char *currentStagePath_;
   char **currentTeamPaths_;
   int currentNumTeams_;
@@ -109,12 +111,15 @@ class GuiManager {
   public:
     GuiManager(GuiListener *listener);
     ~GuiManager();
-    void setBaseDirs(const char *stagesBaseDir, const char *shipsBaseDir);
+    void setBaseDirs(const char *stagesBaseDir, const char *shipsBaseDir,
+                     const char *runnersBaseDir);
     void reloadBaseDirs();
     void loadStages();
     bool isValidStageFile(const char *srcFilename, BerryBotsEngine *engine);
     void loadShips();
     bool isValidShipFile(const char *srcFilename, BerryBotsEngine *engine);
+    void loadRunners();
+    bool isValidRunnerFile(const char *srcFilename, BerryBotsEngine *engine);
     void startMatch(const char *stageName, char **teamNames, int numTeams);
     void runNewMatch(const char *stageName, char **teamNames, int numTeams);
     void processMainWindowEvents(sf::RenderWindow *window,
@@ -169,7 +174,7 @@ class GuiManager {
     void loadStagesFromDir(const char *loadDir);
     void loadShipsFromDir(const char *loadDir);
     void loadItemsFromDir(const char *baseDir, const char *loadDir,
-        int itemType, PackageDialog *packageDialog, BerryBotsEngine *engine);
+        int itemType, void *itemDialog, BerryBotsEngine *engine);
     void logErrorMessage(lua_State *L, const char *formatString);
 };
 

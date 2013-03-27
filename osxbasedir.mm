@@ -55,6 +55,14 @@ std::string getShipsDir(void) {
   }
 }
 
+std::string getRunnersDir(void) {
+  if (loadCfg()) {
+    return [cfg.runnersDir UTF8String];
+  } else {
+    exit(0);
+  }
+}
+
 std::string getCacheDir(void) {
   if (loadCfg()) {
     return [cfg.cacheDir UTF8String];

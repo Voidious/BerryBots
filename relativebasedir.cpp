@@ -42,6 +42,10 @@ std::string getShipsDir() {
   return getFullPath("bots");
 }
 
+std::string getRunnersDir() {
+  return getFullPath("runners");
+}
+
 std::string getCacheDir() {
   return getFullPath("cache");
 }

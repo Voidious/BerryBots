@@ -26,6 +26,7 @@
 extern bool isConfigured();
 extern std::string getStagesDir(void);
 extern std::string getShipsDir(void);
+extern std::string getRunnersDir(void);
 extern std::string getCacheDir(void);
 extern std::string getTmpDir(void);
 extern std::string getApidocPath(void);

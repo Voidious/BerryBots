@@ -24,6 +24,7 @@
 @interface OsxCfg : NSObject {
   NSString *stagesDir;
   NSString *shipsDir;
+  NSString *runnersDir;
   NSString *cacheDir;
   NSString *tmpDir;
   NSString *apidocPath;
@@ -39,6 +40,7 @@
 - (void) save;
 @property (copy, nonatomic) NSString *stagesDir;
 @property (copy, nonatomic) NSString *shipsDir;
+@property (copy, nonatomic) NSString *runnersDir;
 @property (copy, nonatomic) NSString *cacheDir;
 @property (copy, nonatomic) NSString *tmpDir;
 @property (copy, nonatomic) NSString *apidocPath;

@@ -74,6 +74,13 @@ void initShipState(lua_State **shipState, const char *shipCwd) {
   registerShipGlobals(*shipState);
 }
 
+void initRunnerState(lua_State **runnerState, const char *runnerCwd) {
+  *runnerState = luaL_newstate();
+  lua_setcwd(*runnerState, runnerCwd);
+  luaL_openlibs(*runnerState);
+  luaSrand(*runnerState);
+}
+
 void setField(lua_State *L, const char *key, double value) {
   lua_pushstring(L, key);
   lua_pushnumber(L, value);

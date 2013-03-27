@@ -51,7 +51,7 @@ extern PrintHandler *printHandler;
 
 GuiManager::GuiManager(GuiListener *listener) {
   listener_ = listener;
-  stagesBaseDir_ = shipsBaseDir_ = 0;
+  stagesBaseDir_ = shipsBaseDir_ = runnersBaseDir_ = 0;
   newMatchDialog_ = 0;
   srand((unsigned int) time(NULL));
   reloadBaseDirs();
@@ -80,10 +80,11 @@ GuiManager::GuiManager(GuiListener *listener) {
                                      stagesBaseDir_, shipsBaseDir_);
   packageStageDialog_ = new PackageStageDialog(stagePackager_, menuBarMaker_);
   runnerLauncher_ = new RunnerLauncher(this, fileManager_, runnerConsole_,
-                                       stagesBaseDir_);
+                                       runnersBaseDir_);
   runnerDialog_ = new RunnerDialog(runnerLauncher_, menuBarMaker_);
   loadStages();
   loadShips();
+  loadRunners();
 
   stageConsole_ = 0;
   teamConsoles_ = 0;
@@ -133,6 +134,7 @@ GuiManager::~GuiManager() {
   delete menuBarMaker_;
   delete stagesBaseDir_;
   delete shipsBaseDir_;
+  delete runnersBaseDir_;
   if (engine_ != 0) {
     delete engine_;
   }
@@ -166,7 +168,7 @@ GuiManager::~GuiManager() {
 }
 
 void GuiManager::setBaseDirs(const char *stagesBaseDir,
-                             const char *shipsBaseDir) {
+    const char *shipsBaseDir, const char *runnersBaseDir) {
   if (stagesBaseDir_ != 0) {
     delete stagesBaseDir_;
   }
@@ -179,13 +181,20 @@ void GuiManager::setBaseDirs(const char *stagesBaseDir,
   shipsBaseDir_ = new char[strlen(shipsBaseDir) + 1];
   strcpy(shipsBaseDir_, shipsBaseDir);
 
+  if (runnersBaseDir_ != 0) {
+    delete runnersBaseDir_;
+  }
+  runnersBaseDir_ = new char[strlen(runnersBaseDir) + 1];
+  strcpy(runnersBaseDir_, runnersBaseDir);
+
   if (newMatchDialog_ != 0) {
     newMatchDialog_->onSetBaseDirs();
   }
 }
 
 void GuiManager::reloadBaseDirs() {
-  setBaseDirs(getStagesDir().c_str(), getShipsDir().c_str());
+  setBaseDirs(getStagesDir().c_str(), getShipsDir().c_str(),
+              getRunnersDir().c_str());
 }
 
 void GuiManager::loadStages() {
@@ -300,7 +309,7 @@ void GuiManager::loadShipsFromDir(const char *loadDir) {
 }
 
 bool GuiManager::isValidShipFile(const char *srcFilename,
-                                BerryBotsEngine *engine) {
+                                 BerryBotsEngine *engine) {
   // TODO: Is this too slow? Should we keep this list in the cache so we don't
   //       have to do this on every startup / refresh - at least for packaged
   //       ships? In fact, just the presence in the cache could be considered
@@ -386,8 +395,42 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
   return false;
 }
 
+void GuiManager::loadRunners() {
+  runnerDialog_->clearItems();
+  BerryBotsEngine engine(fileManager_);
+  loadItemsFromDir(runnersBaseDir_, runnersBaseDir_, ITEM_RUNNER, runnerDialog_,
+                   &engine);
+}
+
+bool GuiManager::isValidRunnerFile(const char *srcFilename,
+                                   BerryBotsEngine *engine) {
+  // TODO: Move this out of the GUI code.
+  if (fileManager_->isLuaFilename(srcFilename)) {
+    lua_State *runnerState;
+    initRunnerState(&runnerState, runnersBaseDir_);
+
+    if (luaL_loadfile(runnerState, srcFilename)
+        || engine->callUserLuaCode(runnerState, 0, "", PCALL_VALIDATE)) {
+      logErrorMessage(runnerState, "Problem loading runner: %s");
+      lua_close(runnerState);
+      return false;
+    }
+
+    lua_getglobal(runnerState, "run");
+    if (lua_isnil(runnerState, -1)) {
+      lua_close(runnerState);
+      return false;
+    }
+    
+    lua_close(runnerState);
+    return true;
+  }
+  return false;
+}
+
+// TODO: Factor out a common interface or base class instead of passing (void*).
 void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
-    int itemType, PackageDialog *packageDialog, BerryBotsEngine *engine) {
+    int itemType, void *dialog, BerryBotsEngine *engine) {
   platformstl::readdir_sequence dir(loadDir,
       platformstl::readdir_sequence::files
           | platformstl::readdir_sequence::directories);
@@ -398,20 +441,27 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
     char *filename = (char *) *file;
     char *filePath = FileManager::getFilePath(loadDir, filename);
     if (FileManager::isDirectory(filePath)) {
-      loadItemsFromDir(baseDir, filePath, itemType, packageDialog, engine);
+      loadItemsFromDir(baseDir, filePath, itemType, dialog, engine);
     } else {
       char *relativeFilename = &(filePath[strlen(baseDir) + 1]);
       bool valid = false;
       if (itemType == ITEM_SHIP && isValidShipFile(relativeFilename, engine)) {
         newMatchDialog_->addShip(relativeFilename);
         valid = true;
-      } else if (itemType == ITEM_STAGE && isValidStageFile(relativeFilename,
-                                                            engine)) {
+      } else if (itemType == ITEM_STAGE
+                 && isValidStageFile(relativeFilename, engine)) {
         newMatchDialog_->addStage(relativeFilename);
+        valid = true;
+      } else if (itemType == ITEM_RUNNER
+                 && isValidRunnerFile(relativeFilename, engine)) {
         valid = true;
       }
       if (valid && fileManager_->isLuaFilename(filename)) {
-        packageDialog->addItem(relativeFilename);
+        if (itemType == ITEM_RUNNER) {
+          ((RunnerDialog *) dialog)->addItem(relativeFilename);
+        } else {
+          ((PackageDialog *) dialog)->addItem(relativeFilename);
+        }
       }
     }
     delete filePath;
