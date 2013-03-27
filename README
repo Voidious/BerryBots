@@ -1,5 +1,7 @@
-http://berrybots.com
-http://github.com/Voidious/BerryBots
+Main site:   http://berrybots.com
+GitHub repo: http://github.com/Voidious/BerryBots
+Wiki:        http://berrybots.com/wiki
+API docs:    http://berrybots.com/apidoc
 
 BerryBots is a programming game. A player programs a ship that moves around the
 stage, sees gameplay events, and (possibly) shoots at other ships. The ship API
@@ -13,5 +15,5 @@ API, but you could stay busy for quite a while just writing ships for the sample
 stages.
 
 Ships and stages are written in Lua, a lightweight, flexible programming
-language designed to be embedded into other programs. BerryBots is currently
-available for Mac, Linux, Windows, and Raspberry Pi.
+language designed to be embedded into other programs. BerryBots is available for
+Mac, Linux, Windows, and Raspberry Pi.
