@@ -87,6 +87,9 @@ extern World* pushWorld(lua_State *L, Stage *stage, int numShips, int teamSize);
 extern ShipGfx* pushShipGfx(lua_State *L);
 extern Admin* pushAdmin(lua_State *L);
 extern StageGfx* pushStageGfx(lua_State *L);
+extern RunnerForm* pushRunnerForm(lua_State *L);
+extern LuaGameRunner* pushGameRunner(lua_State *L);
+extern RunnerFiles* pushRunnerFiles(lua_State *L);
 extern void crawlFiles(lua_State *L, const char *startFile);
 
 #endif

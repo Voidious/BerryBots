@@ -21,10 +21,16 @@
 #ifndef GAME_RUNNER_H
 #define GAME_RUNNER_H
 
+#include "outputconsole.h"
+
 class GameRunner {
+  char *runnerName_;
+  OutputConsole *runnerConsole_;
+
   public:
-    GameRunner();
+    GameRunner(const char *runnerName, OutputConsole *runnerConsole);
     ~GameRunner();
+    void run();
 };
 
 #endif

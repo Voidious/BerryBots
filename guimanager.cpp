@@ -34,6 +34,7 @@
 #include "gfxeventhandler.h"
 #include "gfxmanager.h"
 #include "filemanager.h"
+#include "gamerunner.h"
 #include "newmatch.h"
 #include "packagedialog.h"
 #include "packageship.h"
@@ -938,7 +939,10 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
 }
 
 void GuiManager::launchGameRunner(const char *runnerName) {
-  
+  GameRunner *runner = new GameRunner(runnerName, runnerConsole_);
+  runnerDialog_->Hide();
+  runner->run();
+  delete runner;
 }
 
 void GuiManager::showNewMatchDialog() {
@@ -1528,7 +1532,7 @@ void RunnerLauncher::launch(const char *runnerName) {
 }
 
 void RunnerLauncher::refreshFiles() {
-
+  guiManager_->loadRunners();
 }
 
 void RunnerLauncher::onClose() {

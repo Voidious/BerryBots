@@ -18,12 +18,91 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <string.h>
+#include "basedir.h"
+#include "bblua.h"
+#include "outputconsole.h"
 #include "gamerunner.h"
 
-GameRunner::GameRunner() {
-  
+extern "C" {
+  #include "lua.h"
+  #include "lualib.h"
+  #include "lauxlib.h"
+}
+
+GameRunner::GameRunner(const char *runnerName, OutputConsole *runnerConsole) {
+  runnerName_ = new char[strlen(runnerName) + 1];
+  strcpy(runnerName_, runnerName);
+  runnerConsole_ = runnerConsole;
 }
 
 GameRunner::~GameRunner() {
-  
+  delete runnerName_;
+}
+
+// Taken from luajit.c
+static int traceback(lua_State *L) {
+  if (!lua_isstring(L, 1)) { /* Non-string error object? Try metamethod. */
+    if (lua_isnoneornil(L, 1) || !luaL_callmeta(L, 1, "__tostring")
+        || !lua_isstring(L, -1)) {
+      return 1;  /* Return non-string error object. */
+    }
+    lua_remove(L, 1);  /* Replace object by result of __tostring metamethod. */
+  }
+  luaL_traceback(L, L, lua_tostring(L, 1), 1);
+  return 1;
+}
+
+void GameRunner::run() {
+  runnerConsole_->clear();
+  runnerConsole_->Show();
+  runnerConsole_->Raise();
+
+  lua_State *runnerState;
+  std::string runnersDir = getRunnersDir();
+  initRunnerState(&runnerState, runnersDir.c_str());
+
+  bool error = false;
+  bool opened = false;
+  if (luaL_loadfile(runnerState, runnerName_)) {
+    runnerConsole_->print("Error loading game runner file: ");
+    runnerConsole_->println(runnerName_);
+    error = true;
+  } else {
+    if (lua_pcall(runnerState, 0, 0, 0)) {
+      opened = true;
+      error = true;
+    } else {
+      runnerConsole_->print("Loaded: ");
+      runnerConsole_->println(runnerName_);
+      runnerConsole_->println();
+    }
+  }
+
+  if (error) {
+    const char *luaMessage = lua_tostring(runnerState, -1);
+    runnerConsole_->println(luaMessage);
+  } else {
+    lua_pushcfunction(runnerState, traceback);
+    int errfunc = lua_gettop(runnerState);
+    lua_getglobal(runnerState, "run");
+    RunnerForm *form = pushRunnerForm(runnerState);
+    LuaGameRunner *luaRunner = pushGameRunner(runnerState);
+    RunnerFiles *files = pushRunnerFiles(runnerState);
+
+    int pcallValue = lua_pcall(runnerState, 3, 0, errfunc);
+    lua_remove(runnerState, errfunc);
+    if (pcallValue != 0) {
+      const char *luaMessage = lua_tostring(runnerState, -1);
+      runnerConsole_->println(luaMessage);
+    } else {
+      runnerConsole_->println();
+      runnerConsole_->print("Finished: ");
+      runnerConsole_->println(runnerName_);
+    }
+  }
+
+  if (opened) {
+    lua_close(runnerState);
+  }
 }
