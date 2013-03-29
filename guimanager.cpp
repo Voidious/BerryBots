@@ -937,6 +937,10 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
 #endif
 }
 
+void GuiManager::launchGameRunner(const char *runnerName) {
+  
+}
+
 void GuiManager::showNewMatchDialog() {
   showDialog(newMatchDialog_);
 }
@@ -1520,7 +1524,7 @@ RunnerLauncher::~RunnerLauncher() {
 }
 
 void RunnerLauncher::launch(const char *runnerName) {
-
+  guiManager_->launchGameRunner(runnerName);
 }
 
 void RunnerLauncher::refreshFiles() {

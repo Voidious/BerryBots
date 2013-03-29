@@ -37,8 +37,13 @@ extern "C" {
 #define SHIP_GFX       "ShipGfx"
 #define ADMIN          "Admin"
 #define STAGE_SENSORS  "StageSensors"
+#define STAGE_GFX      "StageGfx"
+#define RUNNER_FORM    "RunnerForm"
+#define GAME_RUNNER    "LuaGameRunner"
+#define RUNNER_FILES   "RunnerFiles"
 
 class BerryBotsEngine;
+class GameRunner;
 
 // Graphic definition structs
 
@@ -276,6 +281,17 @@ typedef struct {
   int shipFiredTorpedoRef;
 } StageSensors;
 
+typedef struct {
+  GameRunner *gameRunner;
+} RunnerForm;
+
+typedef struct {
+  GameRunner *gameRunner;
+} LuaGameRunner;
+
+typedef struct {
+  GameRunner *gameRunner;
+} RunnerFiles;
 
 extern double limit(double p, double q, double r);
 extern int signum(double x);

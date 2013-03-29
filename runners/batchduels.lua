@@ -9,7 +9,7 @@ function run(form, runner, files, network)
   form:addStageSelect("Stage")
   form:addSingleShipSelect("Challenger")
   form:addMultiShipSelect("Reference Ships")
-  form:addNumberText("Seasons")
+  form:addIntegerText("Seasons")
 
   setDefaultReferenceShips(form, files)    
   form:default("Seasons", 10)
@@ -47,8 +47,7 @@ function setDefaultReferenceShips(form, files)
 end
 
 function processNextResult(runner)
-	local result = runner:getNextResult()
-	print(result:getChallengerShip() .. " vs "
-			.. next(result:getReferenceShips()))
-	print("    " .. result:getWinner() .. " wins!")
+	local result = runner:nextResult()
+	print(result:challengerShip() .. " vs " .. next(result:referenceShips()))
+	print("    " .. result:winner() .. " wins!")
 end

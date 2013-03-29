@@ -126,6 +126,7 @@ class GuiManager {
         GfxManager *gfxManager, int viewWidth, int viewHeight);
     void processPreviewWindowEvents(sf::RenderWindow *window,
         GfxManager *gfxManager, int viewWidth, int viewHeight);
+    void launchGameRunner(const char *runnerName);
     void showNewMatchDialog();
     void showPackageShipDialog();
     void showPackageStageDialog();

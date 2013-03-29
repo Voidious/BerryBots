@@ -60,6 +60,9 @@ extern int registerAdmin(lua_State *L);
 extern int registerStageGfx(lua_State *L);
 extern int registerShipGlobals(lua_State *L);
 extern int registerStageGlobals(lua_State *L);
+extern int registerRunnerForm(lua_State *L);
+extern int registerGameRunner(lua_State *L);
+extern int registerRunnerFiles(lua_State *L);
 
 extern void killHook(lua_State *L, lua_Debug *ar);
 extern void initStageState(lua_State **stageState, const char *stageCwd);

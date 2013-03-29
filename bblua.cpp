@@ -79,6 +79,9 @@ void initRunnerState(lua_State **runnerState, const char *runnerCwd) {
   lua_setcwd(*runnerState, runnerCwd);
   luaL_openlibs(*runnerState);
   luaSrand(*runnerState);
+  registerRunnerForm(*runnerState);
+  registerGameRunner(*runnerState);
+  registerRunnerFiles(*runnerState);
 }
 
 void setField(lua_State *L, const char *key, double value) {
@@ -1664,14 +1667,14 @@ int registerAdmin(lua_State *L) {
 
 StageGfx* checkStageGfx(lua_State *L, int index) {
   luaL_checktype(L, index, LUA_TUSERDATA);
-  StageGfx *stageGfx = (StageGfx *) luaL_checkudata(L, index, SHIP_GFX);
+  StageGfx *stageGfx = (StageGfx *) luaL_checkudata(L, index, STAGE_GFX);
   if (stageGfx == NULL) luaL_error(L, "error in checkStageGfx");
   return stageGfx;
 }
 
 StageGfx* pushStageGfx(lua_State *L) {
   StageGfx *stageGfx = (StageGfx *) lua_newuserdata(L, sizeof(StageGfx));
-  luaL_getmetatable(L, SHIP_GFX);
+  luaL_getmetatable(L, STAGE_GFX);
   lua_setmetatable(L, -2);
   int stageGfxRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
   lua_rawgeti(L, LUA_REGISTRYINDEX, stageGfxRef);
@@ -1718,7 +1721,7 @@ const luaL_Reg StageGfx_methods[] = {
 };
 
 int registerStageGfx(lua_State *L) {
-  return registerClass(L, SHIP_GFX, StageGfx_methods);
+  return registerClass(L, STAGE_GFX, StageGfx_methods);
 }
 
 int ShipGlobals_print(lua_State *L) {
@@ -1761,4 +1764,166 @@ int registerStageGlobals(lua_State *L) {
   luaL_register(L, NULL, StageGlobals_methods);
   lua_pop(L, 1);
   return 1;
+}
+
+RunnerForm* checkRunnerForm(lua_State *L, int index) {
+  luaL_checktype(L, index, LUA_TUSERDATA);
+  RunnerForm *form = (RunnerForm *) luaL_checkudata(L, index, RUNNER_FORM);
+  if (form == NULL) luaL_error(L, "error in checkRunnerForm");
+  return form;
+}
+
+RunnerForm* pushRunnerForm(lua_State *L) {
+  RunnerForm *form = (RunnerForm *) lua_newuserdata(L, sizeof(RunnerForm));
+  luaL_getmetatable(L, RUNNER_FORM);
+  lua_setmetatable(L, -2);
+  int formRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
+  lua_rawgeti(L, LUA_REGISTRYINDEX, formRef);
+  return form;
+}
+
+int RunnerForm_addStageSelect(lua_State *L) {
+  RunnerForm *form = checkRunnerForm(L, 1);
+  const char *name = luaL_checkstring(L, 2);
+  return 1;
+}
+
+int RunnerForm_addSingleShipSelect(lua_State *L) {
+  RunnerForm *form = checkRunnerForm(L, 1);
+  const char *name = luaL_checkstring(L, 2);
+  return 1;
+}
+
+int RunnerForm_addMultiShipSelect(lua_State *L) {
+  RunnerForm *form = checkRunnerForm(L, 1);
+  const char *name = luaL_checkstring(L, 2);
+  return 1;
+}
+
+int RunnerForm_addIntegerText(lua_State *L) {
+  RunnerForm *form = checkRunnerForm(L, 1);
+  const char *name = luaL_checkstring(L, 2);
+  return 1;
+}
+
+int RunnerForm_default(lua_State *L) {
+  RunnerForm *form = checkRunnerForm(L, 1);
+  const char *name = luaL_checkstring(L, 2);
+  return 1;
+}
+
+int RunnerForm_ok(lua_State *L) {
+  RunnerForm *form = checkRunnerForm(L, 1);
+  return 1;
+}
+
+int RunnerForm_get(lua_State *L) {
+  RunnerForm *form = checkRunnerForm(L, 1);
+  const char *name = luaL_checkstring(L, 2);
+  return 1;
+}
+
+const luaL_Reg RunnerForm_methods[] = {
+  {"addStageSelect",       RunnerForm_addStageSelect},
+  {"addSingleShipSelect",  RunnerForm_addSingleShipSelect},
+  {"addMultiShipSelect",   RunnerForm_addSingleShipSelect},
+  {"addIntegerText",       RunnerForm_addIntegerText},
+  {"default",              RunnerForm_default},
+  {"ok",                   RunnerForm_ok},
+  {"get",                  RunnerForm_get},
+  {0, 0}
+};
+
+int registerRunnerForm(lua_State *L) {
+  return registerClass(L, RUNNER_FORM, RunnerForm_methods);
+}
+
+LuaGameRunner* checkGameRunner(lua_State *L, int index) {
+  luaL_checktype(L, index, LUA_TUSERDATA);
+  LuaGameRunner *runner =
+      (LuaGameRunner *) luaL_checkudata(L, index, GAME_RUNNER);
+  if (runner == NULL) luaL_error(L, "error in checkGameRunner");
+  return runner;
+}
+
+LuaGameRunner* pushGameRunner(lua_State *L) {
+  LuaGameRunner *runner =
+      (LuaGameRunner *) lua_newuserdata(L, sizeof(LuaGameRunner));
+  luaL_getmetatable(L, GAME_RUNNER);
+  lua_setmetatable(L, -2);
+  int runnerRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
+  lua_rawgeti(L, LUA_REGISTRYINDEX, runnerRef);
+  return runner;
+}
+
+int GameRunner_setThreadCount(lua_State *L) {
+  LuaGameRunner *runner = checkGameRunner(L, 1);
+  int threadCount = std::max(1, luaL_checkint(L, 2));
+  return 1;
+}
+
+int GameRunner_queueMatch(lua_State *L) {
+  LuaGameRunner *runner = checkGameRunner(L, 1);
+  const char *stageName = luaL_checkstring(L, 2);
+  return 1;
+}
+
+int GameRunner_empty(lua_State *L) {
+  LuaGameRunner *runner = checkGameRunner(L, 1);
+  return 1;
+}
+
+int GameRunner_nextResult(lua_State *L) {
+  LuaGameRunner *runner = checkGameRunner(L, 1);
+  return 1;
+}
+
+const luaL_Reg GameRunner_methods[] = {
+  {"setThreadCount",  GameRunner_setThreadCount},
+  {"queueMatch",      GameRunner_queueMatch},
+  {"empty",           GameRunner_empty},
+  {"nextResult",      GameRunner_nextResult},
+  {0, 0}
+};
+
+int registerGameRunner(lua_State *L) {
+  return registerClass(L, GAME_RUNNER, GameRunner_methods);
+}
+
+RunnerFiles* checkRunnerFiles(lua_State *L, int index) {
+  luaL_checktype(L, index, LUA_TUSERDATA);
+  RunnerFiles *files = (RunnerFiles *) luaL_checkudata(L, index, RUNNER_FILES);
+  if (files == NULL) luaL_error(L, "error in checkRunnerFiles");
+  return files;
+}
+
+RunnerFiles* pushRunnerFiles(lua_State *L) {
+  RunnerFiles *files = (RunnerFiles *) lua_newuserdata(L, sizeof(RunnerFiles));
+  luaL_getmetatable(L, RUNNER_FILES);
+  lua_setmetatable(L, -2);
+  int filesRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
+  lua_rawgeti(L, LUA_REGISTRYINDEX, filesRef);
+  return files;
+}
+
+int RunnerFiles_exists(lua_State *L) {
+  RunnerFiles *files = checkRunnerFiles(L, 1);
+  const char *filename = luaL_checkstring(L, 2);
+  return 1;
+}
+
+int RunnerFiles_read(lua_State *L) {
+  RunnerFiles *files = checkRunnerFiles(L, 1);
+  const char *filename = luaL_checkstring(L, 2);
+  return 1;
+}
+
+const luaL_Reg RunnerFiles_methods[] = {
+  {"exists",  RunnerFiles_exists},
+  {"read",    RunnerFiles_read},
+  {0, 0}
+};
+
+int registerRunnerFiles(lua_State *L) {
+  return registerClass(L, RUNNER_FILES, RunnerFiles_methods);
 }
