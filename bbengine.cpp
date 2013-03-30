@@ -658,6 +658,7 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
   gameTime_++;
   updateTeamShipsAlive();    
   stage_->updateTeamVision(teams_, numTeams_, ships_, numShips_, teamVision_);
+  stage_->clearStaleUserGfxs(gameTime_);
   copyShips(ships_, oldShips_, numShips_);
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];

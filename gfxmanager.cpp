@@ -892,11 +892,6 @@ void GfxManager::adjustUserGfxLinePosition(sf::RectangleShape *rectangleShape,
 
 void GfxManager::drawUserGfxs(sf::RenderWindow *window, Stage *stage,
                               int time) {
-  stage->clearStaleUserGfxRectangles(time);
-  stage->clearStaleUserGfxLines(time);
-  stage->clearStaleUserGfxCircles(time);
-  stage->clearStaleUserGfxTexts(time);
-
   for (int x = 0; x < numTeams_; x++) {
     if (teams_[x]->gfxEnabled) {
       drawUserGfxRectangles(window, stage->getShipGfxRectangles(x),

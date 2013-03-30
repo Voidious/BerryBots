@@ -366,6 +366,13 @@ void Stage::disableUserGfx() {
   userGfxDisabled_ = true;
 }
 
+void Stage::clearStaleUserGfxs(int gameTime) {
+  clearStaleUserGfxRectangles(gameTime);
+  clearStaleUserGfxLines(gameTime);
+  clearStaleUserGfxCircles(gameTime);
+  clearStaleUserGfxTexts(gameTime);
+}
+
 int Stage::addUserGfxRectangle(Team *team, int gameTime, double left,
     double bottom, double width, double height, double rotation,
     RgbaColor fillColor, double outlineThickness, RgbaColor outlineColor,
