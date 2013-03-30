@@ -828,10 +828,15 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
     bool defaultTps = (abs(tpsFactor_ - 1) < 0.001);
     if (event.type == sf::Event::LostFocus) {
       window->setVerticalSyncEnabled(false);
-      window->setFramerateLimit(60);
-    } else if (event.type == sf::Event::GainedFocus && defaultTps) {
-      window->setVerticalSyncEnabled(true);
-      window->setFramerateLimit(0);
+      window->setFramerateLimit(paused_ ? 5 : 60);
+    } else if (event.type == sf::Event::GainedFocus) {
+      if (defaultTps) {
+        window->setVerticalSyncEnabled(true);
+        window->setFramerateLimit(0);
+      } else {
+        window->setVerticalSyncEnabled(false);
+        window->setFramerateLimit(60);
+      }
     }
   }
 
