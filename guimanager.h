@@ -35,6 +35,12 @@
 #define ITEM_STAGE  1
 #define ITEM_SHIP   2
 
+#define TOO_MANY_RECTANGLES  "== Error: Tried to draw too many DebugGfx rectangles (max 4096)."
+#define TOO_MANY_LINES       "== Error: Tried to draw too many DebugGfx lines (max 4096)."
+#define TOO_MANY_CIRCLES     "== Error: Tried to draw too many DebugGfx circles (max 4096)."
+#define TOO_MANY_TEXTS       "== Error: Tried to draw too many DebugGfx texts (max 4096)."
+#define TOO_MANY_MORE_INFO   " Some of your graphics are being ignored. See API docs for more info."
+
 class GuiListener {
   public:
     virtual void onAllWindowsClosed() = 0;
@@ -101,6 +107,10 @@ class GuiManager {
   bool closingPreview_;
   double tpsFactor_;
   double nextDrawTime_;
+  bool tooManyStageRectangles_;
+  bool tooManyStageLines_;
+  bool tooManyStageCircles_;
+  bool tooManyStageTexts_;
   
   public:
     GuiManager(GuiListener *listener);
@@ -136,6 +146,10 @@ class GuiManager {
     void packageShipInitialFocus();
     void packageStageInitialFocus();
     void printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip, int time);
+    void printTooManyUserGfxRectangles(Team *team);
+    void printTooManyUserGfxLines(Team *team);
+    void printTooManyUserGfxCircles(Team *team);
+    void printTooManyUserGfxTexts(Team *team);
     void togglePause();
     void restartMatch();
     void setTpsFactor(double tpsFactor);
@@ -237,6 +251,10 @@ class ConsoleEventHandler : public EventHandler {
     ConsoleEventHandler(GuiManager *guiManager);
     virtual void handleShipDestroyed(Ship *destroyedShip, int time,
         Ship **destroyerShips, int numDestroyers);
+    virtual void tooManyUserGfxRectangles(Team *team);
+    virtual void tooManyUserGfxLines(Team *team);
+    virtual void tooManyUserGfxCircles(Team *team);
+    virtual void tooManyUserGfxTexts(Team *team);
 
     virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip, double dx,
         double dy, double laserX, double laserY, double laserHeading,

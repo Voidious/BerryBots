@@ -377,9 +377,13 @@ int Stage::addUserGfxRectangle(Team *team, int gameTime, double left,
     double bottom, double width, double height, double rotation,
     RgbaColor fillColor, double outlineThickness, RgbaColor outlineColor,
     int drawTicks) {
-  if (userGfxDisabled_
-      || (team == 0 ? numGfxRectangles_ : team->numRectangles)
-          >= MAX_USER_RECTANGLES) {
+  if (userGfxDisabled_) {
+    return 0;
+  } else if ((team == 0 ? numGfxRectangles_ : team->numRectangles)
+             >= MAX_USER_RECTANGLES) {
+    for (int z = 0; z < numEventHandlers_; z++) {
+      eventHandlers_[z]->tooManyUserGfxRectangles(team);
+    }
     return 0;
   } else {
     UserGfxRectangle *rectangle = new UserGfxRectangle;
@@ -454,8 +458,12 @@ int Stage::clearStaleUserGfxRectangles(int gameTime,
 int Stage::addUserGfxLine(Team *team, int gameTime, double x, double y,
     double angle, double length, double thickness, RgbaColor fillColor,
     double outlineThickness, RgbaColor outlineColor, int drawTicks) {
-  if (userGfxDisabled_
-      || (team == 0 ? numGfxLines_ : team->numLines) >= MAX_USER_LINES) {
+  if (userGfxDisabled_) {
+    return 0;
+  } else if ((team == 0 ? numGfxLines_ : team->numLines) >= MAX_USER_LINES) {
+    for (int z = 0; z < numEventHandlers_; z++) {
+      eventHandlers_[z]->tooManyUserGfxLines(team);
+    }
     return 0;
   } else {
     UserGfxLine *line = new UserGfxLine;
@@ -528,8 +536,13 @@ int Stage::clearStaleUserGfxLines(int gameTime, UserGfxLine** gfxLines,
 int Stage::addUserGfxCircle(Team *team, int gameTime, double x, double y,
     double radius, RgbaColor fillColor, double outlineThickness,
     RgbaColor outlineColor, int drawTicks) {
-  if (userGfxDisabled_
-      || (team == 0 ? numGfxCircles_ : team->numCircles) >= MAX_USER_CIRCLES) {
+  if (userGfxDisabled_) {
+    return 0;
+  } else if ((team == 0 ? numGfxCircles_ : team->numCircles)
+             >= MAX_USER_CIRCLES) {
+    for (int z = 0; z < numEventHandlers_; z++) {
+      eventHandlers_[z]->tooManyUserGfxCircles(team);
+    }
     return 0;
   } else {
     UserGfxCircle *circle = new UserGfxCircle;
@@ -600,8 +613,12 @@ int Stage::clearStaleUserGfxCircles(int gameTime, UserGfxCircle** gfxCircles,
 
 int Stage::addUserGfxText(Team *team, int gameTime, const char *text,
     double x, double y, int fontSize, RgbaColor textColor, int drawTicks) {
-  if (userGfxDisabled_
-      || (team == 0 ? numGfxTexts_ : team->numTexts) >= MAX_USER_TEXTS) {
+  if (userGfxDisabled_) {
+    return 0;
+  } else if ((team == 0 ? numGfxTexts_ : team->numTexts) >= MAX_USER_TEXTS) {
+    for (int z = 0; z < numEventHandlers_; z++) {
+      eventHandlers_[z]->tooManyUserGfxTexts(team);
+    }
     return 0;
   } else {
     UserGfxText *userText = new UserGfxText;

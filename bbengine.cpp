@@ -441,6 +441,8 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->state = teamState;
     team->errored = false;
     team->gfxEnabled = false;
+    team->tooManyRectangles = team->tooManyLines = false;
+    team->tooManyCircles = team->tooManyTexts = false;
     if (listener_ != 0) {
       listener_->newTeam(team, filename);
     }

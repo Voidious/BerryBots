@@ -45,6 +45,10 @@ class EventHandler {
         Ship *firingShip, double laserHeading, int time) = 0;
     virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,
         double torpedoDistance, int time) = 0;
+    virtual void tooManyUserGfxRectangles(Team *team) = 0;
+    virtual void tooManyUserGfxLines(Team *team) = 0;
+    virtual void tooManyUserGfxCircles(Team *team) = 0;
+    virtual void tooManyUserGfxTexts(Team *team) = 0;
 };
 
 #endif

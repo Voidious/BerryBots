@@ -209,6 +209,10 @@ class SensorHandler : public EventHandler {
         Ship *firingShip, double laserHeading, int time);
     virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,
         double torpedoDistance, int time);
+    virtual void tooManyUserGfxRectangles(Team *team) {};
+    virtual void tooManyUserGfxLines(Team *team) {};
+    virtual void tooManyUserGfxCircles(Team *team) {};
+    virtual void tooManyUserGfxTexts(Team *team) {};
 
     // Events for the ships.
     HitByShip** getHitByShips(int teamIndex);
