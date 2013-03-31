@@ -155,12 +155,16 @@ typedef struct {
   bool gfxEnabled;
   UserGfxRectangle* gfxRectangles[MAX_USER_RECTANGLES];
   int numRectangles;
+  bool tooManyRectangles;
   UserGfxLine* gfxLines[MAX_USER_LINES];
   int numLines;
+  bool tooManyLines;
   UserGfxCircle* gfxCircles[MAX_USER_RECTANGLES];
   int numCircles;
+  bool tooManyCircles;
   UserGfxText* gfxTexts[MAX_USER_TEXTS];
   int numTexts;
+  bool tooManyTexts;
 } Team;
 
 // Static ship properties that we don't need to copy around.

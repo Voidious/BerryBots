@@ -524,6 +524,8 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                              int numUserTeams) {
   tpsFactor_ = 1;
   nextDrawTime_ = 1;
+  tooManyStageRectangles_ = tooManyStageLines_ = false;
+  tooManyStageCircles_ = tooManyStageTexts_ = false;
 
   sf::RenderWindow *window;
   bool maintainWindowProperties = false;
@@ -895,10 +897,15 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
     bool defaultTps = (abs(tpsFactor_ - 1) < 0.001);
     if (event.type == sf::Event::LostFocus) {
       window->setVerticalSyncEnabled(false);
-      window->setFramerateLimit(60);
-    } else if (event.type == sf::Event::GainedFocus && defaultTps) {
-      window->setVerticalSyncEnabled(true);
-      window->setFramerateLimit(0);
+      window->setFramerateLimit(paused_ ? 5 : 60);
+    } else if (event.type == sf::Event::GainedFocus) {
+      if (defaultTps) {
+        window->setVerticalSyncEnabled(true);
+        window->setFramerateLimit(0);
+      } else {
+        window->setVerticalSyncEnabled(false);
+        window->setFramerateLimit(60);
+      }
     }
   }
 
@@ -1226,6 +1233,71 @@ void GuiManager::printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip,
     destroyeeConsole->print(" destroyed by: ");
     destroyeeConsole->print(destroyerShip->properties->name);
     destroyeeConsole->println(atTime);
+  }
+}
+
+void GuiManager::printTooManyUserGfxRectangles(Team *team) {
+  if (team == 0) {
+    // TODO: display error status in stage consoles too
+    if (!tooManyStageRectangles_) {
+      stageConsole_->print(TOO_MANY_RECTANGLES);
+      stageConsole_->println(TOO_MANY_MORE_INFO);
+      tooManyStageRectangles_ = true;
+    }
+  } else {
+    if (!team->tooManyRectangles) {
+      teamConsoles_[team->index]->print(TOO_MANY_RECTANGLES);
+      teamConsoles_[team->index]->println(TOO_MANY_MORE_INFO);
+      team->errored = team->tooManyRectangles = true;
+    }
+  }
+}
+
+void GuiManager::printTooManyUserGfxLines(Team *team) {
+  if (team == 0) {
+    if (!tooManyStageLines_) {
+      stageConsole_->print(TOO_MANY_LINES);
+      stageConsole_->println(TOO_MANY_MORE_INFO);
+      tooManyStageLines_ = true;
+    }
+  } else {
+    if (!team->tooManyLines) {
+      teamConsoles_[team->index]->print(TOO_MANY_LINES);
+      teamConsoles_[team->index]->println(TOO_MANY_MORE_INFO);
+      team->errored = team->tooManyLines = true;
+    }
+  }
+}
+
+void GuiManager::printTooManyUserGfxCircles(Team *team) {
+  if (team == 0) {
+    if (!tooManyStageCircles_) {
+      stageConsole_->print(TOO_MANY_CIRCLES);
+      stageConsole_->println(TOO_MANY_MORE_INFO);
+      tooManyStageCircles_ = true;
+    }
+  } else {
+    if (!team->tooManyCircles) {
+      teamConsoles_[team->index]->print(TOO_MANY_CIRCLES);
+      teamConsoles_[team->index]->println(TOO_MANY_MORE_INFO);
+      team->errored = team->tooManyCircles = true;
+    }
+  }
+}
+
+void GuiManager::printTooManyUserGfxTexts(Team *team) {
+  if (team == 0) {
+    if (!tooManyStageTexts_) {
+      stageConsole_->print(TOO_MANY_TEXTS);
+      stageConsole_->println(TOO_MANY_MORE_INFO);
+      tooManyStageTexts_ = true;
+    }
+  } else {
+    if (!team->tooManyTexts) {
+      teamConsoles_[team->index]->print(TOO_MANY_TEXTS);
+      teamConsoles_[team->index]->println(TOO_MANY_MORE_INFO);
+      team->errored = team->tooManyTexts = true;
+    }
   }
 }
 
@@ -1591,6 +1663,22 @@ void ConsoleEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
   for (int x = 0; x < numDestroyers; x++) {
     guiManager_->printShipDestroyed(destroyedShip, destroyerShips[x], time);
   }
+}
+
+void ConsoleEventHandler::tooManyUserGfxRectangles(Team *team) {
+  guiManager_->printTooManyUserGfxRectangles(team);
+}
+
+void ConsoleEventHandler::tooManyUserGfxLines(Team *team) {
+  guiManager_->printTooManyUserGfxLines(team);
+}
+
+void ConsoleEventHandler::tooManyUserGfxCircles(Team *team) {
+  guiManager_->printTooManyUserGfxCircles(team);
+}
+
+void ConsoleEventHandler::tooManyUserGfxTexts(Team *team) {
+  guiManager_->printTooManyUserGfxTexts(team);
 }
 
 StageConsoleListener::StageConsoleListener(Stage *stage) {

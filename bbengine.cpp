@@ -441,6 +441,8 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->state = teamState;
     team->errored = false;
     team->gfxEnabled = false;
+    team->tooManyRectangles = team->tooManyLines = false;
+    team->tooManyCircles = team->tooManyTexts = false;
     if (listener_ != 0) {
       listener_->newTeam(team, filename);
     }
@@ -658,6 +660,7 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
   gameTime_++;
   updateTeamShipsAlive();    
   stage_->updateTeamVision(teams_, numTeams_, ships_, numShips_, teamVision_);
+  stage_->clearStaleUserGfxs(gameTime_);
   copyShips(ships_, oldShips_, numShips_);
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];

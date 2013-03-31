@@ -136,6 +136,7 @@ class Stage {
     bool getGfxEnabled();
     void setGfxEnabled(bool enabled);
     void disableUserGfx();
+    void clearStaleUserGfxs(int gameTime);
 
     int addUserGfxRectangle(Team *team, int gameTime, double left,
         double bottom, double width, double height, double rotation,
@@ -145,7 +146,6 @@ class Stage {
     int getShipGfxRectangleCount(int teamIndex);
     UserGfxRectangle** getStageGfxRectangles();
     int getStageGfxRectangleCount();
-    void clearStaleUserGfxRectangles(int gameTime);
 
     int addUserGfxLine(Team *team, int gameTime, double x, double y,
         double angle, double length, double thickness, RgbaColor fillColor,
@@ -154,7 +154,6 @@ class Stage {
     int getShipGfxLineCount(int teamIndex);
     UserGfxLine** getStageGfxLines();
     int getStageGfxLineCount();
-    void clearStaleUserGfxLines(int gameTime);
 
     int addUserGfxCircle(Team *team, int gameTime, double x, double y,
         double radius, RgbaColor fillColor, double outlineThickness,
@@ -163,7 +162,6 @@ class Stage {
     int getShipGfxCircleCount(int teamIndex);
     UserGfxCircle** getStageGfxCircles();
     int getStageGfxCircleCount();
-    void clearStaleUserGfxCircles(int gameTime);
 
     int addUserGfxText(Team *team, int gameTime, const char *text,
         double x, double y, int fontSize, RgbaColor textColor, int drawTicks);
@@ -171,7 +169,6 @@ class Stage {
     int getShipGfxTextCount(int teamIndex);
     UserGfxText** getStageGfxTexts();
     int getStageGfxTextCount();
-    void clearStaleUserGfxTexts(int gameTime);
 
     void setTeamsAndShips(
         Team **teams, int numTeams, Ship **ships, int numShips);
@@ -200,6 +197,10 @@ class Stage {
     bool hasVision(Line2D *visionLine);
     bool inZone(Ship *ship, Zone *zone);
     bool touchedZone(Ship *oldShip, Ship *ship, Zone *zone);
+    void clearStaleUserGfxRectangles(int gameTime);
+    void clearStaleUserGfxLines(int gameTime);
+    void clearStaleUserGfxCircles(int gameTime);
+    void clearStaleUserGfxTexts(int gameTime);
     int clearStaleUserGfxRectangles(int gametime,
         UserGfxRectangle** gfxRectangles, int numRectangles);
     int clearStaleUserGfxLines(int gameTime, UserGfxLine** gfxLines,
