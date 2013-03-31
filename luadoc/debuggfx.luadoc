@@ -2,7 +2,7 @@
 -- and stage programs draw shapes and text to the screen, which is very useful
 -- during development. To enable a user program's graphics, click the
 -- "Enable Gfx" checkbox in a ship or stage output console.<br/><br/>
--- There is a hard limit of 4,096 of each type of graphic. If you try to add
+-- There is a hard limit of 4096 of each type of graphic. If you try to add
 -- more, they will be ignored. Please let me know if this limit seems
 -- unreasonable and I'll consider increasing it or making it configurable.
 -- <br/><br/>

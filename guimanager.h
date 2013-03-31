@@ -35,10 +35,10 @@
 #define ITEM_STAGE  1
 #define ITEM_SHIP   2
 
-#define TOO_MANY_RECTANGLES  "== Error: Tried to draw too many DebugGfx rectangles (max 4096)."
-#define TOO_MANY_LINES       "== Error: Tried to draw too many DebugGfx lines (max 4096)."
-#define TOO_MANY_CIRCLES     "== Error: Tried to draw too many DebugGfx circles (max 4096)."
-#define TOO_MANY_TEXTS       "== Error: Tried to draw too many DebugGfx texts (max 4096)."
+#define TOO_MANY_RECTANGLES  "== Warning: Tried to draw too many DebugGfx rectangles (max 4096)."
+#define TOO_MANY_LINES       "== Warning: Tried to draw too many DebugGfx lines (max 4096)."
+#define TOO_MANY_CIRCLES     "== Warning: Tried to draw too many DebugGfx circles (max 4096)."
+#define TOO_MANY_TEXTS       "== Warning: Tried to draw too many DebugGfx texts (max 4096)."
 #define TOO_MANY_MORE_INFO   " Some of your graphics are being ignored. See API docs for more info."
 
 class GuiListener {
