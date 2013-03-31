@@ -1837,12 +1837,27 @@ int RunnerForm_get(lua_State *L) {
   RunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
   GameRunner *gameRunner = form->gameRunner;
-  int valueType = gameRunner->getType(name);
-  if (valueType == RUNNER_STRING) {
-    lua_pushstring(L, gameRunner->getString(name));
-  } else if (valueType == RUNNER_INTEGER) {
-    lua_pushnumber(L, gameRunner->getInteger(name));
-  } else if (valueType == RUNNER_UNDEFINED) {
+
+  int type = gameRunner->getElementType(name);
+  if (type == TYPE_MULTI_SHIP_SELECT) {
+    char **stringValues = gameRunner->getStringValues(name);
+    int numStringValues = gameRunner->getNumStringValues(name);
+    lua_newtable(L);
+    for (int x = 0; x < numStringValues; x++) {
+      lua_pushstring(L, stringValues[x]);
+      lua_rawseti(L, -2, x + 1);
+    }
+  } else if (type == TYPE_INTEGER_TEXT) {
+    lua_pushnumber(L, gameRunner->getIntegerValue(name));
+  } else if (type == TYPE_STAGE_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
+    char **stringValues = gameRunner->getStringValues(name);
+    int numStringValues = gameRunner->getNumStringValues(name);
+    if (numStringValues == 0) {
+      lua_pushliteral(L, "");
+    } else {
+      lua_pushstring(L, stringValues[0]);
+    }
+  } else if (type == RUNNER_UNDEFINED) {
     luaL_error(L, "Form name undefined: %s", name);
   }
   return 1;

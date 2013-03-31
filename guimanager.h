@@ -82,7 +82,6 @@ class GuiManager {
   sf::Image windowIcon_;
   Zipper *zipper_;
   FileManager *fileManager_;
-  GameRunner *gameRunner_;
   NewMatchListener *newMatchListener_;
   PackageDialogListener *shipPackager_;
   PackageDialogListener *stagePackager_;
@@ -118,6 +117,9 @@ class GuiManager {
   bool tooManyStageLines_;
   bool tooManyStageCircles_;
   bool tooManyStageTexts_;
+  int numStages_;
+  int numShips_;
+  int numRunners_;
   
   public:
     GuiManager(GuiListener *listener);
@@ -189,7 +191,7 @@ class GuiManager {
     void deleteCurrentMatchSettings();
     void loadStagesFromDir(const char *loadDir);
     void loadShipsFromDir(const char *loadDir);
-    void loadItemsFromDir(const char *baseDir, const char *loadDir,
+    int loadItemsFromDir(const char *baseDir, const char *loadDir,
         int itemType, void *itemDialog, BerryBotsEngine *engine);
     void logErrorMessage(lua_State *L, const char *formatString);
 };

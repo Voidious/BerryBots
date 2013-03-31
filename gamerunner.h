@@ -21,9 +21,11 @@
 #ifndef GAME_RUNNER_H
 #define GAME_RUNNER_H
 
-#define RUNNER_UNDEFINED  -1
-#define RUNNER_STRING     1
-#define RUNNER_INTEGER    2
+#define RUNNER_UNDEFINED        -1
+#define TYPE_STAGE_SELECT        1
+#define TYPE_SINGLE_SHIP_SELECT  2
+#define TYPE_MULTI_SHIP_SELECT   3
+#define TYPE_INTEGER_TEXT        4
 
 class GameRunner {
   public:
@@ -34,9 +36,10 @@ class GameRunner {
     virtual void setDefault(const char *name, const char *value) = 0;
     virtual void setDefault(const char *name, int value) = 0;
     virtual bool ok() = 0;
-    virtual int getType(const char *name) = 0;
-    virtual const char* getString(const char *name) = 0;
-    virtual int getInteger(const char *name) = 0;
+    virtual int getElementType(const char *name) = 0;
+    virtual char** getStringValues(const char *name) = 0;
+    virtual int getNumStringValues(const char *name) = 0;
+    virtual int getIntegerValue(const char *name) = 0;
     virtual void run(const char *runnerName) = 0;
     virtual ~GameRunner() {};
 };

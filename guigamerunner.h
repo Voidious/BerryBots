@@ -24,11 +24,46 @@
 #include "outputconsole.h"
 #include "gamerunner.h"
 
+#define MAX_FORM_ELEMENTS  20
+
+class RunnerFormElement {
+  char *name_;
+  int type_;
+  char** stringValues_;
+  int numStringValues_;
+  int maxStringValues_;
+  int intValue_;
+  char** defaultStringValues_;
+  int numDefaultStringValues_;
+  int defaultIntValue_;
+
+  public:
+    RunnerFormElement(const char *name, int type, int maxStringValues);
+    ~RunnerFormElement();
+    const char *getName();
+    int getType();
+    void addStringValue(const char *value);
+    char** getStringValues();
+    int getNumStringValues();
+    void addDefaultStringValue(const char *value);
+    char** getDefaultStringValues();
+    int getNumDefaultStringValues();
+    void setIntegerValue(int value);
+    int getIntegerValue();
+    void setDefaultIntegerValue(int value);
+    int getDefaultIntegerValue();
+    void clearDefaults();
+};
+
 class GuiGameRunner : public GameRunner {
+  RunnerFormElement* formElements_[MAX_FORM_ELEMENTS];
+  int numFormElements_;
+  int numStages_;
+  int numShips_;
   OutputConsole *runnerConsole_;
 
   public:
-    GuiGameRunner(OutputConsole *runnerConsole);
+    GuiGameRunner(OutputConsole *runnerConsole, int numStages, int numShips);
     ~GuiGameRunner();
     virtual void addStageSelect(const char *name);
     virtual void addSingleShipSelect(const char *name);
@@ -37,10 +72,14 @@ class GuiGameRunner : public GameRunner {
     virtual void setDefault(const char *name, const char *value);
     virtual void setDefault(const char *name, int value);
     virtual bool ok();
-    virtual int getType(const char *name);
-    virtual const char* getString(const char *name);
-    virtual int getInteger(const char *name);
+    virtual int getElementType(const char *name);
+    virtual char** getStringValues(const char *name);
+    virtual int getNumStringValues(const char *name);
+    virtual int getIntegerValue(const char *name);
     virtual void run(const char *runnerName);
+  private:
+    void addFormElement(const char *name, int type, int maxStringValues);
+    RunnerFormElement* getFormElement(const char *name);
 };
 
 #endif

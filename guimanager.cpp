@@ -83,7 +83,6 @@ GuiManager::GuiManager(GuiListener *listener) {
   packageStageDialog_ = new PackageStageDialog(stagePackager_, menuBarMaker_);
   runnerLauncher_ = new RunnerLauncher(this, fileManager_, runnerConsole_,
                                        runnersBaseDir_);
-  gameRunner_ = new GuiGameRunner(runnerConsole_);
   runnerDialog_ = new RunnerDialog(runnerLauncher_, menuBarMaker_);
   loadStages();
   loadShips();
@@ -114,6 +113,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   closingPreview_ = false;
   tpsFactor_ = 1;
   nextDrawTime_ = 1;
+  numStages_ = numShips_ = numRunners_ = 0;
 
 #ifdef __WINDOWS__
   windowIcon_.loadFromFile(BBICON_32);
@@ -154,7 +154,6 @@ GuiManager::~GuiManager() {
   delete viewListener_;
   delete zipper_;
   delete fileManager_;
-  delete gameRunner_;
   delete newMatchListener_;
   delete shipPackager_;
   delete stagePackager_;
@@ -209,8 +208,8 @@ void GuiManager::loadStages() {
 
 void GuiManager::loadStagesFromDir(const char *loadDir) {
   BerryBotsEngine engine(fileManager_);
-  loadItemsFromDir(stagesBaseDir_, loadDir, ITEM_STAGE, packageStageDialog_,
-                   &engine);
+  numStages_ = loadItemsFromDir(stagesBaseDir_, loadDir, ITEM_STAGE,
+                                packageStageDialog_, &engine);
 }
 
 bool GuiManager::isValidStageFile(const char *srcFilename,
@@ -308,8 +307,8 @@ void GuiManager::loadShips() {
 
 void GuiManager::loadShipsFromDir(const char *loadDir) {
   BerryBotsEngine engine(fileManager_);
-  loadItemsFromDir(shipsBaseDir_, loadDir, ITEM_SHIP, packageShipDialog_,
-                   &engine);
+  numShips_ = loadItemsFromDir(shipsBaseDir_, loadDir, ITEM_SHIP,
+                               packageShipDialog_, &engine);
 }
 
 bool GuiManager::isValidShipFile(const char *srcFilename,
@@ -402,8 +401,8 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
 void GuiManager::loadRunners() {
   runnerDialog_->clearItems();
   BerryBotsEngine engine(fileManager_);
-  loadItemsFromDir(runnersBaseDir_, runnersBaseDir_, ITEM_RUNNER, runnerDialog_,
-                   &engine);
+  numRunners_ = loadItemsFromDir(runnersBaseDir_, runnersBaseDir_, ITEM_RUNNER,
+                                 runnerDialog_, &engine);
 }
 
 bool GuiManager::isValidRunnerFile(const char *srcFilename,
@@ -433,8 +432,9 @@ bool GuiManager::isValidRunnerFile(const char *srcFilename,
 }
 
 // TODO: Factor out a common interface or base class instead of passing (void*).
-void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
+int GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
     int itemType, void *dialog, BerryBotsEngine *engine) {
+  int numItems = 0;
   platformstl::readdir_sequence dir(loadDir,
       platformstl::readdir_sequence::files
           | platformstl::readdir_sequence::directories);
@@ -445,7 +445,7 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
     char *filename = (char *) *file;
     char *filePath = FileManager::getFilePath(loadDir, filename);
     if (FileManager::isDirectory(filePath)) {
-      loadItemsFromDir(baseDir, filePath, itemType, dialog, engine);
+      numItems += loadItemsFromDir(baseDir, filePath, itemType, dialog, engine);
     } else {
       char *relativeFilename = &(filePath[strlen(baseDir) + 1]);
       bool valid = false;
@@ -466,10 +466,12 @@ void GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
         } else {
           ((PackageDialog *) dialog)->addItem(relativeFilename);
         }
+        numItems++;
       }
     }
     delete filePath;
   }
+  return numItems;
 }
 
 sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
@@ -949,7 +951,12 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
 }
 
 void GuiManager::launchGameRunner(const char *runnerName) {
-  gameRunner_->run(runnerName);
+  loadStages();
+  loadShips();
+  GameRunner *gameRunner =
+      new GuiGameRunner(runnerConsole_, numStages_, numShips_);
+  gameRunner->run(runnerName);
+  delete gameRunner;
 }
 
 void GuiManager::showNewMatchDialog() {
