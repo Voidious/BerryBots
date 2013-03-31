@@ -23,6 +23,7 @@
 
 #include <platformstl/performance/performance_counter.hpp>
 #include "bbconst.h"
+#include "gamerunner.h"
 
 extern "C" {
   #include "lua.h"
@@ -43,7 +44,6 @@ extern "C" {
 #define RUNNER_FILES   "RunnerFiles"
 
 class BerryBotsEngine;
-class GameRunner;
 
 // Graphic definition structs
 

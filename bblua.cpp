@@ -27,6 +27,7 @@
 #include "bbengine.h"
 #include "bblua.h"
 #include "printhandler.h"
+#include "gamerunner.h"
 
 extern PrintHandler *printHandler;
 
@@ -1773,12 +1774,13 @@ RunnerForm* checkRunnerForm(lua_State *L, int index) {
   return form;
 }
 
-RunnerForm* pushRunnerForm(lua_State *L) {
+RunnerForm* pushRunnerForm(lua_State *L, GameRunner *gameRunner) {
   RunnerForm *form = (RunnerForm *) lua_newuserdata(L, sizeof(RunnerForm));
   luaL_getmetatable(L, RUNNER_FORM);
   lua_setmetatable(L, -2);
   int formRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
   lua_rawgeti(L, LUA_REGISTRYINDEX, formRef);
+  form->gameRunner = gameRunner;
   return form;
 }
 
@@ -1846,14 +1848,15 @@ LuaGameRunner* checkGameRunner(lua_State *L, int index) {
   return runner;
 }
 
-LuaGameRunner* pushGameRunner(lua_State *L) {
-  LuaGameRunner *runner =
+LuaGameRunner* pushGameRunner(lua_State *L, GameRunner *gameRunner) {
+  LuaGameRunner *luaRunner =
       (LuaGameRunner *) lua_newuserdata(L, sizeof(LuaGameRunner));
   luaL_getmetatable(L, GAME_RUNNER);
   lua_setmetatable(L, -2);
   int runnerRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
   lua_rawgeti(L, LUA_REGISTRYINDEX, runnerRef);
-  return runner;
+  luaRunner->gameRunner = gameRunner;
+  return luaRunner;
 }
 
 int GameRunner_setThreadCount(lua_State *L) {
@@ -1897,12 +1900,13 @@ RunnerFiles* checkRunnerFiles(lua_State *L, int index) {
   return files;
 }
 
-RunnerFiles* pushRunnerFiles(lua_State *L) {
+RunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner) {
   RunnerFiles *files = (RunnerFiles *) lua_newuserdata(L, sizeof(RunnerFiles));
   luaL_getmetatable(L, RUNNER_FILES);
   lua_setmetatable(L, -2);
   int filesRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
   lua_rawgeti(L, LUA_REGISTRYINDEX, filesRef);
+  files->gameRunner = gameRunner;
   return files;
 }
 

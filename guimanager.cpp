@@ -35,6 +35,7 @@
 #include "gfxmanager.h"
 #include "filemanager.h"
 #include "gamerunner.h"
+#include "guigamerunner.h"
 #include "newmatch.h"
 #include "packagedialog.h"
 #include "packageship.h"
@@ -82,6 +83,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   packageStageDialog_ = new PackageStageDialog(stagePackager_, menuBarMaker_);
   runnerLauncher_ = new RunnerLauncher(this, fileManager_, runnerConsole_,
                                        runnersBaseDir_);
+  gameRunner_ = new GuiGameRunner(runnerConsole_);
   runnerDialog_ = new RunnerDialog(runnerLauncher_, menuBarMaker_);
   loadStages();
   loadShips();
@@ -152,6 +154,7 @@ GuiManager::~GuiManager() {
   delete viewListener_;
   delete zipper_;
   delete fileManager_;
+  delete gameRunner_;
   delete newMatchListener_;
   delete shipPackager_;
   delete stagePackager_;
@@ -946,10 +949,7 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
 }
 
 void GuiManager::launchGameRunner(const char *runnerName) {
-  GameRunner *runner = new GameRunner(runnerName, runnerConsole_);
-  runnerDialog_->Hide();
-  runner->run();
-  delete runner;
+  gameRunner_->run(runnerName);
 }
 
 void GuiManager::showNewMatchDialog() {

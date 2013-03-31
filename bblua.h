@@ -25,6 +25,7 @@
 #include "bbutil.h"
 #include "stage.h"
 #include "sensorhandler.h"
+#include "gamerunner.h"
 
 // Time limit allotted to Lua calls, in microseconds. These are hard limits to
 // deal with misbehaving user code. CPU usage limits for fairness and
@@ -87,9 +88,9 @@ extern World* pushWorld(lua_State *L, Stage *stage, int numShips, int teamSize);
 extern ShipGfx* pushShipGfx(lua_State *L);
 extern Admin* pushAdmin(lua_State *L);
 extern StageGfx* pushStageGfx(lua_State *L);
-extern RunnerForm* pushRunnerForm(lua_State *L);
-extern LuaGameRunner* pushGameRunner(lua_State *L);
-extern RunnerFiles* pushRunnerFiles(lua_State *L);
+extern RunnerForm* pushRunnerForm(lua_State *L, GameRunner *gameRunner);
+extern LuaGameRunner* pushGameRunner(lua_State *L, GameRunner *gameRunner);
+extern RunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner);
 extern void crawlFiles(lua_State *L, const char *startFile);
 
 #endif

@@ -18,13 +18,19 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#ifndef GAME_RUNNER_H
-#define GAME_RUNNER_H
+#ifndef GUI_GAME_RUNNER_H
+#define GUI_GAME_RUNNER_H
 
-class GameRunner {
+#include "outputconsole.h"
+#include "gamerunner.h"
+
+class GuiGameRunner : public GameRunner {
+  OutputConsole *runnerConsole_;
+
   public:
-    virtual void run(const char *runnerName) = 0;
-    virtual ~GameRunner() {};
+    GuiGameRunner(OutputConsole *runnerConsole);
+    ~GuiGameRunner();
+    virtual void run(const char *runnerName);
 };
 
 #endif

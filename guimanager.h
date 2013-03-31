@@ -82,6 +82,7 @@ class GuiManager {
   sf::Image windowIcon_;
   Zipper *zipper_;
   FileManager *fileManager_;
+  GameRunner *gameRunner_;
   NewMatchListener *newMatchListener_;
   PackageDialogListener *shipPackager_;
   PackageDialogListener *stagePackager_;

@@ -22,7 +22,7 @@
 #include "basedir.h"
 #include "bblua.h"
 #include "outputconsole.h"
-#include "gamerunner.h"
+#include "guigamerunner.h"
 
 extern "C" {
   #include "lua.h"
@@ -30,14 +30,12 @@ extern "C" {
   #include "lauxlib.h"
 }
 
-GameRunner::GameRunner(const char *runnerName, OutputConsole *runnerConsole) {
-  runnerName_ = new char[strlen(runnerName) + 1];
-  strcpy(runnerName_, runnerName);
+GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole) {
   runnerConsole_ = runnerConsole;
 }
 
-GameRunner::~GameRunner() {
-  delete runnerName_;
+GuiGameRunner::~GuiGameRunner() {
+
 }
 
 // Taken from luajit.c
@@ -53,7 +51,7 @@ static int traceback(lua_State *L) {
   return 1;
 }
 
-void GameRunner::run() {
+void GuiGameRunner::run(const char *runnerName) {
   runnerConsole_->clear();
   runnerConsole_->Show();
   runnerConsole_->Raise();
@@ -64,9 +62,9 @@ void GameRunner::run() {
 
   bool error = false;
   bool opened = false;
-  if (luaL_loadfile(runnerState, runnerName_)) {
+  if (luaL_loadfile(runnerState, runnerName)) {
     runnerConsole_->print("Error loading game runner file: ");
-    runnerConsole_->println(runnerName_);
+    runnerConsole_->println(runnerName);
     error = true;
   } else {
     if (lua_pcall(runnerState, 0, 0, 0)) {
@@ -74,7 +72,7 @@ void GameRunner::run() {
       error = true;
     } else {
       runnerConsole_->print("Loaded: ");
-      runnerConsole_->println(runnerName_);
+      runnerConsole_->println(runnerName);
       runnerConsole_->println();
     }
   }
@@ -86,9 +84,9 @@ void GameRunner::run() {
     lua_pushcfunction(runnerState, traceback);
     int errfunc = lua_gettop(runnerState);
     lua_getglobal(runnerState, "run");
-    RunnerForm *form = pushRunnerForm(runnerState);
-    LuaGameRunner *luaRunner = pushGameRunner(runnerState);
-    RunnerFiles *files = pushRunnerFiles(runnerState);
+    pushRunnerForm(runnerState, this);
+    pushGameRunner(runnerState, this);
+    pushRunnerFiles(runnerState, this);
 
     int pcallValue = lua_pcall(runnerState, 3, 0, errfunc);
     lua_remove(runnerState, errfunc);
@@ -98,7 +96,7 @@ void GameRunner::run() {
     } else {
       runnerConsole_->println();
       runnerConsole_->print("Finished: ");
-      runnerConsole_->println(runnerName_);
+      runnerConsole_->println(runnerName);
     }
   }
 
