@@ -38,6 +38,46 @@ GuiGameRunner::~GuiGameRunner() {
 
 }
 
+void GuiGameRunner::addStageSelect(const char *name) {
+  
+}
+
+void GuiGameRunner::addSingleShipSelect(const char *name) {
+  
+}
+
+void GuiGameRunner::addMultiShipSelect(const char *name) {
+  
+}
+
+void GuiGameRunner::addIntegerText(const char *name) {
+  
+}
+
+void GuiGameRunner::setDefault(const char *name, const char *value) {
+  
+}
+
+void GuiGameRunner::setDefault(const char *name, int value) {
+  
+}
+
+bool GuiGameRunner::ok() {
+  return false;
+}
+
+int GuiGameRunner::getType(const char *name) {
+  return RUNNER_UNDEFINED;
+}
+
+const char* GuiGameRunner::getString(const char *name) {
+  return 0;
+}
+
+int GuiGameRunner::getInteger(const char *name) {
+  return 0;
+}
+
 // Taken from luajit.c
 static int traceback(lua_State *L) {
   if (!lua_isstring(L, 1)) { /* Non-string error object? Try metamethod. */

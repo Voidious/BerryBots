@@ -21,8 +21,22 @@
 #ifndef GAME_RUNNER_H
 #define GAME_RUNNER_H
 
+#define RUNNER_UNDEFINED  -1
+#define RUNNER_STRING     1
+#define RUNNER_INTEGER    2
+
 class GameRunner {
   public:
+    virtual void addStageSelect(const char *name) = 0;
+    virtual void addSingleShipSelect(const char *name) = 0;
+    virtual void addMultiShipSelect(const char *name) = 0;
+    virtual void addIntegerText(const char *name) = 0;
+    virtual void setDefault(const char *name, const char *value) = 0;
+    virtual void setDefault(const char *name, int value) = 0;
+    virtual bool ok() = 0;
+    virtual int getType(const char *name) = 0;
+    virtual const char* getString(const char *name) = 0;
+    virtual int getInteger(const char *name) = 0;
     virtual void run(const char *runnerName) = 0;
     virtual ~GameRunner() {};
 };

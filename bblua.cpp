@@ -1787,41 +1787,64 @@ RunnerForm* pushRunnerForm(lua_State *L, GameRunner *gameRunner) {
 int RunnerForm_addStageSelect(lua_State *L) {
   RunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
+  form->gameRunner->addStageSelect(name);
   return 1;
 }
 
 int RunnerForm_addSingleShipSelect(lua_State *L) {
   RunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
+  form->gameRunner->addSingleShipSelect(name);
   return 1;
 }
 
 int RunnerForm_addMultiShipSelect(lua_State *L) {
   RunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
+  form->gameRunner->addMultiShipSelect(name);
   return 1;
 }
 
 int RunnerForm_addIntegerText(lua_State *L) {
   RunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
+  form->gameRunner->addIntegerText(name);
   return 1;
 }
 
 int RunnerForm_default(lua_State *L) {
   RunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
+  if (lua_isstring(L, 3)) {
+    const char *value = luaL_checkstring(L, 3);
+    form->gameRunner->setDefault(name, value);
+  } else if (lua_isnumber(L, 3)) {
+    int value = (int) luaL_checknumber(L, 3);
+    form->gameRunner->setDefault(name, value);
+  } else {
+    luaL_error(L, "Second argument must be a string or a number.");
+  }
   return 1;
 }
 
 int RunnerForm_ok(lua_State *L) {
   RunnerForm *form = checkRunnerForm(L, 1);
+  lua_pushboolean(L, form->gameRunner->ok());
   return 1;
 }
 
 int RunnerForm_get(lua_State *L) {
   RunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
+  GameRunner *gameRunner = form->gameRunner;
+  int valueType = gameRunner->getType(name);
+  if (valueType == RUNNER_STRING) {
+    lua_pushstring(L, gameRunner->getString(name));
+  } else if (valueType == RUNNER_INTEGER) {
+    lua_pushnumber(L, gameRunner->getInteger(name));
+  } else if (valueType == RUNNER_UNDEFINED) {
+    luaL_error(L, "Form name undefined: %s", name);
+  }
   return 1;
 }
 

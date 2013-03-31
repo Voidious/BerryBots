@@ -30,6 +30,16 @@ class GuiGameRunner : public GameRunner {
   public:
     GuiGameRunner(OutputConsole *runnerConsole);
     ~GuiGameRunner();
+    virtual void addStageSelect(const char *name);
+    virtual void addSingleShipSelect(const char *name);
+    virtual void addMultiShipSelect(const char *name);
+    virtual void addIntegerText(const char *name);
+    virtual void setDefault(const char *name, const char *value);
+    virtual void setDefault(const char *name, int value);
+    virtual bool ok();
+    virtual int getType(const char *name);
+    virtual const char* getString(const char *name);
+    virtual int getInteger(const char *name);
     virtual void run(const char *runnerName);
 };
 
