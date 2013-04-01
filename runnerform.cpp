@@ -19,7 +19,129 @@
 */
 
 #include <string.h>
+#include <wx/wx.h>
+#include "bbwx.h"
+#include "gamerunner.h"
 #include "runnerform.h"
+
+RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
+                       int numElements, char **stageNames, int numStages,
+                       char **shipNames, int numShips)
+: wxFrame(NULL, wxID_ANY, runnerName, wxPoint(50, 50), wxDefaultSize,
+              wxDEFAULT_FRAME_STYLE) {
+  formElements_ = formElements;
+  numElements_ = numElements;
+
+  mainPanel_ = new wxPanel(this);
+  mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
+  mainSizer_->Add(mainPanel_);
+
+  wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *colSizer = new wxBoxSizer(wxVERTICAL);
+  int colHeight = 0;
+  int numCols = 0;
+  for (int x = 0; x < numElements_; x++) {
+    RunnerFormElement *element = formElements_[x];
+    addFormElement(colHeight, numCols, topSizer, colSizer, element->getName(),
+        element->getType(), stageNames, numStages, shipNames, numShips);
+  }
+  addFormElement(colHeight, numCols, topSizer, colSizer, "",
+      TYPE_OK_CANCEL, stageNames, numStages, shipNames, numShips);
+  if (numCols++ > 0) {
+    topSizer->AddSpacer(8);
+  }
+  topSizer->Add(colSizer);
+  
+  wxBoxSizer *borderSizer = new wxBoxSizer(wxHORIZONTAL);
+  borderSizer->Add(topSizer, 0, wxALL, 12);
+  mainPanel_->SetSizerAndFit(borderSizer);
+  SetSizerAndFit(mainSizer_);
+
+#ifdef __WINDOWS__
+  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
+  
+  // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
+  wxFont windowFont = GetFont();
+  if (windowFont.GetPointSize() <= 9) {
+    SetFont(windowFont.Larger());
+  }
+#elif __WXGTK__
+  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
+#endif
+}
+
+RunnerForm::~RunnerForm() {
+  // TODO: figure out if I need to track and delete the controls
+}
+
+void RunnerForm::addFormElement(int &colHeight, int &numCols,
+    wxBoxSizer *topSizer, wxBoxSizer *&colSizer, const char *name, int type,
+    char **stageNames, int numStages, char **shipNames, int numShips) {
+  if (colHeight > 0) {
+    colSizer->AddSpacer(8);
+  }
+  int elementHeight = (type == TYPE_INTEGER_TEXT ? TEXT_HEIGHT
+       : (type == TYPE_OK_CANCEL ? OK_CANCEL_HEIGHT : SELECT_HEIGHT));
+  if (colHeight + elementHeight > MAX_COLUMN_HEIGHT) {
+    if (numCols++ > 0) {
+      topSizer->AddSpacer(8);
+    }
+    topSizer->Add(colSizer);
+    colSizer = new wxBoxSizer(wxVERTICAL);
+    colHeight = 0;
+  }
+  colHeight += elementHeight;
+
+  std::string nameString(name);
+  nameString.append(":");
+  wxStaticText *nameLabel = new wxStaticText(mainPanel_, wxID_ANY, nameString);
+  if (type == TYPE_INTEGER_TEXT) {
+    wxTextCtrl *elementText = new wxTextCtrl(mainPanel_, wxID_ANY, "",
+        wxDefaultPosition, wxSize(70, 23));
+    wxBoxSizer *textSizer = new wxBoxSizer(wxHORIZONTAL);
+    textSizer->Add(nameLabel, 0, wxALIGN_CENTER);
+    textSizer->AddSpacer(5);
+    textSizer->Add(elementText, 0, wxALIGN_CENTER);
+    colSizer->Add(textSizer);
+  } else if (type == TYPE_OK_CANCEL) {
+    cancelButton_ = new wxButton(mainPanel_, wxID_ANY, "Cance&l");
+    okButton_ = new wxButton(mainPanel_, wxID_ANY, "&OK");
+    wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+    buttonSizer->AddStretchSpacer(1);
+    buttonSizer->Add(cancelButton_);
+    buttonSizer->AddSpacer(5);
+    buttonSizer->Add(okButton_);
+    buttonSizer->AddStretchSpacer(1);
+    colSizer->AddSpacer(10);
+    colSizer->Add(buttonSizer, 0, wxEXPAND | wxALIGN_CENTER);
+  } else {
+    wxListBox *itemSelect;
+    if (type == TYPE_MULTI_SHIP_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
+      long style = wxLB_SORT;
+      if (type == TYPE_MULTI_SHIP_SELECT) {
+        style |= wxLB_EXTENDED;
+      }
+      itemSelect = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
+                                 wxSize(275, 225), 0, NULL, style);
+      for (int x = 0; x < numShips; x++) {
+        itemSelect->Append(wxString(shipNames[x]));
+      }
+      itemSelect->SetFirstItem(0);
+    } else { /* (type == TYPE_STAGE_SELECT) */
+      itemSelect = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
+                                 wxSize(275, 225), 0, NULL, wxLB_SORT);
+      for (int x = 0; x < numShips; x++) {
+        itemSelect->Append(wxString(stageNames[x]));
+      }
+      itemSelect->SetFirstItem(0);
+    }
+    wxBoxSizer *selectSizer = new wxBoxSizer(wxVERTICAL);
+    selectSizer->Add(nameLabel);
+    selectSizer->AddSpacer(3);
+    selectSizer->Add(itemSelect);
+    colSizer->Add(selectSizer);
+  }
+}
 
 RunnerFormElement::RunnerFormElement(const char *name, int type,
                                      int maxStringValues) {

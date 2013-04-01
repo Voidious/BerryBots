@@ -26,6 +26,7 @@
 #define TYPE_SINGLE_SHIP_SELECT  2
 #define TYPE_MULTI_SHIP_SELECT   3
 #define TYPE_INTEGER_TEXT        4
+#define TYPE_OK_CANCEL           5
 
 class GameRunner {
   public:

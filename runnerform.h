@@ -21,6 +21,11 @@
 #ifndef RUNNER_FORM_H
 #define RUNNER_FORM_H
 
+#define SELECT_HEIGHT      4
+#define TEXT_HEIGHT        1
+#define OK_CANCEL_HEIGHT   2
+#define MAX_COLUMN_HEIGHT  10
+
 class RunnerFormElement {
   char *name_;
   int type_;
@@ -48,6 +53,25 @@ class RunnerFormElement {
     void setDefaultIntegerValue(int value);
     int getDefaultIntegerValue();
     void clearDefaults();
+};
+
+class RunnerForm : public wxFrame {
+  RunnerFormElement **formElements_;
+  int numElements_;
+  wxPanel *mainPanel_;
+  wxButton *cancelButton_;
+  wxButton *okButton_;
+  wxBoxSizer *mainSizer_;
+  wxBoxSizer *borderSizer_;
+
+  public:
+    RunnerForm(const char *runnerName, RunnerFormElement **formElements,
+        int numElements, char **stageNames, int numStages, char **shipNames,
+        int numShips);
+    ~RunnerForm();
+    void addFormElement(int &colHeight, int &numCols, wxBoxSizer *topSizer,
+        wxBoxSizer *&colSizer, const char *name, int type, char **stageNames,
+        int numStages, char **shipNames, int numShips);
 };
 
 #endif

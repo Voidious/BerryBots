@@ -1868,7 +1868,7 @@ int RunnerForm_get(lua_State *L) {
 const luaL_Reg RunnerForm_methods[] = {
   {"addStageSelect",       RunnerForm_addStageSelect},
   {"addSingleShipSelect",  RunnerForm_addSingleShipSelect},
-  {"addMultiShipSelect",   RunnerForm_addSingleShipSelect},
+  {"addMultiShipSelect",   RunnerForm_addMultiShipSelect},
   {"addIntegerText",       RunnerForm_addIntegerText},
   {"default",              RunnerForm_default},
   {"ok",                   RunnerForm_ok},

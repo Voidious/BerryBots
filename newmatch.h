@@ -109,7 +109,10 @@ class NewMatchDialog : public wxFrame {
     void validateButtonSelectedListBox(wxButton *button, wxListBox *listBox);
     void setMnemonicLabels(bool modifierDown);
     void focusStageSelect();
+    char** getStageNames();
+    char** getShipNames();
   private:
+    char** getSelectStrings(wxListBox *listBox);
     std::string condenseIfNecessary(std::string s);
 };
 

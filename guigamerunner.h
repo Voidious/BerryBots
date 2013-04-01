@@ -28,14 +28,18 @@
 #define MAX_FORM_ELEMENTS  20
 
 class GuiGameRunner : public GameRunner {
+  char *runnerName_;
   RunnerFormElement* formElements_[MAX_FORM_ELEMENTS];
   int numFormElements_;
+  char **stageNames_;
   int numStages_;
+  char **shipNames_;
   int numShips_;
   OutputConsole *runnerConsole_;
 
   public:
-    GuiGameRunner(OutputConsole *runnerConsole, int numStages, int numShips);
+    GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
+                  int numStages, char **shipNames, int numShips);
     ~GuiGameRunner();
     virtual void addStageSelect(const char *name);
     virtual void addSingleShipSelect(const char *name);

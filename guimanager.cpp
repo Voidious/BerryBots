@@ -953,10 +953,22 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
 void GuiManager::launchGameRunner(const char *runnerName) {
   loadStages();
   loadShips();
-  GameRunner *gameRunner =
-      new GuiGameRunner(runnerConsole_, numStages_, numShips_);
+  char **stageNames = newMatchDialog_->getStageNames();
+  char **shipNames = newMatchDialog_->getShipNames();
+
+  GameRunner *gameRunner = new GuiGameRunner(runnerConsole_, stageNames,
+                                             numStages_, shipNames, numShips_);
   gameRunner->run(runnerName);
+
   delete gameRunner;
+  for (int x = 0; x < numStages_; x++) {
+    delete stageNames[x];
+  }
+  delete stageNames;
+  for (int x = 0; x < numShips_; x++) {
+    delete shipNames[x];
+  }
+  delete shipNames;
 }
 
 void GuiManager::showNewMatchDialog() {

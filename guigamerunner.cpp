@@ -31,16 +31,21 @@ extern "C" {
   #include "lauxlib.h"
 }
 
-GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, int numStages,
-                             int numShips) {
+GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
+                             int numStages, char **shipNames, int numShips) {
+  runnerName_ = 0;
   runnerConsole_ = runnerConsole;
   numFormElements_ = 0;
+  stageNames_ = stageNames;
   numStages_ = numStages;
+  shipNames_ = shipNames;
   numShips_ = numShips;
 }
 
 GuiGameRunner::~GuiGameRunner() {
-
+  if (runnerName_ != 0) {
+    delete runnerName_;
+  }
 }
 
 void GuiGameRunner::addStageSelect(const char *name) {
@@ -89,6 +94,10 @@ void GuiGameRunner::setDefault(const char *name, int value) {
 }
 
 bool GuiGameRunner::ok() {
+  RunnerForm *form = new RunnerForm(runnerName_, formElements_,
+      numFormElements_, stageNames_, numStages_, shipNames_, numShips_);
+  form->Show();
+  form->Raise();
   return false;
 }
 
@@ -153,6 +162,12 @@ static int traceback(lua_State *L) {
 }
 
 void GuiGameRunner::run(const char *runnerName) {
+  if (runnerName_ != 0) {
+    delete runnerName_;
+  }
+  runnerName_ = new char[strlen(runnerName) + 1];
+  strcpy(runnerName_, runnerName);
+
   runnerConsole_->clear();
   runnerConsole_->Show();
   runnerConsole_->Raise();

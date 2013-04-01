@@ -576,6 +576,25 @@ void NewMatchDialog::focusStageSelect() {
   stageSelect_->SetFocus();
 }
 
+char** NewMatchDialog::getStageNames() {
+  return getSelectStrings(stageSelect_);
+}
+
+char** NewMatchDialog::getShipNames() {
+  return getSelectStrings(shipsSelect_);
+}
+
+char** NewMatchDialog::getSelectStrings(wxListBox *listBox) {
+  int numStrings = listBox->GetCount();
+  char** strings = new char*[numStrings];
+  for (int x = 0; x < numStrings; x++) {
+    wxString itemName = listBox->GetString(x);
+    strings[x] = new char[itemName.size() + 1];
+    strcpy(strings[x], itemName.c_str());
+  }
+  return strings;
+}
+
 NewMatchEventFilter::NewMatchEventFilter(NewMatchDialog *newMatchDialog) {
   newMatchDialog_ = newMatchDialog;
 }
