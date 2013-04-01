@@ -1767,15 +1767,17 @@ int registerStageGlobals(lua_State *L) {
   return 1;
 }
 
-RunnerForm* checkRunnerForm(lua_State *L, int index) {
+LuaRunnerForm* checkRunnerForm(lua_State *L, int index) {
   luaL_checktype(L, index, LUA_TUSERDATA);
-  RunnerForm *form = (RunnerForm *) luaL_checkudata(L, index, RUNNER_FORM);
+  LuaRunnerForm *form =
+      (LuaRunnerForm *) luaL_checkudata(L, index, RUNNER_FORM);
   if (form == NULL) luaL_error(L, "error in checkRunnerForm");
   return form;
 }
 
-RunnerForm* pushRunnerForm(lua_State *L, GameRunner *gameRunner) {
-  RunnerForm *form = (RunnerForm *) lua_newuserdata(L, sizeof(RunnerForm));
+LuaRunnerForm* pushRunnerForm(lua_State *L, GameRunner *gameRunner) {
+  LuaRunnerForm *form =
+      (LuaRunnerForm *) lua_newuserdata(L, sizeof(LuaRunnerForm));
   luaL_getmetatable(L, RUNNER_FORM);
   lua_setmetatable(L, -2);
   int formRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
@@ -1785,35 +1787,35 @@ RunnerForm* pushRunnerForm(lua_State *L, GameRunner *gameRunner) {
 }
 
 int RunnerForm_addStageSelect(lua_State *L) {
-  RunnerForm *form = checkRunnerForm(L, 1);
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
   form->gameRunner->addStageSelect(name);
   return 1;
 }
 
 int RunnerForm_addSingleShipSelect(lua_State *L) {
-  RunnerForm *form = checkRunnerForm(L, 1);
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
   form->gameRunner->addSingleShipSelect(name);
   return 1;
 }
 
 int RunnerForm_addMultiShipSelect(lua_State *L) {
-  RunnerForm *form = checkRunnerForm(L, 1);
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
   form->gameRunner->addMultiShipSelect(name);
   return 1;
 }
 
 int RunnerForm_addIntegerText(lua_State *L) {
-  RunnerForm *form = checkRunnerForm(L, 1);
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
   form->gameRunner->addIntegerText(name);
   return 1;
 }
 
 int RunnerForm_default(lua_State *L) {
-  RunnerForm *form = checkRunnerForm(L, 1);
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
   if (lua_isstring(L, 3)) {
     const char *value = luaL_checkstring(L, 3);
@@ -1828,13 +1830,13 @@ int RunnerForm_default(lua_State *L) {
 }
 
 int RunnerForm_ok(lua_State *L) {
-  RunnerForm *form = checkRunnerForm(L, 1);
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
   lua_pushboolean(L, form->gameRunner->ok());
   return 1;
 }
 
 int RunnerForm_get(lua_State *L) {
-  RunnerForm *form = checkRunnerForm(L, 1);
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
   GameRunner *gameRunner = form->gameRunner;
 
@@ -1931,15 +1933,17 @@ int registerGameRunner(lua_State *L) {
   return registerClass(L, GAME_RUNNER, GameRunner_methods);
 }
 
-RunnerFiles* checkRunnerFiles(lua_State *L, int index) {
+LuaRunnerFiles* checkRunnerFiles(lua_State *L, int index) {
   luaL_checktype(L, index, LUA_TUSERDATA);
-  RunnerFiles *files = (RunnerFiles *) luaL_checkudata(L, index, RUNNER_FILES);
+  LuaRunnerFiles *files =
+      (LuaRunnerFiles *) luaL_checkudata(L, index, RUNNER_FILES);
   if (files == NULL) luaL_error(L, "error in checkRunnerFiles");
   return files;
 }
 
-RunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner) {
-  RunnerFiles *files = (RunnerFiles *) lua_newuserdata(L, sizeof(RunnerFiles));
+LuaRunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner) {
+  LuaRunnerFiles *files =
+      (LuaRunnerFiles *) lua_newuserdata(L, sizeof(LuaRunnerFiles));
   luaL_getmetatable(L, RUNNER_FILES);
   lua_setmetatable(L, -2);
   int filesRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
@@ -1949,13 +1953,13 @@ RunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner) {
 }
 
 int RunnerFiles_exists(lua_State *L) {
-  RunnerFiles *files = checkRunnerFiles(L, 1);
+  LuaRunnerFiles *files = checkRunnerFiles(L, 1);
   const char *filename = luaL_checkstring(L, 2);
   return 1;
 }
 
 int RunnerFiles_read(lua_State *L) {
-  RunnerFiles *files = checkRunnerFiles(L, 1);
+  LuaRunnerFiles *files = checkRunnerFiles(L, 1);
   const char *filename = luaL_checkstring(L, 2);
   return 1;
 }

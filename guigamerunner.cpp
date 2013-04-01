@@ -22,6 +22,7 @@
 #include "basedir.h"
 #include "bblua.h"
 #include "outputconsole.h"
+#include "runnerform.h"
 #include "guigamerunner.h"
 
 extern "C" {
@@ -203,93 +204,4 @@ void GuiGameRunner::run(const char *runnerName) {
   if (opened) {
     lua_close(runnerState);
   }
-}
-
-RunnerFormElement::RunnerFormElement(const char *name, int type,
-                                     int maxStringValues) {
-  name_ = new char[strlen(name) + 1];
-  strcpy(name_, name);
-  type_ = type;
-  numStringValues_ = 0;
-  maxStringValues_ = maxStringValues;
-  stringValues_ = new char*[maxStringValues_];
-  defaultStringValues_ = new char*[maxStringValues_];
-  intValue_ = 0;
-  defaultIntValue_ = 0;
-}
-
-RunnerFormElement::~RunnerFormElement() {
-  delete name_;
-  for (int x = 0; x < numStringValues_; x++) {
-    delete stringValues_[x];
-  }
-  delete stringValues_;
-  for (int x = 0; x < numDefaultStringValues_; x++) {
-    delete defaultStringValues_[x];
-  }
-  delete defaultStringValues_;
-}
-
-const char* RunnerFormElement::getName() {
-  return name_;
-}
-
-int RunnerFormElement::getType() {
-  return type_;
-}
-
-void RunnerFormElement::addStringValue(const char *value) {
-  if (numStringValues_ < maxStringValues_) {
-    char *newValue = new char[strlen(value) + 1];
-    strcpy(newValue, value);
-    stringValues_[numStringValues_++] = newValue;
-  }
-}
-
-char** RunnerFormElement::getStringValues() {
-  return stringValues_;
-}
-
-int RunnerFormElement::getNumStringValues() {
-  return numStringValues_;
-}
-
-void RunnerFormElement::addDefaultStringValue(const char *value) {
-  if (numDefaultStringValues_ < maxStringValues_) {
-    char *newValue = new char[strlen(value) + 1];
-    strcpy(newValue, value);
-    defaultStringValues_[numDefaultStringValues_++] = newValue;
-  }
-}
-
-char** RunnerFormElement::getDefaultStringValues() {
-  return defaultStringValues_;
-}
-
-int RunnerFormElement::getNumDefaultStringValues() {
-  return numDefaultStringValues_;
-}
-
-void RunnerFormElement::setIntegerValue(int value) {
-  intValue_ = value;
-}
-
-int RunnerFormElement::getIntegerValue() {
-  return intValue_;
-}
-
-void RunnerFormElement::setDefaultIntegerValue(int value) {
-  defaultIntValue_ = value;
-}
-
-int RunnerFormElement::getDefaultIntegerValue() {
-  return defaultIntValue_;
-}
-
-void RunnerFormElement::clearDefaults() {
-  for (int x = 0; x < numDefaultStringValues_; x++) {
-    delete defaultStringValues_[x];
-  }
-  numDefaultStringValues_ = 0;
-  defaultIntValue_ = 0;
 }

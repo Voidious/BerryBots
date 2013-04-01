@@ -287,7 +287,7 @@ typedef struct {
 
 typedef struct {
   GameRunner *gameRunner;
-} RunnerForm;
+} LuaRunnerForm;
 
 typedef struct {
   GameRunner *gameRunner;
@@ -295,7 +295,7 @@ typedef struct {
 
 typedef struct {
   GameRunner *gameRunner;
-} RunnerFiles;
+} LuaRunnerFiles;
 
 extern double limit(double p, double q, double r);
 extern int signum(double x);

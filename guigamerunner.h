@@ -22,38 +22,10 @@
 #define GUI_GAME_RUNNER_H
 
 #include "outputconsole.h"
+#include "runnerform.h"
 #include "gamerunner.h"
 
 #define MAX_FORM_ELEMENTS  20
-
-class RunnerFormElement {
-  char *name_;
-  int type_;
-  char** stringValues_;
-  int numStringValues_;
-  int maxStringValues_;
-  int intValue_;
-  char** defaultStringValues_;
-  int numDefaultStringValues_;
-  int defaultIntValue_;
-
-  public:
-    RunnerFormElement(const char *name, int type, int maxStringValues);
-    ~RunnerFormElement();
-    const char *getName();
-    int getType();
-    void addStringValue(const char *value);
-    char** getStringValues();
-    int getNumStringValues();
-    void addDefaultStringValue(const char *value);
-    char** getDefaultStringValues();
-    int getNumDefaultStringValues();
-    void setIntegerValue(int value);
-    int getIntegerValue();
-    void setDefaultIntegerValue(int value);
-    int getDefaultIntegerValue();
-    void clearDefaults();
-};
 
 class GuiGameRunner : public GameRunner {
   RunnerFormElement* formElements_[MAX_FORM_ELEMENTS];
