@@ -24,8 +24,9 @@
 #include "guiprinthandler.h"
 
 GuiPrintHandler::GuiPrintHandler(OutputConsole *stageConsole,
-                                 MenuBarMaker *menuBarMaker) {
+    OutputConsole *runnerConsole, MenuBarMaker *menuBarMaker) {
   stageConsole_ = stageConsole;
+  runnerConsole_ = runnerConsole;
   menuBarMaker_ = menuBarMaker;
   nextTeamIndex_ = numTeams_ = 0;
   restartMode_ = false;
@@ -39,7 +40,9 @@ GuiPrintHandler::~GuiPrintHandler() {
 }
 
 void GuiPrintHandler::stagePrint(const char *text) {
-  stageConsole_->println(text);
+  if (stageConsole_ != 0) {
+    stageConsole_->println(text);
+  }
 }
 
 void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
@@ -48,6 +51,12 @@ void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
       teamConsoles_[x]->println(text);
       break;
     }
+  }
+}
+
+void GuiPrintHandler::runnerPrint(const char *text) {
+  if (runnerConsole_ != 0) {
+    runnerConsole_->println(text);
   }
 }
 

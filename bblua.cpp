@@ -83,6 +83,7 @@ void initRunnerState(lua_State **runnerState, const char *runnerCwd) {
   registerRunnerForm(*runnerState);
   registerGameRunner(*runnerState);
   registerRunnerFiles(*runnerState);
+  registerRunnerGlobals(*runnerState);
 }
 
 void setField(lua_State *L, const char *key, double value) {
@@ -1972,4 +1973,25 @@ const luaL_Reg RunnerFiles_methods[] = {
 
 int registerRunnerFiles(lua_State *L) {
   return registerClass(L, RUNNER_FILES, RunnerFiles_methods);
+}
+
+int RunnerGlobals_print(lua_State *L) {
+  int top = lua_gettop(L);
+  const char *str = luaL_optstring(L, 1, "");
+  if (printHandler != 0) {
+    printHandler->runnerPrint(str);
+  }
+  return std::min(top, 1);
+}
+
+const luaL_Reg RunnerGlobals_methods[] = {
+  {"print",  RunnerGlobals_print},
+  {0, 0}
+};
+
+int registerRunnerGlobals(lua_State *L) {
+  lua_getglobal(L, "_G");
+  luaL_register(L, NULL, RunnerGlobals_methods);
+  lua_pop(L, 1);
+  return 1;
 }

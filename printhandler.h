@@ -37,6 +37,7 @@ class PrintHandler {
   public:
     virtual void stagePrint(const char *text) = 0;
     virtual void shipPrint(lua_State *L, const char *text) = 0;
+    virtual void runnerPrint(const char *text) = 0;
     virtual ~PrintHandler() {};
 };
 

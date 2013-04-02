@@ -41,6 +41,7 @@ class CliPrintHandler : public PrintHandler {
     void setNumTeams(int numTeams);
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
+    virtual void runnerPrint(const char *text);
     void registerTeam(Team *team, const char *name);
     void updateTeams(Team** teams);
 };

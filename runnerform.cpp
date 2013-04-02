@@ -27,14 +27,17 @@
 RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
                        int numElements, char **stageNames, int numStages,
                        char **shipNames, int numShips)
-: wxFrame(NULL, wxID_ANY, runnerName, wxPoint(50, 50), wxDefaultSize,
+    : wxFrame(NULL, wxID_ANY, runnerName, wxPoint(50, 50), wxDefaultSize,
               wxDEFAULT_FRAME_STYLE) {
   formElements_ = formElements;
   numElements_ = numElements;
+  ok_ = done_ = false;
 
   mainPanel_ = new wxPanel(this);
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
   mainSizer_->Add(mainPanel_);
+  cancelButton_ = new wxButton(mainPanel_, wxID_ANY, "Cance&l");
+  okButton_ = new wxButton(mainPanel_, wxID_ANY, "&OK");
 
   wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *colSizer = new wxBoxSizer(wxVERTICAL);
@@ -42,8 +45,10 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
   int numCols = 0;
   for (int x = 0; x < numElements_; x++) {
     RunnerFormElement *element = formElements_[x];
-    addFormElement(colHeight, numCols, topSizer, colSizer, element->getName(),
-        element->getType(), stageNames, numStages, shipNames, numShips);
+    wxControl *control = addFormElement(colHeight, numCols, topSizer, colSizer,
+        element->getName(), element->getType(), stageNames, numStages,
+        shipNames, numShips);
+    element->setControl(control);
   }
   addFormElement(colHeight, numCols, topSizer, colSizer, "",
       TYPE_OK_CANCEL, stageNames, numStages, shipNames, numShips);
@@ -56,6 +61,13 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
   borderSizer->Add(topSizer, 0, wxALL, 12);
   mainPanel_->SetSizerAndFit(borderSizer);
   SetSizerAndFit(mainSizer_);
+
+  Connect(cancelButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(RunnerForm::onCancel));
+  Connect(okButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(RunnerForm::onOk));
+  Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
+          wxCommandEventHandler(RunnerForm::onClose));
 
 #ifdef __WINDOWS__
   SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
@@ -74,7 +86,7 @@ RunnerForm::~RunnerForm() {
   // TODO: figure out if I need to track and delete the controls
 }
 
-void RunnerForm::addFormElement(int &colHeight, int &numCols,
+wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
     wxBoxSizer *topSizer, wxBoxSizer *&colSizer, const char *name, int type,
     char **stageNames, int numStages, char **shipNames, int numShips) {
   if (colHeight > 0) {
@@ -103,9 +115,8 @@ void RunnerForm::addFormElement(int &colHeight, int &numCols,
     textSizer->AddSpacer(5);
     textSizer->Add(elementText, 0, wxALIGN_CENTER);
     colSizer->Add(textSizer);
+    return elementText;
   } else if (type == TYPE_OK_CANCEL) {
-    cancelButton_ = new wxButton(mainPanel_, wxID_ANY, "Cance&l");
-    okButton_ = new wxButton(mainPanel_, wxID_ANY, "&OK");
     wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
     buttonSizer->AddStretchSpacer(1);
     buttonSizer->Add(cancelButton_);
@@ -114,6 +125,7 @@ void RunnerForm::addFormElement(int &colHeight, int &numCols,
     buttonSizer->AddStretchSpacer(1);
     colSizer->AddSpacer(10);
     colSizer->Add(buttonSizer, 0, wxEXPAND | wxALIGN_CENTER);
+    return 0;
   } else {
     wxListBox *itemSelect;
     if (type == TYPE_MULTI_SHIP_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
@@ -140,9 +152,30 @@ void RunnerForm::addFormElement(int &colHeight, int &numCols,
     selectSizer->AddSpacer(3);
     selectSizer->Add(itemSelect);
     colSizer->Add(selectSizer);
+    return itemSelect;
   }
 }
 
+void RunnerForm::onCancel(wxCommandEvent &event) {
+  done_ = true;
+}
+
+void RunnerForm::onOk(wxCommandEvent &event) {
+  done_ = ok_ = true;
+}
+
+void RunnerForm::onClose(wxCommandEvent &event) {
+  done_ = true;
+  Hide();
+}
+
+bool RunnerForm::isDone() {
+  return done_;
+}
+
+bool RunnerForm::isOk() {
+  return ok_;
+}
 RunnerFormElement::RunnerFormElement(const char *name, int type,
                                      int maxStringValues) {
   name_ = new char[strlen(name) + 1];
@@ -154,6 +187,7 @@ RunnerFormElement::RunnerFormElement(const char *name, int type,
   defaultStringValues_ = new char*[maxStringValues_];
   intValue_ = 0;
   defaultIntValue_ = 0;
+  control_ = 0;
 }
 
 RunnerFormElement::~RunnerFormElement() {
@@ -230,4 +264,12 @@ void RunnerFormElement::clearDefaults() {
   }
   numDefaultStringValues_ = 0;
   defaultIntValue_ = 0;
+}
+
+void RunnerFormElement::setControl(wxControl *control) {
+  control_ = control;
+}
+
+wxControl* RunnerFormElement::getControl() {
+  return control_;
 }

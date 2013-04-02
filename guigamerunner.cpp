@@ -19,6 +19,7 @@
 */
 
 #include <string.h>
+#include <platformstl/synch/sleep_functions.h>
 #include "basedir.h"
 #include "bblua.h"
 #include "outputconsole.h"
@@ -98,7 +99,12 @@ bool GuiGameRunner::ok() {
       numFormElements_, stageNames_, numStages_, shipNames_, numShips_);
   form->Show();
   form->Raise();
-  return false;
+  while (!form->isDone()) {
+    wxYield();
+    platformstl::micro_sleep(10000);
+  }
+  form->Close();
+  return form->isOk();
 }
 
 int GuiGameRunner::getElementType(const char *name) {
@@ -187,7 +193,7 @@ void GuiGameRunner::run(const char *runnerName) {
       opened = true;
       error = true;
     } else {
-      runnerConsole_->print("Loaded: ");
+      runnerConsole_->print("== Loaded: ");
       runnerConsole_->println(runnerName);
       runnerConsole_->println();
     }
@@ -211,7 +217,7 @@ void GuiGameRunner::run(const char *runnerName) {
       runnerConsole_->println(luaMessage);
     } else {
       runnerConsole_->println();
-      runnerConsole_->print("Finished: ");
+      runnerConsole_->print("== Finished: ");
       runnerConsole_->println(runnerName);
     }
   }

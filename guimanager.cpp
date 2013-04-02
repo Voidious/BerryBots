@@ -582,7 +582,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
       delete printStateListener_;
       printStateListener_ = 0;
     }
-    guiPrintHandler = new GuiPrintHandler(stageConsole_, menuBarMaker_);
+    guiPrintHandler = new GuiPrintHandler(stageConsole_, 0, menuBarMaker_);
     printStateListener_ = new PrintStateListener(guiPrintHandler);
     printHandler = guiPrintHandler;
   }
@@ -951,11 +951,11 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
 }
 
 void GuiManager::launchGameRunner(const char *runnerName) {
+  printHandler = new GuiPrintHandler(0, runnerConsole_, menuBarMaker_);
   loadStages();
   loadShips();
   char **stageNames = newMatchDialog_->getStageNames();
   char **shipNames = newMatchDialog_->getShipNames();
-
   GameRunner *gameRunner = new GuiGameRunner(runnerConsole_, stageNames,
                                              numStages_, shipNames, numShips_);
   gameRunner->run(runnerName);
@@ -969,6 +969,8 @@ void GuiManager::launchGameRunner(const char *runnerName) {
     delete shipNames[x];
   }
   delete shipNames;
+  delete printHandler;
+  printHandler = 0;
 }
 
 void GuiManager::showNewMatchDialog() {

@@ -36,6 +36,7 @@ class RunnerFormElement {
   char** defaultStringValues_;
   int numDefaultStringValues_;
   int defaultIntValue_;
+  wxControl *control_;
 
   public:
     RunnerFormElement(const char *name, int type, int maxStringValues);
@@ -53,6 +54,8 @@ class RunnerFormElement {
     void setDefaultIntegerValue(int value);
     int getDefaultIntegerValue();
     void clearDefaults();
+    void setControl(wxControl *control);
+    wxControl* getControl();
 };
 
 class RunnerForm : public wxFrame {
@@ -63,15 +66,23 @@ class RunnerForm : public wxFrame {
   wxButton *okButton_;
   wxBoxSizer *mainSizer_;
   wxBoxSizer *borderSizer_;
+  bool done_;
+  bool ok_;
 
   public:
     RunnerForm(const char *runnerName, RunnerFormElement **formElements,
         int numElements, char **stageNames, int numStages, char **shipNames,
         int numShips);
     ~RunnerForm();
-    void addFormElement(int &colHeight, int &numCols, wxBoxSizer *topSizer,
-        wxBoxSizer *&colSizer, const char *name, int type, char **stageNames,
-        int numStages, char **shipNames, int numShips);
+    void onCancel(wxCommandEvent &event);
+    void onOk(wxCommandEvent &event);
+    void onClose(wxCommandEvent &event);
+    bool isDone();
+    bool isOk();
+  private:
+    wxControl* addFormElement(int &colHeight, int &numCols,
+        wxBoxSizer *topSizer, wxBoxSizer *&colSizer, const char *name, int type,
+        char **stageNames, int numStages, char **shipNames, int numShips);
 };
 
 #endif

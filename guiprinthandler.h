@@ -33,6 +33,7 @@ extern "C" {
 
 class GuiPrintHandler : public PrintHandler {
   OutputConsole *stageConsole_;
+  OutputConsole *runnerConsole_;
   OutputConsole* teamConsoles_[MAX_TEAM_CONSOLES];
   Team* teams_[MAX_TEAM_CONSOLES];
   int numTeams_;
@@ -41,10 +42,12 @@ class GuiPrintHandler : public PrintHandler {
   bool restartMode_;
 
   public:
-    GuiPrintHandler(OutputConsole *stageConsole, MenuBarMaker *menuBarMaker);
+    GuiPrintHandler(OutputConsole *stageConsole, OutputConsole *runnerConsole,
+                    MenuBarMaker *menuBarMaker);
     ~GuiPrintHandler();
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
+    virtual void runnerPrint(const char *text);
     void registerTeam(Team *team, const char *filename);
     void restartMode();
     OutputConsole **getTeamConsoles();

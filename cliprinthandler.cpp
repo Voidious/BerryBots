@@ -56,6 +56,10 @@ void CliPrintHandler::shipPrint(lua_State *L, const char *text) {
   }
 }
 
+void CliPrintHandler::runnerPrint(const char *text) {
+  std::cout << "Game Runner: " << text << std::endl;
+}
+
 void CliPrintHandler::registerTeam(Team *team, const char *name) {
   if (nextTeamIndex_ < numTeams_) {
     teams_[nextTeamIndex_] = team;
