@@ -104,6 +104,30 @@ bool GuiGameRunner::ok() {
     platformstl::micro_sleep(10000);
   }
   form->Close();
+  if (form->isOk()) {
+    for (int x = 0; x < numFormElements_; x++) {
+      RunnerFormElement *element = formElements_[x];
+      wxControl *control = element->getControl();
+      if (element->getType() == TYPE_INTEGER_TEXT) {
+        wxString integerString = ((wxTextCtrl *) control)->GetValue();
+        long value;
+        if (!integerString.ToLong(&value)) {
+          value = 0;
+        }
+        element->setIntegerValue((int) value);
+      } else {
+        wxListBox *listBox = ((wxListBox *) element->getControl());
+        wxArrayInt selectedItems;
+        listBox->GetSelections(selectedItems);
+        wxArrayInt::const_iterator first = selectedItems.begin();
+        wxArrayInt::const_iterator last = selectedItems.end();
+        while (first != last) {
+          int shipIndex = *first++;
+          element->addStringValue(listBox->GetString(shipIndex));
+        }
+      }
+    }
+  }
   return form->isOk();
 }
 
