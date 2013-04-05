@@ -36,6 +36,7 @@ class GuiGameRunner : public GameRunner {
   char **shipNames_;
   int numShips_;
   OutputConsole *runnerConsole_;
+  bool quitting_;
 
   public:
     GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
@@ -53,6 +54,7 @@ class GuiGameRunner : public GameRunner {
     virtual int getNumStringValues(const char *name);
     virtual int getIntegerValue(const char *name);
     virtual void run(const char *runnerName);
+    void quit();
   private:
     void addFormElement(const char *name, int type, int maxStringValues);
     RunnerFormElement* getFormElement(const char *name);

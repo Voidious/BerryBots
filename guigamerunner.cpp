@@ -41,6 +41,7 @@ GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
   numStages_ = numStages;
   shipNames_ = shipNames;
   numShips_ = numShips;
+  quitting_ = false;
 }
 
 GuiGameRunner::~GuiGameRunner() {
@@ -99,7 +100,7 @@ bool GuiGameRunner::ok() {
       numFormElements_, stageNames_, numStages_, shipNames_, numShips_);
   form->Show();
   form->Raise();
-  while (!form->isDone()) {
+  while (!form->isDone() && !quitting_) {
     wxYield();
     platformstl::micro_sleep(10000);
   }
@@ -165,6 +166,10 @@ int GuiGameRunner::getIntegerValue(const char *name) {
   } else {
     return element->getIntegerValue();
   }
+}
+
+void GuiGameRunner::quit() {
+  quitting_ = true;
 }
 
 RunnerFormElement* GuiGameRunner::getFormElement(const char *name) {

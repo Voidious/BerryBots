@@ -48,6 +48,7 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
     wxControl *control = addFormElement(colHeight, numCols, topSizer, colSizer,
         element->getName(), element->getType(), stageNames, numStages,
         shipNames, numShips);
+    setFormDefaults(control, element);
     element->setControl(control);
   }
   addFormElement(colHeight, numCols, topSizer, colSizer, "",
@@ -142,7 +143,7 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
     } else { /* (type == TYPE_STAGE_SELECT) */
       itemSelect = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
                                  wxSize(275, 225), 0, NULL, wxLB_SORT);
-      for (int x = 0; x < numShips; x++) {
+      for (int x = 0; x < numStages; x++) {
         itemSelect->Append(wxString(stageNames[x]));
       }
       itemSelect->SetFirstItem(0);
@@ -153,6 +154,27 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
     selectSizer->Add(itemSelect);
     colSizer->Add(selectSizer);
     return itemSelect;
+  }
+}
+
+void RunnerForm::setFormDefaults(wxControl *control,
+                                 RunnerFormElement *element) {
+  if (element->getType() == TYPE_INTEGER_TEXT) {
+    ((wxTextCtrl *) control)->SetValue(
+        wxString::Format(wxT("%i"), element->getDefaultIntegerValue()));
+  } else {
+    wxListBox *listBox = (wxListBox *) control;
+    int numDefaultValues = element->getNumDefaultStringValues();
+    char** defaultValues = element->getDefaultStringValues();
+    for (int x = 0; x < numDefaultValues; x++) {
+      int numSelectStrings = listBox->GetCount();
+      for (int y = 0; y < numSelectStrings; y++) {
+        wxString itemName = listBox->GetString(y);
+        if (strcmp(itemName.c_str(), defaultValues[x]) == 0) {
+          listBox->Select(y);
+        }
+      }
+    }
   }
 }
 
@@ -183,6 +205,7 @@ RunnerFormElement::RunnerFormElement(const char *name, int type,
   type_ = type;
   numStringValues_ = 0;
   maxStringValues_ = maxStringValues;
+  numDefaultStringValues_ = 0;
   stringValues_ = new char*[maxStringValues_];
   defaultStringValues_ = new char*[maxStringValues_];
   intValue_ = 0;

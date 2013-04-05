@@ -62,6 +62,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   previewWindow_ = 0;
   zipper_ = new GuiZipper();
   fileManager_ = new FileManager(zipper_);
+  gameRunner_ = 0;
   menuBarMaker_ = new MenuBarMaker();
   packagingConsole_ = new OutputConsole("Packaging Details", false,
                                         menuBarMaker_);
@@ -460,13 +461,15 @@ int GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
                  && isValidRunnerFile(relativeFilename, engine)) {
         valid = true;
       }
-      if (valid && fileManager_->isLuaFilename(filename)) {
-        if (itemType == ITEM_RUNNER) {
-          ((RunnerDialog *) dialog)->addItem(relativeFilename);
-        } else {
-          ((PackageDialog *) dialog)->addItem(relativeFilename);
-        }
+      if (valid) {
         numItems++;
+        if (fileManager_->isLuaFilename(filename)) {
+          if (itemType == ITEM_RUNNER) {
+            ((RunnerDialog *) dialog)->addItem(relativeFilename);
+          } else {
+            ((PackageDialog *) dialog)->addItem(relativeFilename);
+          }
+        }
       }
     }
     delete filePath;
@@ -956,11 +959,13 @@ void GuiManager::launchGameRunner(const char *runnerName) {
   loadShips();
   char **stageNames = newMatchDialog_->getStageNames();
   char **shipNames = newMatchDialog_->getShipNames();
-  GameRunner *gameRunner = new GuiGameRunner(runnerConsole_, stageNames,
-                                             numStages_, shipNames, numShips_);
-  gameRunner->run(runnerName);
+  gameRunner_ = new GuiGameRunner(runnerConsole_, stageNames, numStages_,
+                                  shipNames, numShips_);
+  gameRunner_->run(runnerName);
 
-  delete gameRunner;
+  GuiGameRunner *oldRunner = gameRunner_;
+  gameRunner_ = 0;
+  delete oldRunner;
   for (int x = 0; x < numStages_; x++) {
     delete stageNames[x];
   }
@@ -1375,6 +1380,9 @@ void GuiManager::setTpsFactor(double tpsFactor) {
 
 void GuiManager::quit() {
   quitting_ = true;
+  if (gameRunner_ != 0) {
+    gameRunner_->quit();
+  }
 }
 
 void GuiManager::redrawMainWindow() {

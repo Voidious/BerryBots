@@ -24,6 +24,7 @@
 #include <SFML/Graphics.hpp>
 #include "gfxmanager.h"
 #include "filemanager.h"
+#include "guigamerunner.h"
 #include "newmatch.h"
 #include "packagedialog.h"
 #include "packageship.h"
@@ -82,6 +83,7 @@ class GuiManager {
   sf::Image windowIcon_;
   Zipper *zipper_;
   FileManager *fileManager_;
+  GuiGameRunner *gameRunner_;
   NewMatchListener *newMatchListener_;
   PackageDialogListener *shipPackager_;
   PackageDialogListener *stagePackager_;

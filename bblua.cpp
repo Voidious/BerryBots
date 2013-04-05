@@ -1818,12 +1818,15 @@ int RunnerForm_addIntegerText(lua_State *L) {
 int RunnerForm_default(lua_State *L) {
   LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
-  if (lua_isstring(L, 3)) {
-    const char *value = luaL_checkstring(L, 3);
-    form->gameRunner->setDefault(name, value);
-  } else if (lua_isnumber(L, 3)) {
+  if (lua_isnumber(L, 3)) {
     int value = (int) luaL_checknumber(L, 3);
     form->gameRunner->setDefault(name, value);
+  } else if (lua_isstring(L, 3)) {
+    int top = lua_gettop(L);
+    for (int x = 3; x <= top; x++) {
+      const char *value = luaL_checkstring(L, x);
+      form->gameRunner->setDefault(name, value);
+    }
   } else {
     luaL_error(L, "Second argument must be a string or a number.");
   }

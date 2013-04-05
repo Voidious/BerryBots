@@ -83,6 +83,7 @@ class RunnerForm : public wxFrame {
     wxControl* addFormElement(int &colHeight, int &numCols,
         wxBoxSizer *topSizer, wxBoxSizer *&colSizer, const char *name, int type,
         char **stageNames, int numStages, char **shipNames, int numShips);
+    void setFormDefaults(wxControl *control, RunnerFormElement *element);
 };
 
 #endif
