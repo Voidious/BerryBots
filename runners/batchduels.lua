@@ -11,24 +11,32 @@ function run(form, runner, files, network)
   form:addMultiShipSelect("Reference Ships")
   form:addIntegerText("Seasons")
 
-  setDefaultReferenceShips(form, files)    
-  form:default("Seasons", 10)
+  setDefaultReferenceShips(form, files)
+  form:default("Seasons", 10) 
+  form:default("Stage", "sample/battle1.lua")
 
   if (form:ok()) then
     local stage = form:get("Stage")
     local challenger = form:get("Challenger")
     local referenceShips = form:get("Reference Ships")
     local seasons = form:get("Seasons")
+    print("Seasons: " .. seasons)
+    print("Challenger: " .. challenger)
+    print("Stage: " .. stage)
+    for i, referenceShip in pairs(referenceShips) do
+      print("Reference ship: " .. referenceShip)
+    end
+    print()
     runner:setThreadCount(3)
 
     for i = 1, seasons do
-			for j, shipName in ipairs(referenceShips) do
-			  runner:queueMatch(stage, challenger, {shipName})
-			end
-		end
-		while (not runner:empty()) do
-		  processNextResult(runner)
-		end
+      for j, shipName in ipairs(referenceShips) do
+        runner:queueMatch(stage, {challenger, shipName})
+      end
+    end
+    while (not runner:empty()) do
+      processNextResult(runner)
+    end
   else
     -- user canceled, do nothing
   end
@@ -47,7 +55,7 @@ function setDefaultReferenceShips(form, files)
 end
 
 function processNextResult(runner)
-	local result = runner:nextResult()
-	print(result:challengerShip() .. " vs " .. next(result:referenceShips()))
-	print("    " .. result:winner() .. " wins!")
+  local result = runner:nextResult()
+  print(result:challengerShip() .. " vs " .. next(result:referenceShips()))
+  print("    " .. result:winner() .. " wins!")
 end

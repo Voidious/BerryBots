@@ -23,6 +23,7 @@
 
 #include "outputconsole.h"
 #include "runnerform.h"
+#include "bbrunner.h"
 #include "gamerunner.h"
 
 #define MAX_FORM_ELEMENTS  20
@@ -36,7 +37,10 @@ class GuiGameRunner : public GameRunner {
   char **shipNames_;
   int numShips_;
   OutputConsole *runnerConsole_;
+  int threadCount_;
+  bool started_;
   bool quitting_;
+  BerryBotsRunner *bbRunner_;
 
   public:
     GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
@@ -53,6 +57,10 @@ class GuiGameRunner : public GameRunner {
     virtual char** getStringValues(const char *name);
     virtual int getNumStringValues(const char *name);
     virtual int getIntegerValue(const char *name);
+    virtual void setThreadCount(int threadCount);
+    virtual void queueMatch(const char *stageName, char **shipNames,
+                            int numShips);
+    virtual bool started();
     virtual void run(const char *runnerName);
     void quit();
   private:

@@ -24,6 +24,7 @@
 #include "bblua.h"
 #include "outputconsole.h"
 #include "runnerform.h"
+#include "bbrunner.h"
 #include "guigamerunner.h"
 
 extern "C" {
@@ -41,12 +42,18 @@ GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
   numStages_ = numStages;
   shipNames_ = shipNames;
   numShips_ = numShips;
+  threadCount_ = 1;
+  started_ = false;
   quitting_ = false;
+  bbRunner_ = 0;
 }
 
 GuiGameRunner::~GuiGameRunner() {
   if (runnerName_ != 0) {
     delete runnerName_;
+  }
+  if (bbRunner_ != 0) {
+    delete bbRunner_;
   }
 }
 
@@ -181,6 +188,25 @@ RunnerFormElement* GuiGameRunner::getFormElement(const char *name) {
     }
   }
   return 0;
+}
+
+void GuiGameRunner::setThreadCount(int threadCount) {
+  if (!started_) {
+    threadCount_ = std::max(1, threadCount);
+  }
+}
+
+void GuiGameRunner::queueMatch(const char *stageName, char **shipNames,
+                               int numShips) {
+  if (!started_) {
+    bbRunner_ = new BerryBotsRunner(threadCount_);
+    started_ = true;
+  }
+  bbRunner_->queueMatch(stageName, shipNames, numShips);
+}
+
+bool GuiGameRunner::started() {
+  return started_;
 }
 
 // Taken from luajit.c

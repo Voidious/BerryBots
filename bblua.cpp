@@ -1768,6 +1768,31 @@ int registerStageGlobals(lua_State *L) {
   return 1;
 }
 
+void getStringArgs(lua_State *L, int index, char** &strings, int &numStrings) {
+  int top = lua_gettop(L);
+  if (lua_istable(L, index)) {
+    numStrings = (int) lua_objlen(L, index);
+    strings = new char*[numStrings];
+    int x = 0;
+    lua_pushnil(L);
+    while (lua_next(L, index) != 0) {
+      const char *name = luaL_checkstring(L, -1);
+      strings[x] = new char[strlen(name) + 1];
+      strcpy(strings[x], name);
+      lua_pop(L, 1);
+      x++;
+    }
+  } else {
+    numStrings = top - 2;
+    strings = new char*[numStrings];
+    for (int x = 0; x < numStrings; x++) {
+      const char *name = luaL_checkstring(L, x + index);
+      strings[x] = new char[strlen(name) + 1];
+      strcpy(strings[x], name);
+    }
+  }
+}
+
 LuaRunnerForm* checkRunnerForm(lua_State *L, int index) {
   luaL_checktype(L, index, LUA_TUSERDATA);
   LuaRunnerForm *form =
@@ -1821,14 +1846,18 @@ int RunnerForm_default(lua_State *L) {
   if (lua_isnumber(L, 3)) {
     int value = (int) luaL_checknumber(L, 3);
     form->gameRunner->setDefault(name, value);
-  } else if (lua_isstring(L, 3)) {
-    int top = lua_gettop(L);
-    for (int x = 3; x <= top; x++) {
-      const char *value = luaL_checkstring(L, x);
-      form->gameRunner->setDefault(name, value);
+  } else if (lua_isstring(L, 3) || lua_istable(L, 3)) {
+    int numStrings;
+    char** strings;
+    getStringArgs(L, 3, strings, numStrings);
+    for (int x = 0; x < numStrings; x++) {
+      form->gameRunner->setDefault(name, strings[x]);
+      delete strings[x];
     }
+    delete strings;
   } else {
-    luaL_error(L, "Second argument must be a string or a number.");
+    luaL_error(L,
+        "Second argument must be a number, string, or table of strings.");
   }
   return 1;
 }
@@ -1905,13 +1934,30 @@ LuaGameRunner* pushGameRunner(lua_State *L, GameRunner *gameRunner) {
 
 int GameRunner_setThreadCount(lua_State *L) {
   LuaGameRunner *runner = checkGameRunner(L, 1);
-  int threadCount = std::max(1, luaL_checkint(L, 2));
+  if (runner->gameRunner->started()) {
+    luaL_error(L, "Can't set thread count after starting the first match.");
+  } else {
+    int threadCount = std::max(1, luaL_checkint(L, 2));
+    runner->gameRunner->setThreadCount(threadCount);
+  }
   return 1;
 }
 
 int GameRunner_queueMatch(lua_State *L) {
   LuaGameRunner *runner = checkGameRunner(L, 1);
-  const char *stageName = luaL_checkstring(L, 2);
+  if (lua_gettop(L) < 3) {
+    luaL_error(L, "Need at least one stage and one ship to queue a match.");
+  } else {
+    const char *stageName = luaL_checkstring(L, 2);
+    int numShips;
+    char **ships;
+    getStringArgs(L, 3, ships, numShips);
+    runner->gameRunner->queueMatch(stageName, ships, numShips);
+    for (int x = 0; x < numShips; x++) {
+      delete ships[x];
+    }
+    delete ships;
+  }
   return 1;
 }
 
@@ -1959,6 +2005,7 @@ LuaRunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner) {
 int RunnerFiles_exists(lua_State *L) {
   LuaRunnerFiles *files = checkRunnerFiles(L, 1);
   const char *filename = luaL_checkstring(L, 2);
+  lua_pushboolean(L, false);
   return 1;
 }
 
