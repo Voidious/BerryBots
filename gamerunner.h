@@ -21,6 +21,8 @@
 #ifndef GAME_RUNNER_H
 #define GAME_RUNNER_H
 
+#include "bbrunner.h"
+
 #define RUNNER_UNDEFINED        -1
 #define TYPE_STAGE_SELECT        1
 #define TYPE_SINGLE_SHIP_SELECT  2
@@ -45,6 +47,8 @@ class GameRunner {
     virtual void queueMatch(const char *stageName, char **shipNames,
                             int numShips) = 0;
     virtual bool started() = 0;
+    virtual bool empty() = 0;
+    virtual MatchResult* nextResult() = 0;
     virtual void run(const char *runnerName) = 0;
     virtual ~GameRunner() {};
 };

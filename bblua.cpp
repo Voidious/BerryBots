@@ -28,6 +28,7 @@
 #include "bblua.h"
 #include "printhandler.h"
 #include "gamerunner.h"
+#include "bbrunner.h"
 
 extern PrintHandler *printHandler;
 
@@ -107,6 +108,12 @@ void setField(lua_State *L, const char *key, bool value) {
 void setField(lua_State *L, const char *key, const char *value) {
   lua_pushstring(L, key);
   lua_pushstring(L, value);
+  lua_settable(L, -3);
+}
+
+void setFieldNil(lua_State *L, const char *key) {
+  lua_pushstring(L, key);
+  lua_pushnil(L);
   lua_settable(L, -3);
 }
 
@@ -1963,11 +1970,34 @@ int GameRunner_queueMatch(lua_State *L) {
 
 int GameRunner_empty(lua_State *L) {
   LuaGameRunner *runner = checkGameRunner(L, 1);
+  lua_pushboolean(L, runner->gameRunner->empty());
   return 1;
 }
 
 int GameRunner_nextResult(lua_State *L) {
   LuaGameRunner *runner = checkGameRunner(L, 1);
+  MatchResult *result = runner->gameRunner->nextResult();
+  if (result == 0) {
+    lua_pushnil(L);
+  } else {
+    lua_newtable(L);
+    setField(L, "stage", result->getStageName());
+    const char *winner = result->getWinner();
+    if (winner == 0) {
+      setFieldNil(L, "winner");
+    } else {
+      setField(L, "winner", winner);
+    }
+    lua_pushstring(L, "teams");
+    lua_newtable(L);
+    char **teamNames = result->getTeamNames();
+    for (int x = 0; x < result->getNumTeams(); x++) {
+      lua_pushstring(L, teamNames[x]);
+      lua_rawseti(L, -2, (x + 1));
+    }
+    lua_settable(L, -3);
+    delete result;
+  }
   return 1;
 }
 

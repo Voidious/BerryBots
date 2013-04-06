@@ -140,7 +140,7 @@ class BerryBotsEngine {
     bool touchedZone(Ship *ship, const char *zoneTag);
     bool touchedAnyZone(Ship *ship);
     void destroyShip(Ship *ship);
-    static void *timerThread(void *vargs);
+    static void *timer(void *vargs);
     int callUserLuaCode(lua_State *L,int nargs, const char *errorMsg,
                         int callStyle) throw (EngineException*);
   private:

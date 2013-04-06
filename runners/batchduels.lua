@@ -56,6 +56,11 @@ end
 
 function processNextResult(runner)
   local result = runner:nextResult()
-  print(result:challengerShip() .. " vs " .. next(result:referenceShips()))
-  print("    " .. result:winner() .. " wins!")
+  local teams = result.teams
+  print(teams[1] .. " vs " .. teams[2])
+  if (result.winner == nil) then
+    print("    Tie.")
+  else
+    print("    " .. result.winner .. " wins!")
+  end
 end

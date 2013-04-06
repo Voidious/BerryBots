@@ -70,8 +70,8 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   timerSettings_->timerTick = 0;
   timerSettings_->timerExpiration = LONG_MAX;
   timerSettings_->enabled = true;
-  pthread_create(&timerThread_, 0, BerryBotsEngine::timerThread,
-                (void*) timerSettings_);
+  pthread_create(&timerThread_, 0, BerryBotsEngine::timer,
+                 (void*) timerSettings_);
   // TODO: how to handle failure to create thread
 }
 
@@ -282,7 +282,7 @@ int BerryBotsEngine::callUserLuaCode(lua_State *L, int nargs,
   return pcallValue;
 }
 
-void *BerryBotsEngine::timerThread(void *vargs) {
+void *BerryBotsEngine::timer(void *vargs) {
   TimerSettings *settings = (TimerSettings*) vargs;
   while (settings->enabled) {
     platformstl::micro_sleep(PCALL_TIME_LIMIT);

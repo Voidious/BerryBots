@@ -19,6 +19,7 @@
 */
 
 #include <string.h>
+#include <wx/wx.h>
 #include <platformstl/synch/sleep_functions.h>
 #include "basedir.h"
 #include "bblua.h"
@@ -34,7 +35,7 @@ extern "C" {
 }
 
 GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
-                             int numStages, char **shipNames, int numShips) {
+    int numStages, char **shipNames, int numShips, Zipper *zipper) {
   runnerName_ = 0;
   runnerConsole_ = runnerConsole;
   numFormElements_ = 0;
@@ -42,6 +43,7 @@ GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
   numStages_ = numStages;
   shipNames_ = shipNames;
   numShips_ = numShips;
+  zipper_ = zipper;
   threadCount_ = 1;
   started_ = false;
   quitting_ = false;
@@ -177,6 +179,9 @@ int GuiGameRunner::getIntegerValue(const char *name) {
 
 void GuiGameRunner::quit() {
   quitting_ = true;
+  if (bbRunner_ != 0) {
+    bbRunner_->quit();
+  }
 }
 
 RunnerFormElement* GuiGameRunner::getFormElement(const char *name) {
@@ -199,7 +204,7 @@ void GuiGameRunner::setThreadCount(int threadCount) {
 void GuiGameRunner::queueMatch(const char *stageName, char **shipNames,
                                int numShips) {
   if (!started_) {
-    bbRunner_ = new BerryBotsRunner(threadCount_);
+    bbRunner_ = new BerryBotsRunner(threadCount_, zipper_);
     started_ = true;
   }
   bbRunner_->queueMatch(stageName, shipNames, numShips);
@@ -207,6 +212,20 @@ void GuiGameRunner::queueMatch(const char *stageName, char **shipNames,
 
 bool GuiGameRunner::started() {
   return started_;
+}
+
+bool GuiGameRunner::empty() {
+  wxYield();
+  return (bbRunner_ == 0 ? true : bbRunner_->allResultsProcessed());
+}
+
+MatchResult* GuiGameRunner::nextResult() {
+  wxYield();
+  if (bbRunner_ != 0) {
+    return bbRunner_->nextResult();
+  } else {
+    return 0;
+  }
 }
 
 // Taken from luajit.c
@@ -279,5 +298,9 @@ void GuiGameRunner::run(const char *runnerName) {
 
   if (opened) {
     lua_close(runnerState);
+  }
+
+  if (bbRunner_ != 0) {
+    bbRunner_->quit();
   }
 }

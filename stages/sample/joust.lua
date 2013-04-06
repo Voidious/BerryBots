@@ -9,6 +9,8 @@
 
 require "samplestage"
 
+local TIME_LIMIT = 5000
+
 function configure(stageBuilder)
   stageBuilder:setSize(1000, 700)
   stageBuilder:addStart(50, 350 + (20 * math.random()) - 10)
@@ -61,6 +63,10 @@ function run()
         admin:setWinner(ship:name())
       end
     end
+    admin:gameOver()
+  end
+
+  if (world:time() >= TIME_LIMIT) then
     admin:gameOver()
   end
 end

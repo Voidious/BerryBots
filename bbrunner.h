@@ -21,39 +21,90 @@
 #ifndef BERRYBOTS_RUNNER
 #define BERRYBOTS_RUNNER
 
-#define MAX_MATCHES  100000
+#define MAX_MATCHES    100000
+#define SLEEP_INTERVAL  50000 // 0.05s
 
 #include <pthread.h>
+#include "zipper.h"
 
 class MatchConfig {
+  char *stagesDir_;
+  char *shipsDir_;
+  char *cacheDir_;
   char *stageName_;
   char **shipNames_;
   int numShips_;
   char *winnerName_; // TODO: replace with collection of results and filename
+  bool started_;
+  bool finished_;
   bool processedResult_;
 
   public:
-    MatchConfig(const char *stageName, char **shipNames, int numShips);
+    MatchConfig(const char *stageName, char **shipNames, int numShips,
+                char *stagesDir, char *shipsDir, char *cacheDir);
     ~MatchConfig();
+    const char *getStagesDir();
+    const char *getShipsDir();
+    const char *getCacheDir();
     const char *getStageName();
     char **getShipNames();
     int getNumShips();
     const char *getWinnerName();
     void setWinnerName(const char *name);
-    bool getProcessedResult();
-    void setProcessedResult();
+    bool isStarted();
+    void started();
+    bool isFinished();
+    void finished();
+    bool hasProcessedResult();
+    void processedResult();
 };
 
-class BerryBotsRunner {
-  int threadCount_;
-  pthread_t *threads_;
-  MatchConfig* matches_[MAX_MATCHES];
-  int numMatches_;
+class MatchResult {
+  char *stageName_;
+  char **teamNames_;
+  int numTeams_;
+  char *winner_;
 
   public:
-    BerryBotsRunner(int threadCount);
+    MatchResult(const char *stageName, char **teamNames, int numTeams,
+                const char *winner);
+    ~MatchResult();
+    const char* getStageName();
+    char** getTeamNames();
+    int getNumTeams();
+    const char* getWinner();
+};
+
+typedef struct {
+  MatchConfig* matches[MAX_MATCHES];
+  int numMatches;
+  int numThreads;
+  int matchesRunning;
+  Zipper *zipper;
+  bool done;
+} SchedulerSettings;
+
+typedef struct {
+  SchedulerSettings *schedulerSettings;
+  MatchConfig *matchConfig;
+} MatchSettings;
+
+class BerryBotsRunner {
+  char *stagesDir_;
+  char *shipsDir_;
+  char *cacheDir_;
+  pthread_t schedulerThread_;
+  SchedulerSettings *schedulerSettings_;
+
+  public:
+    BerryBotsRunner(int threadCount, Zipper *zipper);
     ~BerryBotsRunner();
     void queueMatch(const char *stageName, char **shipNames, int numShips);
+    MatchResult* nextResult();
+    bool allResultsProcessed();
+    void quit();
+    static void *scheduler(void *vargs);
+    static void *runMatch(void *vargs);
 };
 
 #endif

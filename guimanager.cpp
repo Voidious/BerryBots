@@ -960,7 +960,7 @@ void GuiManager::launchGameRunner(const char *runnerName) {
   char **stageNames = newMatchDialog_->getStageNames();
   char **shipNames = newMatchDialog_->getShipNames();
   gameRunner_ = new GuiGameRunner(runnerConsole_, stageNames, numStages_,
-                                  shipNames, numShips_);
+                                  shipNames, numShips_, zipper_);
   gameRunner_->run(runnerName);
 
   GuiGameRunner *oldRunner = gameRunner_;
