@@ -121,15 +121,18 @@ void OutputConsole::OnEraseBackground(wxEraseEvent&) {
 }
 
 void OutputConsole::print(const char *text) {
+  output_->SetInsertionPointEnd();
   output_->WriteText(text);
 }
 
 void OutputConsole::println(const char *text) {
+  output_->SetInsertionPointEnd();
   output_->WriteText(text);
   output_->WriteText("\n");
 }
 
 void OutputConsole::println() {
+  output_->SetInsertionPointEnd();
   output_->WriteText("\n");
 }
 
