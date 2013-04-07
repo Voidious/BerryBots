@@ -43,6 +43,7 @@ BerryBotsRunner::BerryBotsRunner(int threadCount, Zipper *zipper) {
   schedulerSettings_->done = false;
   pthread_create(&schedulerThread_, 0, BerryBotsRunner::scheduler,
                  (void*) schedulerSettings_);
+  pthread_detach(schedulerThread_);
 }
 
 BerryBotsRunner::~BerryBotsRunner() {
@@ -117,6 +118,7 @@ void *BerryBotsRunner::scheduler(void *vargs) {
         matchSettings->matchConfig = nextMatch;
         pthread_create(&gameThread, 0, BerryBotsRunner::runMatch,
                        (void*) matchSettings);
+        pthread_detach(gameThread);
       }
     }
   }
@@ -128,7 +130,7 @@ void *BerryBotsRunner::scheduler(void *vargs) {
   return 0;
 }
 
-void *BerryBotsRunner::runMatch(void *vargs) {
+void* BerryBotsRunner::runMatch(void *vargs) {
   MatchSettings *settings = (MatchSettings *) vargs;
   MatchConfig *config = settings->matchConfig;
   SchedulerSettings *schedulerSettings = settings->schedulerSettings;

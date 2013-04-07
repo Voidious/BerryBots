@@ -57,6 +57,9 @@ GuiGameRunner::~GuiGameRunner() {
   if (bbRunner_ != 0) {
     delete bbRunner_;
   }
+  for (int x = 0; x < numFormElements_; x++) {
+    delete formElements_[x];
+  }
 }
 
 void GuiGameRunner::addStageSelect(const char *name) {
@@ -138,7 +141,9 @@ bool GuiGameRunner::ok() {
       }
     }
   }
-  return form->isOk();
+  bool ok = form->isOk();
+  delete form;
+  return ok;
 }
 
 int GuiGameRunner::getElementType(const char *name) {
