@@ -461,12 +461,15 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     if (luaL_loadfile(teamState, shipFilename)) {
       printLuaErrorToShipConsole(teamState, "Error loading file: %s");
       disabled = true;
+      team->ownedByLua = false;
     } else if (callUserLuaCode(teamState, 0, "Error loading file",
                                PCALL_SHIP)) {
       disabled = true;
+      team->ownedByLua = false;
     } else {
       lua_getglobal(teamState, "init");
       disabled = false;
+      team->ownedByLua = true;
     }
 
     if (!disabled && numStateShips > 1) {
