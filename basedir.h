@@ -31,5 +31,6 @@ extern std::string getTmpDir(void);
 extern std::string getApidocPath(void);
 extern void setRootDir(std::string newRootDir);
 extern void chooseNewRootDir();
+extern bool isAaDisabled();
 
 #endif

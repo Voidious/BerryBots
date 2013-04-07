@@ -35,6 +35,7 @@
 @synthesize tmpDir;
 @synthesize apidocPath;
 @synthesize samplesVersion;
+@synthesize aaDisabled;
 
 bool fileExists(const char *filename) {
   FILE *testFile = fopen(filename, "r");
@@ -169,6 +170,8 @@ bool fileExists(const char *filename) {
       if (self.samplesVersion == nil) {
         self.samplesVersion = @"1.1.0";
       }
+      self.aaDisabled =
+          [[temp objectForKey:@"Disable Anti-aliasing"] boolValue];
 
       if ([fileManager fileExistsAtPath:self.stagesDir]
           && [fileManager fileExistsAtPath:self.shipsDir]) {
@@ -271,10 +274,11 @@ bool fileExists(const char *filename) {
   NSDictionary *plistDict =
       [NSDictionary dictionaryWithObjects:
        [NSArray arrayWithObjects:stagesDir, shipsDir, cacheDir, tmpDir,
-                                 apidocPath, samplesVersion, nil]
-        forKeys:[NSArray arrayWithObjects:
-                 @"Stage dir", @"Ships dir", @"Cache dir", @"Tmp dir",
-                 @"Apidoc Path", @"Samples Version", nil]];
+        apidocPath, samplesVersion, [NSNumber numberWithBool:aaDisabled], nil]
+            forKeys:[NSArray arrayWithObjects:
+                     @"Stage dir", @"Ships dir", @"Cache dir", @"Tmp dir",
+                     @"Apidoc Path", @"Samples Version",
+                     @"Disable Anti-aliasing", nil]];
   NSData *plistData =
       [NSPropertyListSerialization dataFromPropertyList:plistDict
           format:NSPropertyListXMLFormat_v1_0
