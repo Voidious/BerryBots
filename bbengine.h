@@ -60,7 +60,7 @@ typedef struct {
   volatile unsigned long timerTick;
   volatile unsigned long timerExpiration;
   volatile bool enabled;
-} TimerSettings;
+} TickTimerSettings;
 
 class BerryBotsEngine {
   Stage *stage_;
@@ -88,7 +88,7 @@ class BerryBotsEngine {
   StageGfx *stageGfx_;
   bool** teamVision_;
   pthread_t timerThread_;
-  TimerSettings *timerSettings_;
+  TickTimerSettings *timerSettings_;
 
   int gameTime_;
   SensorHandler *sensorHandler_;
@@ -140,7 +140,7 @@ class BerryBotsEngine {
     bool touchedZone(Ship *ship, const char *zoneTag);
     bool touchedAnyZone(Ship *ship);
     void destroyShip(Ship *ship);
-    static void *timer(void *vargs);
+    static void* timer(void *vargs);
     int callUserLuaCode(lua_State *L,int nargs, const char *errorMsg,
                         int callStyle) throw (EngineException*);
   private:

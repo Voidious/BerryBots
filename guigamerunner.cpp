@@ -220,12 +220,10 @@ bool GuiGameRunner::started() {
 }
 
 bool GuiGameRunner::empty() {
-  wxYield();
   return (bbRunner_ == 0 ? true : bbRunner_->allResultsProcessed());
 }
 
 MatchResult* GuiGameRunner::nextResult() {
-  wxYield();
   if (bbRunner_ != 0) {
     return bbRunner_->nextResult();
   } else {

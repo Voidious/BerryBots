@@ -18,6 +18,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#include <wx/wx.h>
 #include "bbutil.h"
 #include "menubarmaker.h"
 #include "outputconsole.h"
@@ -57,6 +58,7 @@ void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
 void GuiPrintHandler::runnerPrint(const char *text) {
   if (runnerConsole_ != 0) {
     runnerConsole_->println(text);
+    wxYield();
   }
 }
 

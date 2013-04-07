@@ -65,7 +65,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   sensorHandler_ = 0;
   fileManager_ = fileManager;
 
-  timerSettings_ = new TimerSettings;
+  timerSettings_ = new TickTimerSettings;
   timerSettings_->L = 0;
   timerSettings_->timerTick = 0;
   timerSettings_->timerExpiration = LONG_MAX;
@@ -284,7 +284,7 @@ int BerryBotsEngine::callUserLuaCode(lua_State *L, int nargs,
 }
 
 void *BerryBotsEngine::timer(void *vargs) {
-  TimerSettings *settings = (TimerSettings*) vargs;
+  TickTimerSettings *settings = (TickTimerSettings *) vargs;
   while (settings->enabled) {
     platformstl::micro_sleep(PCALL_TIME_LIMIT);
     if (settings->timerExpiration <= ++(settings->timerTick)) {

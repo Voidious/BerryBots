@@ -79,9 +79,9 @@ typedef struct {
   MatchConfig* matches[MAX_MATCHES];
   int numMatches;
   int numThreads;
-  int matchesRunning;
+  volatile int matchesRunning;
+  volatile bool done;
   Zipper *zipper;
-  bool done;
 } SchedulerSettings;
 
 typedef struct {
@@ -103,8 +103,8 @@ class BerryBotsRunner {
     MatchResult* nextResult();
     bool allResultsProcessed();
     void quit();
-    static void *scheduler(void *vargs);
-    static void *runMatch(void *vargs);
+    static void* scheduler(void *vargs);
+    static void* runMatch(void *vargs);
 };
 
 #endif
