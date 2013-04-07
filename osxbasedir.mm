@@ -96,3 +96,11 @@ void chooseNewRootDir(void) {
   loadCfg();
   [cfg chooseNewRootDir];
 }
+
+bool isAaDisabled(void) {
+  if (loadCfg()) {
+    return cfg.aaDisabled;
+  } else {
+    exit(0);
+  }
+}

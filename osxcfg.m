@@ -36,6 +36,7 @@
 @synthesize tmpDir;
 @synthesize apidocPath;
 @synthesize samplesVersion;
+@synthesize aaDisabled;
 
 bool fileExists(const char *filename) {
   FILE *testFile = fopen(filename, "r");
@@ -174,6 +175,8 @@ bool fileExists(const char *filename) {
       if (self.samplesVersion == nil) {
         self.samplesVersion = @"1.1.0";
       }
+      self.aaDisabled =
+          [[temp objectForKey:@"Disable Anti-aliasing"] boolValue];
 
       // TODO: Handle upgrade to first version that contains sample runners more
       //       smoothly than asking user to reselect base dir.
@@ -281,10 +284,12 @@ bool fileExists(const char *filename) {
   NSDictionary *plistDict =
       [NSDictionary dictionaryWithObjects:
        [NSArray arrayWithObjects:stagesDir, shipsDir, runnersDir, cacheDir,
-                                 tmpDir, apidocPath, samplesVersion, nil]
-        forKeys:[NSArray arrayWithObjects:
-                 @"Stage dir", @"Ships dir", @"Runners dir", @"Cache dir",
-                 @"Tmp dir", @"Apidoc Path", @"Samples Version", nil]];
+        tmpDir, apidocPath, samplesVersion,
+        [NSNumber numberWithBool:aaDisabled], nil]
+            forKeys:[NSArray arrayWithObjects:
+                     @"Stage dir", @"Ships dir", @"Runners dir", @"Cache dir",
+                     @"Tmp dir", @"Apidoc Path", @"Samples Version",
+                     @"Disable Anti-aliasing", nil]];
   NSData *plistData =
       [NSPropertyListSerialization dataFromPropertyList:plistDict
           format:NSPropertyListXMLFormat_v1_0

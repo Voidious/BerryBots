@@ -65,3 +65,7 @@ void setRootDir(std::string newRootDir) {
 void chooseNewRootDir() {
   // no-op
 }
+
+bool isAaDisabled() {
+  return false;
+}

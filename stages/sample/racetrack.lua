@@ -31,9 +31,9 @@ function configure(stageBuilder)
   stageBuilder:addWall(796, 200, 4, 300)
   stageBuilder:addWall(204, 200, 592, 4)
   stageBuilder:addWall(204, 496, 592, 4)
-  stageBuilder:addZone(749, 500, 2, 200, "z1")
-  stageBuilder:addZone(249, 500, 2, 200, "z2")
-  stageBuilder:addZone(499, 0, 2, 200, "z3")
+  stageBuilder:addZone(499, 0, 2, 200, "z1")
+  stageBuilder:addZone(749, 500, 2, 200, "z2")
+  stageBuilder:addZone(249, 500, 2, 200, "z3")
 end
 
 ships = nil
@@ -61,15 +61,15 @@ end
 
 function run()
   for i, ship in pairs(ships) do
-    if (world:touchedZone(ship, "z1")) then
-      shipLaps[ship:name()].lastZone = "z1"
-    end
-    if (world:touchedZone(ship, "z2")
-        and shipLaps[ship:name()].lastZone == "z1") then
+    if (world:touchedZone(ship, "z2")) then
       shipLaps[ship:name()].lastZone = "z2"
     end
     if (world:touchedZone(ship, "z3")
         and shipLaps[ship:name()].lastZone == "z2") then
+      shipLaps[ship:name()].lastZone = "z3"
+    end
+    if (world:touchedZone(ship, "z1")
+        and shipLaps[ship:name()].lastZone == "z3") then
       shipLaps[ship:name()].lastZone = ""
       shipLaps[ship:name()].laps = shipLaps[ship:name()].laps + 1
       local lapTime = world:time() - shipLaps[ship:name()].lapStart

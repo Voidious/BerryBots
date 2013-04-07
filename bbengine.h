@@ -76,7 +76,8 @@ class BerryBotsEngine {
   // TODO: Rename stageShips to something else to avoid confusion with ships
   //       loaded by the stage 'configure' function.
   Ship **stageShips_;  // the copy of all ships owned by the stage program
-  Ship **oldShips_;
+  Ship **oldShips_;    // the ships at the start of the current tick
+  Ship **prevShips_;   // the ships at the start of the previous tick
   ShipProperties **shipProperties_;
   int numTeams_;
   int numInitializedTeams_;
@@ -98,6 +99,7 @@ class BerryBotsEngine {
   bool battleMode_;
   bool roundOver_;
   bool gameOver_;
+  bool physicsOver_;
   char winnerName_[MAX_NAME_LENGTH + 1];
 
   public:

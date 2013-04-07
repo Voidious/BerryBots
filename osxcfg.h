@@ -31,6 +31,7 @@
   NSString *samplesVersion;
   bool overwrite;
   bool asked;
+  bool aaDisabled;
 }
 
 - (Boolean) hasPlist;
@@ -45,5 +46,6 @@
 @property (copy, nonatomic) NSString *tmpDir;
 @property (copy, nonatomic) NSString *apidocPath;
 @property (copy, nonatomic) NSString *samplesVersion;
+@property (nonatomic) bool aaDisabled;
 
 @end

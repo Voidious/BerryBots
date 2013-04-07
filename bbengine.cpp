@@ -47,6 +47,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   battleMode_ = false;
   roundOver_ = false;
   gameOver_ = false;
+  physicsOver_ = false;
   winnerName_[0] = '\0';
 
   stageState_ = 0;
@@ -57,6 +58,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   ships_ = 0;
   stageShips_ = 0;
   oldShips_ = 0;
+  prevShips_ = 0;
   shipProperties_ = 0;
   worlds_ = 0;
   shipGfxs_ = 0;
@@ -101,6 +103,12 @@ BerryBotsEngine::~BerryBotsEngine() {
       delete oldShips_[x];
     }
     delete oldShips_;
+  }
+  if (prevShips_ != 0) {
+    for (int x = 0; x < numShips_; x++) {
+      delete prevShips_[x];
+    }
+    delete prevShips_;
   }
 
   for (int x = 0; x < numInitializedTeams_; x++) {
@@ -606,9 +614,12 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
 
   copyShips(stageShips_, ships_, numShips_);
   oldShips_ = new Ship*[numShips_];
+  prevShips_ = new Ship*[numShips_];
   for (int x = 0; x < numShips_; x++) {
     oldShips_[x] = new Ship;
+    prevShips_[x] = new Ship;
   }
+  copyShips(ships_, oldShips_, numShips_);
 
   lua_getglobal(stageState_, "run");
   stageRun_ = (strcmp(luaL_typename(stageState_, -1), "nil") != 0);
@@ -662,9 +673,11 @@ void BerryBotsEngine::updateTeamShipsAlive() {
 
 void BerryBotsEngine::processTick() throw (EngineException*) {
   gameTime_++;
+  physicsOver_ = false;
   updateTeamShipsAlive();    
   stage_->updateTeamVision(teams_, numTeams_, ships_, numShips_, teamVision_);
   stage_->clearStaleUserGfxs(gameTime_);
+  copyShips(oldShips_, prevShips_, numShips_);
   copyShips(ships_, oldShips_, numShips_);
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
@@ -691,7 +704,8 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
     }
   }
   stage_->moveAndCheckCollisions(oldShips_, ships_, numShips_, gameTime_);
-  
+  physicsOver_ = true;
+
   if (stageRun_) {
     this->setRoundOver(false);
     this->setGameOver(false);
@@ -769,11 +783,17 @@ void BerryBotsEngine::monitorCpuTimer(Team *team, bool fatal) {
 }
 
 bool BerryBotsEngine::touchedZone(Ship *ship, const char *zoneTag) {
-  return stage_->touchedZone(oldShips_[ship->index], ship, zoneTag);
+  Ship *oldShip =
+      (physicsOver_ ? oldShips_[ship->index] : prevShips_[ship->index]);
+  Ship *newShip = (physicsOver_ ? ship : oldShips_[ship->index]);
+  return stage_->touchedZone(oldShip, newShip, zoneTag);
 }
 
 bool BerryBotsEngine::touchedAnyZone(Ship *ship) {
-  return stage_->touchedAnyZone(oldShips_[ship->index], ship);
+  Ship *oldShip =
+      (physicsOver_ ? oldShips_[ship->index] : prevShips_[ship->index]);
+  Ship *newShip = (physicsOver_ ? ship : oldShips_[ship->index]);
+  return stage_->touchedAnyZone(oldShip, newShip);
 }
 
 void BerryBotsEngine::destroyShip(Ship *ship) {

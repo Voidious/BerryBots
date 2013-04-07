@@ -486,7 +486,8 @@ sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
   }
 
   window_ = new sf::RenderWindow(sf::VideoMode(width, height), "BerryBots",
-      sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
+      sf::Style::Default,
+      sf::ContextSettings(0, 0, (isAaDisabled() ? 0 : 16), 2, 0));
 
 #ifdef __WINDOWS__
   window_->setIcon(32, 32, windowIcon_.getPixelsPtr());
@@ -506,7 +507,8 @@ sf::RenderWindow* GuiManager::initPreviewWindow(unsigned int width,
   }
 
   previewWindow_ = new sf::RenderWindow(sf::VideoMode(width, height), "Preview",
-      sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
+      sf::Style::Default,
+      sf::ContextSettings(0, 0, (isAaDisabled() ? 0 : 16), 2, 0));
 
 #ifdef __WINDOWS__
   previewWindow_->setIcon(32, 32, windowIcon_.getPixelsPtr());
