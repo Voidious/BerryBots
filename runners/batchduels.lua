@@ -10,9 +10,11 @@ function run(form, runner, files, network)
   form:addSingleShipSelect("Challenger")
   form:addMultiShipSelect("Reference Ships")
   form:addIntegerText("Seasons")
+  form:addIntegerText("Threads")
 
   setDefaultReferenceShips(form, files)
   form:default("Seasons", 10) 
+  form:default("Threads", 3) 
   form:default("Stage", "sample/battle1.lua")
 
   if (form:ok()) then
@@ -20,6 +22,7 @@ function run(form, runner, files, network)
     local challenger = form:get("Challenger")
     local referenceShips = form:get("Reference Ships")
     local seasons = form:get("Seasons")
+    local threadCount = form:get("Threads")
     print("Seasons: " .. seasons)
     print("Challenger: " .. challenger)
     print("Stage: " .. stage)
@@ -27,7 +30,7 @@ function run(form, runner, files, network)
       print("Reference ship: " .. referenceShip)
     end
     print()
-    runner:setThreadCount(3)
+    runner:setThreadCount(threadCount)
 
     for i = 1, seasons do
       for j, shipName in ipairs(referenceShips) do
