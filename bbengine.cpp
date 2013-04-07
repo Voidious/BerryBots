@@ -74,6 +74,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   timerSettings_->enabled = true;
   pthread_create(&timerThread_, 0, BerryBotsEngine::timerThread,
                 (void*) timerSettings_);
+  pthread_detach(timerThread_);
   // TODO: how to handle failure to create thread
 }
 
