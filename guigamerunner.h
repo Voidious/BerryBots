@@ -35,8 +35,8 @@ class GuiGameRunner : public GameRunner {
   int numFormElements_;
   char **stageNames_;
   int numStages_;
-  char **shipNames_;
-  int numShips_;
+  char **teamNames_;
+  int numTeams_;
   OutputConsole *runnerConsole_;
   int threadCount_;
   bool started_;
@@ -46,7 +46,7 @@ class GuiGameRunner : public GameRunner {
 
   public:
     GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
-        int numStages, char **shipNames, int numShips, Zipper *zipper);
+        int numStages, char **teamNames, int numTeams, Zipper *zipper);
     ~GuiGameRunner();
     virtual void addStageSelect(const char *name);
     virtual void addSingleShipSelect(const char *name);
@@ -60,8 +60,8 @@ class GuiGameRunner : public GameRunner {
     virtual int getNumStringValues(const char *name);
     virtual int getIntegerValue(const char *name);
     virtual void setThreadCount(int threadCount);
-    virtual void queueMatch(const char *stageName, char **shipNames,
-                            int numShips);
+    virtual void queueMatch(const char *stageName, char **teamNames,
+                            int numTeams);
     virtual bool started();
     virtual bool empty();
     virtual MatchResult* nextResult();

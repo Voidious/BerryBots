@@ -32,23 +32,23 @@ class MatchConfig {
   char *shipsDir_;
   char *cacheDir_;
   char *stageName_;
-  char **shipNames_;
-  int numShips_;
+  char **teamNames_;
+  int numTeams_;
   char *winnerName_; // TODO: replace with collection of results and filename
   bool started_;
   bool finished_;
   bool processedResult_;
 
   public:
-    MatchConfig(const char *stageName, char **shipNames, int numShips,
+    MatchConfig(const char *stageName, char **teamNames, int numTeams,
                 char *stagesDir, char *shipsDir, char *cacheDir);
     ~MatchConfig();
     const char *getStagesDir();
     const char *getShipsDir();
     const char *getCacheDir();
     const char *getStageName();
-    char **getShipNames();
-    int getNumShips();
+    char **getTeamNames();
+    int getNumTeams();
     const char *getWinnerName();
     void setWinnerName(const char *name);
     bool isStarted();
@@ -99,7 +99,7 @@ class BerryBotsRunner {
   public:
     BerryBotsRunner(int threadCount, Zipper *zipper);
     ~BerryBotsRunner();
-    void queueMatch(const char *stageName, char **shipNames, int numShips);
+    void queueMatch(const char *stageName, char **teamNames, int numTeams);
     MatchResult* nextResult();
     bool allResultsProcessed();
     void quit();

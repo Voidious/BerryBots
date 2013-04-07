@@ -44,8 +44,8 @@ class GameRunner {
     virtual int getNumStringValues(const char *name) = 0;
     virtual int getIntegerValue(const char *name) = 0;
     virtual void setThreadCount(int threadCount) = 0;
-    virtual void queueMatch(const char *stageName, char **shipNames,
-                            int numShips) = 0;
+    virtual void queueMatch(const char *stageName, char **teamNames,
+                            int numTeams) = 0;
     virtual bool started() = 0;
     virtual bool empty() = 0;
     virtual MatchResult* nextResult() = 0;

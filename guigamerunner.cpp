@@ -35,14 +35,14 @@ extern "C" {
 }
 
 GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
-    int numStages, char **shipNames, int numShips, Zipper *zipper) {
+    int numStages, char **teamNames, int numTeams, Zipper *zipper) {
   runnerName_ = 0;
   runnerConsole_ = runnerConsole;
   numFormElements_ = 0;
   stageNames_ = stageNames;
   numStages_ = numStages;
-  shipNames_ = shipNames;
-  numShips_ = numShips;
+  teamNames_ = teamNames;
+  numTeams_ = numTeams;
   zipper_ = zipper;
   threadCount_ = 1;
   started_ = false;
@@ -67,11 +67,11 @@ void GuiGameRunner::addStageSelect(const char *name) {
 }
 
 void GuiGameRunner::addSingleShipSelect(const char *name) {
-  addFormElement(name, TYPE_SINGLE_SHIP_SELECT, numShips_);
+  addFormElement(name, TYPE_SINGLE_SHIP_SELECT, numTeams_);
 }
 
 void GuiGameRunner::addMultiShipSelect(const char *name) {
-  addFormElement(name, TYPE_MULTI_SHIP_SELECT, numShips_);
+  addFormElement(name, TYPE_MULTI_SHIP_SELECT, numTeams_);
 }
 
 void GuiGameRunner::addIntegerText(const char *name) {
@@ -109,7 +109,7 @@ void GuiGameRunner::setDefault(const char *name, int value) {
 
 bool GuiGameRunner::ok() {
   RunnerForm *form = new RunnerForm(runnerName_, formElements_,
-      numFormElements_, stageNames_, numStages_, shipNames_, numShips_);
+      numFormElements_, stageNames_, numStages_, teamNames_, numTeams_);
   form->Show();
   form->Raise();
   while (!form->isDone() && !quitting_) {
@@ -206,13 +206,13 @@ void GuiGameRunner::setThreadCount(int threadCount) {
   }
 }
 
-void GuiGameRunner::queueMatch(const char *stageName, char **shipNames,
-                               int numShips) {
+void GuiGameRunner::queueMatch(const char *stageName, char **teamNames,
+                               int numTeams) {
   if (!started_) {
     bbRunner_ = new BerryBotsRunner(threadCount_, zipper_);
     started_ = true;
   }
-  bbRunner_->queueMatch(stageName, shipNames, numShips);
+  bbRunner_->queueMatch(stageName, teamNames, numTeams);
 }
 
 bool GuiGameRunner::started() {

@@ -52,10 +52,10 @@ BerryBotsRunner::~BerryBotsRunner() {
   delete cacheDir_;
 }
 
-void BerryBotsRunner::queueMatch(const char *stageName, char **shipNames,
-                                 int numShips) {
+void BerryBotsRunner::queueMatch(const char *stageName, char **teamNames,
+                                 int numTeams) {
   if (schedulerSettings_->numMatches < MAX_MATCHES) {
-    MatchConfig *matchConfig = new MatchConfig(stageName, shipNames, numShips,
+    MatchConfig *matchConfig = new MatchConfig(stageName, teamNames, numTeams,
         stagesDir_, shipsDir_, cacheDir_);
     schedulerSettings_->matches[schedulerSettings_->numMatches++] = matchConfig;
     // TODO: error handling for scheduling > max matches
@@ -71,7 +71,7 @@ MatchResult* BerryBotsRunner::nextResult() {
         MatchConfig *config = schedulerSettings_->matches[x];
         if (config->isFinished() && !config->hasProcessedResult()) {
           MatchResult *nextResult = new MatchResult(config->getStageName(),
-              config->getShipNames(), config->getNumShips(),
+              config->getTeamNames(), config->getNumTeams(),
               config->getWinnerName());
           config->processedResult();
           return nextResult;
@@ -141,8 +141,8 @@ void* BerryBotsRunner::runMatch(void *vargs) {
   try {
     engine->initStage(config->getStagesDir(), config->getStageName(),
                       config->getCacheDir());
-    engine->initShips(config->getShipsDir(), config->getShipNames(),
-                      config->getNumShips(), config->getCacheDir());
+    engine->initShips(config->getShipsDir(), config->getTeamNames(),
+                      config->getNumTeams(), config->getCacheDir());
   } catch (EngineException *e) {
     // TODO: callback to display error message
     aborted = true;
@@ -173,8 +173,8 @@ void* BerryBotsRunner::runMatch(void *vargs) {
   return 0;
 }
 
-MatchConfig::MatchConfig(const char *stageName, char **shipNames,
-    int numShips, char *stagesDir, char *shipsDir, char *cacheDir) {
+MatchConfig::MatchConfig(const char *stageName, char **teamNames,
+    int numTeams, char *stagesDir, char *shipsDir, char *cacheDir) {
   stagesDir_ = new char[strlen(stagesDir) + 1];
   strcpy(stagesDir_, stagesDir);
   shipsDir_ = new char[strlen(shipsDir) + 1];
@@ -183,22 +183,22 @@ MatchConfig::MatchConfig(const char *stageName, char **shipNames,
   strcpy(cacheDir_, cacheDir);
   stageName_ = new char[strlen(stageName) + 1];
   strcpy(stageName_, stageName);
-  shipNames_ = new char*[numShips];
-  for (int x = 0; x < numShips; x++) {
-    shipNames_[x] = new char[strlen(shipNames[x]) + 1];
-    strcpy(shipNames_[x], shipNames[x]);
+  teamNames_ = new char*[numTeams];
+  for (int x = 0; x < numTeams; x++) {
+    teamNames_[x] = new char[strlen(teamNames[x]) + 1];
+    strcpy(teamNames_[x], teamNames[x]);
   }
-  numShips_ = numShips;
+  numTeams_ = numTeams;
   winnerName_ = 0;
   started_ = finished_ = processedResult_ = false;
 }
 
 MatchConfig::~MatchConfig() {
   delete stageName_;
-  for (int x = 0; x < numShips_; x++) {
-    delete shipNames_[x];
+  for (int x = 0; x < numTeams_; x++) {
+    delete teamNames_[x];
   }
-  delete shipNames_;
+  delete teamNames_;
   if (winnerName_ != 0) {
     delete winnerName_;
   }
@@ -223,12 +223,12 @@ const char* MatchConfig::getStageName() {
   return stageName_;
 }
 
-char** MatchConfig::getShipNames() {
-  return shipNames_;
+char** MatchConfig::getTeamNames() {
+  return teamNames_;
 }
 
-int MatchConfig::getNumShips() {
-  return numShips_;
+int MatchConfig::getNumTeams() {
+  return numTeams_;
 }
 
 const char* MatchConfig::getWinnerName() {
