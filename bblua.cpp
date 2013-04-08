@@ -50,6 +50,10 @@ void killHook(lua_State *L, lua_Debug *ar) {
   luaL_error(L, "Interrupted for using too much CPU time.");
 }
 
+void abortHook(lua_State *L, lua_Debug *ar) {
+  luaL_error(L, "Game Runner aborted.");
+}
+
 void initStageState(lua_State **stageState, const char *stageCwd) {
   *stageState = luaL_newstate();
   lua_setcwd(*stageState, stageCwd);

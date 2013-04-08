@@ -78,7 +78,8 @@ void GuiPrintHandler::registerTeam(Team *team, const char *filename) {
   } else {
     if (numTeams_ < MAX_TEAM_CONSOLES) {
       teams_[numTeams_] = team;
-      teamConsole = new OutputConsole(filename, true, menuBarMaker_);
+      teamConsole = new OutputConsole(filename, CONSOLE_SHIP_STAGE,
+                                      menuBarMaker_);
       teamConsole->setListener(new TeamConsoleListener(team));
       teamConsole->Hide();
       teamConsoles_[numTeams_] = teamConsole;

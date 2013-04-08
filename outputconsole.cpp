@@ -23,24 +23,30 @@
 #include "bbwx.h"
 #include "outputconsole.h"
 
-OutputConsole::OutputConsole(const char *title, bool enableCheckBox,
+OutputConsole::OutputConsole(const char *title, int style,
                              MenuBarMaker *menuBarMaker)
     : wxFrame(NULL, wxID_ANY, title, wxPoint(50, 50), wxDefaultSize,
               wxDEFAULT_FRAME_STYLE) {
-  enableCheckBox_ = enableCheckBox;
   menuBarMaker_ = menuBarMaker;
   outerSizer_ = new wxBoxSizer(wxVERTICAL);
   output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0),
       wxSize(650, 450), wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP,
       wxDefaultValidator);
   outerSizer_->Add(output_, 1, wxEXPAND);
+  style_ = style;
   gfxCheckBox_ = 0;
-  if (enableCheckBox_) {
+  abortButton_ = 0;
+  if (style != CONSOLE_PLAIN) {
     wxBoxSizer *bottomSizer = new wxBoxSizer(wxHORIZONTAL);
     wxPanel *bottomPanel = new wxPanel(this);
-    gfxCheckBox_ = new wxCheckBox(bottomPanel, wxID_ANY, "Enable Gfx");
     bottomSizer->AddStretchSpacer(1);
-    bottomSizer->Add(gfxCheckBox_, 0, wxALIGN_RIGHT | wxALL, 4);
+    if (style == CONSOLE_SHIP_STAGE) {
+      gfxCheckBox_ = new wxCheckBox(bottomPanel, wxID_ANY, "Enable Gfx");
+      bottomSizer->Add(gfxCheckBox_, 0, wxALIGN_RIGHT | wxALL, 4);
+    } else if (style == CONSOLE_RUNNER) {
+      abortButton_ = new wxButton(bottomPanel, wxID_ANY, "Abort");
+      bottomSizer->Add(abortButton_, 0, wxALIGN_RIGHT | wxALL, 4);
+    }
     bottomPanel->SetSizerAndFit(bottomSizer);
     outerSizer_->Add(bottomPanel, 0, wxEXPAND);
   }
@@ -70,9 +76,12 @@ OutputConsole::OutputConsole(const char *title, bool enableCheckBox,
           wxActivateEventHandler(OutputConsole::onActivate));
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(OutputConsole::onClose));
-  if (enableCheckBox_) {
+  if (style == CONSOLE_SHIP_STAGE) {
     Connect(gfxCheckBox_->GetId(), wxEVT_COMMAND_CHECKBOX_CLICKED,
             wxCommandEventHandler(OutputConsole::onCheck));
+  } else if (style == CONSOLE_RUNNER) {
+    Connect(abortButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+            wxCommandEventHandler(OutputConsole::onAbort));
   }
   
   eventFilter_ = new OutputConsoleEventFilter(this);
@@ -161,6 +170,12 @@ void OutputConsole::onCheck(wxCommandEvent &event) {
 
 bool OutputConsole::isChecked() {
   return gfxCheckBox_->IsChecked();
+}
+
+void OutputConsole::onAbort(wxCommandEvent &event) {
+  if (listener_ != 0 && abortButton_ != 0) {
+    listener_->onAbort();
+  }
 }
 
 // TODO: delta based on current text size, eg 36 => 42, not 38

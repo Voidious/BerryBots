@@ -41,6 +41,7 @@ class GuiGameRunner : public GameRunner {
   int threadCount_;
   bool started_;
   bool quitting_;
+  lua_State *runnerState_;
   BerryBotsRunner *bbRunner_;
   Zipper *zipper_;
 

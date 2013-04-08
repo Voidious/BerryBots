@@ -76,6 +76,7 @@ class GuiManager {
   OutputConsole *runnerConsole_;
   OutputConsole *previewConsole_;
   ConsoleListener *previewConsoleListener_;
+  ConsoleListener *runnerConsoleListener_;
   MenuBarMaker *menuBarMaker_;
   GfxManager *gfxManager_;
   GfxManager *previewGfxManager_;
@@ -142,6 +143,7 @@ class GuiManager {
     void processPreviewWindowEvents(sf::RenderWindow *window,
         GfxManager *gfxManager, int viewWidth, int viewHeight);
     void launchGameRunner(const char *runnerName);
+    void abortGameRunner();
     void showNewMatchDialog();
     void showPackageShipDialog();
     void showPackageStageDialog();
@@ -318,6 +320,7 @@ class StageConsoleListener : public ConsoleListener {
     virtual void onActive() {};
     virtual void onClose() {};
     virtual void onCheck(bool checked);
+    virtual void onAbort() {};
     virtual ~StageConsoleListener() {};
 };
 
@@ -329,8 +332,20 @@ class PreviewConsoleListener : public ConsoleListener {
     virtual void onActive() {};
     virtual void onClose();
     virtual void onCheck(bool checked) {};
+    virtual void onAbort() {};
     virtual ~PreviewConsoleListener() {};
+};
+
+class RunnerConsoleListener : public ConsoleListener {
+  GuiManager *guiManager_;
   
+  public:
+    RunnerConsoleListener(GuiManager *guiManager);
+    virtual void onActive() {};
+    virtual void onClose() {};
+    virtual void onCheck(bool checked) {};
+    virtual void onAbort();
+    virtual ~RunnerConsoleListener() {};
 };
 
 class ViewListener : public GfxViewListener {

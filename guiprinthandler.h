@@ -61,6 +61,7 @@ class TeamConsoleListener : public ConsoleListener {
     virtual void onActive();
     virtual void onClose() {};
     virtual void onCheck(bool checked);
+    virtual void onAbort() {};
     virtual ~TeamConsoleListener() {};
 };
 

@@ -47,6 +47,7 @@ GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
   threadCount_ = 1;
   started_ = false;
   quitting_ = false;
+  runnerState_ = 0;
   bbRunner_ = 0;
 }
 
@@ -186,6 +187,10 @@ void GuiGameRunner::quit() {
   quitting_ = true;
   if (bbRunner_ != 0) {
     bbRunner_->quit();
+    // TODO: pretty sure we need a mutex here
+    if (runnerState_ != 0) {
+      lua_sethook(runnerState_, abortHook, LUA_MASKCOUNT, 1);
+    }
   }
 }
 
@@ -255,18 +260,17 @@ void GuiGameRunner::run(const char *runnerName) {
   runnerConsole_->Show();
   runnerConsole_->Raise();
 
-  lua_State *runnerState;
   std::string runnersDir = getRunnersDir();
-  initRunnerState(&runnerState, runnersDir.c_str());
+  initRunnerState(&runnerState_, runnersDir.c_str());
 
   bool error = false;
   bool opened = false;
-  if (luaL_loadfile(runnerState, runnerName)) {
+  if (luaL_loadfile(runnerState_, runnerName)) {
     runnerConsole_->print("Error loading game runner file: ");
     runnerConsole_->println(runnerName);
     error = true;
   } else {
-    if (lua_pcall(runnerState, 0, 0, 0)) {
+    if (lua_pcall(runnerState_, 0, 0, 0)) {
       opened = true;
       error = true;
     } else {
@@ -277,20 +281,20 @@ void GuiGameRunner::run(const char *runnerName) {
   }
 
   if (error) {
-    const char *luaMessage = lua_tostring(runnerState, -1);
+    const char *luaMessage = lua_tostring(runnerState_, -1);
     runnerConsole_->println(luaMessage);
   } else {
-    lua_pushcfunction(runnerState, traceback);
-    int errfunc = lua_gettop(runnerState);
-    lua_getglobal(runnerState, "run");
-    pushRunnerForm(runnerState, this);
-    pushGameRunner(runnerState, this);
-    pushRunnerFiles(runnerState, this);
+    lua_pushcfunction(runnerState_, traceback);
+    int errfunc = lua_gettop(runnerState_);
+    lua_getglobal(runnerState_, "run");
+    pushRunnerForm(runnerState_, this);
+    pushGameRunner(runnerState_, this);
+    pushRunnerFiles(runnerState_, this);
 
-    int pcallValue = lua_pcall(runnerState, 3, 0, errfunc);
-    lua_remove(runnerState, errfunc);
+    int pcallValue = lua_pcall(runnerState_, 3, 0, errfunc);
+    lua_remove(runnerState_, errfunc);
     if (pcallValue != 0) {
-      const char *luaMessage = lua_tostring(runnerState, -1);
+      const char *luaMessage = lua_tostring(runnerState_, -1);
       runnerConsole_->println(luaMessage);
     } else {
       runnerConsole_->println();
@@ -300,10 +304,12 @@ void GuiGameRunner::run(const char *runnerName) {
   }
 
   if (opened) {
-    lua_close(runnerState);
+    lua_close(runnerState_);
+    runnerState_ = 0;
   }
 
   if (bbRunner_ != 0) {
     bbRunner_->quit();
   }
+  runnerState_ = 0;
 }

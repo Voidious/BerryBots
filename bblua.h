@@ -67,6 +67,7 @@ extern int registerRunnerFiles(lua_State *L);
 extern int registerRunnerGlobals(lua_State *L);
 
 extern void killHook(lua_State *L, lua_Debug *ar);
+extern void abortHook(lua_State *L, lua_Debug *ar);
 extern void initStageState(lua_State **stageState, const char *stageCwd);
 extern void initShipState(lua_State **shipState, const char *shipCwd);
 extern void initRunnerState(lua_State **runnerState, const char *runnerCwd);

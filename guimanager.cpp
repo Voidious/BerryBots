@@ -64,15 +64,19 @@ GuiManager::GuiManager(GuiListener *listener) {
   fileManager_ = new FileManager(zipper_);
   gameRunner_ = 0;
   menuBarMaker_ = new MenuBarMaker();
-  packagingConsole_ = new OutputConsole("Packaging Details", false,
+  packagingConsole_ = new OutputConsole("Packaging Details", CONSOLE_PLAIN,
                                         menuBarMaker_);
-  errorConsole_ = new OutputConsole("Error Console", false, menuBarMaker_);
-  runnerConsole_ = new OutputConsole("Game Runner Console", false,
+  errorConsole_ = new OutputConsole("Error Console", CONSOLE_PLAIN,
+                                    menuBarMaker_);
+  runnerConsole_ = new OutputConsole("Game Runner Console", CONSOLE_RUNNER,
                                      menuBarMaker_);
-  previewConsole_ = new OutputConsole("Description", false, menuBarMaker_);
+  previewConsole_ = new OutputConsole("Description", CONSOLE_PLAIN,
+                                      menuBarMaker_);
   previewConsole_->setCloseOnSpace();
   previewConsoleListener_ = new PreviewConsoleListener(this);
   previewConsole_->setListener(previewConsoleListener_);
+  runnerConsoleListener_ = new RunnerConsoleListener(this);
+  runnerConsole_->setListener(runnerConsoleListener_);
   packagingConsole_->SetPosition(wxPoint(150, 100));
   newMatchListener_ = new MatchStarter(this, stagesBaseDir_, shipsBaseDir_);
   newMatchDialog_ = new NewMatchDialog(newMatchListener_, menuBarMaker_);
@@ -135,6 +139,7 @@ GuiManager::~GuiManager() {
   delete runnerConsole_;
   delete previewConsole_;
   delete previewConsoleListener_;
+  delete runnerConsoleListener_;
   delete menuBarMaker_;
   delete stagesBaseDir_;
   delete shipsBaseDir_;
@@ -576,7 +581,8 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     guiPrintHandler->restartMode();
   } else {
     deleteStageConsole();
-    stageConsole_ = new OutputConsole(stageName, true, menuBarMaker_);
+    stageConsole_ = new OutputConsole(stageName, CONSOLE_SHIP_STAGE,
+                                      menuBarMaker_);
     stageConsole_->Hide();
 
     if (printHandler != 0) {
@@ -978,6 +984,13 @@ void GuiManager::launchGameRunner(const char *runnerName) {
   delete shipNames;
   delete printHandler;
   printHandler = 0;
+}
+
+void GuiManager::abortGameRunner() {
+  // TODO: pretty sure we need a mutex here
+  if (gameRunner_ != 0) {
+    gameRunner_->quit();
+  }
 }
 
 void GuiManager::showNewMatchDialog() {
@@ -1726,6 +1739,14 @@ PreviewConsoleListener::PreviewConsoleListener(GuiManager *guiManager) {
 
 void PreviewConsoleListener::onClose() {
   guiManager_->closeStagePreview();
+}
+
+RunnerConsoleListener::RunnerConsoleListener(GuiManager *guiManager) {
+  guiManager_ = guiManager;
+}
+
+void RunnerConsoleListener::onAbort() {
+  guiManager_->abortGameRunner();
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

@@ -24,11 +24,16 @@
 #include <wx/wx.h>
 #include "menubarmaker.h"
 
+#define CONSOLE_PLAIN       1
+#define CONSOLE_SHIP_STAGE  2
+#define CONSOLE_RUNNER      3
+
 class ConsoleListener {
   public:
     virtual void onActive() = 0;
     virtual void onClose() = 0;
     virtual void onCheck(bool checked) = 0;
+    virtual void onAbort() = 0;
     virtual ~ConsoleListener() {};
 };
 
@@ -36,18 +41,18 @@ class OutputConsole : public wxFrame {
   wxBoxSizer *outerSizer_;
   wxTextCtrl *output_;
   wxCheckBox *gfxCheckBox_;
+  wxButton *abortButton_;
   MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
   wxEventFilter *eventFilter_;
   int defaultFontSize_;
   int fontSize_;
   bool closeOnSpace_;
-  bool enableCheckBox_;
+  int style_;
   ConsoleListener *listener_;
 
   public:
-    OutputConsole(const char *title, bool enableCheckBox,
-                  MenuBarMaker *menuBarMaker);
+    OutputConsole(const char *title, int style, MenuBarMaker *menuBarMaker);
     ~OutputConsole();
     void setListener(ConsoleListener *listener);
     void onActivate(wxActivateEvent &event);
@@ -59,6 +64,7 @@ class OutputConsole : public wxFrame {
     void onSpace();
     void onCheck(wxCommandEvent &event);
     bool isChecked();
+    void onAbort(wxCommandEvent &event);
     void increaseTextSize();
     void decreaseTextSize();
     void defaultTextSize();
