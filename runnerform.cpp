@@ -20,6 +20,7 @@
 
 #include <string.h>
 #include <wx/wx.h>
+#include <wx/valnum.h>
 #include "bbwx.h"
 #include "gamerunner.h"
 #include "runnerform.h"
@@ -109,13 +110,16 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
   nameString.append(":");
   wxStaticText *nameLabel = new wxStaticText(mainPanel_, wxID_ANY, nameString);
   if (type == TYPE_INTEGER_TEXT) {
+    wxIntegerValidator<int> validator;
     wxTextCtrl *elementText = new wxTextCtrl(mainPanel_, wxID_ANY, "",
-        wxDefaultPosition, wxSize(70, 23));
+        wxDefaultPosition, wxSize(70, 23), 0, validator);
     wxBoxSizer *textSizer = new wxBoxSizer(wxHORIZONTAL);
     textSizer->Add(nameLabel, 0, wxALIGN_CENTER);
     textSizer->AddSpacer(5);
     textSizer->Add(elementText, 0, wxALIGN_CENTER);
     colSizer->Add(textSizer);
+    Connect(elementText->GetId(), wxEVT_UPDATE_UI,
+            wxUpdateUIEventHandler(RunnerForm::onFormChange));
     return elementText;
   } else if (type == TYPE_OK_CANCEL) {
     wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
@@ -153,6 +157,8 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
     selectSizer->AddSpacer(3);
     selectSizer->Add(itemSelect);
     colSizer->Add(selectSizer);
+    Connect(itemSelect->GetId(), wxEVT_UPDATE_UI,
+            wxUpdateUIEventHandler(RunnerForm::onFormChange));
     return itemSelect;
   }
 }
@@ -191,6 +197,34 @@ void RunnerForm::onClose(wxCommandEvent &event) {
   Hide();
 }
 
+void RunnerForm::onFormChange(wxUpdateUIEvent &event) {
+  bool valid = true;
+  for (int x = 0; x < numElements_; x++) {
+    RunnerFormElement *element = formElements_[x];
+    wxControl *control = element->getControl();
+    int type = element->getType();
+    if (type == TYPE_INTEGER_TEXT) {
+      if (((wxTextCtrl *) control)->GetValue().size() == 0) {
+        valid = false;
+        break;
+      }
+    } else if (type == TYPE_SINGLE_SHIP_SELECT || type == TYPE_STAGE_SELECT) {
+      wxListBox *listBox = (wxListBox *) control;
+      wxArrayInt selectedIndex;
+      listBox->GetSelections(selectedIndex);
+      if (selectedIndex.Count() == 0) {
+        valid = false;
+        break;
+      }
+    }
+  }
+  if (valid) {
+    okButton_->Enable();
+  } else {
+    okButton_->Disable();
+  }
+}
+
 bool RunnerForm::isDone() {
   return done_;
 }
@@ -198,6 +232,7 @@ bool RunnerForm::isDone() {
 bool RunnerForm::isOk() {
   return ok_;
 }
+
 RunnerFormElement::RunnerFormElement(const char *name, int type,
                                      int maxStringValues) {
   name_ = new char[strlen(name) + 1];

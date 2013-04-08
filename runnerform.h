@@ -77,6 +77,7 @@ class RunnerForm : public wxFrame {
     void onCancel(wxCommandEvent &event);
     void onOk(wxCommandEvent &event);
     void onClose(wxCommandEvent &event);
+    void onFormChange(wxUpdateUIEvent &event);
     bool isDone();
     bool isOk();
   private:
