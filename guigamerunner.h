@@ -73,4 +73,10 @@ class GuiGameRunner : public GameRunner {
     RunnerFormElement* getFormElement(const char *name);
 };
 
+class GuiRefresherListener : public RefresherListener {
+  public:
+    GuiRefresherListener();
+    virtual void refresh();
+};
+
 #endif

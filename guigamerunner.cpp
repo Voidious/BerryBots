@@ -215,6 +215,7 @@ void GuiGameRunner::queueMatch(const char *stageName, char **teamNames,
                                int numTeams) {
   if (!started_) {
     bbRunner_ = new BerryBotsRunner(threadCount_, zipper_);
+    bbRunner_->setListener(new GuiRefresherListener());
     started_ = true;
   }
   bbRunner_->queueMatch(stageName, teamNames, numTeams);
@@ -312,4 +313,12 @@ void GuiGameRunner::run(const char *runnerName) {
     bbRunner_->quit();
   }
   runnerState_ = 0;
+}
+
+GuiRefresherListener::GuiRefresherListener() {
+  
+}
+
+void GuiRefresherListener::refresh() {
+  wxYield();
 }

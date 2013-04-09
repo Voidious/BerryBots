@@ -34,6 +34,7 @@ BerryBotsRunner::BerryBotsRunner(int threadCount, Zipper *zipper) {
   strcpy(shipsDir_, getShipsDir().c_str());
   cacheDir_ = new char[getCacheDir().length() + 1];
   strcpy(cacheDir_, getCacheDir().c_str());
+  listener_ = 0;
 
   schedulerSettings_ = new SchedulerSettings;
   schedulerSettings_->numMatches = 0;
@@ -50,6 +51,9 @@ BerryBotsRunner::~BerryBotsRunner() {
   delete stagesDir_;
   delete shipsDir_;
   delete cacheDir_;
+  if (listener_ != 0) {
+    delete listener_;
+  }
 }
 
 void BerryBotsRunner::queueMatch(const char *stageName, char **teamNames,
@@ -77,6 +81,9 @@ MatchResult* BerryBotsRunner::nextResult() {
           return nextResult;
         }
       }
+      if (listener_ != 0) {
+        listener_->refresh();
+      }
       platformstl::micro_sleep(SLEEP_INTERVAL);
     }
   }
@@ -94,6 +101,13 @@ bool BerryBotsRunner::allResultsProcessed() {
 
 void BerryBotsRunner::quit() {
   schedulerSettings_->done = true;
+}
+
+void BerryBotsRunner::setListener(RefresherListener *listener) {
+  if (listener_ != 0) {
+    delete listener_;
+  }
+  listener_ = listener;
 }
 
 void *BerryBotsRunner::scheduler(void *vargs) {

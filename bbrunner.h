@@ -27,6 +27,12 @@
 #include <pthread.h>
 #include "zipper.h"
 
+class RefresherListener {
+  public:
+    virtual void refresh() = 0;
+    virtual ~RefresherListener() {};
+};
+
 class MatchConfig {
   char *stagesDir_;
   char *shipsDir_;
@@ -95,6 +101,7 @@ class BerryBotsRunner {
   char *cacheDir_;
   pthread_t schedulerThread_;
   SchedulerSettings *schedulerSettings_;
+  RefresherListener *listener_;
 
   public:
     BerryBotsRunner(int threadCount, Zipper *zipper);
@@ -103,6 +110,7 @@ class BerryBotsRunner {
     MatchResult* nextResult();
     bool allResultsProcessed();
     void quit();
+    void setListener(RefresherListener *listener);
     static void* scheduler(void *vargs);
     static void* runMatch(void *vargs);
 };
