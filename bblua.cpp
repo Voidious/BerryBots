@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <sstream>
+#include "basedir.h"
 #include "stage.h"
 #include "sensorhandler.h"
 #include "bbengine.h"
@@ -2036,22 +2037,77 @@ LuaRunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner) {
   return files;
 }
 
+char* checkFilename(lua_State *L, int index) {
+  const char *rawFilename = luaL_checkstring(L, index);
+  char *filename = new char[strlen(rawFilename) + 1];
+  strcpy(filename, rawFilename);
+  FileManager::fixSlashes(filename);
+  if (FileManager::isAbsPath(filename)) {
+    delete filename;
+    luaL_error(L, "Can't read from absolute paths.");
+    return 0;
+  } else {
+    char *runnersDir = new char[getRunnersDir().size() + 1];
+    strcpy(runnersDir, getRunnersDir().c_str());
+    char *absFilename = FileManager::getFilePath(runnersDir, filename);
+    bool error = false;
+    if (strncmp(runnersDir, absFilename, strlen(runnersDir))) {
+      error = true;
+    }
+    delete filename;
+    delete runnersDir;
+    if (error) {
+      delete absFilename;
+      luaL_error(L, "Can only read from below runners directory.");
+      return 0;
+    } else {
+      return absFilename;
+    }
+  }
+}
+
 int RunnerFiles_exists(lua_State *L) {
-  LuaRunnerFiles *files = checkRunnerFiles(L, 1);
-  const char *filename = luaL_checkstring(L, 2);
-  lua_pushboolean(L, false);
+  checkRunnerFiles(L, 1);
+  char *filename = checkFilename(L, 2);
+  lua_pushboolean(L, FileManager::fileExists(filename));
+  delete filename;
   return 1;
 }
 
 int RunnerFiles_read(lua_State *L) {
-  LuaRunnerFiles *files = checkRunnerFiles(L, 1);
-  const char *filename = luaL_checkstring(L, 2);
+  char *filename = checkFilename(L, 2);
+  if (FileManager::fileExists(filename)) {
+    try {
+      char *fileContents = FileManager::readFile(filename);
+      lua_pushstring(L, fileContents);
+      delete fileContents;
+    } catch (FileNotFoundException *e) {
+      delete e;
+      lua_pushnil(L);
+    }
+  } else {
+    lua_pushnil(L);
+  }
+  delete filename;
+  return 1;
+}
+
+int RunnerFiles_write(lua_State *L) {
+  char *filename = checkFilename(L, 2);
+  if (lua_isstring(L, 3)) {
+    FileManager::writeFile(filename, lua_tostring(L, 3));
+    delete filename;
+  } else {
+    delete filename;
+    luaL_error(L, "No file contents.");
+  }
   return 1;
 }
 
 const luaL_Reg RunnerFiles_methods[] = {
   {"exists",  RunnerFiles_exists},
   {"read",    RunnerFiles_read},
+  {"write",   RunnerFiles_write},
   {0, 0}
 };
 

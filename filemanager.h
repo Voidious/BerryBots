@@ -25,6 +25,8 @@
 #include "bblua.h"
 #include "zipper.h"
 
+#define MAX_LINE_LENGTH  16384
+
 extern "C" {
   #include "lua.h"
 }
@@ -121,6 +123,7 @@ class FileManager {
                       const char *luaCwd)
         throw (LuaException*);
     void deleteFromCache(const char *cacheDir, const char *filename);
+    static bool isAbsPath(const char *filename);
     static char* getFilePath(const char *dir, const char *filename);
     static char* getAbsFilePath(const char *filename);
     static char* parseDir(const char *dirAndFilename);
@@ -132,6 +135,9 @@ class FileManager {
     static char* stripExtension(const char *filename);
     static bool isDirectory(const char *filePath);
     static bool fileExists(const char *filename);
+    static void fixSlashes(char *filename);
+    static char* readFile(const char *filename) throw (FileNotFoundException*);
+    static void writeFile(const char *filename, const char *contents);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);

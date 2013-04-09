@@ -79,11 +79,7 @@ char* FileManager::loadUserLuaFilename(char *userDirPath,
       break;
     }
   }
-  for (int x = 0; x < userLuaLen; x++) {
-    if (userLuaFilename[x] == '/' || userLuaFilename[x] == '\\') {
-      userLuaFilename[x] = BB_DIRSEP_CHR;
-    }
-  }
+  fixSlashes(userLuaFilename);
   return userLuaFilename;
 }
 
@@ -95,15 +91,18 @@ void FileManager::sliceString(char *filename, long start, long rest) {
   filename[filenameLen - (rest - start)] = '\0';
 }
 
-char* FileManager::getFilePath(const char *dir, const char *filename) {
-  char *absFilename;
+bool FileManager::isAbsPath(const char *filename) {
 #ifdef __WIN32__
-  bool pathFromRoot = (filename[0] == BB_DIRSEP_CHR)
+  return (filename[0] == BB_DIRSEP_CHR)
       || (strlen(filename) >= 3 && strncmp(&(filename[1]), ":\\", 2) == 0);
 #else
-  bool pathFromRoot = (filename[0] == BB_DIRSEP_CHR);
+  return (filename[0] == BB_DIRSEP_CHR);
 #endif
-  if (pathFromRoot || dir == 0) {
+}
+
+char* FileManager::getFilePath(const char *dir, const char *filename) {
+  char *absFilename;
+  if (isAbsPath(filename) || dir == 0) {
     absFilename = new char[strlen(filename) + 1];
     strcpy(absFilename, filename);
     return absFilename;
@@ -756,6 +755,39 @@ bool FileManager::fileExists(const char *filename) {
     fclose(testFile);
   }
   return exists || isDirectory(filename);
+}
+
+void FileManager::fixSlashes(char *filename) {
+  int filenameLen = (int) strlen(filename);
+  for (int x = 0; x < filenameLen; x++) {
+    if (filename[x] == '/' || filename[x] == '\\') {
+      filename[x] = BB_DIRSEP_CHR;
+    }
+  }
+}
+
+char* FileManager::readFile(const char *filename)
+    throw (FileNotFoundException*) {
+  FILE *f = fopen(filename, "r");
+  if (f == 0) {
+    throw new FileNotFoundException(filename);
+  }
+
+  std::string contentsString;
+  char line[MAX_LINE_LENGTH];
+  while (fgets(line, MAX_LINE_LENGTH, f) != NULL) {
+    contentsString.append(line);
+  }
+  fclose(f);
+  char *contents = new char[contentsString.size() + 1];
+  strcpy(contents, contentsString.c_str());
+  return contents;
+}
+
+void FileManager::writeFile(const char *filename, const char *contents) {
+  FILE *f = fopen(filename, "w");
+  fputs(contents, f);
+  fclose(f);
 }
 
 bool FileManager::isDirectory(const char *filePath) {

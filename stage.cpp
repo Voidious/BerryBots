@@ -31,6 +31,7 @@
 #include "circle2d.h"
 #include "point2d.h"
 #include "line2d.h"
+#include "filemanager.h"
 
 Stage::Stage(int width, int height) {
   name_ = 0;
@@ -256,8 +257,10 @@ int Stage::addStageShip(const char *stageShipFilename) {
   if (numStageShips_ >= MAX_STAGE_SHIPS) {
     return 0;
   } else {
-    char *newStageShip = new char[strlen(stageShipFilename) + 1];
+    int filenameLen = (int) strlen(stageShipFilename);
+    char *newStageShip = new char[filenameLen + 1];
     strcpy(newStageShip, stageShipFilename);
+    FileManager::fixSlashes(newStageShip);
     stageShips_[numStageShips_++] = newStageShip;
     return 1;
   }
