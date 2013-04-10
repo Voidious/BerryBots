@@ -137,9 +137,24 @@ void *BerryBotsRunner::scheduler(void *vargs) {
     }
   }
 
+  bool pendingMatches = false;
+  do {
+    for (int x = 0; x < settings->numMatches; x++) {
+      MatchConfig *config = settings->matches[x];
+      if (config->isStarted() && !config->isFinished()) {
+        pendingMatches = true;
+        break;
+      }
+      if (pendingMatches) {
+        platformstl::micro_sleep(SLEEP_INTERVAL);
+      }
+    }
+  } while (pendingMatches);
+
   for (int x = 0; x < settings->numMatches; x++) {
     delete settings->matches[x];
   }
+
   delete settings;
   return 0;
 }
@@ -172,13 +187,11 @@ void* BerryBotsRunner::runMatch(void *vargs) {
     aborted = true;
     delete e;
   }
-  if (engine->isGameOver()) {
-    const char *winner = engine->getWinnerName();
-    if (winner != 0) {
-      config->setWinnerName(winner);
-    }
-    config->finished();
+  const char *winner = engine->getWinnerName();
+  if (engine->isGameOver() && winner != 0) {
+    config->setWinnerName(winner);
   }
+  config->finished();
   delete engine;
   delete fileManager;
 
