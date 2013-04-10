@@ -49,7 +49,7 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
     wxControl *control = addFormElement(colHeight, numCols, topSizer, colSizer,
         element->getName(), element->getType(), stageNames, numStages,
         shipNames, numShips);
-    setFormDefaults(control, element);
+    setFormValues(control, element);
     element->setControl(control);
   }
   addFormElement(colHeight, numCols, topSizer, colSizer, "",
@@ -163,20 +163,20 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
   }
 }
 
-void RunnerForm::setFormDefaults(wxControl *control,
+void RunnerForm::setFormValues(wxControl *control,
                                  RunnerFormElement *element) {
   if (element->getType() == TYPE_INTEGER_TEXT) {
     ((wxTextCtrl *) control)->SetValue(
-        wxString::Format(wxT("%i"), element->getDefaultIntegerValue()));
+        wxString::Format(wxT("%i"), element->getIntegerValue()));
   } else {
     wxListBox *listBox = (wxListBox *) control;
-    int numDefaultValues = element->getNumDefaultStringValues();
-    char** defaultValues = element->getDefaultStringValues();
-    for (int x = 0; x < numDefaultValues; x++) {
+    int numStringValues = element->getNumStringValues();
+    char** stringValues = element->getStringValues();
+    for (int x = 0; x < numStringValues; x++) {
       int numSelectStrings = listBox->GetCount();
       for (int y = 0; y < numSelectStrings; y++) {
         wxString itemName = listBox->GetString(y);
-        if (strcmp(itemName.c_str(), defaultValues[x]) == 0) {
+        if (strcmp(itemName.c_str(), stringValues[x]) == 0) {
           listBox->Select(y);
         }
       }
@@ -240,11 +240,8 @@ RunnerFormElement::RunnerFormElement(const char *name, int type,
   type_ = type;
   numStringValues_ = 0;
   maxStringValues_ = maxStringValues;
-  numDefaultStringValues_ = 0;
   stringValues_ = new char*[maxStringValues_];
-  defaultStringValues_ = new char*[maxStringValues_];
   intValue_ = 0;
-  defaultIntValue_ = 0;
   control_ = 0;
 }
 
@@ -254,10 +251,6 @@ RunnerFormElement::~RunnerFormElement() {
     delete stringValues_[x];
   }
   delete stringValues_;
-  for (int x = 0; x < numDefaultStringValues_; x++) {
-    delete defaultStringValues_[x];
-  }
-  delete defaultStringValues_;
 }
 
 const char* RunnerFormElement::getName() {
@@ -284,22 +277,6 @@ int RunnerFormElement::getNumStringValues() {
   return numStringValues_;
 }
 
-void RunnerFormElement::addDefaultStringValue(const char *value) {
-  if (numDefaultStringValues_ < maxStringValues_) {
-    char *newValue = new char[strlen(value) + 1];
-    strcpy(newValue, value);
-    defaultStringValues_[numDefaultStringValues_++] = newValue;
-  }
-}
-
-char** RunnerFormElement::getDefaultStringValues() {
-  return defaultStringValues_;
-}
-
-int RunnerFormElement::getNumDefaultStringValues() {
-  return numDefaultStringValues_;
-}
-
 void RunnerFormElement::setIntegerValue(int value) {
   intValue_ = value;
 }
@@ -308,20 +285,12 @@ int RunnerFormElement::getIntegerValue() {
   return intValue_;
 }
 
-void RunnerFormElement::setDefaultIntegerValue(int value) {
-  defaultIntValue_ = value;
-}
-
-int RunnerFormElement::getDefaultIntegerValue() {
-  return defaultIntValue_;
-}
-
-void RunnerFormElement::clearDefaults() {
-  for (int x = 0; x < numDefaultStringValues_; x++) {
-    delete defaultStringValues_[x];
+void RunnerFormElement::clearValues() {
+  for (int x = 0; x < numStringValues_; x++) {
+    delete stringValues_[x];
   }
-  numDefaultStringValues_ = 0;
-  defaultIntValue_ = 0;
+  numStringValues_ = 0;
+  intValue_ = 0;
 }
 
 void RunnerFormElement::setControl(wxControl *control) {

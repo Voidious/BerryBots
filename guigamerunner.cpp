@@ -93,10 +93,10 @@ void GuiGameRunner::setDefault(const char *name, const char *value) {
   RunnerFormElement *element = getFormElement(name);
   int type = element->getType();
   if (type == TYPE_MULTI_SHIP_SELECT) {
-    element->addDefaultStringValue(value);
+    element->addStringValue(value);
   } else if (type == TYPE_STAGE_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
-    element->clearDefaults();
-    element->addDefaultStringValue(value);
+    element->clearValues();
+    element->addStringValue(value);
   }
 }
 
@@ -104,7 +104,7 @@ void GuiGameRunner::setDefault(const char *name, int value) {
   // TODO: Error handling if the key doesn't exist or is the wrong type.
   RunnerFormElement *element = getFormElement(name);
   if (element->getType() == TYPE_INTEGER_TEXT) {
-    element->setDefaultIntegerValue(value);
+    element->setIntegerValue(value);
   }
 }
 
@@ -121,6 +121,7 @@ bool GuiGameRunner::ok() {
   if (form->isOk()) {
     for (int x = 0; x < numFormElements_; x++) {
       RunnerFormElement *element = formElements_[x];
+      element->clearValues();
       wxControl *control = element->getControl();
       if (element->getType() == TYPE_INTEGER_TEXT) {
         wxString integerString = ((wxTextCtrl *) control)->GetValue();

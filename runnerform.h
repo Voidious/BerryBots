@@ -33,9 +33,6 @@ class RunnerFormElement {
   int numStringValues_;
   int maxStringValues_;
   int intValue_;
-  char** defaultStringValues_;
-  int numDefaultStringValues_;
-  int defaultIntValue_;
   wxControl *control_;
 
   public:
@@ -46,14 +43,9 @@ class RunnerFormElement {
     void addStringValue(const char *value);
     char** getStringValues();
     int getNumStringValues();
-    void addDefaultStringValue(const char *value);
-    char** getDefaultStringValues();
-    int getNumDefaultStringValues();
     void setIntegerValue(int value);
     int getIntegerValue();
-    void setDefaultIntegerValue(int value);
-    int getDefaultIntegerValue();
-    void clearDefaults();
+    void clearValues();
     void setControl(wxControl *control);
     wxControl* getControl();
 };
@@ -84,7 +76,7 @@ class RunnerForm : public wxFrame {
     wxControl* addFormElement(int &colHeight, int &numCols,
         wxBoxSizer *topSizer, wxBoxSizer *&colSizer, const char *name, int type,
         char **stageNames, int numStages, char **shipNames, int numShips);
-    void setFormDefaults(wxControl *control, RunnerFormElement *element);
+    void setFormValues(wxControl *control, RunnerFormElement *element);
 };
 
 #endif
