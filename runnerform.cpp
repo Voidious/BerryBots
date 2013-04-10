@@ -27,12 +27,18 @@
 
 RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
                        int numElements, char **stageNames, int numStages,
-                       char **shipNames, int numShips)
+                       char **shipNames, int numShips, const char *message)
     : wxFrame(NULL, wxID_ANY, runnerName, wxPoint(50, 50), wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   formElements_ = formElements;
   numElements_ = numElements;
   ok_ = done_ = false;
+  if (message == 0) {
+    message_ = 0;
+  } else {
+    message_ = new char[strlen(message) + 1];
+    strcpy(message_, message);
+  }
 
   mainPanel_ = new wxPanel(this);
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
@@ -86,6 +92,9 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
 
 RunnerForm::~RunnerForm() {
   // TODO: figure out if I need to track and delete the controls
+  if (message_ != 0) {
+    delete message_;
+  }
 }
 
 wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
@@ -115,6 +124,12 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
     buttonSizer->AddStretchSpacer(1);
     colSizer->AddSpacer(10);
     colSizer->Add(buttonSizer, 0, wxEXPAND | wxALIGN_CENTER);
+    if (message_ != 0) {
+      wxStaticText *msgText = new wxStaticText(mainPanel_, wxID_ANY, message_);
+      msgText->Wrap(265);
+      colSizer->AddSpacer(15);
+      colSizer->Add(msgText);
+    }
     return 0;
   } else {
     std::string nameString(name);

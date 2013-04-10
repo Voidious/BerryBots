@@ -1876,7 +1876,11 @@ int RunnerForm_default(lua_State *L) {
 
 int RunnerForm_ok(lua_State *L) {
   LuaRunnerForm *form = checkRunnerForm(L, 1);
-  lua_pushboolean(L, form->gameRunner->ok());
+  const char *message = 0;
+  if (lua_isstring(L, 2)) {
+    message = lua_tostring(L, 2);
+  }
+  lua_pushboolean(L, form->gameRunner->ok(message));
   return 1;
 }
 

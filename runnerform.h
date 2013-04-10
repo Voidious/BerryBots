@@ -60,11 +60,12 @@ class RunnerForm : public wxFrame {
   wxBoxSizer *borderSizer_;
   bool done_;
   bool ok_;
+  char *message_;
 
   public:
     RunnerForm(const char *runnerName, RunnerFormElement **formElements,
         int numElements, char **stageNames, int numStages, char **shipNames,
-        int numShips);
+        int numShips, const char *message);
     ~RunnerForm();
     void onCancel(wxCommandEvent &event);
     void onOk(wxCommandEvent &event);

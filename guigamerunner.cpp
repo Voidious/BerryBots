@@ -108,9 +108,10 @@ void GuiGameRunner::setDefault(const char *name, int value) {
   }
 }
 
-bool GuiGameRunner::ok() {
+bool GuiGameRunner::ok(const char *message) {
   RunnerForm *form = new RunnerForm(runnerName_, formElements_,
-      numFormElements_, stageNames_, numStages_, teamNames_, numTeams_);
+      numFormElements_, stageNames_, numStages_, teamNames_, numTeams_,
+      message);
   form->Show();
   form->Raise();
   while (!form->isDone() && !quitting_) {
