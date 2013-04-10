@@ -116,7 +116,10 @@ class BerryBotsEngine {
     bool isRoundOver();
     void setGameOver(bool gameOver);
     bool isGameOver();
-    void setWinnerName(const char* winnerName);
+    void setWinnerName(const char *winnerName);
+    void setRank(const char *teamName, int rank);
+    void setScore(const char *teamName, double score);
+    void setStatistic(const char *teamName, const char *key, double value);
     const char* getWinnerName();
 
     void initStage(const char *stagesBaseDir, const char *stageName,

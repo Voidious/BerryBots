@@ -1612,15 +1612,53 @@ int Admin_shipFriendlyDamage(lua_State *L) {
   return 1;
 }
 
+const char* getTeamName(lua_State *L, int index) {
+  if (lua_isstring(L, index)) {
+    return luaL_checkstring(L, index);
+  } else if (lua_isuserdata(L, index)) {
+    Ship *ship = checkShip(L, index);
+    return ship->properties->engine->getTeam(ship->teamIndex)->name;
+  } else {
+    return 0;
+  }
+}
+
 int Admin_setWinner(lua_State *L) {
   Admin *admin = checkAdmin(L, 1);
-  if (lua_isstring(L, 2)) {
-    const char *winnerName = luaL_checkstring(L, 2);
-    admin->engine->setWinnerName(winnerName);
-  } else if (lua_isuserdata(L, 2)) {
-    Ship *ship = checkShip(L, 2);
-    admin->engine->setWinnerName(
-        ship->properties->engine->getTeam(ship->teamIndex)->name);
+  const char *teamName = getTeamName(L, 2);
+  if (teamName != 0) {
+    admin->engine->setWinnerName(teamName);
+  }
+  return 1;
+}
+
+int Admin_setRank(lua_State *L) {
+  Admin *admin = checkAdmin(L, 1);
+  const char *teamName = getTeamName(L, 2);
+  if (teamName != 0) {
+    int rank = luaL_checkint(L, 3);
+    admin->engine->setRank(teamName, rank);
+  }
+  return 1;
+}
+
+int Admin_setScore(lua_State *L) {
+  Admin *admin = checkAdmin(L, 1);
+  const char *teamName = getTeamName(L, 2);
+  if (teamName != 0) {
+    double score = luaL_checknumber(L, 3);
+    admin->engine->setScore(teamName, score);
+  }
+  return 1;
+}
+
+int Admin_setStatistic(lua_State *L) {
+  Admin *admin = checkAdmin(L, 1);
+  const char *teamName = getTeamName(L, 2);
+  if (teamName != 0) {
+    const char *key = luaL_checkstring(L, 3);
+    double value = luaL_checknumber(L, 4);
+    admin->engine->setStatistic(teamName, key, value);
   }
   return 1;
 }
@@ -1675,6 +1713,9 @@ const luaL_Reg Admin_methods[] = {
   {"shipFriendlyKills",       Admin_shipFriendlyKills},
   {"shipFriendlyDamage",      Admin_shipFriendlyDamage},
   {"setWinner",               Admin_setWinner},
+  {"setRank",                 Admin_setRank},
+  {"setScore",                Admin_setScore},
+  {"setStatistic",            Admin_setStatistic},
   {"roundOver",               Admin_roundOver},
   {"gameOver",                Admin_gameOver},
   {"drawText",                Admin_drawText},

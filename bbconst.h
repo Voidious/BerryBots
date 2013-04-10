@@ -62,6 +62,7 @@
 #define MAX_USER_TEXTS        4096
 #define MAX_NAME_LENGTH       128
 #define CPU_TIME_TICKS        1000
+#define MAX_SCORE_STATS       1000
 
 #if defined(_WIN32)
 #define BB_DIRSEP      "\\"

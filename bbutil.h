@@ -135,6 +135,11 @@ typedef struct {
 // Game engine structs
 
 typedef struct {
+  char *key;
+  double value;
+} ScoreStat;
+
+typedef struct {
   short index;
   short firstShipIndex;
   short numShips;
@@ -166,6 +171,10 @@ typedef struct {
   UserGfxText* gfxTexts[MAX_USER_TEXTS];
   int numTexts;
   bool tooManyTexts;
+  int rank;
+  double score;
+  ScoreStat* stats[MAX_SCORE_STATS];
+  int numStats;
 } Team;
 
 // Static ship properties that we don't need to copy around.
