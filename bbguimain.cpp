@@ -203,6 +203,7 @@ void BerryBotsApp::onChangeBaseDir(wxCommandEvent &event) {
   guiManager_->reloadBaseDirs();
   guiManager_->loadStages();
   guiManager_->loadShips();
+  guiManager_->loadRunners();
 }
 
 void BerryBotsApp::onBrowseStages(wxCommandEvent &event) {
