@@ -214,9 +214,13 @@ bool BerryBotsEngine::isGameOver() {
 }
 
 void BerryBotsEngine::setWinnerName(const char* winnerName) {
-  int winnerNameLen = std::min((int) strlen(winnerName), MAX_NAME_LENGTH);
-  strncpy(winnerName_, winnerName, winnerNameLen);
-  winnerName_[winnerNameLen] = '\0';
+  for (int x = 0; x < numTeams_; x++) {
+    Team *team = teams_[x];
+    if (strcmp(team->name, winnerName) == 0) {
+      strcpy(winnerName_, winnerName);
+      winnerName_[strlen(winnerName)] = '\0';
+    }
+  }
 }
 
 const char* BerryBotsEngine::getWinnerName() {
@@ -500,9 +504,12 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
 
     char *shipFilenameRoot = FileManager::stripExtension(shipFilename);
     char *defaultShipName = FileManager::parseFilename(shipFilenameRoot);
-    int nameLength = (int) strlen(defaultShipName);
+    int nameLength = std::min(MAX_NAME_LENGTH, (int) strlen(defaultShipName));
     strncpy(team->name, defaultShipName, nameLength);
     team->name[nameLength] = '\0';
+    int filenameLength = std::min(MAX_NAME_LENGTH, (int) strlen(shipFilename));
+    strncpy(team->filename, shipFilename, filenameLength);
+    team->filename[filenameLength] = '\0';
     delete shipFilename;
     delete shipFilenameRoot;
     team->stageShip = stageShip;

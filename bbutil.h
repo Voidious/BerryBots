@@ -144,6 +144,7 @@ typedef struct {
   int stageEventRef;
   lua_State *state;
   char name[MAX_NAME_LENGTH + 1];
+  char filename[MAX_NAME_LENGTH + 1];
   platformstl::performance_counter counter;
   unsigned long long cpuTime[CPU_TIME_TICKS];
   unsigned long long totalCpuTime;

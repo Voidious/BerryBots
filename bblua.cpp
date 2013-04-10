@@ -1614,8 +1614,14 @@ int Admin_shipFriendlyDamage(lua_State *L) {
 
 int Admin_setWinner(lua_State *L) {
   Admin *admin = checkAdmin(L, 1);
-  const char *winnerName = luaL_checkstring(L, 2);
-  admin->engine->setWinnerName(winnerName);
+  if (lua_isstring(L, 2)) {
+    const char *winnerName = luaL_checkstring(L, 2);
+    admin->engine->setWinnerName(winnerName);
+  } else if (lua_isuserdata(L, 2)) {
+    Ship *ship = checkShip(L, 2);
+    admin->engine->setWinnerName(
+        ship->properties->engine->getTeam(ship->teamIndex)->name);
+  }
   return 1;
 }
 
