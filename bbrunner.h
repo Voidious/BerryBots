@@ -25,6 +25,7 @@
 #define SLEEP_INTERVAL  50000 // 0.05s
 
 #include <pthread.h>
+#include "bbutil.h"
 #include "zipper.h"
 
 class RefresherListener {
@@ -44,6 +45,7 @@ class MatchConfig {
   bool started_;
   bool finished_;
   bool processedResult_;
+  TeamResult **teamResults_;
 
   public:
     MatchConfig(const char *stageName, char **teamNames, int numTeams,
@@ -57,6 +59,8 @@ class MatchConfig {
     int getNumTeams();
     const char *getWinnerName();
     void setWinnerName(const char *name);
+    TeamResult** getTeamResults();
+    void setTeamResults(TeamResult **teamResults);
     bool isStarted();
     void started();
     bool isFinished();
@@ -70,10 +74,11 @@ class MatchResult {
   char **teamNames_;
   int numTeams_;
   char *winner_;
+  TeamResult **teamResults_;
 
   public:
     MatchResult(const char *stageName, char **teamNames, int numTeams,
-                const char *winner);
+                const char *winner, TeamResult **teamResults);
     ~MatchResult();
     const char* getStageName();
     char** getTeamNames();

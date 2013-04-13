@@ -76,7 +76,7 @@ MatchResult* BerryBotsRunner::nextResult() {
         if (config->isFinished() && !config->hasProcessedResult()) {
           MatchResult *nextResult = new MatchResult(config->getStageName(),
               config->getTeamNames(), config->getNumTeams(),
-              config->getWinnerName());
+              config->getWinnerName(), config->getTeamResults());
           config->processedResult();
           return nextResult;
         }
@@ -187,9 +187,12 @@ void* BerryBotsRunner::runMatch(void *vargs) {
     aborted = true;
     delete e;
   }
-  const char *winner = engine->getWinnerName();
-  if (engine->isGameOver() && winner != 0) {
-    config->setWinnerName(winner);
+  if (engine->isGameOver()) {
+    const char *winner = engine->getWinnerName();
+    if (winner != 0) {
+      config->setWinnerName(winner);
+    }
+    config->setTeamResults(engine->getTeamResults());
   }
   config->finished();
   delete engine;
@@ -218,6 +221,7 @@ MatchConfig::MatchConfig(const char *stageName, char **teamNames,
   numTeams_ = numTeams;
   winnerName_ = 0;
   started_ = finished_ = processedResult_ = false;
+  teamResults_ = 0;
 }
 
 MatchConfig::~MatchConfig() {
@@ -228,6 +232,16 @@ MatchConfig::~MatchConfig() {
   delete teamNames_;
   if (winnerName_ != 0) {
     delete winnerName_;
+  }
+  if (teamResults_ != 0) {
+    for (int x = 0; x < numTeams_; x++) {
+      TeamResult *result = teamResults_[x];
+      for (int y = 0; y < result->numStats; y++) {
+        delete result->stats[y]->key;
+      }
+      delete result;
+    }
+    delete teamResults_;
   }
   delete stagesDir_;
   delete shipsDir_;
@@ -267,6 +281,14 @@ void MatchConfig::setWinnerName(const char *name) {
   strcpy(winnerName_, name);
 }
 
+TeamResult** MatchConfig::getTeamResults() {
+  return teamResults_;
+}
+
+void MatchConfig::setTeamResults(TeamResult **teamResults) {
+  teamResults_ = teamResults;
+}
+
 bool MatchConfig::isStarted() {
   return started_;
 }
@@ -292,7 +314,7 @@ void MatchConfig::processedResult() {
 }
 
 MatchResult::MatchResult(const char *stageName, char **teamNames, int numTeams,
-                         const char *winner) {
+                         const char *winner, TeamResult **teamResults) {
   stageName_ = new char[strlen(stageName) + 1];
   strcpy(stageName_, stageName);
   teamNames_ = new char*[numTeams];
@@ -307,6 +329,7 @@ MatchResult::MatchResult(const char *stageName, char **teamNames, int numTeams,
     winner_ = new char[strlen(winner) + 1];
     strcpy(winner_, winner);
   }
+  teamResults_ = teamResults;
 }
 
 MatchResult::~MatchResult() {

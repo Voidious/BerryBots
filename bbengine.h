@@ -123,6 +123,7 @@ class BerryBotsEngine {
     void setScore(const char *teamName, double score);
     void setStatistic(const char *teamName, const char *key, double value);
     const char* getWinnerName();
+    TeamResult** getTeamResults();
 
     void initStage(const char *stagesBaseDir, const char *stageName,
                    const char *cacheDir) throw (EngineException*);
@@ -151,6 +152,7 @@ class BerryBotsEngine {
     int callUserLuaCode(lua_State *L,int nargs, const char *errorMsg,
                         int callStyle) throw (EngineException*);
   private:
+    void setTeamRanksByScore();
     void initShipRound(Ship *ship);
     void updateTeamShipsAlive();
     void processStageRun() throw (EngineException*);
