@@ -101,6 +101,8 @@ class BerryBotsEngine {
   bool gameOver_;
   bool physicsOver_;
   char winnerName_[MAX_NAME_LENGTH + 1];
+  bool hasRanks_;
+  bool hasScores_;
 
   public:
     BerryBotsEngine(FileManager *manager);

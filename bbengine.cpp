@@ -49,6 +49,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   gameOver_ = false;
   physicsOver_ = false;
   winnerName_[0] = '\0';
+  hasRanks_ = hasScores_ = false;
 
   stageState_ = 0;
   stagesDir_ = 0;
@@ -113,8 +114,9 @@ BerryBotsEngine::~BerryBotsEngine() {
 
   for (int x = 0; x < numInitializedTeams_; x++) {
     Team *team = teams_[x];
-    for (int y = 0; y < team->numStats; y++) {
-      ScoreStat *stat = team->stats[y];
+    TeamResult *teamResult = &(team->result);
+    for (int y = 0; y < teamResult->numStats; y++) {
+      ScoreStat *stat = teamResult->stats[y];
       delete stat->key;
       delete stat;
     }
@@ -232,7 +234,8 @@ void BerryBotsEngine::setRank(const char *teamName, int rank) {
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
     if (strcmp(team->name, teamName) == 0) {
-      team->rank = rank;
+      team->result.rank = rank;
+      hasRanks_ = true;
       break;
     }
   }
@@ -242,7 +245,8 @@ void BerryBotsEngine::setScore(const char *teamName, double score) {
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
     if (strcmp(team->name, teamName) == 0) {
-      team->score = score;
+      team->result.score = score;
+      hasScores_ = true;
       break;
     }
   }
@@ -253,19 +257,20 @@ void BerryBotsEngine::setStatistic(const char *teamName, const char *key,
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
     if (strcmp(team->name, teamName) == 0) {
+      TeamResult *teamResult = &(team->result);
       bool found = false;
-      for (int y = 0; y < team->numStats; y++) {
-        if (strcmp(team->stats[y]->key, key) == 0) {
-          team->stats[y]->value = value;
+      for (int y = 0; y < teamResult->numStats; y++) {
+        if (strcmp(teamResult->stats[y]->key, key) == 0) {
+          teamResult->stats[y]->value = value;
           found = true;
         }
       }
-      if (!found && team->numStats < MAX_SCORE_STATS) {
+      if (!found && teamResult->numStats < MAX_SCORE_STATS) {
         ScoreStat *stat = new ScoreStat;
         stat->key = new char[strlen(key) + 1];
         strcpy(stat->key, key);
         stat->value = value;
-        team->stats[team->numStats++] = stat;
+        teamResult->stats[teamResult->numStats++] = stat;
       }
       break;
     }
@@ -562,7 +567,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     delete shipFilename;
     delete shipFilenameRoot;
     team->stageShip = stageShip;
-    team->score = team->rank = team->numStats = 0;
+    team->result.score = team->result.rank = team->result.numStats = 0;
 
     for (int y = 0; y < numStateShips; y++) {
       Ship *ship;

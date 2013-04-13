@@ -140,6 +140,13 @@ typedef struct {
 } ScoreStat;
 
 typedef struct {
+  int rank;
+  double score;
+  ScoreStat* stats[MAX_SCORE_STATS];
+  int numStats;
+} TeamResult;
+
+typedef struct {
   short index;
   short firstShipIndex;
   short numShips;
@@ -171,10 +178,7 @@ typedef struct {
   UserGfxText* gfxTexts[MAX_USER_TEXTS];
   int numTexts;
   bool tooManyTexts;
-  int rank;
-  double score;
-  ScoreStat* stats[MAX_SCORE_STATS];
-  int numStats;
+  TeamResult result;
 } Team;
 
 // Static ship properties that we don't need to copy around.
