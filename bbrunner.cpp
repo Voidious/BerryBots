@@ -238,6 +238,7 @@ MatchConfig::~MatchConfig() {
       TeamResult *result = teamResults_[x];
       for (int y = 0; y < result->numStats; y++) {
         delete result->stats[y]->key;
+        delete result->stats[y];
       }
       delete result;
     }
@@ -357,4 +358,8 @@ int MatchResult::getNumTeams() {
 
 const char* MatchResult::getWinner() {
   return winner_;
+}
+
+TeamResult** MatchResult::getTeamResults() {
+  return teamResults_;
 }

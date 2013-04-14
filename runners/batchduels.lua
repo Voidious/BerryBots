@@ -14,7 +14,7 @@ function run(form, runner, files, network)
 
   setDefaultReferenceShips(form, files)
   form:default("Seasons", 10) 
-  form:default("Threads", 3) 
+  form:default("Threads", 2) 
   form:default("Stage", "sample/battle1.lua")
 
   if (form:ok()) then
@@ -60,10 +60,51 @@ end
 function processNextResult(runner)
   local result = runner:nextResult()
   local teams = result.teams
-  print(teams[1] .. " vs " .. teams[2])
+  print("---------------------------------------------------------------------")
+  print(teams[1].name .. " vs " .. teams[2].name)
   if (result.winner == nil) then
     print("    Tie.")
   else
     print("    " .. result.winner .. " wins!")
   end
+  print("------------------------------")
+  local sortedTeams = getSortedTeams(teams)
+  for i, team in ipairs(sortedTeams) do
+    if (i > 1) then
+      print("--------")
+    end
+    print("    " .. team.name .. ":")
+    print("        Rank: " .. team.rank)
+    print("        Score: " .. round(team.score, 2))
+    if (team.stats ~= nil) then
+      print("        Stats:")
+      for key, value in pairs(team.stats) do
+        print("            " .. key .. ": " .. round(value, 2))
+      end
+    end
+  end
+end
+
+function getSortedTeams(teams)
+  local sortedTeams = { }
+  for i, team in pairs(teams) do
+    table.insert(sortedTeams, team)
+  end
+  table.sort(sortedTeams, teamSorter)
+  return sortedTeams
+end
+
+function teamSorter(team1, team2)
+  if (team1.rank < team2.rank or (team1.rank > 0 and team2.rank == 0)) then
+    return true
+  end
+  return false
+end
+
+function round(d, x)
+  local powerTen = 1
+  for i = 1, x do
+    powerTen = powerTen * 10
+  end
+  return math.floor((d * powerTen) + .5) / powerTen
 end

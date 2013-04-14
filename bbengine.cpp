@@ -305,8 +305,12 @@ TeamResult** BerryBotsEngine::getTeamResults() {
     TeamResult *result = &(teams_[x]->result);
     *newResult = *result;
     for (int y = 0; y < result->numStats; y++) {
-      newResult->stats[y]->key = new char[strlen(result->stats[y]->key) + 1];
-      strcpy(newResult->stats[y]->key, result->stats[y]->key);
+      ScoreStat *newStat = new ScoreStat;
+      char *newKey = new char[strlen(result->stats[y]->key) + 1];
+      strcpy(newKey, result->stats[y]->key);
+      newStat->key = newKey;
+      newStat->value = result->stats[y]->value;
+      newResult->stats[y] = newStat;
     }
     results[x] = newResult;
   }
@@ -317,7 +321,7 @@ TeamResult** BerryBotsEngine::getTeamResults() {
 void BerryBotsEngine::setTeamRanksByScore() {
   Team** sortedTeams = new Team*[numTeams_];
   for (int x = 0; x < numTeams_; x++) {
-    *(sortedTeams[x]) = *(teams_[x]);
+    sortedTeams[x] = teams_[x];
   }
   for (int x = 0; x < numTeams_ - 1; x++) {
     for (int y = x + 1; y < numTeams_; y++) {

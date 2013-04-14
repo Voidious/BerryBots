@@ -92,6 +92,9 @@ function ffaKillsPlusDamage(ships, world, admin, scoresX, scoresY, scoresSize)
         admin:drawText(" " .. scoreLine, scoresX,
                        (scoresY - math.floor(i * scoresSize * 1.25)),
                        scoresSize)
+        admin:setScore(score.name, score.total)
+        admin:setStatistic(score.name, "Destroys", score.kills)
+        admin:setStatistic(score.name, "Damage", score.damage)
       end
       admin:drawText("------------------------------------------------------",
           scoresX,
@@ -113,8 +116,7 @@ function getTeamScores(ships, admin)
   for i, ship in pairs(ships) do
     local teamName = ship:teamName()
     if (teamScores[teamName] == nil) then
-      teamScores[teamName] =
-          {total = 0, kills = 0, damage = 0, name = teamName}
+      teamScores[teamName] = {total = 0, kills = 0, damage = 0, name = teamName}
       numTeams = numTeams + 1
     end
     local kills = admin:shipKills(ship) - admin:shipFriendlyKills(ship)
@@ -157,6 +159,7 @@ function duelSurvival(ships, world, admin, scoresX, scoresY, scoresSize)
       if (scoresSize == nil) then scoresSize = 16 end
 
       local sortedScores = getSortedScores(duelScores)
+      local teamScores = getTeamScores(ships, admin)
       admin:drawText("---------------------- Results ----------------------",
                      scoresX, scoresY, scoresSize)
       for i, score in ipairs(sortedScores) do
@@ -165,6 +168,10 @@ function duelSurvival(ships, world, admin, scoresX, scoresY, scoresSize)
         admin:drawText(" " .. scoreLine, scoresX,
                        (scoresY - math.floor(i * scoresSize * 1.25)),
                        scoresSize)
+        admin:setScore(score.name, score.total)
+        admin:setStatistic(score.name, "Rounds", score.total)
+        admin:setStatistic(score.name, "Destroys", teamScores[score.name].kills)
+        admin:setStatistic(score.name, "Damage", teamScores[score.name].damage)
       end
       admin:drawText("------------------------------------------------------",
                      scoresX, scoresY - math.floor(2.3 * scoresSize * 1.25),

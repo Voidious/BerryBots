@@ -84,6 +84,7 @@ class MatchResult {
     char** getTeamNames();
     int getNumTeams();
     const char* getWinner();
+    TeamResult** getTeamResults();
 };
 
 typedef struct {
