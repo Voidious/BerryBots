@@ -460,7 +460,7 @@ void BerryBotsEngine::initStage(const char *stagesBaseDir,
                   PCALL_STAGE);
 
   stage_->buildBaseWalls();
-  char *stageRootName = fileManager_->stripExtension(stageFilename_);
+  char *stageRootName = fileManager_->stripExtension(stageName);
   char *stageDisplayName = fileManager_->parseFilename(stageRootName);
   stage_->setName(stageDisplayName); // TODO: let stage set name like ship
   delete stageRootName;
@@ -610,13 +610,13 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->hasGameOver = (strcmp(luaL_typename(teamState, -1), "nil") != 0);
     lua_pop(teamState, 2);
 
-    char *shipFilenameRoot = fileManager_->stripExtension(shipFilename);
+    char *shipFilenameRoot = fileManager_->stripExtension(filename);
     char *defaultShipName = fileManager_->parseFilename(shipFilenameRoot);
     int nameLength = std::min(MAX_NAME_LENGTH, (int) strlen(defaultShipName));
     strncpy(team->name, defaultShipName, nameLength);
     team->name[nameLength] = '\0';
-    int filenameLength = std::min(MAX_NAME_LENGTH, (int) strlen(shipFilename));
-    strncpy(team->filename, shipFilename, filenameLength);
+    int filenameLength = std::min(MAX_NAME_LENGTH, (int) strlen(filename));
+    strncpy(team->filename, filename, filenameLength);
     team->filename[filenameLength] = '\0';
     delete shipFilename;
     delete shipFilenameRoot;

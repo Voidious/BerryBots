@@ -157,6 +157,7 @@ class FileManager {
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);
     void sliceString(char *filename, long start, long rest);
+    char* stripLastExtension(const char *filename);
     void loadUserFileData(const char *srcBaseDir, const char *srcFilename,
         char **userDir, char **userFilename, const char *metaFilename,
         const char *cacheDir) throw (FileNotFoundException*, ZipperException*,

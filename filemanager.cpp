@@ -199,6 +199,28 @@ char* FileManager::getStageShipRelativePath(const char *stagesDir,
 }
 
 char* FileManager::stripExtension(const char *filename) {
+  if (isLuaFilename(filename)) {
+    return stripLastExtension(filename);
+  } else if (isZipFilename(filename)) {
+    char *gzStripped = stripLastExtension(filename);
+    char *stripped = stripLastExtension(gzStripped);
+    delete gzStripped;
+    int strippedLen = (int) strlen(stripped);
+    for (int x = strippedLen - 1; x >= 0; x--) {
+      if (stripped[x] == '_') {
+        stripped[x] = ' ';
+        break;
+      }
+    }
+    return stripped;
+  } else {
+    char *stripped = new char[strlen(filename) + 1];
+    strcpy(stripped, filename);
+    return stripped;
+  }
+}
+
+char* FileManager::stripLastExtension(const char *filename) {
   const char *extension = strrchr(filename, '.');
   int nameLength = std::min(MAX_NAME_LENGTH, (int) ((extension == 0)
       ? strlen(filename) : extension - filename));
