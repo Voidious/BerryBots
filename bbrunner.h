@@ -41,7 +41,7 @@ class MatchConfig {
   char *stageName_;
   char **teamNames_;
   int numTeams_;
-  char *winnerName_; // TODO: replace with collection of results and filename
+  char *winnerFilename_;
   bool started_;
   bool finished_;
   bool processedResult_;
@@ -57,8 +57,8 @@ class MatchConfig {
     const char *getStageName();
     char **getTeamNames();
     int getNumTeams();
-    const char *getWinnerName();
-    void setWinnerName(const char *name);
+    const char *getWinnerFilename();
+    void setWinnerFilename(const char *name);
     TeamResult** getTeamResults();
     void setTeamResults(TeamResult **teamResults);
     bool isStarted();

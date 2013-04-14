@@ -76,7 +76,7 @@ MatchResult* BerryBotsRunner::nextResult() {
         if (config->isFinished() && !config->hasProcessedResult()) {
           MatchResult *nextResult = new MatchResult(config->getStageName(),
               config->getTeamNames(), config->getNumTeams(),
-              config->getWinnerName(), config->getTeamResults());
+              config->getWinnerFilename(), config->getTeamResults());
           config->processedResult();
           return nextResult;
         }
@@ -188,9 +188,9 @@ void* BerryBotsRunner::runMatch(void *vargs) {
     delete e;
   }
   if (engine->isGameOver()) {
-    const char *winner = engine->getWinnerName();
+    const char *winner = engine->getWinnerFilename();
     if (winner != 0) {
-      config->setWinnerName(winner);
+      config->setWinnerFilename(winner);
     }
     config->setTeamResults(engine->getTeamResults());
   }
@@ -219,7 +219,7 @@ MatchConfig::MatchConfig(const char *stageName, char **teamNames,
     strcpy(teamNames_[x], teamNames[x]);
   }
   numTeams_ = numTeams;
-  winnerName_ = 0;
+  winnerFilename_ = 0;
   started_ = finished_ = processedResult_ = false;
   teamResults_ = 0;
 }
@@ -230,8 +230,8 @@ MatchConfig::~MatchConfig() {
     delete teamNames_[x];
   }
   delete teamNames_;
-  if (winnerName_ != 0) {
-    delete winnerName_;
+  if (winnerFilename_ != 0) {
+    delete winnerFilename_;
   }
   if (teamResults_ != 0) {
     for (int x = 0; x < numTeams_; x++) {
@@ -273,13 +273,13 @@ int MatchConfig::getNumTeams() {
   return numTeams_;
 }
 
-const char* MatchConfig::getWinnerName() {
-  return winnerName_;
+const char* MatchConfig::getWinnerFilename() {
+  return winnerFilename_;
 }
 
-void MatchConfig::setWinnerName(const char *name) {
-  winnerName_ = new char[strlen(name) + 1];
-  strcpy(winnerName_, name);
+void MatchConfig::setWinnerFilename(const char *name) {
+  winnerFilename_ = new char[strlen(name) + 1];
+  strcpy(winnerFilename_, name);
 }
 
 TeamResult** MatchConfig::getTeamResults() {

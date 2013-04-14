@@ -101,6 +101,7 @@ class BerryBotsEngine {
   bool gameOver_;
   bool physicsOver_;
   char winnerName_[MAX_NAME_LENGTH + 1];
+  char winnerFilename_[MAX_NAME_LENGTH + 1];
   bool hasRanks_;
   bool hasScores_;
 
@@ -123,6 +124,7 @@ class BerryBotsEngine {
     void setScore(const char *teamName, double score);
     void setStatistic(const char *teamName, const char *key, double value);
     const char* getWinnerName();
+    const char* getWinnerFilename();
     TeamResult** getTeamResults();
 
     void initStage(const char *stagesBaseDir, const char *stageName,

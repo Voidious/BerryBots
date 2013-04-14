@@ -49,6 +49,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   gameOver_ = false;
   physicsOver_ = false;
   winnerName_[0] = '\0';
+  winnerFilename_[0] = '\0';
   hasRanks_ = hasScores_ = false;
 
   stageState_ = 0;
@@ -226,6 +227,8 @@ void BerryBotsEngine::setWinnerName(const char* winnerName) {
     if (strcmp(team->name, winnerName) == 0) {
       strcpy(winnerName_, winnerName);
       winnerName_[strlen(winnerName)] = '\0';
+      strcpy(winnerFilename_, team->filename);
+      winnerFilename_[strlen(winnerFilename_)] = '\0';
     }
   }
 }
@@ -282,6 +285,14 @@ const char* BerryBotsEngine::getWinnerName() {
     return 0;
   } else {
     return winnerName_;
+  }
+}
+
+const char* BerryBotsEngine::getWinnerFilename() {
+  if (strlen(winnerFilename_) == 0) {
+    return 0;
+  } else {
+    return winnerFilename_;
   }
 }
 
