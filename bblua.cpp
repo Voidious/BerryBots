@@ -41,8 +41,6 @@ extern PrintHandler *printHandler;
 //       by Lua (C -> Lua -> C). They are not fatal to the host app and are
 //       handled appropriately (CLI vs GUI) by the original C caller.
 
-FileManager *fileManager = new FileManager();
-
 void luaSrand(lua_State *L) {
   char *luaSrand = new char[100];
   sprintf(luaSrand, "math.randomseed(%d)", rand());
@@ -2111,9 +2109,11 @@ char* checkFilename(lua_State *L, int index) {
   const char *rawFilename = luaL_checkstring(L, index);
   char *filename = new char[strlen(rawFilename) + 1];
   strcpy(filename, rawFilename);
+  FileManager *fileManager = new FileManager();
   fileManager->fixSlashes(filename);
   if (fileManager->isAbsPath(filename)) {
     delete filename;
+    delete fileManager;
     luaL_error(L, "Can't read from absolute paths.");
     return 0;
   } else {
@@ -2128,9 +2128,11 @@ char* checkFilename(lua_State *L, int index) {
     delete runnersDir;
     if (error) {
       delete absFilename;
+      delete fileManager;
       luaL_error(L, "Can only read from below runners directory.");
       return 0;
     } else {
+      delete fileManager;
       return absFilename;
     }
   }
@@ -2139,13 +2141,16 @@ char* checkFilename(lua_State *L, int index) {
 int RunnerFiles_exists(lua_State *L) {
   checkRunnerFiles(L, 1);
   char *filename = checkFilename(L, 2);
+  FileManager *fileManager = new FileManager();
   lua_pushboolean(L, fileManager->fileExists(filename));
   delete filename;
+  delete fileManager;
   return 1;
 }
 
 int RunnerFiles_read(lua_State *L) {
   char *filename = checkFilename(L, 2);
+  FileManager *fileManager = new FileManager();
   if (fileManager->fileExists(filename)) {
     try {
       char *fileContents = fileManager->readFile(filename);
@@ -2159,14 +2164,17 @@ int RunnerFiles_read(lua_State *L) {
     lua_pushnil(L);
   }
   delete filename;
+  delete fileManager;
   return 1;
 }
 
 int RunnerFiles_write(lua_State *L) {
   char *filename = checkFilename(L, 2);
   if (lua_isstring(L, 3)) {
+    FileManager *fileManager = new FileManager();
     fileManager->writeFile(filename, lua_tostring(L, 3));
     delete filename;
+    delete fileManager;
   } else {
     delete filename;
     luaL_error(L, "No file contents.");

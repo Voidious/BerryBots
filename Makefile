@@ -56,6 +56,7 @@ CLI_SOURCES += circle2d.cpp line2d.cpp point2d.cpp sensorhandler.cpp zone.cpp
 CLI_SOURCES += bbengine.cpp bblua.cpp gfxeventhandler.cpp rectangle.cpp
 CLI_SOURCES += stage.cpp cliprinthandler.cpp clipackagereporter.cpp dockitem.cpp
 CLI_SOURCES += dockshape.cpp docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp
+CLI_SOURCES += bbrunner.cpp
 ##############################################################################
 
 
@@ -73,7 +74,7 @@ OSX_LDFLAGS =  -L./sfml-lib `${WXWIDGETS_PATH}/wx-config --libs`
 OSX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
 OSX_LDFLAGS += -pagezero_size 10000 -image_base 100000000 -std=c99
 
-OSXCLI_EXTRA_SOURCES = ./luajit/src/libluajit.a
+OSXCLI_EXTRA_SOURCES = relativebasedir.cpp ./luajit/src/libluajit.a
 OSXCLI_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
 OSXCLI_EXTRA_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
 
