@@ -35,6 +35,7 @@
 #include "guimanager.h"
 #include "bbutil.h"
 #include "basedir.h"
+#include "filemanager.h"
 
 using namespace std;
 
@@ -43,6 +44,7 @@ PrintHandler *printHandler = 0;
 class BerryBotsApp : public wxApp {
   GuiManager *guiManager_;
   GuiListener *guiListener_;
+  FileManager *fileManager_;
 
   public:
     virtual bool OnInit();
@@ -127,6 +129,7 @@ bool BerryBotsApp::OnInit() {
 
   guiListener_ = new AppGuiListener(this);
   guiManager_ = new GuiManager(guiListener_);
+  fileManager_ = new FileManager();
 
   Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::OnQuit));
@@ -219,7 +222,7 @@ void BerryBotsApp::onBrowseApidocs(wxCommandEvent &event) {
 }
 
 void BerryBotsApp::browseDirectory(const char *dir) {
-  if (!FileManager::fileExists(dir)) {
+  if (!fileManager_->fileExists(dir)) {
     std::string fileNotFoundString("Directory not found: ");
     fileNotFoundString.append(dir);
     wxMessageDialog cantBrowseMessage(NULL, "Directory not found",
@@ -241,7 +244,7 @@ void BerryBotsApp::browseDirectory(const char *dir) {
 }
 
 void BerryBotsApp::openHtmlFile(const char *file) {
-  if (!FileManager::fileExists(file)) {
+  if (!fileManager_->fileExists(file)) {
     std::string fileNotFoundString("File not found: ");
     fileNotFoundString.append(file);
     wxMessageDialog cantBrowseMessage(NULL, "File not found",

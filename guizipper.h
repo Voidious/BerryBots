@@ -22,11 +22,15 @@
 #define GUI_ZIPPER_H
 
 #include <libarchive/archive.h>
+#include "filemanager.h"
 #include "zipper.h"
 
 class GuiZipper : public Zipper {
+  FileManager *fileManager_;
+
   public:
     GuiZipper();
+    ~GuiZipper();
     virtual void packageFiles(const char *outputFile, const char *baseDir,
         char **filenames, int numFiles, bool binary,
         const char *absMetaFilename, const char *metaFilename)

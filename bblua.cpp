@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <sstream>
 #include "basedir.h"
+#include "filemanager.h"
 #include "stage.h"
 #include "sensorhandler.h"
 #include "bbengine.h"
@@ -39,6 +40,8 @@ extern PrintHandler *printHandler;
 // Note: The luaL_error's in this file are from within C functions being called
 //       by Lua (C -> Lua -> C). They are not fatal to the host app and are
 //       handled appropriately (CLI vs GUI) by the original C caller.
+
+FileManager *fileManager = new FileManager();
 
 void luaSrand(lua_State *L) {
   char *luaSrand = new char[100];
@@ -2108,15 +2111,15 @@ char* checkFilename(lua_State *L, int index) {
   const char *rawFilename = luaL_checkstring(L, index);
   char *filename = new char[strlen(rawFilename) + 1];
   strcpy(filename, rawFilename);
-  FileManager::fixSlashes(filename);
-  if (FileManager::isAbsPath(filename)) {
+  fileManager->fixSlashes(filename);
+  if (fileManager->isAbsPath(filename)) {
     delete filename;
     luaL_error(L, "Can't read from absolute paths.");
     return 0;
   } else {
     char *runnersDir = new char[getRunnersDir().size() + 1];
     strcpy(runnersDir, getRunnersDir().c_str());
-    char *absFilename = FileManager::getFilePath(runnersDir, filename);
+    char *absFilename = fileManager->getFilePath(runnersDir, filename);
     bool error = false;
     if (strncmp(runnersDir, absFilename, strlen(runnersDir))) {
       error = true;
@@ -2136,16 +2139,16 @@ char* checkFilename(lua_State *L, int index) {
 int RunnerFiles_exists(lua_State *L) {
   checkRunnerFiles(L, 1);
   char *filename = checkFilename(L, 2);
-  lua_pushboolean(L, FileManager::fileExists(filename));
+  lua_pushboolean(L, fileManager->fileExists(filename));
   delete filename;
   return 1;
 }
 
 int RunnerFiles_read(lua_State *L) {
   char *filename = checkFilename(L, 2);
-  if (FileManager::fileExists(filename)) {
+  if (fileManager->fileExists(filename)) {
     try {
-      char *fileContents = FileManager::readFile(filename);
+      char *fileContents = fileManager->readFile(filename);
       lua_pushstring(L, fileContents);
       delete fileContents;
     } catch (FileNotFoundException *e) {
@@ -2162,7 +2165,7 @@ int RunnerFiles_read(lua_State *L) {
 int RunnerFiles_write(lua_State *L) {
   char *filename = checkFilename(L, 2);
   if (lua_isstring(L, 3)) {
-    FileManager::writeFile(filename, lua_tostring(L, 3));
+    fileManager->writeFile(filename, lua_tostring(L, 3));
     delete filename;
   } else {
     delete filename;

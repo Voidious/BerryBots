@@ -22,7 +22,6 @@
 #define FILE_MANAGER_H
 
 #include <exception>
-#include "bblua.h"
 #include "zipper.h"
 
 #define MAX_LINE_LENGTH  16384
@@ -30,6 +29,8 @@
 extern "C" {
   #include "lua.h"
 }
+
+class BerryBotsEngine;
 
 class PackagingListener {
   public:
@@ -88,10 +89,24 @@ class InvalidStageShipException : public std::exception {
     virtual const char* what() const throw();
 };
 
+class NullZipper : public Zipper {
+  public:
+    NullZipper() {};
+    virtual void packageFiles(const char *outputFile, const char *baseDir,
+        char **filenames, int numFiles, bool binary,
+        const char *absMetaFilename, const char *metaFilename)
+        throw (ZipperException*) {};
+    virtual void unpackFile(const char *zipFile, const char *outputDir)
+        throw (ZipperException*) {};
+};
+
 class FileManager {
   Zipper *zipper_;
   PackagingListener *packagingListener_;
+  bool ownZipper_;
+
   public:
+    FileManager();
     FileManager(Zipper *zipper);
     ~FileManager();
     void setListener(PackagingListener *packagingListener);
@@ -123,25 +138,25 @@ class FileManager {
                       const char *luaCwd)
         throw (LuaException*);
     void deleteFromCache(const char *cacheDir, const char *filename);
-    static bool isAbsPath(const char *filename);
-    static char* getFilePath(const char *dir, const char *filename);
-    static char* getAbsFilePath(const char *filename);
-    static char* parseDir(const char *dirAndFilename);
-    static char* parseFilename(const char *dirAndFilename);
-    static char* parseRelativeFilePath(const char *absBaseDir,
-                                       const char *absFilePath);
-    static char* getStageShipRelativePath(const char *stagesDir,
+    bool isAbsPath(const char *filename);
+    char* getFilePath(const char *dir, const char *filename);
+    char* getAbsFilePath(const char *filename);
+    char* parseDir(const char *dirAndFilename);
+    char* parseFilename(const char *dirAndFilename);
+    char* parseRelativeFilePath(const char *absBaseDir,
+                                const char *absFilePath);
+    char* getStageShipRelativePath(const char *stagesDir,
         const char *stageFilename, const char *stageShipName);
-    static char* stripExtension(const char *filename);
-    static bool isDirectory(const char *filePath);
-    static bool fileExists(const char *filename);
-    static void fixSlashes(char *filename);
-    static char* readFile(const char *filename) throw (FileNotFoundException*);
-    static void writeFile(const char *filename, const char *contents);
+    char* stripExtension(const char *filename);
+    bool isDirectory(const char *filePath);
+    bool fileExists(const char *filename);
+    void fixSlashes(char *filename);
+    char* readFile(const char *filename) throw (FileNotFoundException*);
+    void writeFile(const char *filename, const char *contents);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
         throw (FileNotFoundException*);
-    static void sliceString(char *filename, long start, long rest);
+    void sliceString(char *filename, long start, long rest);
     void loadUserFileData(const char *srcBaseDir, const char *srcFilename,
         char **userDir, char **userFilename, const char *metaFilename,
         const char *cacheDir) throw (FileNotFoundException*, ZipperException*,

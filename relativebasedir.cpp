@@ -23,12 +23,14 @@
 #include "filemanager.h"
 #include "basedir.h"
 
+FileManager *fileManager = new FileManager();
+
 bool isConfigured() {
   return true;
 }
 
 std::string getFullPath(const char *relativePath) {
-  char *absFilename = FileManager::getAbsFilePath(relativePath);
+  char *absFilename = fileManager->getAbsFilePath(relativePath);
   std::string fullPath = std::string(absFilename);
   delete absFilename;
   return fullPath;

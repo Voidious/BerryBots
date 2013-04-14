@@ -29,6 +29,7 @@
 #include "wall.h"
 #include "zone.h"
 #include "eventhandler.h"
+#include "filemanager.h"
 
 // Check if we have vision to intersection points with walls to ensure that
 // we're not hitting the far side of a wall. Don't test all the way to
@@ -84,6 +85,7 @@ class Stage {
   int numTorpedos_;
   EventHandler* eventHandlers_[MAX_EVENT_HANDLERS];
   int numEventHandlers_;
+  FileManager *fileManager_;
   bool gfxEnabled_;
   UserGfxRectangle* gfxRectangles_[MAX_USER_RECTANGLES];
   int numGfxRectangles_;

@@ -449,8 +449,8 @@ int GuiManager::loadItemsFromDir(const char *baseDir, const char *loadDir,
   while (first != last) {
     platformstl::readdir_sequence::const_iterator file = first++;
     char *filename = (char *) *file;
-    char *filePath = FileManager::getFilePath(loadDir, filename);
-    if (FileManager::isDirectory(filePath)) {
+    char *filePath = fileManager_->getFilePath(loadDir, filename);
+    if (fileManager_->isDirectory(filePath)) {
       numItems += loadItemsFromDir(baseDir, filePath, itemType, dialog, engine);
     } else {
       char *relativeFilename = &(filePath[strlen(baseDir) + 1]);

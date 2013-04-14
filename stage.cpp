@@ -54,6 +54,7 @@ Stage::Stage(int width, int height) {
   numLasers_ = 0;
   numTorpedos_ = 0;
   numEventHandlers_ = 0;
+  fileManager_ = new FileManager();
   gfxEnabled_ = false;
   numGfxRectangles_ = 0;
   numGfxLines_ = 0;
@@ -260,7 +261,7 @@ int Stage::addStageShip(const char *stageShipFilename) {
     int filenameLen = (int) strlen(stageShipFilename);
     char *newStageShip = new char[filenameLen + 1];
     strcpy(newStageShip, stageShipFilename);
-    FileManager::fixSlashes(newStageShip);
+    fileManager_->fixSlashes(newStageShip);
     stageShips_[numStageShips_++] = newStageShip;
     return 1;
   }
@@ -1434,4 +1435,5 @@ Stage::~Stage() {
     delete stageShips_[x];
   }
   delete ships_;
+  delete fileManager_;
 }

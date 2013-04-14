@@ -60,8 +60,8 @@ int main(int argc, char *argv[]) {
   CliPackageReporter *packageReporter = new CliPackageReporter();
   fileManager->setListener(packageReporter);
 
-  char *shipsBaseDir = FileManager::getAbsFilePath(SHIPS_SUBDIR);
-  char *stagesBaseDir = FileManager::getAbsFilePath(STAGES_SUBDIR);
+  char *shipsBaseDir = fileManager->getAbsFilePath(SHIPS_SUBDIR);
+  char *stagesBaseDir = fileManager->getAbsFilePath(STAGES_SUBDIR);
 
   if (flagExists(argc, argv, "packstage")) {
     char **stageInfo = parseFlag(argc, argv, "packstage", 2);
@@ -71,9 +71,9 @@ int main(int argc, char *argv[]) {
       // TODO: add a new flag for obfuscating source code
       bool obfuscate = false;
       try {
-        char *stageAbsName = FileManager::getAbsFilePath(stageInfo[0]);
+        char *stageAbsName = fileManager->getAbsFilePath(stageInfo[0]);
         char *stageName =
-            FileManager::parseRelativeFilePath(stagesBaseDir, stageAbsName);
+            fileManager->parseRelativeFilePath(stagesBaseDir, stageAbsName);
         if (stageName == 0) {
           std::cout << "Stage must be located under " << STAGES_SUBDIR
                     << "/ subdirectory: " << stageInfo[0] << std::endl;
@@ -101,9 +101,9 @@ int main(int argc, char *argv[]) {
       // TODO: add a new flag for obfuscating source code
       bool obfuscate = false;
       try {
-        char *shipAbsName = FileManager::getAbsFilePath(shipInfo[0]);
+        char *shipAbsName = fileManager->getAbsFilePath(shipInfo[0]);
         char *shipName =
-           FileManager::parseRelativeFilePath(shipsBaseDir, shipAbsName);
+           fileManager->parseRelativeFilePath(shipsBaseDir, shipAbsName);
         if (shipName == 0) {
           std::cout << "Ship must be located under " << SHIPS_SUBDIR
                     << "/ subdirectory: " << shipInfo[0] << std::endl;
@@ -143,9 +143,9 @@ int main(int argc, char *argv[]) {
   printHandler = (PrintHandler*) cliPrintHandler;
   CliStateListener *cliStateListener = new CliStateListener(cliPrintHandler);
 
-  char *stageAbsName = FileManager::getAbsFilePath(argv[nodisplay ? 2 : 1]);
+  char *stageAbsName = fileManager->getAbsFilePath(argv[nodisplay ? 2 : 1]);
   char *stageName =
-      FileManager::parseRelativeFilePath(stagesBaseDir, stageAbsName);
+      fileManager->parseRelativeFilePath(stagesBaseDir, stageAbsName);
   if (stageName == 0) {
     std::cout << "Stage must be located under " << STAGES_SUBDIR
               << "/ subdirectory: " << argv[nodisplay ? 2 : 1] << std::endl;
@@ -168,9 +168,9 @@ int main(int argc, char *argv[]) {
   int numTeams = argc - firstTeam;
   char **teams = new char*[numTeams];
   for (int x = 0; x < numTeams; x++) {
-    char *teamAbsName = FileManager::getAbsFilePath(argv[x + firstTeam]);
+    char *teamAbsName = fileManager->getAbsFilePath(argv[x + firstTeam]);
     char *teamName =
-        FileManager::parseRelativeFilePath(shipsBaseDir, teamAbsName);
+        fileManager->parseRelativeFilePath(shipsBaseDir, teamAbsName);
     if (teamName == 0) {
       std::cout << "Ship must be located under " << SHIPS_SUBDIR
                 << "/ subdirectory: " << argv[x + firstTeam] << std::endl;

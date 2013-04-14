@@ -460,8 +460,8 @@ void BerryBotsEngine::initStage(const char *stagesBaseDir,
                   PCALL_STAGE);
 
   stage_->buildBaseWalls();
-  char *stageRootName = FileManager::stripExtension(stageFilename_);
-  char *stageDisplayName = FileManager::parseFilename(stageRootName);
+  char *stageRootName = fileManager_->stripExtension(stageFilename_);
+  char *stageDisplayName = fileManager_->parseFilename(stageRootName);
   stage_->setName(stageDisplayName); // TODO: let stage set name like ship
   delete stageRootName;
   delete stageDisplayName;
@@ -493,7 +493,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     if (stageShip) {
       baseDir = stagesDir_;
       const char *localFilename = stage_->getStageShips()[x - userTeams];
-      filename = FileManager::getStageShipRelativePath(
+      filename = fileManager_->getStageShipRelativePath(
           stagesDir_, stageFilename_, localFilename);
       if (filename == 0) {
         throw new EngineException(localFilename,
@@ -610,8 +610,8 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->hasGameOver = (strcmp(luaL_typename(teamState, -1), "nil") != 0);
     lua_pop(teamState, 2);
 
-    char *shipFilenameRoot = FileManager::stripExtension(shipFilename);
-    char *defaultShipName = FileManager::parseFilename(shipFilenameRoot);
+    char *shipFilenameRoot = fileManager_->stripExtension(shipFilename);
+    char *defaultShipName = fileManager_->parseFilename(shipFilenameRoot);
     int nameLength = std::min(MAX_NAME_LENGTH, (int) strlen(defaultShipName));
     strncpy(team->name, defaultShipName, nameLength);
     team->name[nameLength] = '\0';

@@ -39,13 +39,22 @@ extern "C" {
   #include "lauxlib.h"
 }
 
+FileManager::FileManager() {
+  zipper_ = new NullZipper();
+  ownZipper_ = true;
+  packagingListener_ = 0;
+}
+
 FileManager::FileManager(Zipper *zipper) {
   zipper_ = zipper;
+  ownZipper_ = false;
   packagingListener_ = 0;
 }
 
 FileManager::~FileManager() {
-
+  if (ownZipper_) {
+    delete zipper_;
+  }
 }
 
 void FileManager::setListener(PackagingListener *packagingListener) {

@@ -28,7 +28,11 @@
 #include "guizipper.h"
 
 GuiZipper::GuiZipper() {
-  
+  fileManager_ = new FileManager();
+}
+
+GuiZipper::~GuiZipper() {
+  delete fileManager_;
 }
 
 // Based on libarchive's public example code.
@@ -47,7 +51,7 @@ void GuiZipper::packageFiles(const char *outputFile, const char *baseDir,
   packageSingleFile(absMetaFilename, metaFilename, a, false);
   for (int x = 0; x < numFiles; x++) {
     char *filename = filenames[x];
-    char *filePath = FileManager::getFilePath(baseDir, filename);
+    char *filePath = fileManager_->getFilePath(baseDir, filename);
     try {
       packageSingleFile(filePath, filename, a, binary);
     } catch (ZipperException *ze) {
@@ -98,7 +102,7 @@ void GuiZipper::unpackFile(const char *zipFile, const char *outputDir)
   // TODO: use archive_write_disk_open instead (if/when it exists)
   char cwd[4096];
   getcwd(cwd, 4096);
-  char *absZipFile = FileManager::getAbsFilePath(zipFile);
+  char *absZipFile = fileManager_->getAbsFilePath(zipFile);
   platformstl::filesystem_traits<char> traits;
   traits.set_current_directory(outputDir);
   
