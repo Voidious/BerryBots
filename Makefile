@@ -29,7 +29,7 @@ SOURCES += bbengine.cpp bblua.cpp gfxeventhandler.cpp rectangle.cpp stage.cpp
 SOURCES += packagedialog.cpp packageship.cpp packagestage.cpp dockitem.cpp
 SOURCES += dockshape.cpp docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp
 SOURCES += menubarmaker.cpp guigamerunner.cpp runnerdialog.cpp runnerform.cpp
-SOURCES += bbrunner.cpp
+SOURCES += bbrunner.cpp resultsdialog.cpp
 ##############################################################################
 
 

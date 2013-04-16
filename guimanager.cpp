@@ -24,6 +24,7 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <wx/wx.h>
+#include <wx/dataview.h>
 #include <platformstl/filesystem/readdir_sequence.hpp>
 #include "ResourcePath.hpp"
 
@@ -42,6 +43,7 @@
 #include "packagestage.h"
 #include "runnerdialog.h"
 #include "outputconsole.h"
+#include "resultsdialog.h"
 #include "printhandler.h"
 #include "guiprinthandler.h"
 #include "guimanager.h"
@@ -694,9 +696,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   gfxManager_->initViews(window, viewWidth_, viewHeight_);
   window->setVisible(true);
   window->clear();
-  gfxManager_->drawGame(window, stage, engine_->getShips(),
-                        engine_->getNumShips(), engine_->getGameTime(),
-                        gfxHandler_, false, false, engine_->getWinnerName());
+  drawFrame(window);
   window->display();
 
   runCurrentMatch();
@@ -707,6 +707,7 @@ void GuiManager::runCurrentMatch() {
   interrupted_ = false;
   restarting_ = false;
   sf::RenderWindow *window = getMainWindow();
+  bool showedResults = false;
   try {
     while (window->isOpen() && !interrupted_ && !restarting_ && !quitting_) {
       while (!paused_ && !restarting_ && !engine_->isGameOver()
@@ -722,6 +723,10 @@ void GuiManager::runCurrentMatch() {
         drawFrame(window);
         if (!paused_ && !engine_->isGameOver()) {
           nextDrawTime_ += tpsFactor_;
+        }
+        if (engine_->isGameOver() && !showedResults) {
+          showResults();
+          showedResults = true;
         }
       }
     }
@@ -757,6 +762,22 @@ void GuiManager::drawFrame(sf::RenderWindow *window) {
                         gfxHandler_, paused_, engine_->isGameOver(),
                         engine_->getWinnerName());
   window->display();
+}
+
+void GuiManager::showResults() {
+  Team **rankedTeams = engine_->getRankedTeams();
+  sf::Vector2u windowSize = window_->getSize();
+  sf::Vector2i windowPosition = window_->getPosition();
+  int xCenter = windowPosition.x + (windowSize.x / 2);
+  int yCenter = windowPosition.y + (windowSize.y / 2);
+
+  ResultsDialog *resultsDialog =
+      new ResultsDialog(rankedTeams, engine_->getNumTeams(),
+          wxPoint(xCenter - (RESULTS_WIDTH / 2),
+                  yCenter - (RESULTS_HEIGHT / 2) - 50));
+  delete rankedTeams;
+  resultsDialog->Show();
+  resultsDialog->Raise();
 }
 
 void GuiManager::clearTeamErroredForActiveConsoles(BerryBotsEngine *engine) {

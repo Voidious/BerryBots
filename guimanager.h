@@ -186,6 +186,7 @@ class GuiManager {
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
     void drawFrame(sf::RenderWindow *window);
+    void showResults();
     void clearTeamErroredForActiveConsoles(BerryBotsEngine *engine);
     void resumeMatch();
     void showDialog(wxFrame *dialog);

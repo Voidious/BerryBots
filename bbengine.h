@@ -140,6 +140,7 @@ class BerryBotsEngine {
     Team **getTeams();
     Team *getTeam(int teamIndex);
     Team *getTeam(lua_State *L);
+    Team **getRankedTeams();
     int getNumTeams();
     Ship** getShips();
     int getNumShips();
@@ -154,6 +155,7 @@ class BerryBotsEngine {
     int callUserLuaCode(lua_State *L,int nargs, const char *errorMsg,
                         int callStyle) throw (EngineException*);
   private:
+    void processWinnerRanksScores();
     void setTeamRanksByScore();
     void initShipRound(Ship *ship);
     void updateTeamShipsAlive();

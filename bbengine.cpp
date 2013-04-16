@@ -297,18 +297,7 @@ const char* BerryBotsEngine::getWinnerFilename() {
 }
 
 TeamResult** BerryBotsEngine::getTeamResults() {
-  if (hasScores_ && !hasRanks_) {
-    setTeamRanksByScore();
-  }
-  if (winnerName_ == 0 && (hasScores_ || hasRanks_)) {
-    for (int x = 0; x < numTeams_; x++) {
-      Team *team = teams_[x];
-      if (team->result.rank == 1) {
-        setWinnerName(team->name);
-        break;
-      }
-    }
-  }
+  processWinnerRanksScores();
 
   TeamResult** results = new TeamResult*[numTeams_];
   for (int x = 0; x < numTeams_; x++) {
@@ -327,6 +316,21 @@ TeamResult** BerryBotsEngine::getTeamResults() {
   }
   
   return results;
+}
+
+void BerryBotsEngine::processWinnerRanksScores() {
+  if (hasScores_ && !hasRanks_) {
+    setTeamRanksByScore();
+  }
+  if (winnerName_ == 0 && (hasScores_ || hasRanks_)) {
+    for (int x = 0; x < numTeams_; x++) {
+      Team *team = teams_[x];
+      if (team->result.rank == 1) {
+        setWinnerName(team->name);
+        break;
+      }
+    }
+  }
 }
 
 void BerryBotsEngine::setTeamRanksByScore() {
@@ -366,6 +370,27 @@ Team* BerryBotsEngine::getTeam(lua_State *L) {
     }
   }
   return 0;
+}
+
+Team** BerryBotsEngine::getRankedTeams() {
+  processWinnerRanksScores();
+
+  Team** sortedTeams = new Team*[numTeams_];
+  for (int x = 0; x < numTeams_; x++) {
+    sortedTeams[x] = teams_[x];
+  }
+  for (int x = 0; x < numTeams_ - 1; x++) {
+    for (int y = x + 1; y < numTeams_; y++) {
+      Team *team1 = sortedTeams[x];
+      Team *team2 = sortedTeams[y];
+      if (team1->result.rank > team2->result.rank
+          || (team1->result.rank == 0 && team2->result.rank != 0)) {
+        sortedTeams[x] = team2;
+        sortedTeams[y] = team1;
+      }
+    }
+  }
+  return sortedTeams;
 }
 
 int BerryBotsEngine::getNumTeams() {
