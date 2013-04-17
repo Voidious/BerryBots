@@ -120,19 +120,44 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint center)
   mainSizer->Add(mainPanel);
   mainPanel->SetSizerAndFit(tableSizer);
   SetSizerAndFit(mainSizer);
-
   wxSize windowSize = GetSize();
   this->SetPosition(wxPoint(center.x - (windowSize.x / 2),
                             center.y - (windowSize.y / 2)));
+
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(ResultsDialog::onClose));
+  eventFilter_ = new ResultsEventFilter(this);
+  this->GetEventHandler()->AddFilter(eventFilter_);
 }
 
 ResultsDialog::~ResultsDialog() {
-
+  this->GetEventHandler()->RemoveFilter(eventFilter_);
+  delete eventFilter_;
 }
 
 void ResultsDialog::onClose(wxCommandEvent &event) {
   Hide();
   Destroy();
+}
+
+ResultsEventFilter::ResultsEventFilter(ResultsDialog *resultsDialog) {
+  resultsDialog_ = resultsDialog;
+}
+
+ResultsEventFilter::~ResultsEventFilter() {
+  
+}
+
+int ResultsEventFilter::FilterEvent(wxEvent& event) {
+  const wxEventType type = event.GetEventType();
+  if (resultsDialog_->IsActive() && type == wxEVT_KEY_DOWN) {
+    wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+    int keyCode = keyEvent->GetKeyCode();
+    if (keyCode == WXK_ESCAPE
+        || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
+      resultsDialog_->Close();
+      return Event_Processed;
+    }
+  }
+  return Event_Skip;
 }

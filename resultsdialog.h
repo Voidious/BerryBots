@@ -25,10 +25,21 @@
 #include "bbutil.h"
 
 class ResultsDialog : public wxFrame {
+  wxEventFilter *eventFilter_;
+
   public:
     ResultsDialog(Team **teams, int numTeams, wxPoint center);
     ~ResultsDialog();
     void onClose(wxCommandEvent &event);
+};
+
+class ResultsEventFilter : public wxEventFilter {
+  ResultsDialog *resultsDialog_;
+  
+  public:
+    ResultsEventFilter(ResultsDialog *resultsDialog);
+    ~ResultsEventFilter();
+    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif
