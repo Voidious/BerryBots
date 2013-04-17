@@ -116,6 +116,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   paused_ = false;
   restarting_ = false;
   quitting_ = false;
+  showedResults_ = false;
   previewing_ = false;
   closingPreview_ = false;
   tpsFactor_ = 1;
@@ -543,6 +544,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   nextDrawTime_ = 1;
   tooManyStageRectangles_ = tooManyStageLines_ = false;
   tooManyStageCircles_ = tooManyStageTexts_ = false;
+  showedResults_ = false;
 
   sf::RenderWindow *window;
   bool maintainWindowProperties = false;
@@ -707,7 +709,6 @@ void GuiManager::runCurrentMatch() {
   interrupted_ = false;
   restarting_ = false;
   sf::RenderWindow *window = getMainWindow();
-  bool showedResults = false;
   try {
     while (window->isOpen() && !interrupted_ && !restarting_ && !quitting_) {
       while (!paused_ && !restarting_ && !engine_->isGameOver()
@@ -724,9 +725,9 @@ void GuiManager::runCurrentMatch() {
         if (!paused_ && !engine_->isGameOver()) {
           nextDrawTime_ += tpsFactor_;
         }
-        if (engine_->isGameOver() && !showedResults) {
+        if (engine_->isGameOver() && !showedResults_) {
           showResults();
-          showedResults = true;
+          showedResults_ = true;
         }
       }
     }

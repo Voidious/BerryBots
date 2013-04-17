@@ -112,6 +112,7 @@ class GuiManager {
   bool paused_;
   bool restarting_;
   bool quitting_;
+  bool showedResults_;
   bool previewing_;
   bool closingPreview_;
   double tpsFactor_;

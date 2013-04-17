@@ -28,12 +28,10 @@
 #define RESULTS_HEIGHT  250
 
 class ResultsDialog : public wxFrame {
-  wxPanel *mainPanel_;
-  wxBoxSizer *mainSizer_;
-
   public:
     ResultsDialog(Team **teams, int numTeams, wxPoint position);
     ~ResultsDialog();
+    void onClose(wxCommandEvent &event);
 };
 
 #endif

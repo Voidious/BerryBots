@@ -27,6 +27,7 @@
 ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint position)
     : wxFrame(NULL, wxID_ANY, "Results", position, wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxMAXIMIZE_BOX)) {
+
 #ifdef __WINDOWS__
   SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
   
@@ -39,10 +40,11 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint position)
   SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
+  wxPanel *mainPanel = new wxPanel(this, wxID_ANY);
   wxBoxSizer *tableSizer = new wxBoxSizer(wxHORIZONTAL);
   wxDataViewListCtrl *resultsCtrl =
-  new wxDataViewListCtrl(this, wxID_ANY, wxPoint(0, 0),
-                         wxSize(RESULTS_WIDTH, RESULTS_HEIGHT));
+      new wxDataViewListCtrl(mainPanel, wxID_ANY, wxPoint(0, 0),
+                             wxSize(RESULTS_WIDTH, RESULTS_HEIGHT));
   resultsCtrl->AppendTextColumn("Rank", wxDATAVIEW_CELL_INERT, 50,
                                 wxALIGN_CENTER);
   resultsCtrl->AppendTextColumn("Name", wxDATAVIEW_CELL_INERT, 120,
@@ -111,9 +113,20 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint position)
   }
 
   tableSizer->Add(resultsCtrl, 0, wxEXPAND);
-  SetSizerAndFit(tableSizer);
+  wxBoxSizer *mainSizer = new wxBoxSizer(wxHORIZONTAL);
+  mainSizer->Add(mainPanel);
+  mainPanel->SetSizerAndFit(tableSizer);
+  SetSizerAndFit(mainSizer);
+
+  Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
+          wxCommandEventHandler(ResultsDialog::onClose));
 }
 
 ResultsDialog::~ResultsDialog() {
 
+}
+
+void ResultsDialog::onClose(wxCommandEvent &event) {
+  Hide();
+  Destroy();
 }
