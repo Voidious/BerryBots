@@ -39,7 +39,8 @@ RPI_SOURCES =  bbpimain.cpp bbengine.cpp stage.cpp bbutil.cpp bblua.cpp
 RPI_SOURCES += line2d.cpp point2d.cpp circle2d.cpp rectangle.cpp zone.cpp
 RPI_SOURCES += bbpigfx.cpp filemanager.cpp gfxeventhandler.cpp sensorhandler.cpp
 RPI_SOURCES += cliprinthandler.cpp clipackagereporter.cpp libshapes.c oglinit.c
-RPI_SOURCES += zipper.cpp tarzipper.cpp ./luajit/src/libluajit.a
+RPI_SOURCES += zipper.cpp tarzipper.cpp bbrunner.cpp relativebasedir.cpp
+RPI_SOURCES += ./luajit/src/libluajit.a
 
 RPI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include -I/opt/vc/include
 RPI_CFLAGS += -I/opt/vc/include/interface/vcos/pthreads
