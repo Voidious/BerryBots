@@ -277,7 +277,60 @@ int main(int argc, char *argv[]) {
   
   const char* winnerName = engine->getWinnerName();
   if (winnerName != 0) {
-    std::cout << winnerName << " wins! Congratulations!" << std::endl;
+    std::cout << std::endl<< winnerName << " wins! Congratulations!"
+              << std::endl;
+  }
+
+  std::cout << std::endl << "Results:" << std::endl;
+  Team **rankedTeams = engine->getRankedTeams();
+  bool hasScores = false;
+  for (int x = 0; x < numTeams; x++) {
+    if (rankedTeams[x]->result.score != 0) {
+      hasScores = true;
+      break;
+    }
+  }
+  TeamResult *firstResult = &(rankedTeams[0]->result);
+  int numStats = firstResult->numStats;
+  char **statKeys = 0;
+  if (numStats > 0) {
+    statKeys = new char*[firstResult->numStats];
+    for (int x = 0; x < numStats; x++) {
+      statKeys[x] = new char[strlen(firstResult->stats[x]->key) + 1];
+      strcpy(statKeys[x], firstResult->stats[x]->key);
+    }
+  }
+
+  for (int x = 0; x < engine->getNumTeams(); x++) {
+    std::cout << "    " << rankedTeams[x]->name << ":" << std::endl;
+    TeamResult *result = &(rankedTeams[x]->result);
+    std::cout << "        Rank: ";
+    if (result->rank == 0) {
+      std::cout << "-";
+    } else {
+      std::cout << result->rank;
+    }
+    std::cout << std::endl;
+    if (hasScores) {
+      std::cout << "        Score: " << round(result->score, 2) << std::endl;
+    }
+
+    for (int y = 0; y < numStats; y++) {
+      char *key = statKeys[y];
+      bool found = false;
+      for (int z = 0; z < result->numStats; z++) {
+        char *resultKey = result->stats[z]->key;
+        if (strcmp(key, resultKey) == 0) {
+          std::cout << "        " << key << ": "
+                    << round(result->stats[z]->value, 2) << std::endl;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        std::cout << "        " << key << ": -" << std::endl;
+      }
+    }
   }
 
   std::cout << std::endl << "CPU time used per tick (microseconds):"
@@ -292,8 +345,7 @@ int main(int argc, char *argv[]) {
 
   if (realSeconds > 0) {
     std::cout << std::endl << "TPS: "
-              << (((double) engine->getGameTime()) / realSeconds)
-              << std::endl;
+              << (((double) engine->getGameTime()) / realSeconds) << std::endl;
   }
   
   delete engine;
@@ -301,6 +353,11 @@ int main(int argc, char *argv[]) {
     delete teams[x];
   }
   delete teams;
+  delete rankedTeams;
+  for (int x = 0; x < numStats; x++) {
+    delete statKeys[x];
+  }
+  delete statKeys;
   delete printHandler;
   if (!nodisplay) {
     delete gfxManager;
@@ -313,4 +370,3 @@ int main(int argc, char *argv[]) {
 
   return 0;
 }
-

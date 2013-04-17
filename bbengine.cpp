@@ -321,6 +321,8 @@ TeamResult** BerryBotsEngine::getTeamResults() {
 void BerryBotsEngine::processWinnerRanksScores() {
   if (hasScores_ && !hasRanks_) {
     setTeamRanksByScore();
+  } else if (winnerName_ != 0 && !hasRanks_) {
+    setRank(winnerName_, 1);
   }
   if (winnerName_ == 0 && (hasScores_ || hasRanks_)) {
     for (int x = 0; x < numTeams_; x++) {
@@ -383,7 +385,7 @@ Team** BerryBotsEngine::getRankedTeams() {
     for (int y = x + 1; y < numTeams_; y++) {
       Team *team1 = sortedTeams[x];
       Team *team2 = sortedTeams[y];
-      if (team1->result.rank > team2->result.rank
+      if ((team1->result.rank > team2->result.rank && team2->result.rank != 0)
           || (team1->result.rank == 0 && team2->result.rank != 0)) {
         sortedTeams[x] = team2;
         sortedTeams[y] = team1;
