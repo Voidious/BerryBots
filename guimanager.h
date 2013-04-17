@@ -38,6 +38,12 @@
 #define ITEM_SHIP    2
 #define ITEM_RUNNER  3
 
+#define NEXT_NEW_MATCH       1
+#define NEXT_PACKAGE_STAGE   2
+#define NEXT_PACKAGE_SHIP    3
+#define NEXT_GAME_RUNNER     4
+#define NEXT_RESUME_MATCH    5
+
 #define TOO_MANY_RECTANGLES  "== Warning: Tried to draw too many DebugGfx rectangles (max 4096)."
 #define TOO_MANY_LINES       "== Warning: Tried to draw too many DebugGfx lines (max 4096)."
 #define TOO_MANY_CIRCLES     "== Warning: Tried to draw too many DebugGfx circles (max 4096)."
@@ -115,6 +121,8 @@ class GuiManager {
   bool showedResults_;
   bool previewing_;
   bool closingPreview_;
+  bool runnerRunning_;
+  int nextWindow_;
   double tpsFactor_;
   double nextDrawTime_;
   bool tooManyStageRectangles_;
@@ -191,6 +199,7 @@ class GuiManager {
     void clearTeamErroredForActiveConsoles(BerryBotsEngine *engine);
     void resumeMatch();
     void showDialog(wxFrame *dialog);
+    bool confirmDialogSwitch(int nextWindow);
     void deleteStageConsole();
     void saveCurrentMatchSettings(
         const char *stageName, char **teamNames, int numTeams);
@@ -344,7 +353,7 @@ class RunnerConsoleListener : public ConsoleListener {
   public:
     RunnerConsoleListener(GuiManager *guiManager);
     virtual void onActive() {};
-    virtual void onClose() {};
+    virtual void onClose();
     virtual void onCheck(bool checked) {};
     virtual void onAbort();
     virtual ~RunnerConsoleListener() {};

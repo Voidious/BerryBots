@@ -119,6 +119,8 @@ GuiManager::GuiManager(GuiListener *listener) {
   showedResults_ = false;
   previewing_ = false;
   closingPreview_ = false;
+  runnerRunning_ = false;
+  nextWindow_ = 0;
   tpsFactor_ = 1;
   nextDrawTime_ = 1;
   numStages_ = numShips_ = numRunners_ = 0;
@@ -708,6 +710,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
 void GuiManager::runCurrentMatch() {
   interrupted_ = false;
   restarting_ = false;
+  runnerConsole_->Hide();
   sf::RenderWindow *window = getMainWindow();
   try {
     while (window->isOpen() && !interrupted_ && !restarting_ && !quitting_) {
@@ -990,7 +993,11 @@ void GuiManager::launchGameRunner(const char *runnerName) {
   char **shipNames = newMatchDialog_->getShipNames();
   gameRunner_ = new GuiGameRunner(runnerConsole_, stageNames, numStages_,
                                   shipNames, numShips_, zipper_);
+  runnerDialog_->Hide();
+  nextWindow_ = 0;
+  runnerRunning_ = true;
   gameRunner_->run(runnerName);
+  runnerRunning_ = false;
 
   GuiGameRunner *oldRunner = gameRunner_;
   gameRunner_ = 0;
@@ -1005,6 +1012,26 @@ void GuiManager::launchGameRunner(const char *runnerName) {
   delete shipNames;
   delete printHandler;
   printHandler = 0;
+
+  switch (nextWindow_) {
+    case NEXT_NEW_MATCH:
+      showNewMatchDialog();
+      break;
+    case NEXT_PACKAGE_SHIP:
+      showPackageShipDialog();
+      break;
+    case NEXT_PACKAGE_STAGE:
+      showPackageStageDialog();
+      break;
+    case NEXT_GAME_RUNNER:
+      showGameRunnerDialog();
+      break;
+    case NEXT_RESUME_MATCH:
+      resumeMatch();
+      break;
+    default:
+      break;
+  }
 }
 
 void GuiManager::abortGameRunner() {
@@ -1015,19 +1042,27 @@ void GuiManager::abortGameRunner() {
 }
 
 void GuiManager::showNewMatchDialog() {
-  showDialog(newMatchDialog_);
+  if (confirmDialogSwitch(NEXT_NEW_MATCH)) {
+    showDialog(newMatchDialog_);
+  }
 }
 
 void GuiManager::showPackageShipDialog() {
-  showDialog(packageShipDialog_);
+  if (confirmDialogSwitch(NEXT_PACKAGE_SHIP)) {
+    showDialog(packageShipDialog_);
+  }
 }
 
 void GuiManager::showPackageStageDialog() {
-  showDialog(packageStageDialog_);
+  if (confirmDialogSwitch(NEXT_PACKAGE_STAGE)) {
+    showDialog(packageStageDialog_);
+  }
 }
 
 void GuiManager::showGameRunnerDialog() {
-  showDialog(runnerDialog_);
+  if (confirmDialogSwitch(NEXT_GAME_RUNNER)) {
+    showDialog(runnerDialog_);
+  }
 }
 
 void GuiManager::showDialog(wxFrame *dialog) {
@@ -1046,6 +1081,21 @@ void GuiManager::showDialog(wxFrame *dialog) {
   }
   dialog->Show();
   dialog->Raise();
+}
+
+bool GuiManager::confirmDialogSwitch(int nextWindow) {
+  if (runnerRunning_) {
+    wxMessageDialog confirmMessage(NULL,
+        "This will abort the currently running Game Runner. Are you sure?",
+        "Abort Game Runner", wxOK | wxCANCEL | wxICON_EXCLAMATION);
+    int r = confirmMessage.ShowModal();
+    if (r == wxID_OK) {
+      nextWindow_ = nextWindow;
+      gameRunner_->quit();
+    }
+    return false;
+  }
+  return true;
 }
 
 void GuiManager::showStageConsole() {
@@ -1238,6 +1288,8 @@ void GuiManager::hideErrorConsole() {
 void GuiManager::dialogClosed() {
   if (window_ == 0) {
     listener_->onAllWindowsClosed();
+  } else if (runnerRunning_) {
+    nextWindow_ = NEXT_RESUME_MATCH;
   } else {
     resumeMatch();
   }
@@ -1764,6 +1816,11 @@ void PreviewConsoleListener::onClose() {
 
 RunnerConsoleListener::RunnerConsoleListener(GuiManager *guiManager) {
   guiManager_ = guiManager;
+}
+
+void RunnerConsoleListener::onClose() {
+  guiManager_->abortGameRunner();
+  guiManager_->dialogClosed();
 }
 
 void RunnerConsoleListener::onAbort() {
