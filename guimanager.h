@@ -33,6 +33,7 @@
 #include "outputconsole.h"
 #include "menubarmaker.h"
 #include "guiprinthandler.h"
+#include "resultsdialog.h"
 
 #define ITEM_STAGE   1
 #define ITEM_SHIP    2
@@ -83,6 +84,7 @@ class GuiManager {
   OutputConsole *previewConsole_;
   ConsoleListener *previewConsoleListener_;
   ConsoleListener *runnerConsoleListener_;
+  ResultsDialog *resultsDialog_;
   MenuBarMaker *menuBarMaker_;
   GfxManager *gfxManager_;
   GfxManager *previewGfxManager_;
@@ -201,6 +203,7 @@ class GuiManager {
     void showDialog(wxFrame *dialog);
     bool confirmDialogSwitch(int nextWindow);
     void deleteStageConsole();
+    void destroyResultsDialog();
     void saveCurrentMatchSettings(
         const char *stageName, char **teamNames, int numTeams);
     void deleteCurrentMatchSettings();

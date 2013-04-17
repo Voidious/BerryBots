@@ -82,6 +82,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   packagingConsole_->SetPosition(wxPoint(150, 100));
   newMatchListener_ = new MatchStarter(this, stagesBaseDir_, shipsBaseDir_);
   newMatchDialog_ = new NewMatchDialog(newMatchListener_, menuBarMaker_);
+  resultsDialog_ = 0;
   shipPackager_ = new ShipPackager(this, fileManager_, packagingConsole_,
                                    shipsBaseDir_);
   packageShipDialog_ = new PackageShipDialog(shipPackager_, menuBarMaker_);
@@ -135,6 +136,7 @@ GuiManager::GuiManager(GuiListener *listener) {
 GuiManager::~GuiManager() {
   deleteStageConsole();
   deleteCurrentMatchSettings();
+  destroyResultsDialog();
   delete newMatchDialog_;
   delete packageShipDialog_;
   delete packageStageDialog_;
@@ -711,6 +713,7 @@ void GuiManager::runCurrentMatch() {
   interrupted_ = false;
   restarting_ = false;
   runnerConsole_->Hide();
+  destroyResultsDialog();
   sf::RenderWindow *window = getMainWindow();
   try {
     while (window->isOpen() && !interrupted_ && !restarting_ && !quitting_) {
@@ -775,12 +778,11 @@ void GuiManager::showResults() {
   int xCenter = windowPosition.x + (windowSize.x / 2);
   int yCenter = windowPosition.y + (windowSize.y / 2);
 
-  ResultsDialog *resultsDialog =
-      new ResultsDialog(rankedTeams, engine_->getNumTeams(),
-                        wxPoint(xCenter, yCenter));
+  resultsDialog_ = new ResultsDialog(rankedTeams, engine_->getNumTeams(),
+                                     wxPoint(xCenter, yCenter));
   delete rankedTeams;
-  resultsDialog->Show();
-  resultsDialog->Raise();
+  resultsDialog_->Show();
+  resultsDialog_->Raise();
 }
 
 void GuiManager::clearTeamErroredForActiveConsoles(BerryBotsEngine *engine) {
@@ -1258,6 +1260,14 @@ void GuiManager::deleteStageConsole() {
     stageConsole_->Hide();
     delete stageConsole_;
     stageConsole_ = 0;
+  }
+}
+
+void GuiManager::destroyResultsDialog() {
+  if (resultsDialog_ != 0) {
+    resultsDialog_->Hide();
+    resultsDialog_->Destroy();
+    resultsDialog_ = 0;
   }
 }
 
