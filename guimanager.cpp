@@ -774,8 +774,7 @@ void GuiManager::showResults() {
 
   ResultsDialog *resultsDialog =
       new ResultsDialog(rankedTeams, engine_->getNumTeams(),
-          wxPoint(xCenter - (RESULTS_WIDTH / 2),
-                  yCenter - (RESULTS_HEIGHT / 2) - 50));
+                        wxPoint(xCenter, yCenter));
   delete rankedTeams;
   resultsDialog->Show();
   resultsDialog->Raise();

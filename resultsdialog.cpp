@@ -20,12 +20,12 @@
 
 #include <string.h>
 #include <wx/wx.h>
-#include <wx/dataview.h>
+#include <wx/grid.h>
 #include "bbwx.h"
 #include "resultsdialog.h"
 
-ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint position)
-    : wxFrame(NULL, wxID_ANY, "Results", position, wxDefaultSize,
+ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint center)
+    : wxFrame(NULL, wxID_ANY, "Results", wxDefaultPosition, wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxMAXIMIZE_BOX)) {
 
 #ifdef __WINDOWS__
@@ -42,13 +42,8 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint position)
 
   wxPanel *mainPanel = new wxPanel(this, wxID_ANY);
   wxBoxSizer *tableSizer = new wxBoxSizer(wxHORIZONTAL);
-  wxDataViewListCtrl *resultsCtrl =
-      new wxDataViewListCtrl(mainPanel, wxID_ANY, wxPoint(0, 0),
-                             wxSize(RESULTS_WIDTH, RESULTS_HEIGHT));
-  resultsCtrl->AppendTextColumn("Rank", wxDATAVIEW_CELL_INERT, 50,
-                                wxALIGN_CENTER);
-  resultsCtrl->AppendTextColumn("Name", wxDATAVIEW_CELL_INERT, 120,
-                                wxALIGN_LEFT);
+  wxGrid *resultsGrid =
+      new wxGrid(mainPanel, wxID_ANY, wxPoint(0, 0), wxDefaultSize);
 
   bool hasScores = false;
   for (int x = 0; x < numTeams; x++) {
@@ -57,10 +52,7 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint position)
       break;
     }
   }
-  if (hasScores) {
-    resultsCtrl->AppendTextColumn("Score", wxDATAVIEW_CELL_INERT, -1,
-                                  wxALIGN_RIGHT);
-  }
+  int baseCols = (hasScores ? 3 : 2);
 
   TeamResult *firstResult = &(teams[0]->result);
   int numStats = firstResult->numStats;
@@ -70,54 +62,68 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint position)
     for (int x = 0; x < numStats; x++) {
       statKeys[x] = new char[strlen(firstResult->stats[x]->key) + 1];
       strcpy(statKeys[x], firstResult->stats[x]->key);
-      resultsCtrl->AppendTextColumn(statKeys[x], wxDATAVIEW_CELL_INERT, -1,
-                                    wxALIGN_RIGHT);
+      resultsGrid->SetColLabelValue(baseCols + x, statKeys[x]);
     }
   }
 
-#ifdef __WXGTK__
-  resultsCtrl->AppendTextColumn(" ", wxDATAVIEW_CELL_INERT, -1,
-                                wxALIGN_RIGHT);
-#endif
+  resultsGrid->CreateGrid(numTeams, baseCols + numStats);
+  resultsGrid->EnableEditing(false);
+  resultsGrid->SetColumnWidth(0, 50);
+  resultsGrid->SetColLabelValue(0, "Rank");
+  resultsGrid->SetColumnWidth(1, 150);
+  resultsGrid->SetColLabelValue(1, "Name");
+  if (hasScores) {
+    resultsGrid->SetColLabelValue(2, "Score");
+  }
+  for (int x = 0; x < numStats; x++) {
+    resultsGrid->SetColLabelValue(baseCols + x, statKeys[x]);
+  }
+  resultsGrid->HideRowLabels();
 
   for (int x = 0; x < numTeams; x++) {
     TeamResult *result = &(teams[x]->result);
-    wxVector<wxVariant> data;
     if (result->rank == 0) {
-      data.push_back("-");
+      resultsGrid->SetCellValue(x, 0, "-");
     } else {
-      data.push_back(wxString::Format(wxT("%i"), result->rank));
+      resultsGrid->SetCellValue(x, 0,
+                                wxString::Format(wxT("%i"), result->rank));
     }
-    data.push_back(wxString(teams[x]->name));
-    data.push_back(wxString::Format(wxT("%.2f"), result->score));
+    resultsGrid->SetCellAlignment(wxALIGN_CENTER, x, 0);
+    resultsGrid->SetCellValue(x, 1,
+                              wxString::Format(wxT(" %s"), teams[x]->name));
+    if (hasScores) {
+      resultsGrid->SetCellValue(x, 2,
+                                wxString::Format(wxT("%.2f "), result->score));
+      resultsGrid->SetCellAlignment(wxALIGN_RIGHT, x, 2);
+    }
     for (int y = 0; y < numStats; y++) {
       char *key = statKeys[y];
       bool found = false;
       for (int z = 0; z < result->numStats; z++) {
         char *resultKey = result->stats[z]->key;
         if (strcmp(key, resultKey) == 0) {
-          data.push_back(wxString::Format(wxT("%.2f"), result->stats[z]->value));
+          resultsGrid->SetCellValue(x, baseCols + y,
+              wxString::Format(wxT("%.2f "), result->stats[z]->value));
+          resultsGrid->SetCellAlignment(wxALIGN_RIGHT, x, baseCols + y);
           found = true;
           break;
         }
       }
       if (!found) {
-        data.push_back("-");
+        resultsGrid->SetCellValue(x, baseCols + y, "-");
       }
     }
-#ifdef __WXGTK__
-    data.push_back(" ");
-#endif
-    resultsCtrl->AppendItem(data);
-    data.clear();
   }
 
-  tableSizer->Add(resultsCtrl, 0, wxEXPAND);
+  tableSizer->Add(resultsGrid, 0, wxEXPAND);
   wxBoxSizer *mainSizer = new wxBoxSizer(wxHORIZONTAL);
   mainSizer->Add(mainPanel);
   mainPanel->SetSizerAndFit(tableSizer);
   SetSizerAndFit(mainSizer);
 
+  wxSize windowSize = GetSize();
+  this->SetPosition(wxPoint(center.x - (windowSize.x / 2),
+                            center.y - (windowSize.y / 2)));
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(ResultsDialog::onClose));
 }

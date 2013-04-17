@@ -24,12 +24,9 @@
 #include <wx/wx.h>
 #include "bbutil.h"
 
-#define RESULTS_WIDTH   600
-#define RESULTS_HEIGHT  250
-
 class ResultsDialog : public wxFrame {
   public:
-    ResultsDialog(Team **teams, int numTeams, wxPoint position);
+    ResultsDialog(Team **teams, int numTeams, wxPoint center);
     ~ResultsDialog();
     void onClose(wxCommandEvent &event);
 };
