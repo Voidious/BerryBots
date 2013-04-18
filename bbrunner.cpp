@@ -76,7 +76,8 @@ MatchResult* BerryBotsRunner::nextResult() {
         if (config->isFinished() && !config->hasProcessedResult()) {
           MatchResult *nextResult = new MatchResult(config->getStageName(),
               config->getTeamNames(), config->getNumTeams(),
-              config->getWinnerFilename(), config->getTeamResults());
+              config->getWinnerFilename(), config->getTeamResults(),
+              config->getErrorMessage());
           config->processedResult();
           return nextResult;
         }
@@ -173,7 +174,7 @@ void* BerryBotsRunner::runMatch(void *vargs) {
     engine->initShips(config->getShipsDir(), config->getTeamNames(),
                       config->getNumTeams(), config->getCacheDir());
   } catch (EngineException *e) {
-    // TODO: callback to display error message
+    config->setErrorMessage(e->what());
     aborted = true;
     delete e;
   }
@@ -183,11 +184,11 @@ void* BerryBotsRunner::runMatch(void *vargs) {
       engine->processTick();
     }
   } catch (EngineException *e) {
-    // TODO: callback to display error message
+    config->setErrorMessage(e->what());
     aborted = true;
     delete e;
   }
-  if (engine->isGameOver()) {
+  if (!aborted && engine->isGameOver()) {
     const char *winner = engine->getWinnerFilename();
     if (winner != 0) {
       config->setWinnerFilename(winner);
@@ -222,6 +223,7 @@ MatchConfig::MatchConfig(const char *stageName, char **teamNames,
   winnerFilename_ = 0;
   started_ = finished_ = processedResult_ = false;
   teamResults_ = 0;
+  errorMessage_ = 0;
 }
 
 MatchConfig::~MatchConfig() {
@@ -247,6 +249,9 @@ MatchConfig::~MatchConfig() {
   delete stagesDir_;
   delete shipsDir_;
   delete cacheDir_;
+  if (errorMessage_ != 0) {
+    delete errorMessage_;
+  }
 }
 
 const char* MatchConfig::getStagesDir() {
@@ -314,8 +319,21 @@ void MatchConfig::processedResult() {
   processedResult_ = true;
 }
 
+const char* MatchConfig::getErrorMessage() {
+  return errorMessage_;
+}
+
+void MatchConfig::setErrorMessage(const char *errorMessage) {
+  if (errorMessage_ != 0) {
+    delete errorMessage_;
+  }
+  errorMessage_ = new char[strlen(errorMessage) + 1];
+  strcpy(errorMessage_, errorMessage);
+}
+
 MatchResult::MatchResult(const char *stageName, char **teamNames, int numTeams,
-                         const char *winner, TeamResult **teamResults) {
+                         const char *winner, TeamResult **teamResults,
+                         const char *errorMessage) {
   stageName_ = new char[strlen(stageName) + 1];
   strcpy(stageName_, stageName);
   teamNames_ = new char*[numTeams];
@@ -331,6 +349,12 @@ MatchResult::MatchResult(const char *stageName, char **teamNames, int numTeams,
     strcpy(winner_, winner);
   }
   teamResults_ = teamResults;
+  if (errorMessage == 0) {
+    errorMessage_ = 0;
+  } else {
+    errorMessage_ = new char[strlen(errorMessage) + 1];
+    strcpy(errorMessage_, errorMessage);
+  }
 }
 
 MatchResult::~MatchResult() {
@@ -341,6 +365,9 @@ MatchResult::~MatchResult() {
   delete teamNames_;
   if (winner_ != 0) {
     delete winner_;
+  }
+  if (errorMessage_ != 0) {
+    delete errorMessage_;
   }
 }
 
@@ -362,4 +389,12 @@ const char* MatchResult::getWinner() {
 
 TeamResult** MatchResult::getTeamResults() {
   return teamResults_;
+}
+
+bool MatchResult::errored() {
+  return (errorMessage_ != 0);
+}
+
+const char* MatchResult::getErrorMessage() {
+  return errorMessage_;
 }

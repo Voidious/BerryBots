@@ -61,25 +61,29 @@ function processNextResult(runner)
   local result = runner:nextResult()
   local teams = result.teams
   print("---------------------------------------------------------------------")
-  print(teams[1].name .. " vs " .. teams[2].name)
-  if (result.winner == nil) then
-    print("    Tie.")
+  if (result.errored) then
+    print("    Error: " .. result.errorMessage)
   else
-    print("    " .. result.winner .. " wins!")
-  end
-  print("------------------------------")
-  local sortedTeams = getSortedTeams(teams)
-  for i, team in ipairs(sortedTeams) do
-    if (i > 1) then
-      print("--------")
+    print(teams[1].name .. " vs " .. teams[2].name)
+    if (result.winner == nil) then
+      print("    Tie.")
+    else
+      print("    " .. result.winner .. " wins!")
     end
-    print("    " .. team.name .. ":")
-    print("        Rank: " .. team.rank)
-    print("        Score: " .. round(team.score, 2))
-    if (team.stats ~= nil) then
-      print("        Stats:")
-      for key, value in pairs(team.stats) do
-        print("            " .. key .. ": " .. round(value, 2))
+    print("------------------------------")
+    local sortedTeams = getSortedTeams(teams)
+    for i, team in ipairs(sortedTeams) do
+      if (i > 1) then
+        print("--------")
+      end
+      print("    " .. team.name .. ":")
+      print("        Rank: " .. team.rank)
+      print("        Score: " .. round(team.score, 2))
+      if (team.stats ~= nil) then
+        print("        Stats:")
+        for key, value in pairs(team.stats) do
+          print("            " .. key .. ": " .. round(value, 2))
+        end
       end
     end
   end

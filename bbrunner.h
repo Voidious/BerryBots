@@ -46,6 +46,7 @@ class MatchConfig {
   bool finished_;
   bool processedResult_;
   TeamResult **teamResults_;
+  char *errorMessage_;
 
   public:
     MatchConfig(const char *stageName, char **teamNames, int numTeams,
@@ -67,6 +68,8 @@ class MatchConfig {
     void finished();
     bool hasProcessedResult();
     void processedResult();
+    const char *getErrorMessage();
+    void setErrorMessage(const char *errorMessage);
 };
 
 class MatchResult {
@@ -75,16 +78,20 @@ class MatchResult {
   int numTeams_;
   char *winner_;
   TeamResult **teamResults_;
+  char *errorMessage_;
 
   public:
     MatchResult(const char *stageName, char **teamNames, int numTeams,
-                const char *winner, TeamResult **teamResults);
+                const char *winner, TeamResult **teamResults,
+                const char *errorMessage);
     ~MatchResult();
     const char* getStageName();
     char** getTeamNames();
     int getNumTeams();
     const char* getWinner();
     TeamResult** getTeamResults();
+    bool errored();
+    const char *getErrorMessage();
 };
 
 typedef struct {
