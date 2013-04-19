@@ -1,35 +1,58 @@
 <%
 if module_doc then
-	from = "modules/"..module_doc.name
+  from = "modules/"..module_doc.name
 elseif file_doc then
-	from = "files/.."..file_doc.name
+  from = "files/.."..file_doc.name
 else
-	from = ""
+  from = ""
 end
 %>
 
 <h1>BerryBots Lua API</h1>
 <ul>
-	<%if not module_doc and not file_doc then%>
-	<li><strong>Index</strong></li>
-	<%else%>
-	<li><a href="<%=luadoc.doclet.html.link("index.html", from)%>">Index</a></li>
-	<%end%>
+  <%if not module_doc and not file_doc then%>
+  <li><strong>Index</strong></li>
+  <%else%>
+  <li><a href="<%=luadoc.doclet.html.link("index.html", from)%>">Index</a></li>
+  <%end%>
 </ul>
 
 
-<!-- Module list -->
+<!-- Ship / stage module list -->
 <%if not options.nomodules and #doc.modules > 0 then%>
-<h1>Modules</h1>
+<h1>Ship / Stage Modules</h1>
 <ul>
 <%for _, modulename in ipairs(doc.modules) do
-	if module_doc and module_doc.name == modulename then%>
-	<li><strong><%=modulename%></strong></li>
-	<%else%>
-	<li>
-		<a href="<%=luadoc.doclet.html.module_link(modulename, doc, from)%>"><%=modulename%></a>
-	</li>
-<%	end
+  if (modulename ~= "MatchRunner" and modulename ~= "RunnerControl"
+      and modulename ~= "RunnerFiles" and modulename ~= "RunnerForm") then
+    if module_doc and module_doc.name == modulename then%>
+  <li><strong><%=modulename%></strong></li>
+  <%else%>
+  <li>
+    <a href="<%=luadoc.doclet.html.module_link(modulename, doc, from)%>"><%=modulename%></a>
+  </li>
+<%  end
+  end
+end%>
+</ul>
+<%end%>
+
+
+<!-- Game Runner module list -->
+<%if not options.nomodules and #doc.modules > 0 then%>
+<h1>Game Runner Modules</h1>
+<ul>
+<%for _, modulename in ipairs(doc.modules) do
+  if (modulename == "MatchRunner" or modulename == "RunnerControl"
+      or modulename == "RunnerFiles" or modulename == "RunnerForm") then
+    if module_doc and module_doc.name == modulename then%>
+  <li><strong><%=modulename%></strong></li>
+  <%else%>
+  <li>
+    <a href="<%=luadoc.doclet.html.module_link(modulename, doc, from)%>"><%=modulename%></a>
+  </li>
+<%  end
+  end
 end%>
 </ul>
 <%end%>
@@ -40,13 +63,13 @@ end%>
 <h1>Files</h1>
 <ul>
 <%for _, filepath in ipairs(doc.files) do
-	if file_doc and file_doc.name == filepath then%>
-	<li><strong><%=filepath%></strong></li>
-	<%else%>
-	<li>
-		<a href="<%=luadoc.doclet.html.file_link(filepath, from)%>"><%=filepath%></a>
-	</li>
-<%	end
+  if file_doc and file_doc.name == filepath then%>
+  <li><strong><%=filepath%></strong></li>
+  <%else%>
+  <li>
+    <a href="<%=luadoc.doclet.html.file_link(filepath, from)%>"><%=filepath%></a>
+  </li>
+<%  end
 end%>
 </ul>
 <%end%>

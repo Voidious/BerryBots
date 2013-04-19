@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>BerryBots API: RunnerControl</title>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>BerryBots Lua API</h1>
+<ul>
+  
+  <li><a href="../index.html">Index</a></li>
+  
+</ul>
+
+
+<!-- Ship / stage module list -->
+
+<h1>Ship / Stage Modules</h1>
+<ul>
+
+  <li>
+    <a href="../modules/Admin.html">Admin</a>
+  </li>
+
+  <li>
+    <a href="../modules/DebugGfx.html">DebugGfx</a>
+  </li>
+
+  <li>
+    <a href="../modules/Sensors.html">Sensors</a>
+  </li>
+
+  <li>
+    <a href="../modules/Ship.html">Ship</a>
+  </li>
+
+  <li>
+    <a href="../modules/ShipControl.html">ShipControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/StageBuilder.html">StageBuilder</a>
+  </li>
+
+  <li>
+    <a href="../modules/StageControl.html">StageControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/StageSensors.html">StageSensors</a>
+  </li>
+
+  <li>
+    <a href="../modules/World.html">World</a>
+  </li>
+
+</ul>
+
+
+
+<!-- Game Runner module list -->
+
+<h1>Game Runner Modules</h1>
+<ul>
+
+  <li>
+    <a href="../modules/MatchRunner.html">MatchRunner</a>
+  </li>
+
+  <li><strong>RunnerControl</strong></li>
+  
+  <li>
+    <a href="../modules/RunnerFiles.html">RunnerFiles</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerForm.html">RunnerForm</a>
+  </li>
+
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+<h1>Helpful Links</h1>
+<ul>
+    <li><a href="http://www.lua.org/manual/5.1/">Lua 5.1 Manual</a></li>
+    <li><a href="http://lua-users.org/wiki/TutorialDirectory">Lua-users Tutorial Directory</a></li>
+    <li><a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Bots">Sample Ships</a>
+    <li><a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Stages">Sample Stages</a>
+    <li><a href="http://berrybots.com/specs.html">BerryBots Game Specs</a></li>
+    <li><a href="http://berrybots.com/wiki">BerryBots Wiki</a></li>
+</ul>
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>RunnerControl</code></h1>
+
+<p>The API to be implemented by a Game Runner control program. A Game Runner program can execute BerryBots matches and process the results. Optionally takes input from the user via UI, or files from disk, and outputs to a console or files.<br><br> <strong>Be careful! Game Runner programs are much more capable of doing harm to your system than ship or stage programs. They can write to disk and in the future they will have network access. Only execute Game Runner programs that you trust, or that you wrote yourself.</strong></p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#run">run</a>&nbsp;(form, runner, files)</td>
+	<td class="summary">Executes a BerryBots Game Runner control program.</td>
+	</tr>
+
+</table>
+
+
+
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="run"></a><strong>run</strong>&nbsp;(form, runner, files)</dt>
+<br/>
+<dd>
+Executes a BerryBots Game Runner control program.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  form: A userdata object used to specify input fields, prompt the user with a form with these fields, and fetch the values input by the user.
+	</li>
+	
+	<li>
+	  runner: A userdata object used to queue BerryBots matches and fetch the results.
+	</li>
+	
+	<li>
+	  files: A userdata object used to read from and write to files in the BerryBots runners directory.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/RunnerForm.html">
+		RunnerForm
+	</a>
+	
+	<li><a href="../modules/MatchRunner.html">
+		MatchRunner
+	</a>
+	
+	<li><a href="../modules/RunnerFiles.html">
+		RunnerFiles
+	</a>
+	
+</ul>
+
+</dd>
+
+
+</dl>
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

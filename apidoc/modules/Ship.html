@@ -19,50 +19,75 @@
 
 <h1>BerryBots Lua API</h1>
 <ul>
-	
-	<li><a href="../index.html">Index</a></li>
-	
+  
+  <li><a href="../index.html">Index</a></li>
+  
 </ul>
 
 
-<!-- Module list -->
+<!-- Ship / stage module list -->
 
-<h1>Modules</h1>
+<h1>Ship / Stage Modules</h1>
 <ul>
 
-	<li>
-		<a href="../modules/Admin.html">Admin</a>
-	</li>
+  <li>
+    <a href="../modules/Admin.html">Admin</a>
+  </li>
 
-	<li>
-		<a href="../modules/DebugGfx.html">DebugGfx</a>
-	</li>
+  <li>
+    <a href="../modules/DebugGfx.html">DebugGfx</a>
+  </li>
 
-	<li>
-		<a href="../modules/Sensors.html">Sensors</a>
-	</li>
+  <li>
+    <a href="../modules/Sensors.html">Sensors</a>
+  </li>
 
-	<li><strong>Ship</strong></li>
-	
-	<li>
-		<a href="../modules/ShipControl.html">ShipControl</a>
-	</li>
+  <li><strong>Ship</strong></li>
+  
+  <li>
+    <a href="../modules/ShipControl.html">ShipControl</a>
+  </li>
 
-	<li>
-		<a href="../modules/StageBuilder.html">StageBuilder</a>
-	</li>
+  <li>
+    <a href="../modules/StageBuilder.html">StageBuilder</a>
+  </li>
 
-	<li>
-		<a href="../modules/StageControl.html">StageControl</a>
-	</li>
+  <li>
+    <a href="../modules/StageControl.html">StageControl</a>
+  </li>
 
-	<li>
-		<a href="../modules/StageSensors.html">StageSensors</a>
-	</li>
+  <li>
+    <a href="../modules/StageSensors.html">StageSensors</a>
+  </li>
 
-	<li>
-		<a href="../modules/World.html">World</a>
-	</li>
+  <li>
+    <a href="../modules/World.html">World</a>
+  </li>
+
+</ul>
+
+
+
+<!-- Game Runner module list -->
+
+<h1>Game Runner Modules</h1>
+<ul>
+
+  <li>
+    <a href="../modules/MatchRunner.html">MatchRunner</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerControl.html">RunnerControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerFiles.html">RunnerFiles</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerForm.html">RunnerForm</a>
+  </li>
 
 </ul>
 
@@ -295,7 +320,7 @@ Fires a laser at the given angle. All lasers move at the same speed (25), do the
 <dt><a name="fireThruster"></a><strong>fireThruster</strong>&nbsp;(angle, force)</dt>
 <br/>
 <dd>
-Fires the ship's thruster, pushing it in the given direction and altering its speed and/or heading. This command only affects one tick - if you don't call it again the next tick, your ship will keep moving with the same speed and heading.<br/><br/> Note that momentum is cumulative. From a dead stop, your ship will move in the given direction, but if your ship is already moving, the thruster force is added to your current movement vector. If you want to keep things simple and always move in straight lines, you can stop moving in one direction before starting to move in another: <code>ship:fireThruster(ship:heading() + math.pi, ship:speed())</code>
+Fires the ship's thruster, pushing it in the given direction and altering its speed and/or heading. This command only affects one tick - if you don't call it again the next tick, your ship will keep moving with the same speed and heading.<br><br> Note that momentum is cumulative. From a dead stop, your ship will move in the given direction, but if your ship is already moving, the thruster force is added to your current movement vector. If you want to keep things simple and always move in straight lines, you can stop moving in one direction before starting to move in another: <code>ship:fireThruster(ship:heading() + math.pi, ship:speed())</code>
 
 
 <h3>Parameters</h3>
@@ -329,7 +354,7 @@ Fires the ship's thruster, pushing it in the given direction and altering its sp
 <dt><a name="fireTorpedo"></a><strong>fireTorpedo</strong>&nbsp;(heading, distance)</dt>
 <br/>
 <dd>
-Fires a torpedo the given distance at the given angle. All torpedos move at the same speed (12), do the same amount of damage, and cool at the same rate (100 ticks). Torpedos move through walls and ships until they reach the specified distance. They inflict damage and knockback on all ships within the blast radius (100), doing the most damage and knockback to ships near the center of the blast.<br/><br/> The damage and knockback formulas are both:<br/> <code>30 / (1 - square(distance to blast center / blast radius))</code> <br/><br/> Ships near the center of the blast radius take nearly full damage, while ships at a distance of 50 take 25% damage and knockback.
+Fires a torpedo the given distance at the given angle. All torpedos move at the same speed (12), do the same amount of damage, and cool at the same rate (100 ticks). Torpedos move through walls and ships until they reach the specified distance. They inflict damage and knockback on all ships within the blast radius (100), doing the most damage and knockback to ships near the center of the blast.<br><br> The damage and knockback formulas are both:<br> <code>30 / (1 - square(distance to blast center / blast radius))</code> <br><br> Ships near the center of the blast radius take nearly full damage, while ships at a distance of 50 take 25% damage and knockback.
 
 
 <h3>Parameters</h3>

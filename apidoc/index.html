@@ -19,52 +19,77 @@
 
 <h1>BerryBots Lua API</h1>
 <ul>
-	
-	<li><strong>Index</strong></li>
-	
+  
+  <li><strong>Index</strong></li>
+  
 </ul>
 
 
-<!-- Module list -->
+<!-- Ship / stage module list -->
 
-<h1>Modules</h1>
+<h1>Ship / Stage Modules</h1>
 <ul>
 
-	<li>
-		<a href="modules/Admin.html">Admin</a>
-	</li>
+  <li>
+    <a href="modules/Admin.html">Admin</a>
+  </li>
 
-	<li>
-		<a href="modules/DebugGfx.html">DebugGfx</a>
-	</li>
+  <li>
+    <a href="modules/DebugGfx.html">DebugGfx</a>
+  </li>
 
-	<li>
-		<a href="modules/Sensors.html">Sensors</a>
-	</li>
+  <li>
+    <a href="modules/Sensors.html">Sensors</a>
+  </li>
 
-	<li>
-		<a href="modules/Ship.html">Ship</a>
-	</li>
+  <li>
+    <a href="modules/Ship.html">Ship</a>
+  </li>
 
-	<li>
-		<a href="modules/ShipControl.html">ShipControl</a>
-	</li>
+  <li>
+    <a href="modules/ShipControl.html">ShipControl</a>
+  </li>
 
-	<li>
-		<a href="modules/StageBuilder.html">StageBuilder</a>
-	</li>
+  <li>
+    <a href="modules/StageBuilder.html">StageBuilder</a>
+  </li>
 
-	<li>
-		<a href="modules/StageControl.html">StageControl</a>
-	</li>
+  <li>
+    <a href="modules/StageControl.html">StageControl</a>
+  </li>
 
-	<li>
-		<a href="modules/StageSensors.html">StageSensors</a>
-	</li>
+  <li>
+    <a href="modules/StageSensors.html">StageSensors</a>
+  </li>
 
-	<li>
-		<a href="modules/World.html">World</a>
-	</li>
+  <li>
+    <a href="modules/World.html">World</a>
+  </li>
+
+</ul>
+
+
+
+<!-- Game Runner module list -->
+
+<h1>Game Runner Modules</h1>
+<ul>
+
+  <li>
+    <a href="modules/MatchRunner.html">MatchRunner</a>
+  </li>
+
+  <li>
+    <a href="modules/RunnerControl.html">RunnerControl</a>
+  </li>
+
+  <li>
+    <a href="modules/RunnerFiles.html">RunnerFiles</a>
+  </li>
+
+  <li>
+    <a href="modules/RunnerForm.html">RunnerForm</a>
+  </li>
 
 </ul>
 
@@ -101,13 +126,23 @@
       <a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Stages">sample stages</a>.
     </p>
     <p>
-      Your main Lua program must implement the functions of the
+      To create a ship or stage, your main Lua program must implement the
+      functions of the
       <a href="modules/ShipControl.html">ShipControl</a>
       or
       <a href="modules/StageControl.html">StageControl</a>
       interface. These are called by BerryBots before, during, and after the
       match. The parameters passed to these functions allow your program to
       learn about and control all gameplay elements in BerryBots.
+    </p>
+    <p>
+      The Game Runner API lets you write code to execute BerryBots matches and
+      process the results. To write a Game Runner program, your main Lua program
+      must implement the functions of the
+      <a href="modules/RunnerControl.html">RunnerControl</a>
+      interface. The parameters passed to your Game Runner program allow it to
+      specify input parameters, prompt a user for input, queue BerryBots
+      matches, process match results, and read and write files to disk.
     </p>
     <p>
       For more information about programming BerryBots ships and stages, or to
@@ -117,7 +152,7 @@
 </div>
 
 
-<h2>Modules</h2>
+<h2>Ship / Stage Modules</h2>
 <table class="module_list">
 <!--<tr><td colspan="2">Modules</td></tr>-->
 
@@ -164,6 +199,35 @@
 	<tr>
 		<td class="name"><a href="modules/World.html">World</a></td>
 		<td class="summary">The game world.</td>
+	</tr>
+
+</table>
+
+
+
+
+<h2>Game Runner Modules</h2>
+<table class="module_list">
+<!--<tr><td colspan="2">Modules</td></tr>-->
+
+	<tr>
+		<td class="name"><a href="modules/MatchRunner.html">MatchRunner</a></td>
+		<td class="summary">Executes BerryBots matches and returns the results.</td>
+	</tr>
+
+	<tr>
+		<td class="name"><a href="modules/RunnerControl.html">RunnerControl</a></td>
+		<td class="summary">The API to be implemented by a Game Runner control program.</td>
+	</tr>
+
+	<tr>
+		<td class="name"><a href="modules/RunnerFiles.html">RunnerFiles</a></td>
+		<td class="summary">A file access object used by a Game Runner program to read and write files to disk.</td>
+	</tr>
+
+	<tr>
+		<td class="name"><a href="modules/RunnerForm.html">RunnerForm</a></td>
+		<td class="summary">A form used by a Game Runner program to configure parameters.</td>
 	</tr>
 
 </table>

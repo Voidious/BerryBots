@@ -1,0 +1,65 @@
+--- A form used by a Game Runner program to configure parameters.
+-- It can be used to specify input fields, prompt the user with a form to input
+-- values for those fields, and fetch the values input by the user after the
+-- form is submitted.
+-- <br><br>
+-- For example:<br><br>
+-- <code>form:addStageSelect("Stage")<br>
+-- form:default("Stage", "sample/battle1.lua")<br>
+-- form:addMultiShipSelect("Reference Ships")<br>
+-- form:default("Reference Ships", {"sample/randombot.lua", "sample/chaser.lua"})<br>
+-- form:addIntegerText("Seasons")<br>
+-- form:default("Seasons", 10)<br>
+-- if (form:ok()) then<br>
+-- &nbsp;&nbsp;&nbsp;&nbsp;local seasons = form:get("Seasons")<br>
+-- ...
+-- </code>
+module "RunnerForm"
+
+--- Adds a text control to the form which can only accept integer values.
+-- @param name The name of the field. This is displayed on the form and used to
+--     fetch the result after the form is submitted.
+function addIntegerText(name)
+
+--- Adds a multi-ship select control to the form.
+-- This is used to specify any number of ships, similar to when selecting ships
+-- for a new match.
+-- @param name The name of the field. This is displayed on the form and used to
+--     fetch the result after the form is submitted.
+function addMultiShipSelect(name)
+
+--- Adds a ship select control to the form.
+-- This is used to specify a single ship, similar to when selecting ships for a
+-- new match.
+-- @param name The name of the field. This is displayed on the form and used to
+--     fetch the result after the form is submitted.
+function addSingleShipSelect(name)
+
+--- Adds a stage select control to the form.
+-- This is used to specify a single stage, similar to when selecting a stage for
+-- a new match.
+-- @param name The name of the field. This is displayed on the form and used to
+--     fetch the result after the form is submitted.
+function addStageSelect(name)
+
+--- Specifies the default value(s) for a form field.
+-- @param name The name of the field.
+-- @param values A value or a table of values to be the initial values of the
+--     form control with the specified name.
+function default(name, values)
+
+--- Retrieves the value(s) of a form field.
+-- @param name The name of the field.
+-- @return A value or table of values for the field with the specified name.
+function get(name)
+
+--- Prompts the user for input based on the fields configured in this object.
+-- <br><br>
+-- This can be called multiple times. After the first call, subsequent calls
+-- retain the previously input values as defaults. This allows the Game Runner
+-- program to do validation on input and display the form again with a message
+-- specifying the problem with the input values.
+-- @param message (optional) A message to be displayed on the form.
+-- @return <code>true</code> if the user completed the form and hit OK,
+--     <code>false</code> if the user canceled the operation.
+function ok(message)

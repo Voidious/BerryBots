@@ -91,8 +91,8 @@ extern ShipGfx* pushShipGfx(lua_State *L);
 extern Admin* pushAdmin(lua_State *L);
 extern StageGfx* pushStageGfx(lua_State *L);
 extern LuaRunnerForm* pushRunnerForm(lua_State *L, GameRunner *gameRunner);
-extern LuaGameRunner* pushGameRunner(lua_State *L, GameRunner *gameRunner);
-extern LuaRunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner);
+extern MatchRunner* pushGameRunner(lua_State *L, GameRunner *gameRunner);
+extern RunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner);
 extern void crawlFiles(lua_State *L, const char *startFile);
 
 #endif

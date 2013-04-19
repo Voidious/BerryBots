@@ -1456,84 +1456,117 @@ Admin* pushAdmin(lua_State *L) {
   return admin;
 }
 
+Ship* getShip(lua_State *L, int index, BerryBotsEngine *engine) {
+  if (lua_isstring(L, index)) {
+    return engine->getStageProgramShip(luaL_checkstring(L, index));
+  } else if (lua_isuserdata(L, index)) {
+    Ship *ship = checkShip(L, index);
+    return ship;
+  } else {
+    return 0;
+  }
+}
+
 int Admin_destroyShip(lua_State *L) {
   Admin *admin = checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  admin->engine->destroyShip(ship);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    admin->engine->destroyShip(ship);
+  }
   return 1;
 }
 
 int Admin_reviveShip(lua_State *L) {
   Admin *admin = checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  ship->alive = true;
-  ship->energy = DEFAULT_ENERGY;
-  admin->engine->getStage()->updateShipPosition(ship, ship->x, ship->y);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    ship->alive = true;
+    ship->energy = DEFAULT_ENERGY;
+    admin->engine->getStage()->updateShipPosition(ship, ship->x, ship->y);
+  }
   return 1;
 }
 
 int Admin_moveShip(lua_State *L) {
   Admin *admin = checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  double x = luaL_checknumber(L, 3);
-  double y = luaL_checknumber(L, 4);
-  admin->engine->getStage()->updateShipPosition(ship, x, y);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    double x = luaL_checknumber(L, 3);
+    double y = luaL_checknumber(L, 4);
+    admin->engine->getStage()->updateShipPosition(ship, x, y);
+  }
   return 1;
 }
 
 int Admin_setShipSpeed(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  ship->speed = luaL_checknumber(L, 3);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    ship->speed = luaL_checknumber(L, 3);
+  }
   return 1;
 }
 
 int Admin_setShipHeading(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  ship->heading = luaL_checknumber(L, 3);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    ship->heading = luaL_checknumber(L, 3);
+  }
   return 1;
 }
 
 int Admin_setShipEnergy(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  ship->energy = luaL_checknumber(L, 3);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    ship->energy = luaL_checknumber(L, 3);
+  }
   return 1;
 }
 
 int Admin_setShipLaserEnabled(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  ship->laserEnabled = lua_toboolean(L, 3);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    ship->laserEnabled = lua_toboolean(L, 3);
+  }
   return 1;
 }
 
 int Admin_setShipTorpedoEnabled(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  ship->torpedoEnabled = lua_toboolean(L, 3);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    ship->torpedoEnabled = lua_toboolean(L, 3);
+  }
   return 1;
 }
 
 int Admin_setShipThrusterEnabled(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  ship->thrusterEnabled = lua_toboolean(L, 3);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    ship->thrusterEnabled = lua_toboolean(L, 3);
+  }
   return 1;
 }
 
 int Admin_setShipEnergyEnabled(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  ship->energyEnabled = lua_toboolean(L, 3);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    ship->energyEnabled = lua_toboolean(L, 3);
+  }
   return 1;
 }
 
 int Admin_setShipShowName(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  ship->showName = lua_toboolean(L, 3);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    ship->showName = lua_toboolean(L, 3);
+  }
   return 1;
 }
 
@@ -1567,49 +1600,58 @@ void copyValue(lua_State *L1, lua_State *L2) {
 }
 
 int Admin_sendEvent(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  Team *team = ship->properties->engine->getTeam(ship->teamIndex);
-  lua_State *teamState = team->state;
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    Team *team = ship->properties->engine->getTeam(ship->teamIndex);
+    lua_State *teamState = team->state;
 
-  if (team->stageEventRef == 0) {
-    lua_newtable(teamState);
-    team->stageEventRef = luaL_ref(teamState, LUA_REGISTRYINDEX);
+    if (team->stageEventRef == 0) {
+      lua_newtable(teamState);
+      team->stageEventRef = luaL_ref(teamState, LUA_REGISTRYINDEX);
+    }
+    lua_rawgeti(teamState, LUA_REGISTRYINDEX, team->stageEventRef);
+    int newIndex = (int) lua_objlen(L, -1) + 1;
+
+    copyValue(L, teamState);
+    lua_rawseti(teamState, -2, newIndex);
   }
-  lua_rawgeti(teamState, LUA_REGISTRYINDEX, team->stageEventRef);
-  int newIndex = (int) lua_objlen(L, -1) + 1;
-
-  copyValue(L, teamState);
-  lua_rawseti(teamState, -2, newIndex);
-
   return 1;
 }
 
 int Admin_shipKills(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  lua_pushnumber(L, ship->kills);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    lua_pushnumber(L, ship->kills);
+  }
   return 1;
 }
 
 int Admin_shipDamage(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  lua_pushnumber(L, ship->damage);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    lua_pushnumber(L, ship->damage);
+  }
   return 1;
 }
 
 int Admin_shipFriendlyKills(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  lua_pushnumber(L, ship->friendlyKills);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    lua_pushnumber(L, ship->friendlyKills);
+  }
   return 1;
 }
 
 int Admin_shipFriendlyDamage(lua_State *L) {
-  checkAdmin(L, 1);
-  Ship *ship = checkShip(L, 2);
-  lua_pushnumber(L, ship->friendlyDamage);
+  Admin *admin = checkAdmin(L, 1);
+  Ship *ship = getShip(L, 2, admin->engine);
+  if (ship != 0) {
+    lua_pushnumber(L, ship->friendlyDamage);
+  }
   return 1;
 }
 
@@ -1977,18 +2019,17 @@ int registerRunnerForm(lua_State *L) {
   return registerClass(L, RUNNER_FORM, RunnerForm_methods);
 }
 
-LuaGameRunner* checkGameRunner(lua_State *L, int index) {
+MatchRunner* checkGameRunner(lua_State *L, int index) {
   luaL_checktype(L, index, LUA_TUSERDATA);
-  LuaGameRunner *runner =
-      (LuaGameRunner *) luaL_checkudata(L, index, GAME_RUNNER);
+  MatchRunner *runner = (MatchRunner *) luaL_checkudata(L, index, MATCH_RUNNER);
   if (runner == NULL) luaL_error(L, "error in checkGameRunner");
   return runner;
 }
 
-LuaGameRunner* pushGameRunner(lua_State *L, GameRunner *gameRunner) {
-  LuaGameRunner *luaRunner =
-      (LuaGameRunner *) lua_newuserdata(L, sizeof(LuaGameRunner));
-  luaL_getmetatable(L, GAME_RUNNER);
+MatchRunner* pushGameRunner(lua_State *L, GameRunner *gameRunner) {
+  MatchRunner *luaRunner =
+      (MatchRunner *) lua_newuserdata(L, sizeof(MatchRunner));
+  luaL_getmetatable(L, MATCH_RUNNER);
   lua_setmetatable(L, -2);
   int runnerRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
   lua_rawgeti(L, LUA_REGISTRYINDEX, runnerRef);
@@ -1997,7 +2038,7 @@ LuaGameRunner* pushGameRunner(lua_State *L, GameRunner *gameRunner) {
 }
 
 int GameRunner_setThreadCount(lua_State *L) {
-  LuaGameRunner *runner = checkGameRunner(L, 1);
+  MatchRunner *runner = checkGameRunner(L, 1);
   if (runner->gameRunner->started()) {
     luaL_error(L, "Can't set thread count after starting the first match.");
   } else {
@@ -2008,7 +2049,7 @@ int GameRunner_setThreadCount(lua_State *L) {
 }
 
 int GameRunner_queueMatch(lua_State *L) {
-  LuaGameRunner *runner = checkGameRunner(L, 1);
+  MatchRunner *runner = checkGameRunner(L, 1);
   if (lua_gettop(L) < 3) {
     luaL_error(L, "Need at least one stage and one ship to queue a match.");
   } else {
@@ -2026,13 +2067,13 @@ int GameRunner_queueMatch(lua_State *L) {
 }
 
 int GameRunner_empty(lua_State *L) {
-  LuaGameRunner *runner = checkGameRunner(L, 1);
+  MatchRunner *runner = checkGameRunner(L, 1);
   lua_pushboolean(L, runner->gameRunner->empty());
   return 1;
 }
 
 int GameRunner_nextResult(lua_State *L) {
-  LuaGameRunner *runner = checkGameRunner(L, 1);
+  MatchRunner *runner = checkGameRunner(L, 1);
   MatchResult *result = runner->gameRunner->nextResult();
   if (result == 0) {
     lua_pushnil(L);
@@ -2044,6 +2085,7 @@ int GameRunner_nextResult(lua_State *L) {
       setField(L, "errorMessage", result->getErrorMessage());
     } else {
       setField(L, "errored", false);
+      setFieldNil(L, "errorMessage");
       const char *winner = result->getWinner();
       if (winner == 0) {
         setFieldNil(L, "winner");
@@ -2089,20 +2131,18 @@ const luaL_Reg GameRunner_methods[] = {
 };
 
 int registerGameRunner(lua_State *L) {
-  return registerClass(L, GAME_RUNNER, GameRunner_methods);
+  return registerClass(L, MATCH_RUNNER, GameRunner_methods);
 }
 
-LuaRunnerFiles* checkRunnerFiles(lua_State *L, int index) {
+RunnerFiles* checkRunnerFiles(lua_State *L, int index) {
   luaL_checktype(L, index, LUA_TUSERDATA);
-  LuaRunnerFiles *files =
-      (LuaRunnerFiles *) luaL_checkudata(L, index, RUNNER_FILES);
+  RunnerFiles *files = (RunnerFiles *) luaL_checkudata(L, index, RUNNER_FILES);
   if (files == NULL) luaL_error(L, "error in checkRunnerFiles");
   return files;
 }
 
-LuaRunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner) {
-  LuaRunnerFiles *files =
-      (LuaRunnerFiles *) lua_newuserdata(L, sizeof(LuaRunnerFiles));
+RunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner) {
+  RunnerFiles *files = (RunnerFiles *) lua_newuserdata(L, sizeof(RunnerFiles));
   luaL_getmetatable(L, RUNNER_FILES);
   lua_setmetatable(L, -2);
   int filesRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC

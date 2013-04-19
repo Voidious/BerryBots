@@ -1,0 +1,391 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>BerryBots API: RunnerForm</title>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>BerryBots Lua API</h1>
+<ul>
+  
+  <li><a href="../index.html">Index</a></li>
+  
+</ul>
+
+
+<!-- Ship / stage module list -->
+
+<h1>Ship / Stage Modules</h1>
+<ul>
+
+  <li>
+    <a href="../modules/Admin.html">Admin</a>
+  </li>
+
+  <li>
+    <a href="../modules/DebugGfx.html">DebugGfx</a>
+  </li>
+
+  <li>
+    <a href="../modules/Sensors.html">Sensors</a>
+  </li>
+
+  <li>
+    <a href="../modules/Ship.html">Ship</a>
+  </li>
+
+  <li>
+    <a href="../modules/ShipControl.html">ShipControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/StageBuilder.html">StageBuilder</a>
+  </li>
+
+  <li>
+    <a href="../modules/StageControl.html">StageControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/StageSensors.html">StageSensors</a>
+  </li>
+
+  <li>
+    <a href="../modules/World.html">World</a>
+  </li>
+
+</ul>
+
+
+
+<!-- Game Runner module list -->
+
+<h1>Game Runner Modules</h1>
+<ul>
+
+  <li>
+    <a href="../modules/MatchRunner.html">MatchRunner</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerControl.html">RunnerControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerFiles.html">RunnerFiles</a>
+  </li>
+
+  <li><strong>RunnerForm</strong></li>
+  
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+<h1>Helpful Links</h1>
+<ul>
+    <li><a href="http://www.lua.org/manual/5.1/">Lua 5.1 Manual</a></li>
+    <li><a href="http://lua-users.org/wiki/TutorialDirectory">Lua-users Tutorial Directory</a></li>
+    <li><a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Bots">Sample Ships</a>
+    <li><a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Stages">Sample Stages</a>
+    <li><a href="http://berrybots.com/specs.html">BerryBots Game Specs</a></li>
+    <li><a href="http://berrybots.com/wiki">BerryBots Wiki</a></li>
+</ul>
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>RunnerForm</code></h1>
+
+<p>A form used by a Game Runner program to configure parameters. It can be used to specify input fields, prompt the user with a form to input values for those fields, and fetch the values input by the user after the form is submitted. <br><br> For example:<br><br> <code>form:addStageSelect("Stage")<br> form:default("Stage", "sample/battle1.lua")<br> form:addMultiShipSelect("Reference Ships")<br> form:default("Reference Ships", {"sample/randombot.lua", "sample/chaser.lua"})<br> form:addIntegerText("Seasons")<br> form:default("Seasons", 10)<br> if (form:ok()) then<br> &nbsp;&nbsp;&nbsp;&nbsp;local seasons = form:get("Seasons")<br> ... </code></p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#addIntegerText">addIntegerText</a>&nbsp;(name)</td>
+	<td class="summary">Adds a text control to the form which can only accept integer values.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#addMultiShipSelect">addMultiShipSelect</a>&nbsp;(name)</td>
+	<td class="summary">Adds a multi-ship select control to the form.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#addSingleShipSelect">addSingleShipSelect</a>&nbsp;(name)</td>
+	<td class="summary">Adds a ship select control to the form.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#addStageSelect">addStageSelect</a>&nbsp;(name)</td>
+	<td class="summary">Adds a stage select control to the form.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#default">default</a>&nbsp;(name, values)</td>
+	<td class="summary">Specifies the default value(s) for a form field.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#get">get</a>&nbsp;(name)</td>
+	<td class="summary">Retrieves the value(s) of a form field.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#ok">ok</a>&nbsp;(message)</td>
+	<td class="summary">Prompts the user for input based on the fields configured in this object.</td>
+	</tr>
+
+</table>
+
+
+
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="addIntegerText"></a><strong>addIntegerText</strong>&nbsp;(name)</dt>
+<br/>
+<dd>
+Adds a text control to the form which can only accept integer values.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the field. This is displayed on the form and used to fetch the result after the form is submitted.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="addMultiShipSelect"></a><strong>addMultiShipSelect</strong>&nbsp;(name)</dt>
+<br/>
+<dd>
+Adds a multi-ship select control to the form. This is used to specify any number of ships, similar to when selecting ships for a new match.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the field. This is displayed on the form and used to fetch the result after the form is submitted.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="addSingleShipSelect"></a><strong>addSingleShipSelect</strong>&nbsp;(name)</dt>
+<br/>
+<dd>
+Adds a ship select control to the form. This is used to specify a single ship, similar to when selecting ships for a new match.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the field. This is displayed on the form and used to fetch the result after the form is submitted.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="addStageSelect"></a><strong>addStageSelect</strong>&nbsp;(name)</dt>
+<br/>
+<dd>
+Adds a stage select control to the form. This is used to specify a single stage, similar to when selecting a stage for a new match.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the field. This is displayed on the form and used to fetch the result after the form is submitted.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="default"></a><strong>default</strong>&nbsp;(name, values)</dt>
+<br/>
+<dd>
+Specifies the default value(s) for a form field.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the field.
+	</li>
+	
+	<li>
+	  values: A value or a table of values to be the initial values of the form control with the specified name.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="get"></a><strong>get</strong>&nbsp;(name)</dt>
+<br/>
+<dd>
+Retrieves the value(s) of a form field.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the field.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+A value or table of values for the field with the specified name.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="ok"></a><strong>ok</strong>&nbsp;(message)</dt>
+<br/>
+<dd>
+Prompts the user for input based on the fields configured in this object. <br><br> This can be called multiple times. After the first call, subsequent calls retain the previously input values as defaults. This allows the Game Runner program to do validation on input and display the form again with a message specifying the problem with the input values.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  message: (optional) A message to be displayed on the form.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the user completed the form and hit OK, <code>false</code> if the user canceled the operation.
+
+
+
+</dd>
+
+
+</dl>
+
+
+
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

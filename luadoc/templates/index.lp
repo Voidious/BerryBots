@@ -33,13 +33,23 @@
       <a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Stages">sample stages</a>.
     </p>
     <p>
-      Your main Lua program must implement the functions of the
+      To create a ship or stage, your main Lua program must implement the
+      functions of the
       <a href="<%=luadoc.doclet.html.module_link("ShipControl", doc)%>">ShipControl</a>
       or
       <a href="<%=luadoc.doclet.html.module_link("StageControl", doc)%>">StageControl</a>
       interface. These are called by BerryBots before, during, and after the
       match. The parameters passed to these functions allow your program to
       learn about and control all gameplay elements in BerryBots.
+    </p>
+    <p>
+      The Game Runner API lets you write code to execute BerryBots matches and
+      process the results. To write a Game Runner program, your main Lua program
+      must implement the functions of the
+      <a href="<%=luadoc.doclet.html.module_link("RunnerControl", doc)%>">RunnerControl</a>
+      interface. The parameters passed to your Game Runner program allow it to
+      specify input parameters, prompt a user for input, queue BerryBots
+      matches, process match results, and read and write files to disk.
     </p>
     <p>
       For more information about programming BerryBots ships and stages, or to
@@ -49,15 +59,35 @@
 </div>
 
 <%if not options.nomodules and #doc.modules > 0 then%>
-<h2>Modules</h2>
+<h2>Ship / Stage Modules</h2>
 <table class="module_list">
 <!--<tr><td colspan="2">Modules</td></tr>-->
-<%for _, modulename in ipairs(doc.modules) do%>
+<%for _, modulename in ipairs(doc.modules) do
+    if (modulename ~= "MatchRunner" and modulename ~= "RunnerControl"
+        and modulename ~= "RunnerFiles" and modulename ~= "RunnerForm") then%>
 	<tr>
 		<td class="name"><a href="<%=luadoc.doclet.html.module_link(modulename, doc)%>"><%=modulename%></a></td>
 		<td class="summary"><%=doc.modules[modulename].summary%></td>
 	</tr>
+<%  end
+  end%>
+</table>
 <%end%>
+
+
+<%if not options.nomodules and #doc.modules > 0 then%>
+<h2>Game Runner Modules</h2>
+<table class="module_list">
+<!--<tr><td colspan="2">Modules</td></tr>-->
+<%for _, modulename in ipairs(doc.modules) do
+    if (modulename == "MatchRunner" or modulename == "RunnerControl"
+        or modulename == "RunnerFiles" or modulename == "RunnerForm") then%>
+	<tr>
+		<td class="name"><a href="<%=luadoc.doclet.html.module_link(modulename, doc)%>"><%=modulename%></a></td>
+		<td class="summary"><%=doc.modules[modulename].summary%></td>
+	</tr>
+<%  end
+  end%>
 </table>
 <%end%>
 

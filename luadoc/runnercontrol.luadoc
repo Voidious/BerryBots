@@ -1,0 +1,19 @@
+--- The API to be implemented by a Game Runner control program.
+-- A Game Runner program can execute BerryBots matches and process the results.
+-- Optionally takes input from the user via UI, or files from disk, and outputs
+-- to a console or files.<br><br>
+-- <strong>Be careful! Game Runner programs are much more capable of doing harm
+-- to your system than ship or stage programs. They can write to disk and in the
+-- future they will have network access. Only execute Game Runner programs that
+-- you trust, or that you wrote yourself.</strong>
+module "RunnerControl"
+
+--- Executes a BerryBots Game Runner control program.
+-- @see RunnerForm, MatchRunner, RunnerFiles
+-- @param form A userdata object used to specify input fields, prompt the user
+--     with a form with these fields, and fetch the values input by the user.
+-- @param runner A userdata object used to queue BerryBots matches and fetch the
+--     results.
+-- @param files A userdata object used to read from and write to files in the
+--     BerryBots runners directory.
+function run(form, runner, files)

@@ -2,7 +2,7 @@
    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-    <title>BerryBots API: StageControl</title>
+    <title>BerryBots API: RunnerFiles</title>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="../luadoc.css" type="text/css" />
@@ -54,8 +54,10 @@
     <a href="../modules/StageBuilder.html">StageBuilder</a>
   </li>
 
-  <li><strong>StageControl</strong></li>
-  
+  <li>
+    <a href="../modules/StageControl.html">StageControl</a>
+  </li>
+
   <li>
     <a href="../modules/StageSensors.html">StageSensors</a>
   </li>
@@ -81,10 +83,8 @@
     <a href="../modules/RunnerControl.html">RunnerControl</a>
   </li>
 
-  <li>
-    <a href="../modules/RunnerFiles.html">RunnerFiles</a>
-  </li>
-
+  <li><strong>RunnerFiles</strong></li>
+  
   <li>
     <a href="../modules/RunnerForm.html">RunnerForm</a>
   </li>
@@ -112,9 +112,9 @@
 
 <div id="content">
 
-<h1>Module <code>StageControl</code></h1>
+<h1>Module <code>RunnerFiles</code></h1>
 
-<p>The API to be implemented by a stage control program. Defines the settings and behavior of a stage.</p>
+<p>A file access object used by a Game Runner program to read and write files to disk. It's only allowed to access files under the <code>runners</code> subdirectory.</p>
 
 
 
@@ -124,18 +124,18 @@
 <table class="function_list">
 
 	<tr>
-	<td class="name" nowrap><a href="#configure">configure</a>&nbsp;(stageBuilder)</td>
-	<td class="summary">Configures the stage settings.</td>
+	<td class="name" nowrap><a href="#exists">exists</a>&nbsp;(filename)</td>
+	<td class="summary">Checks if a file exists.</td>
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#init">init</a>&nbsp;(ships, world, admin, gfx)</td>
-	<td class="summary">Initializes the stage.</td>
+	<td class="name" nowrap><a href="#read">read</a>&nbsp;(filename)</td>
+	<td class="summary">Reads the contents of a file.</td>
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#run">run</a>&nbsp;(stageSensors)</td>
-	<td class="summary">Executes stage code each tick.</td>
+	<td class="name" nowrap><a href="#write">write</a>&nbsp;(filename, contents)</td>
+	<td class="summary">Writes a file to disk.</td>
 	</tr>
 
 </table>
@@ -155,17 +155,17 @@
 
 
 
-<dt><a name="configure"></a><strong>configure</strong>&nbsp;(stageBuilder)</dt>
+<dt><a name="exists"></a><strong>exists</strong>&nbsp;(filename)</dt>
 <br/>
 <dd>
-Configures the stage settings. Passes a builder object used to define static configuration of the stage, such as dimensions, walls, zones, and starting points.
+Checks if a file exists.
 
 
 <h3>Parameters</h3>
 <ul>
 	
 	<li>
-	  stageBuilder: The builder used to configure the stage. Can only be used during execution of this function.
+	  filename: The name of the file under the <code>runners</code> subdirectory.
 	</li>
 	
 </ul>
@@ -175,45 +175,27 @@ Configures the stage settings. Passes a builder object used to define static con
 
 
 
+<h3>Return value:</h3>
+<code>true</code> if the file exists, <code>false</code> otherwise.
 
 
-<h3>See also:</h3>
-<ul>
-	
-	<li><a href="../modules/StageBuilder.html">
-		StageBuilder
-	</a>
-	
-</ul>
 
 </dd>
 
 
 
 
-<dt><a name="init"></a><strong>init</strong>&nbsp;(ships, world, admin, gfx)</dt>
+<dt><a name="read"></a><strong>read</strong>&nbsp;(filename)</dt>
 <br/>
 <dd>
-Initializes the stage. Passes references to all ships, the world, and an administrator object used to modify the state of the stage and ships.
+Reads the contents of a file.
 
 
 <h3>Parameters</h3>
 <ul>
 	
 	<li>
-	  ships: A table of all ships loaded for this game.
-	</li>
-	
-	<li>
-	  world: A userdata object used to query information about the game world, such as stage size, locations of walls and zones, and current time.
-	</li>
-	
-	<li>
-	  admin: A userdata object used to perform administrative operations only available to the stage program, such as modifying a ship's speed, location, or energy, destroying or reviving ships, ending a round or the game, and deciding on a winner.
-	</li>
-	
-	<li>
-	  gfx: A userdata object used to draw debug graphics on the screen. Graphics are hidden unless the user checks the checkbox in the stage's output console.
+	  filename: The name of the file under the <code>runners</code> subdirectory.
 	</li>
 	
 </ul>
@@ -223,45 +205,31 @@ Initializes the stage. Passes references to all ships, the world, and an adminis
 
 
 
+<h3>Return value:</h3>
+The contents of the file as a string, or <code>nil</code> if the file doesn't exist.
 
 
-<h3>See also:</h3>
-<ul>
-	
-	<li><a href="../modules/Ship.html">
-		Ship
-	</a>
-	
-	<li><a href="../modules/World.html">
-		World
-	</a>
-	
-	<li><a href="../modules/Admin.html">
-		Admin
-	</a>
-	
-	<li><a href="../modules/DebugGfx.html">
-		DebugGfx
-	</a>
-	
-</ul>
 
 </dd>
 
 
 
 
-<dt><a name="run"></a><strong>run</strong>&nbsp;(stageSensors)</dt>
+<dt><a name="write"></a><strong>write</strong>&nbsp;(filename, contents)</dt>
 <br/>
 <dd>
-Executes stage code each tick. Allows the stage to monitor the game, modify the stage and ships, and decide when the game ends and who wins.
+Writes a file to disk.
 
 
 <h3>Parameters</h3>
 <ul>
 	
 	<li>
-	  stageSensors: A userdata object that can be queried for information on all events that took place this tick.
+	  filename: The name of the file under the <code>runners</code> subdirectory.
+	</li>
+	
+	<li>
+	  contents: The contents of the file as a string.
 	</li>
 	
 </ul>
@@ -272,15 +240,6 @@ Executes stage code each tick. Allows the stage to monitor the game, modify the 
 
 
 
-
-<h3>See also:</h3>
-<ul>
-	
-	<li><a href="../modules/StageSensors.html">
-		StageSensors
-	</a>
-	
-</ul>
 
 </dd>
 

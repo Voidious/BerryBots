@@ -39,7 +39,7 @@ extern "C" {
 #define STAGE_SENSORS  "StageSensors"
 #define STAGE_GFX      "StageGfx"
 #define RUNNER_FORM    "RunnerForm"
-#define GAME_RUNNER    "LuaGameRunner"
+#define MATCH_RUNNER   "MatchRunner"
 #define RUNNER_FILES   "RunnerFiles"
 
 class BerryBotsEngine;
@@ -305,11 +305,11 @@ typedef struct {
 
 typedef struct {
   GameRunner *gameRunner;
-} LuaGameRunner;
+} MatchRunner;
 
 typedef struct {
   GameRunner *gameRunner;
-} LuaRunnerFiles;
+} RunnerFiles;
 
 extern double limit(double p, double q, double r);
 extern int signum(double x);

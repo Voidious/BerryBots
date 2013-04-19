@@ -19,50 +19,75 @@
 
 <h1>BerryBots Lua API</h1>
 <ul>
-	
-	<li><a href="../index.html">Index</a></li>
-	
+  
+  <li><a href="../index.html">Index</a></li>
+  
 </ul>
 
 
-<!-- Module list -->
+<!-- Ship / stage module list -->
 
-<h1>Modules</h1>
+<h1>Ship / Stage Modules</h1>
 <ul>
 
-	<li><strong>Admin</strong></li>
-	
-	<li>
-		<a href="../modules/DebugGfx.html">DebugGfx</a>
-	</li>
+  <li><strong>Admin</strong></li>
+  
+  <li>
+    <a href="../modules/DebugGfx.html">DebugGfx</a>
+  </li>
 
-	<li>
-		<a href="../modules/Sensors.html">Sensors</a>
-	</li>
+  <li>
+    <a href="../modules/Sensors.html">Sensors</a>
+  </li>
 
-	<li>
-		<a href="../modules/Ship.html">Ship</a>
-	</li>
+  <li>
+    <a href="../modules/Ship.html">Ship</a>
+  </li>
 
-	<li>
-		<a href="../modules/ShipControl.html">ShipControl</a>
-	</li>
+  <li>
+    <a href="../modules/ShipControl.html">ShipControl</a>
+  </li>
 
-	<li>
-		<a href="../modules/StageBuilder.html">StageBuilder</a>
-	</li>
+  <li>
+    <a href="../modules/StageBuilder.html">StageBuilder</a>
+  </li>
 
-	<li>
-		<a href="../modules/StageControl.html">StageControl</a>
-	</li>
+  <li>
+    <a href="../modules/StageControl.html">StageControl</a>
+  </li>
 
-	<li>
-		<a href="../modules/StageSensors.html">StageSensors</a>
-	</li>
+  <li>
+    <a href="../modules/StageSensors.html">StageSensors</a>
+  </li>
 
-	<li>
-		<a href="../modules/World.html">World</a>
-	</li>
+  <li>
+    <a href="../modules/World.html">World</a>
+  </li>
+
+</ul>
+
+
+
+<!-- Game Runner module list -->
+
+<h1>Game Runner Modules</h1>
+<ul>
+
+  <li>
+    <a href="../modules/MatchRunner.html">MatchRunner</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerControl.html">RunnerControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerFiles.html">RunnerFiles</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerForm.html">RunnerForm</a>
+  </li>
 
 </ul>
 
@@ -134,6 +159,16 @@
 	</tr>
 
 	<tr>
+	<td class="name" nowrap><a href="#setRank">setRank</a>&nbsp;(ship, rank)</td>
+	<td class="summary">Sets the rank of a ship or team (lower is better).</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setScore">setScore</a>&nbsp;(ship, score)</td>
+	<td class="summary">Sets the score of a ship or team.</td>
+	</tr>
+
+	<tr>
 	<td class="name" nowrap><a href="#setShipEnergy">setShipEnergy</a>&nbsp;(ship, energy)</td>
 	<td class="summary">Sets a ship's energy.</td>
 	</tr>
@@ -174,8 +209,13 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#setWinner">setWinner</a>&nbsp;(name)</td>
-	<td class="summary">Sets the name of the ship or team that has won the match.</td>
+	<td class="name" nowrap><a href="#setStatistic">setStatistic</a>&nbsp;(ship, key, score, value)</td>
+	<td class="summary">Sets a statistic for a ship or team.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setWinner">setWinner</a>&nbsp;(name, ship)</td>
+	<td class="summary">Sets the ship or team that has won the match.</td>
 	</tr>
 
 	<tr>
@@ -394,6 +434,68 @@ Sends a custom event to the target ship. This event can be any Lua value - nil, 
 	
 	<li>
 	  event: The value to send as an event.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setRank"></a><strong>setRank</strong>&nbsp;(ship, rank)</dt>
+<br/>
+<dd>
+Sets the rank of a ship or team (lower is better). If no winner is set, a ship or team with rank <code>1</code> is the winner.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship or team for which to set the rank. This can be the name of the ship or team or the userdata object of any ship on the team.
+	</li>
+	
+	<li>
+	  rank: The rank of the ship or team (lower is better). This must be an integer.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setScore"></a><strong>setScore</strong>&nbsp;(ship, score)</dt>
+<br/>
+<dd>
+Sets the score of a ship or team. If no ranks are set by the stage program, teams are assigned ranks based on highest scores.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  ship: The ship or team for which to set score. This can be the name of the ship or team or the userdata object of any ship on the team.
+	</li>
+	
+	<li>
+	  score: A numeric score.
 	</li>
 	
 </ul>
@@ -658,17 +760,60 @@ Sets whether a ship's torpedo gun is enabled. (Default: <code>false</code>, or <
 
 
 
-<dt><a name="setWinner"></a><strong>setWinner</strong>&nbsp;(name)</dt>
+<dt><a name="setStatistic"></a><strong>setStatistic</strong>&nbsp;(ship, key, score, value)</dt>
 <br/>
 <dd>
-Sets the name of the ship or team that has won the match.
+Sets a statistic for a ship or team. These are for auxiliary scoring or statistical data - they have no effect on scores, ranks, or winners.
 
 
 <h3>Parameters</h3>
 <ul>
 	
 	<li>
-	  name: The name of the winning team or ship.
+	  ship: The ship or team for which to set a statistic. This can be the name of the ship or team or the userdata object of any ship on the team.
+	</li>
+	
+	<li>
+	  key: A string describing the statistic.
+	</li>
+	
+	<li>
+	  score: 
+	</li>
+	
+	<li>
+	  value: A numeric value.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setWinner"></a><strong>setWinner</strong>&nbsp;(name, ship)</dt>
+<br/>
+<dd>
+Sets the ship or team that has won the match. Also assigns rank <code>1</code> to the ship or team.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: 
+	</li>
+	
+	<li>
+	  ship: The ship or team that won the match. This can be the name of the ship or team or the userdata object of any ship on the team.
 	</li>
 	
 </ul>

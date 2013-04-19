@@ -4,7 +4,7 @@ module "Ship"
 --- Fires the ship's thruster, pushing it in the given direction and altering
 -- its speed and/or heading. This command only affects one tick - if you don't
 -- call it again the next tick, your ship will keep moving with the same speed
--- and heading.<br/><br/>
+-- and heading.<br><br>
 -- Note that momentum is cumulative. From a dead stop, your ship will move in
 -- the given direction, but if your ship is already moving, the thruster force
 -- is added to your current movement vector. If you want to keep things simple
@@ -33,10 +33,10 @@ function fireLaser(heading)
 -- (100 ticks). Torpedos move through walls and ships until they reach the
 -- specified distance. They inflict damage and knockback on all ships within the
 -- blast radius (100), doing the most damage and knockback to ships near the
--- center of the blast.<br/><br/>
--- The damage and knockback formulas are both:<br/>
+-- center of the blast.<br><br>
+-- The damage and knockback formulas are both:<br>
 -- <code>30 / (1 - square(distance to blast center / blast radius))</code>
--- <br/><br/>
+-- <br><br>
 -- Ships near the center of the blast radius take nearly full damage, while
 -- ships at a distance of 50 take 25% damage and knockback.
 -- @param heading The angle at which to fire the torpedo, in radians (0 is east,

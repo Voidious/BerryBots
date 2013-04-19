@@ -99,8 +99,35 @@ function shipFriendlyKills(ship)
 -- @param ship The ship to query.
 function shipFriendlyDamage(ship)
 
---- Sets the name of the ship or team that has won the match.
--- @param name The name of the winning team or ship.
+--- Sets the rank of a ship or team (lower is better).
+-- If no winner is set, a ship or team with rank <code>1</code> is the winner.
+-- @param ship The ship or team for which to set the rank. This can be the name
+--     of the ship or team or the userdata object of any ship on the team.
+-- @param rank The rank of the ship or team (lower is better). This must be an
+--     integer.
+function setRank(ship, rank)
+
+--- Sets the score of a ship or team.
+-- If no ranks are set by the stage program, teams are assigned ranks based on
+-- highest scores.
+-- @param ship The ship or team for which to set score. This can be the name
+--     of the ship or team or the userdata object of any ship on the team.
+-- @param score A numeric score.
+function setScore(ship, score)
+
+--- Sets a statistic for a ship or team.
+-- These are for auxiliary scoring or statistical data - they have no effect
+-- on scores, ranks, or winners.
+-- @param ship The ship or team for which to set a statistic. This can be the
+--     name of the ship or team or the userdata object of any ship on the team.
+-- @param key A string describing the statistic.
+-- @param value A numeric value.
+function setStatistic(ship, key, score)
+
+--- Sets the ship or team that has won the match.
+-- Also assigns rank <code>1</code> to the ship or team.
+-- @param ship The ship or team that won the match. This can be the name
+--     of the ship or team or the userdata object of any ship on the team.
 function setWinner(name)
 
 --- Ends a round. All torpedos and lasers are removed from the stage, all ships

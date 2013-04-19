@@ -137,7 +137,6 @@ ResultsDialog::~ResultsDialog() {
 
 void ResultsDialog::onClose(wxCommandEvent &event) {
   Hide();
-  Destroy();
 }
 
 ResultsEventFilter::ResultsEventFilter(ResultsDialog *resultsDialog) {

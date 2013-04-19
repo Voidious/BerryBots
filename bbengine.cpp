@@ -177,6 +177,16 @@ int BerryBotsEngine::getNumShips() {
   return numShips_;
 }
 
+Ship* BerryBotsEngine::getStageProgramShip(const char *name) {
+  for (int x = 0; x < numShips_; x++) {
+    Ship *ship = stageShips_[x];
+    if (strcmp(name, ship->properties->name) == 0) {
+      return ship;
+    }
+  }
+  return 0;
+}
+
 int BerryBotsEngine::getGameTime() {
   return gameTime_;
 }

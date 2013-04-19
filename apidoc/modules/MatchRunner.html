@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+    <title>BerryBots API: MatchRunner</title>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular,bold' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="../luadoc.css" type="text/css" />
+	<!--meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/-->
+</head>
+
+<body>
+<div id="container">
+
+<div id="main">
+
+<div id="navigation">
+
+
+<h1>BerryBots Lua API</h1>
+<ul>
+  
+  <li><a href="../index.html">Index</a></li>
+  
+</ul>
+
+
+<!-- Ship / stage module list -->
+
+<h1>Ship / Stage Modules</h1>
+<ul>
+
+  <li>
+    <a href="../modules/Admin.html">Admin</a>
+  </li>
+
+  <li>
+    <a href="../modules/DebugGfx.html">DebugGfx</a>
+  </li>
+
+  <li>
+    <a href="../modules/Sensors.html">Sensors</a>
+  </li>
+
+  <li>
+    <a href="../modules/Ship.html">Ship</a>
+  </li>
+
+  <li>
+    <a href="../modules/ShipControl.html">ShipControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/StageBuilder.html">StageBuilder</a>
+  </li>
+
+  <li>
+    <a href="../modules/StageControl.html">StageControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/StageSensors.html">StageSensors</a>
+  </li>
+
+  <li>
+    <a href="../modules/World.html">World</a>
+  </li>
+
+</ul>
+
+
+
+<!-- Game Runner module list -->
+
+<h1>Game Runner Modules</h1>
+<ul>
+
+  <li><strong>MatchRunner</strong></li>
+  
+  <li>
+    <a href="../modules/RunnerControl.html">RunnerControl</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerFiles.html">RunnerFiles</a>
+  </li>
+
+  <li>
+    <a href="../modules/RunnerForm.html">RunnerForm</a>
+  </li>
+
+</ul>
+
+
+
+<!-- File list -->
+
+
+
+<h1>Helpful Links</h1>
+<ul>
+    <li><a href="http://www.lua.org/manual/5.1/">Lua 5.1 Manual</a></li>
+    <li><a href="http://lua-users.org/wiki/TutorialDirectory">Lua-users Tutorial Directory</a></li>
+    <li><a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Bots">Sample Ships</a>
+    <li><a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Stages">Sample Stages</a>
+    <li><a href="http://berrybots.com/specs.html">BerryBots Game Specs</a></li>
+    <li><a href="http://berrybots.com/wiki">BerryBots Wiki</a></li>
+</ul>
+
+
+</div><!-- id="navigation" -->
+
+<div id="content">
+
+<h1>Module <code>MatchRunner</code></h1>
+
+<p>Executes BerryBots matches and returns the results. Matches are queued asynchronously and run multi-threaded.</p>
+
+
+
+
+
+<h2>Functions</h2>
+<table class="function_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#empty">empty</a>&nbsp;()</td>
+	<td class="summary">Checks if the match queue is empty.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#nextResult">nextResult</a>&nbsp;()</td>
+	<td class="summary">Returns the next available match result.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#queueMatch">queueMatch</a>&nbsp;(stage, ships)</td>
+	<td class="summary">Queues a match.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#setThreadCount">setThreadCount</a>&nbsp;(threadCount)</td>
+	<td class="summary">Sets the number of threads.</td>
+	</tr>
+
+</table>
+
+
+
+
+<h2>Tables</h2>
+<table class="table_list">
+
+	<tr>
+	<td class="name" nowrap><a href="#MatchResult">MatchResult</a></td>
+	<td class="summary">Specifies the results of a BerryBots match.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#TeamResult">TeamResult</a></td>
+	<td class="summary">Specifies the rank, score, and statistics for a ship or team.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#TeamStatistic">TeamStatistic</a></td>
+	<td class="summary">Specifies a statistic for a ship or team.</td>
+	</tr>
+
+</table>
+
+
+
+<br/>
+<br/>
+
+
+
+<h2><a name="functions"></a>Functions</h2>
+<dl class="function">
+
+
+
+<dt><a name="empty"></a><strong>empty</strong>&nbsp;()</dt>
+<br/>
+<dd>
+Checks if the match queue is empty.
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the match queue is empty, <code>false</code> otherwise.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="nextResult"></a><strong>nextResult</strong>&nbsp;()</dt>
+<br/>
+<dd>
+Returns the next available match result. This is a blocking call - it waits until the next match result is available.
+
+
+
+
+
+
+
+<h3>Return value:</h3>
+The next available match result, or <code>nil</code> if there are no matches queued.
+
+
+
+<h3>See also:</h3>
+<ul>
+	
+	<li><a href="../modules/MatchRunner.html#MatchResult">
+		MatchResult
+	</a>
+	
+</ul>
+
+</dd>
+
+
+
+
+<dt><a name="queueMatch"></a><strong>queueMatch</strong>&nbsp;(stage, ships)</dt>
+<br/>
+<dd>
+Queues a match. This is a non-blocking call - it returns immediately. To block and wait for the next available match result, see <code>nextResult</code>.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  stage: The filename of the stage - e.g., <code>"sample/battle1.lua"</code>.
+	</li>
+	
+	<li>
+	  ships: A table of one or more ship filenames - e.g., <code>{"sample/chaser.lua", "sample/randombot.lua"}</code>.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="setThreadCount"></a><strong>setThreadCount</strong>&nbsp;(threadCount)</dt>
+<br/>
+<dd>
+Sets the number of threads. This is the maximum number of BerryBots matches that will be run in parallel. This should probably be less than or equal to the number of CPU cores on your system.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  threadCount: The number of threads.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+</dl>
+
+
+
+
+<h2><a name="tables"></a>Tables</h2>
+<dl class="table">
+
+<dt><a name="MatchResult"></a><strong>MatchResult</strong></dt>
+<br/>
+<dd>Specifies the results of a BerryBots match.
+
+
+<h3>Fields:</h3>
+<ul>
+	
+	<li>
+	  stage: The filename of the stage.
+	</li>
+	
+	<li>
+	  errored: Whether the match was aborted due to errors.
+	</li>
+	
+	<li>
+	  errorMessage: A message describing the error, or <code>nil</code> if the match completed successfully.
+	</li>
+	
+	<li>
+	  winner: The filename of the ship program that won the match. If no winner is set, the winner is set to the team with rank <code>1</code>, or <code>nil</code> if there is no such team.
+	</li>
+	
+	<li>
+	  teams: A table of <code>TeamResult</code> tables with the score details for each ship or team.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="TeamResult"></a><strong>TeamResult</strong></dt>
+<br/>
+<dd>Specifies the rank, score, and statistics for a ship or team.
+
+
+<h3>Fields:</h3>
+<ul>
+	
+	<li>
+	  name: The filename of the ship or team.
+	</li>
+	
+	<li>
+	  rank: The rank of the team, or <code>0</code> if no rank was set. E.g., <code>1</code> if this team was the winner. If no ranks are set by the stage, ranks are set according to highest scores.
+	</li>
+	
+	<li>
+	  score: The score of the team, or <code>0</code> if no score was set.
+	</li>
+	
+	<li>
+	  stats: A table of <code>TeamStatistic</code> tables for this team, or <code>nil</code> if no statistics were set.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+<dt><a name="TeamStatistic"></a><strong>TeamStatistic</strong></dt>
+<br/>
+<dd>Specifies a statistic for a ship or team.
+
+
+<h3>Fields:</h3>
+<ul>
+	
+	<li>
+	  key: A string describing the statistic.
+	</li>
+	
+	<li>
+	  value: A numeric value.
+	</li>
+	
+</ul>
+
+
+</dd>
+
+
+</dl>
+
+
+
+</div> <!-- id="content" -->
+
+</div> <!-- id="main" -->
+
+<div id="about">
+</div> <!-- id="about" -->
+
+</div> <!-- id="container" -->	
+</body>
+</html>

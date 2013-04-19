@@ -1,0 +1,23 @@
+--- A file access object used by a Game Runner program to read and write files
+-- to disk. It's only allowed to access files under the <code>runners</code>
+-- subdirectory.
+module "RunnerFiles"
+
+--- Checks if a file exists.
+-- @param filename The name of the file under the <code>runners</code>
+--     subdirectory.
+-- @return <code>true</code> if the file exists, <code>false</code> otherwise.
+function exists(filename)
+
+--- Reads the contents of a file.
+-- @param filename The name of the file under the <code>runners</code>
+--     subdirectory.
+-- @return The contents of the file as a string, or <code>nil</code> if the file
+--     doesn't exist.
+function read(filename)
+
+--- Writes a file to disk.
+-- @param filename The name of the file under the <code>runners</code>
+--     subdirectory.
+-- @param contents The contents of the file as a string.
+function write(filename, contents)

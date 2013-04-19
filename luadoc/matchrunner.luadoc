@@ -1,0 +1,61 @@
+--- Executes BerryBots matches and returns the results.
+-- Matches are queued asynchronously and run multi-threaded.
+module "MatchRunner"
+
+--- Checks if the match queue is empty.
+-- @return <code>true</code> if the match queue is empty, <code>false</code>
+--     otherwise.
+function empty()
+
+--- Specifies the results of a BerryBots match.
+-- @class table
+-- @name MatchResult
+-- @field stage The filename of the stage.
+-- @field errored Whether the match was aborted due to errors.
+-- @field errorMessage A message describing the error, or <code>nil</code> if
+--     the match completed successfully.
+-- @field winner The filename of the ship program that won the match. If no
+--     winner is set, the winner is set to the team with rank <code>1</code>, or
+--     <code>nil</code> if there is no such team.
+-- @field teams A table of <code>TeamResult</code> tables with the score details
+--     for each ship or team.
+
+--- Specifies the rank, score, and statistics for a ship or team.
+-- @class table
+-- @name TeamResult
+-- @field name The filename of the ship or team.
+-- @field rank The rank of the team, or <code>0</code> if no rank was set. E.g.,
+--     <code>1</code> if this team was the winner. If no ranks are set by the
+--     stage, ranks are set according to highest scores.
+-- @field score The score of the team, or <code>0</code> if no score was
+--     set.
+-- @field stats A table of <code>TeamStatistic</code> tables for this team, or
+--     <code>nil</code> if no statistics were set.
+
+--- Specifies a statistic for a ship or team.
+-- @class table
+-- @name TeamStatistic
+-- @field key A string describing the statistic.
+-- @field value A numeric value.
+
+--- Returns the next available match result.
+-- This is a blocking call - it waits until the next match result is available.
+-- @see MatchResult
+-- @return The next available match result, or <code>nil</code> if there are no
+--     matches queued.
+function nextResult()
+
+--- Queues a match.
+-- This is a non-blocking call - it returns immediately. To block and wait for
+-- the next available match result, see <code>nextResult</code>.
+-- @param stage The filename of the stage - e.g., <code>"sample/battle1.lua"</code>.
+-- @param ships A table of one or more ship filenames - e.g.,
+-- <code>{"sample/chaser.lua", "sample/randombot.lua"}</code>.
+function queueMatch(stage, ships)
+
+--- Sets the number of threads.
+-- This is the maximum number of BerryBots matches that will be run in parallel.
+-- This should probably be less than or equal to the number of CPU cores on your
+-- system.
+-- @param threadCount The number of threads.
+function setThreadCount(threadCount)

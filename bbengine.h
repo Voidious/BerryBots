@@ -137,13 +137,14 @@ class BerryBotsEngine {
     void monitorCpuTimer(Team *team, bool fatal);
 
     Stage* getStage();
-    Team **getTeams();
-    Team *getTeam(int teamIndex);
-    Team *getTeam(lua_State *L);
-    Team **getRankedTeams();
+    Team** getTeams();
+    Team* getTeam(int teamIndex);
+    Team* getTeam(lua_State *L);
+    Team** getRankedTeams();
     int getNumTeams();
     Ship** getShips();
     int getNumShips();
+    Ship* getStageProgramShip(const char *name);
     int getGameTime();
     void setTeamSize(int teamSize);
     int getTeamSize();
