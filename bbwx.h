@@ -31,7 +31,8 @@
 #define FILE_QUIT_MENU_ID        8
 #define BROWSE_SHIPS_MENU_ID     9
 #define BROWSE_STAGES_MENU_ID    10
-#define BROWSE_API_DOCS_MENU_ID  11
+#define BROWSE_RUNNERS_MENU_ID   11
+#define BROWSE_API_DOCS_MENU_ID  12
 
 #define BERRYBOTS_ICO  "resources/berrybots.ico"
 #define BBICON_32      "resources/icon.iconset/icon_32x32.png"

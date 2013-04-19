@@ -59,6 +59,7 @@ class BerryBotsApp : public wxApp {
     void onChangeBaseDir(wxCommandEvent &event);
     void onBrowseStages(wxCommandEvent &event);
     void onBrowseShips(wxCommandEvent &event);
+    void onBrowseRunners(wxCommandEvent &event);
     void onBrowseApidocs(wxCommandEvent &event);
   private:
     void browseDirectory(const char *dir);
@@ -154,6 +155,8 @@ bool BerryBotsApp::OnInit() {
           wxCommandEventHandler(BerryBotsApp::onBrowseShips));
   Connect(BROWSE_STAGES_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::onBrowseStages));
+  Connect(BROWSE_RUNNERS_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::onBrowseRunners));
   Connect(BROWSE_API_DOCS_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::onBrowseApidocs));
   
@@ -215,6 +218,10 @@ void BerryBotsApp::onBrowseStages(wxCommandEvent &event) {
 
 void BerryBotsApp::onBrowseShips(wxCommandEvent &event) {
   browseDirectory(getShipsDir().c_str());
+}
+
+void BerryBotsApp::onBrowseRunners(wxCommandEvent &event) {
+  browseDirectory(getRunnersDir().c_str());
 }
 
 void BerryBotsApp::onBrowseApidocs(wxCommandEvent &event) {
