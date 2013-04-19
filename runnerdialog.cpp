@@ -46,11 +46,12 @@ RunnerDialog::RunnerDialog(RunnerDialogListener *listener,
   mainPanel_ = new wxPanel(this);
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
   mainSizer_->Add(mainPanel_);
-  wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *topSizer = new wxBoxSizer(wxVERTICAL);
+  wxBoxSizer *ctrlSizer = new wxBoxSizer(wxHORIZONTAL);
   itemSelect_ = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
                               wxSize(275, 225), 0, NULL, wxLB_SORT);
-  topSizer->Add(itemSelect_);
-  topSizer->AddSpacer(5);
+  ctrlSizer->Add(itemSelect_);
+  ctrlSizer->AddSpacer(5);
   
   wxBoxSizer *rightSizer = new wxBoxSizer(wxVERTICAL);
   refreshButton_ = new wxButton(mainPanel_, wxID_REFRESH, "    &Refresh    ");
@@ -76,8 +77,18 @@ RunnerDialog::RunnerDialog(RunnerDialogListener *listener,
                                wxDefaultPosition, wxDefaultSize, wxBU_EXACTFIT);
   rightSizer->AddSpacer(5);
   rightSizer->Add(launchButton_, 0, wxEXPAND | wxALIGN_BOTTOM);
-  topSizer->Add(rightSizer, 0, wxEXPAND);
-  
+  ctrlSizer->Add(rightSizer, 0, wxEXPAND);
+
+  topSizer->Add(ctrlSizer);
+  topSizer->AddSpacer(10);
+  wxString warning;
+  wxStaticText *warningText1 = new wxStaticText(mainPanel_, wxID_ANY,
+      "WARNING: Game Runner programs can access your disk!!!");
+  wxStaticText *warningText2 = new wxStaticText(mainPanel_, wxID_ANY,
+      "Only execute programs that you trust or wrote yourself.");
+  topSizer->Add(warningText1);
+  topSizer->Add(warningText2);
+
   borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
   borderSizer_->Add(topSizer, 0, wxALL, 12);
   mainPanel_->SetSizerAndFit(borderSizer_);
