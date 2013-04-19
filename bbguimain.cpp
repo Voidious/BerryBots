@@ -106,9 +106,9 @@ bool BerryBotsApp::OnInit() {
                << "---"
                << std::endl << std::endl
                << "After selecting a directory, subdirectories will be created "
-               << "for ships (bots/) and stages (stages/). The sample ships "
-               << "and stages will be copied over. Place your own ships and "
-               << "stages there, too."
+               << "for ships (bots/), stages (stages/), and Game Runners "
+               << "(runners/). The samples will be copied into these "
+               << "directories. Place your own programs in them, too."
                << std::endl << std::endl
                << "The BerryBots Lua API documentation will be copied into the "
                << "apidoc/ subdirectory."
@@ -121,7 +121,7 @@ bool BerryBotsApp::OnInit() {
                << "Have fun!";
     
     wxMessageDialog selectBaseDirMessage(NULL, configInfo.str(),
-                                        "BerryBots Setup", wxOK);
+                                         "BerryBots Setup", wxOK);
     if (selectBaseDirMessage.ShowModal() != wxID_OK) {
       return false;
     }

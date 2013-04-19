@@ -178,12 +178,14 @@ bool fileExists(const char *filename) {
       self.aaDisabled =
           [[temp objectForKey:@"Disable Anti-aliasing"] boolValue];
 
-      // TODO: Handle upgrade to first version that contains sample runners more
-      //       smoothly than asking user to reselect base dir.
       if ([fileManager fileExistsAtPath:self.stagesDir]
-          && [fileManager fileExistsAtPath:self.shipsDir]
-          && [fileManager fileExistsAtPath:self.runnersDir]) {
+          && [fileManager fileExistsAtPath:self.shipsDir]) {
         selectRoot = false;
+        if (self.runnersDir == nil) {
+          self.runnersDir = [NSString stringWithFormat:@"%@/runners",
+                             [self.shipsDir stringByDeletingLastPathComponent]];
+          [self save];
+        }
       }
     }
     bool returnValue;
@@ -201,7 +203,7 @@ bool fileExists(const char *filename) {
         [alert addButtonWithTitle:@"Skip"];
         [alert setMessageText:@"Update samples and docs?"];
         [alert setInformativeText:[NSString stringWithFormat:
-            @"BerryBots sample ships, stages, and API docs have been updated to version %@. OK to update the files in your base directory?", @SAMPLES_VERSION ]];
+            @"BerryBots samples and API docs have been updated to version %@. OK to update the files in your base directory?", @SAMPLES_VERSION ]];
         [alert setAlertStyle:NSInformationalAlertStyle];
         if ([alert runModal] == NSAlertFirstButtonReturn) {
           [self copyAllAppFiles:srcDir forceAll:true];
