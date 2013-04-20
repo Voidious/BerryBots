@@ -44,7 +44,13 @@ OutputConsole::OutputConsole(const char *title, int style,
       gfxCheckBox_ = new wxCheckBox(bottomPanel, wxID_ANY, "Enable Gfx");
       bottomSizer->Add(gfxCheckBox_, 0, wxALIGN_RIGHT | wxALL, 4);
     } else if (style == CONSOLE_RUNNER) {
-      abortButton_ = new wxButton(bottomPanel, wxID_ANY, "Abort");
+      // TODO: Only show OS X hot key on cmd down. It's not disappearing on cmd
+      //       up, so just displaying it all the time for now.
+#ifdef __WXOSX__
+      abortButton_ = new wxButton(bottomPanel, wxID_ANY, "Abo&rt \u2318R");
+#else
+      abortButton_ = new wxButton(bottomPanel, wxID_ANY, "    Abo&rt    ");
+#endif
       bottomSizer->Add(abortButton_, 0, wxALIGN_RIGHT | wxALL, 4);
     }
     bottomPanel->SetSizerAndFit(bottomSizer);
@@ -173,6 +179,10 @@ bool OutputConsole::isChecked() {
 }
 
 void OutputConsole::onAbort(wxCommandEvent &event) {
+  abort();
+}
+
+void OutputConsole::abort() {
   if (listener_ != 0 && abortButton_ != 0) {
     listener_->onAbort();
   }
@@ -198,6 +208,23 @@ void OutputConsole::setCloseOnSpace() {
   closeOnSpace_ = true;
 }
 
+int OutputConsole::getStyle() {
+  return style_;
+}
+
+void OutputConsole::setMnemonicLabels(bool modifierDown) {
+  // TODO: I'd rather it look like the button was pressed when you hit the
+  //       shortcut, if possible. For now having trouble figuring out the
+  //       wxButton::Command() call.
+#ifndef __WXOSX__
+  if (modifierDown) {
+    abortButton_->SetLabel("Abo&rt  alt-R");
+  } else {
+    abortButton_->SetLabel("    Abo&rt    ");
+  }
+#endif
+}
+
 OutputConsoleEventFilter::OutputConsoleEventFilter(
     OutputConsole *outputConsole) {
   outputConsole_ = outputConsole;
@@ -208,11 +235,20 @@ OutputConsoleEventFilter::~OutputConsoleEventFilter() {
 }
 
 int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
+  bool modifierDown = false;
+  wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+#if defined(__WXOSX__)
+  modifierDown = keyEvent->ControlDown();
+#elif defined(__WINDOWS__)
+  modifierDown = keyEvent->AltDown();
+#endif
+
   const wxEventType type = event.GetEventType();
   if (outputConsole_->IsActive() && type == wxEVT_KEY_DOWN) {
+    outputConsole_->setMnemonicLabels(modifierDown);
     wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
     int keyCode = keyEvent->GetKeyCode();
-    if (keyCode == WXK_ESCAPE
+    if ((outputConsole_->getStyle() != CONSOLE_RUNNER && keyCode == WXK_ESCAPE)
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       outputConsole_->Close();
       return Event_Processed;
@@ -224,6 +260,9 @@ int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
       outputConsole_->defaultTextSize();
     } else if (keyEvent->GetUnicodeKey() == ' ') {
       outputConsole_->onSpace();
+    } else if (outputConsole_->getStyle() == CONSOLE_RUNNER
+               && keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
+      outputConsole_->abort();
     }
   }
   return Event_Skip;

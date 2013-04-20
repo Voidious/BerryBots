@@ -65,11 +65,14 @@ class OutputConsole : public wxFrame {
     void onCheck(wxCommandEvent &event);
     bool isChecked();
     void onAbort(wxCommandEvent &event);
+    void abort();
     void increaseTextSize();
     void decreaseTextSize();
     void defaultTextSize();
     void setCloseOnSpace();
-    
+    int getStyle();
+    void setMnemonicLabels(bool modifierDown);
+
     virtual void OnEraseBackground(wxEraseEvent&);
 };
 
