@@ -43,8 +43,8 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
   mainPanel_ = new wxPanel(this);
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
   mainSizer_->Add(mainPanel_);
-  cancelButton_ = new wxButton(mainPanel_, wxID_ANY, "Cance&l");
-  okButton_ = new wxButton(mainPanel_, wxID_ANY, "&OK");
+  cancelButton_ = new wxButton(mainPanel_, wxID_ANY, "    Cance&l    ");
+  okButton_ = new wxButton(mainPanel_, wxID_ANY, "    &OK    ");
 
   wxBoxSizer *topSizer = new wxBoxSizer(wxHORIZONTAL);
   wxBoxSizer *colSizer = new wxBoxSizer(wxVERTICAL);
@@ -88,9 +88,14 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
 #elif __WXGTK__
   SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
+
+  eventFilter_ = new RunnerFormEventFilter(this);
+  this->GetEventHandler()->AddFilter(eventFilter_);
 }
 
 RunnerForm::~RunnerForm() {
+  this->GetEventHandler()->RemoveFilter(eventFilter_);
+  delete eventFilter_;
   // TODO: figure out if I need to track and delete the controls
   if (message_ != 0) {
     delete message_;
@@ -203,10 +208,18 @@ void RunnerForm::setFormValues(wxControl *control,
 }
 
 void RunnerForm::onCancel(wxCommandEvent &event) {
+  cancel();
+}
+
+void RunnerForm::cancel() {
   done_ = true;
 }
 
 void RunnerForm::onOk(wxCommandEvent &event) {
+  ok();
+}
+
+void RunnerForm::ok() {
   done_ = ok_ = true;
 }
 
@@ -249,6 +262,24 @@ bool RunnerForm::isDone() {
 
 bool RunnerForm::isOk() {
   return ok_;
+}
+
+void RunnerForm::setMnemonicLabels(bool modifierDown) {
+  // TODO: I'd rather it look like the button was pressed when you hit the
+  //       shortcut, if possible. For now having trouble figuring out the
+  //       wxButton::Command() call.
+  if (modifierDown) {
+#ifdef __WXOSX__
+    cancelButton_->SetLabel("Cance&l \u2318L");
+    okButton_->SetLabel("&OK \u2318O");
+#else
+    cancelButton_->SetLabel("Cance&l  alt-L");
+    okButton_->SetLabel("&OK  alt-O");
+#endif
+  } else {
+    cancelButton_->SetLabel("    Cance&l    ");
+    okButton_->SetLabel("    &OK    ");
+  }
 }
 
 RunnerFormElement::RunnerFormElement(const char *name, int type,
@@ -317,4 +348,48 @@ void RunnerFormElement::setControl(wxControl *control) {
 
 wxControl* RunnerFormElement::getControl() {
   return control_;
+}
+
+RunnerFormEventFilter::RunnerFormEventFilter(RunnerForm *runnerForm) {
+  runnerForm_ = runnerForm;
+}
+
+RunnerFormEventFilter::~RunnerFormEventFilter() {
+  
+}
+
+int RunnerFormEventFilter::FilterEvent(wxEvent& event) {
+  bool modifierDown = false;
+  wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+#if defined(__WXOSX__)
+  modifierDown = keyEvent->ControlDown();
+#elif defined(__WINDOWS__)
+  modifierDown = keyEvent->AltDown();
+#endif
+
+  const wxEventType type = event.GetEventType();
+  if (type == wxEVT_KEY_DOWN && runnerForm_->IsActive()) {
+    runnerForm_->setMnemonicLabels(modifierDown);
+    int keyCode = keyEvent->GetKeyCode();
+    if (keyCode == WXK_ESCAPE
+        || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
+      runnerForm_->cancel();
+      return Event_Processed;
+#ifdef __WXOSX__
+    // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
+    } else if (keyEvent->GetUnicodeKey() == 'L' && modifierDown) {
+      runnerForm_->cancel();
+      return Event_Processed;
+    } else if (keyEvent->GetUnicodeKey() == 'O' && modifierDown) {
+      runnerForm_->ok();
+      return Event_Processed;
+#endif
+    }
+  }
+
+  if (type == wxEVT_KEY_UP) {
+    runnerForm_->setMnemonicLabels(modifierDown);
+  }
+
+  return Event_Skip;
 }

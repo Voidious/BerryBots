@@ -58,6 +58,7 @@ class RunnerForm : public wxFrame {
   wxButton *okButton_;
   wxBoxSizer *mainSizer_;
   wxBoxSizer *borderSizer_;
+  wxEventFilter *eventFilter_;
   bool done_;
   bool ok_;
   char *message_;
@@ -68,16 +69,29 @@ class RunnerForm : public wxFrame {
         int numShips, const char *message);
     ~RunnerForm();
     void onCancel(wxCommandEvent &event);
+    void cancel();
     void onOk(wxCommandEvent &event);
+    void ok();
     void onClose(wxCommandEvent &event);
     void onFormChange(wxUpdateUIEvent &event);
     bool isDone();
     bool isOk();
+    void setMnemonicLabels(bool modifierDown);
+
   private:
     wxControl* addFormElement(int &colHeight, int &numCols,
         wxBoxSizer *topSizer, wxBoxSizer *&colSizer, const char *name, int type,
         char **stageNames, int numStages, char **shipNames, int numShips);
     void setFormValues(wxControl *control, RunnerFormElement *element);
+};
+
+class RunnerFormEventFilter : public wxEventFilter {
+  RunnerForm *runnerForm_;
+  
+  public:
+    RunnerFormEventFilter(RunnerForm *runnerForm);
+    ~RunnerFormEventFilter();
+    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif
