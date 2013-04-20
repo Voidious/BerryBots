@@ -102,7 +102,9 @@ function run(stageSensors)
   if (world:touchedAnyZone(userShip)) then
     print("Tries: " .. tries)
     print("Time:  " .. world:time())
-    admin:setWinner(userShip:name())
+    admin:setWinner(userShip)
+    admin:setStatistic(userShip, "Tries", tries)
+    admin:setStatistic(userShip, "Time", world:time())
     admin:gameOver()
   end
 end

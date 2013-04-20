@@ -60,7 +60,7 @@ function run()
   if (shipsAlive <= 1) then
     for i, ship in pairs(ships) do
       if (ship:alive()) then
-        admin:setWinner(ship:name())
+        admin:setWinner(ship)
       end
     end
     admin:gameOver()

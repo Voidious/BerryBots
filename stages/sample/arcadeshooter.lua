@@ -44,6 +44,10 @@ message = nil
 function run(stageSensors)
   if (userShipsAlive() == 0) then
     print ("Final score: " .. score)
+    for i, ship in pairs(userShips) do
+      admin:setScore(ship, score)
+      admin:setStatistic(ship, "Survival time", world:time())
+    end
     admin:gameOver()
   end
 

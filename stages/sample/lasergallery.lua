@@ -70,10 +70,11 @@ function run(stageSensors)
   if (not targetShip:alive()) then
     stageShipIndex = stageShipIndex + 1
     if (stageShipIndex > numGalleryShips) then
-      admin:setWinner(userShip:name())
+      admin:setWinner(userShip)
       admin:gameOver()
       print("Time: " .. world:time())
       admin:drawText("Time: " .. world:time(), 505, 380)
+      admin:setStatistic(userShip, "Time", world:time())
     else
       admin:setShipShowName(targetShip, false)
       targetShip = stageShips[stageShipIndex]

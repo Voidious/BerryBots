@@ -52,12 +52,14 @@ function run()
 
   for i, ship in pairs(ships) do
     if (ship:alive() and world:touchedAnyZone(ship)) then
-      admin:setWinner(ship:name())
+      admin:setWinner(ship)
+      admin:setStatistic(ship, "Time", world:time())
       admin:gameOver()
       local timeLine = "Time: " .. world:time()
       print(timeLine)
       admin:drawText(timeLine, 530, 550, 32)
     elseif (ship:hitWall()) then
+      admin:setStatistic(ship, "Time", world:time())
       admin:gameOver()
     end
   end

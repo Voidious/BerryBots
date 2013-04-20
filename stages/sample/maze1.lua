@@ -32,7 +32,8 @@ function run()
 
   for i, ship in pairs(ships) do
     if (ship:alive() and world:touchedAnyZone(ship)) then
-      admin:setWinner(ship:name())
+      admin:setWinner(ship)
+      admin:setStatistic(ship, "Time", world:time())
       admin:gameOver()
       local timeLine = "Time: " .. world:time()
       print(timeLine)

@@ -144,6 +144,7 @@ function run(stageSensors)
   if (endRound) then
     if (round == NUM_ROUNDS) then
       print(userShip:name() .. " score: " .. roundsWon .. " / " .. NUM_ROUNDS)
+      admin:setScore(userShip, roundsWon)
       admin:gameOver()
     else
       admin:roundOver()
