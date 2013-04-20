@@ -1037,6 +1037,7 @@ void GuiManager::launchGameRunner(const char *runnerName) {
 }
 
 void GuiManager::abortGameRunner() {
+  nextWindow_ = NEXT_GAME_RUNNER;
   // TODO: pretty sure we need a mutex here
   if (gameRunner_ != 0) {
     gameRunner_->quit();
@@ -1830,7 +1831,6 @@ RunnerConsoleListener::RunnerConsoleListener(GuiManager *guiManager) {
 
 void RunnerConsoleListener::onClose() {
   guiManager_->abortGameRunner();
-  guiManager_->dialogClosed();
 }
 
 void RunnerConsoleListener::onAbort() {
