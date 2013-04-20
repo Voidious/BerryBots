@@ -670,6 +670,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     delete shipFilenameRoot;
     team->stageShip = stageShip;
     team->result.score = team->result.rank = team->result.numStats = 0;
+    team->result.showResult = (!stageShip);
 
     for (int y = 0; y < numStateShips; y++) {
       Ship *ship;

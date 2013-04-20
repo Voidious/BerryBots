@@ -66,7 +66,13 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint center)
     }
   }
 
-  resultsGrid->CreateGrid(numTeams, baseCols + numStats);
+  int numResults = 0;
+  for (int x = 0; x < numTeams; x++) {
+    if (teams[x]->result.showResult) {
+      numResults++;
+    }
+  }
+  resultsGrid->CreateGrid(numResults, baseCols + numStats);
   resultsGrid->EnableEditing(false);
   resultsGrid->SetColumnWidth(0, 50);
   resultsGrid->SetColLabelValue(0, "Rank");
@@ -80,38 +86,43 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint center)
   }
   resultsGrid->HideRowLabels();
 
+  int resultIndex = 0;
   for (int x = 0; x < numTeams; x++) {
     TeamResult *result = &(teams[x]->result);
-    if (result->rank == 0) {
-      resultsGrid->SetCellValue(x, 0, "-");
-    } else {
-      resultsGrid->SetCellValue(x, 0,
-                                wxString::Format(wxT("%i"), result->rank));
-    }
-    resultsGrid->SetCellAlignment(wxALIGN_CENTER, x, 0);
-    resultsGrid->SetCellValue(x, 1,
-                              wxString::Format(wxT(" %s"), teams[x]->name));
-    if (hasScores) {
-      resultsGrid->SetCellValue(x, 2,
-                                wxString::Format(wxT("%.2f "), result->score));
-      resultsGrid->SetCellAlignment(wxALIGN_RIGHT, x, 2);
-    }
-    for (int y = 0; y < numStats; y++) {
-      char *key = statKeys[y];
-      bool found = false;
-      for (int z = 0; z < result->numStats; z++) {
-        char *resultKey = result->stats[z]->key;
-        if (strcmp(key, resultKey) == 0) {
-          resultsGrid->SetCellValue(x, baseCols + y,
-              wxString::Format(wxT("%.2f "), result->stats[z]->value));
-          resultsGrid->SetCellAlignment(wxALIGN_RIGHT, x, baseCols + y);
-          found = true;
-          break;
+    if (result->showResult) {
+      if (result->rank == 0) {
+        resultsGrid->SetCellValue(resultIndex, 0, "-");
+      } else {
+        resultsGrid->SetCellValue(resultIndex, 0,
+                                  wxString::Format(wxT("%i"), result->rank));
+      }
+      resultsGrid->SetCellAlignment(wxALIGN_CENTER, resultIndex, 0);
+      resultsGrid->SetCellValue(resultIndex, 1,
+                                wxString::Format(wxT(" %s"), teams[x]->name));
+      if (hasScores) {
+        resultsGrid->SetCellValue(resultIndex, 2,
+                                  wxString::Format(wxT("%.2f "), result->score));
+        resultsGrid->SetCellAlignment(wxALIGN_RIGHT, resultIndex, 2);
+      }
+      for (int y = 0; y < numStats; y++) {
+        char *key = statKeys[y];
+        bool found = false;
+        for (int z = 0; z < result->numStats; z++) {
+          char *resultKey = result->stats[z]->key;
+          if (strcmp(key, resultKey) == 0) {
+            resultsGrid->SetCellValue(resultIndex, baseCols + y,
+                wxString::Format(wxT("%.2f "), result->stats[z]->value));
+            resultsGrid->SetCellAlignment(wxALIGN_RIGHT, resultIndex,
+                                          baseCols + y);
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          resultsGrid->SetCellValue(resultIndex, baseCols + y, "-");
         }
       }
-      if (!found) {
-        resultsGrid->SetCellValue(x, baseCols + y, "-");
-      }
+      resultIndex++;
     }
   }
 

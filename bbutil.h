@@ -144,6 +144,7 @@ typedef struct {
   double score;
   ScoreStat* stats[MAX_SCORE_STATS];
   int numStats;
+  bool showResult;
 } TeamResult;
 
 typedef struct {

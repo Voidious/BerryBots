@@ -2097,23 +2097,27 @@ int GameRunner_nextResult(lua_State *L) {
       char **teamNames = result->getTeamNames();
       TeamResult **teamResults = result->getTeamResults();
       int numTeams = result->getNumTeams();
+      int resultIndex = 0;
       for (int x = 0; x < numTeams; x++) {
-        lua_newtable(L);
         TeamResult *teamResult = teamResults[x];
-        setField(L, "name", teamNames[x]);
-        setField(L, "rank", teamResult->rank);
-        setField(L, "score", teamResult->score);
-        if (teamResult->numStats == 0) {
-          setFieldNil(L, "stats");
-        } else {
-          lua_pushliteral(L, "stats");
+        if (teamResult->showResult) {
           lua_newtable(L);
-          for (int y = 0; y < teamResult->numStats; y++) {
-            setField(L, teamResult->stats[y]->key, teamResult->stats[y]->value);
+          setField(L, "name", teamNames[x]);
+          setField(L, "rank", teamResult->rank);
+          setField(L, "score", teamResult->score);
+          if (teamResult->numStats == 0) {
+            setFieldNil(L, "stats");
+          } else {
+            lua_pushliteral(L, "stats");
+            lua_newtable(L);
+            for (int y = 0; y < teamResult->numStats; y++) {
+              setField(L, teamResult->stats[y]->key,
+                       teamResult->stats[y]->value);
+            }
+            lua_settable(L, -3);
           }
-          lua_settable(L, -3);
+          lua_rawseti(L, -2, ++resultIndex);
         }
-        lua_rawseti(L, -2, x + 1);
       }
       lua_settable(L, -3);
     }
