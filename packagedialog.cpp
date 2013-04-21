@@ -148,7 +148,9 @@ void PackageDialog::onActivate(wxActivateEvent &event) {
 }
 
 void PackageDialog::onShow(wxShowEvent &event) {
-  focusItemSelect();
+  if (event.IsShown()) {
+    focusItemSelect();
+  }
 }
 
 void PackageDialog::onClose(wxCommandEvent &event) {

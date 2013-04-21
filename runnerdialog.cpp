@@ -83,11 +83,11 @@ RunnerDialog::RunnerDialog(RunnerDialogListener *listener,
   topSizer->AddSpacer(10);
   wxString warning;
   wxStaticText *warningText1 = new wxStaticText(mainPanel_, wxID_ANY,
-      "WARNING: Game Runner programs can access your disk!!!");
+      "WARNING: Game Runners can access your disk!");
   wxStaticText *warningText2 = new wxStaticText(mainPanel_, wxID_ANY,
-      "Only execute programs that you trust or wrote yourself.");
-  topSizer->Add(warningText1);
-  topSizer->Add(warningText2);
+      "Only run programs you trust or wrote yourself.");
+  topSizer->Add(warningText1, 0, wxALIGN_CENTER);
+  topSizer->Add(warningText2, 0, wxALIGN_CENTER);
 
   borderSizer_ = new wxBoxSizer(wxHORIZONTAL);
   borderSizer_->Add(topSizer, 0, wxALL, 12);
@@ -148,7 +148,9 @@ void RunnerDialog::onActivate(wxActivateEvent &event) {
 }
 
 void RunnerDialog::onShow(wxShowEvent &event) {
-  focusItemSelect();
+  if (event.IsShown()) {
+    focusItemSelect();
+  }
 }
 
 void RunnerDialog::onClose(wxCommandEvent &event) {
