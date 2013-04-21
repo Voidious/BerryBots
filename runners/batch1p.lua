@@ -90,16 +90,14 @@ function processNextResult(runner)
       numWins = numWins + 1
     end
     local team = result.teams[1]
-    print("    Score: " .. round(team.score, 2))
+    if (team.score ~= nil) then
+      print("    Score: " .. round(team.score, 2))
+      saveScore("Score", team.score)
+    end
     if (team.stats ~= nil) then
       print("    Stats:")
       for key, value in pairs(team.stats) do
         print("        " .. key .. ": " .. round(value, 2))
-      end
-    end
-    saveScore("Score", team.score)
-    if (team.stats ~= nil) then
-      for key, value in pairs(team.stats) do
         saveScore(key, value)
       end
     end

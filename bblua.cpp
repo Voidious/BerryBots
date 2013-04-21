@@ -2085,6 +2085,7 @@ int GameRunner_nextResult(lua_State *L) {
   if (result == 0) {
     lua_pushnil(L);
   } else {
+    bool hasScores = result->hasScores();
     lua_newtable(L);
     setField(L, "stage", result->getStageName());
     if (result->errored()) {
@@ -2111,7 +2112,11 @@ int GameRunner_nextResult(lua_State *L) {
           lua_newtable(L);
           setField(L, "name", teamNames[x]);
           setField(L, "rank", teamResult->rank);
-          setField(L, "score", teamResult->score);
+          if (hasScores) {
+            setField(L, "score", teamResult->score);
+          } else {
+            setFieldNil(L, "score");
+          }
           if (teamResult->numStats == 0) {
             setFieldNil(L, "stats");
           } else {

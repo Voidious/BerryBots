@@ -120,7 +120,9 @@ function processNextResult(runner)
       end
       print("    " .. team.name .. ":")
       print("        Rank: " .. team.rank)
-      print("        Score: " .. round(team.score, 2))
+      if (team.score ~= nil) then
+        print("        Score: " .. round(team.score, 2))
+      end
       if (team.stats ~= nil) then
         print("        Stats:")
         for key, value in pairs(team.stats) do
@@ -129,7 +131,9 @@ function processNextResult(runner)
       end
       if (team.name == challenger) then
         saveShipScore(referenceShip, "Rank", team.rank)
-        saveShipScore(referenceShip, "Score", team.score)
+        if (team.score ~= nil) then
+          saveShipScore(referenceShip, "Score", team.score)
+        end
         if (team.stats ~= nil) then
           for key, value in pairs(team.stats) do
             saveShipScore(referenceShip, key, value)

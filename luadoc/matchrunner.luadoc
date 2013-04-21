@@ -27,8 +27,8 @@ function empty()
 -- @field rank The rank of the team, or <code>0</code> if no rank was set. E.g.,
 --     <code>1</code> if this team was the winner. If no ranks are set by the
 --     stage, ranks are set according to highest scores.
--- @field score The score of the team, or <code>0</code> if no score was
---     set.
+-- @field score The score of the team, or <code>nil</code> if no score was
+--     set for any team in the match.
 -- @field stats A table of <code>TeamStatistic</code> tables for this team, or
 --     <code>nil</code> if no statistics were set.
 

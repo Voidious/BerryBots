@@ -77,7 +77,7 @@ MatchResult* BerryBotsRunner::nextResult() {
           MatchResult *nextResult = new MatchResult(config->getStageName(),
               config->getTeamNames(), config->getNumTeams(),
               config->getWinnerFilename(), config->getTeamResults(),
-              config->getErrorMessage());
+              config->hasScores(), config->getErrorMessage());
           config->processedResult();
           return nextResult;
         }
@@ -195,6 +195,7 @@ void* BerryBotsRunner::runMatch(void *vargs) {
     }
     config->setTeamResults(engine->getTeamResults());
   }
+  config->setHasScores(engine->hasScores());
   config->finished();
   delete engine;
   delete fileManager;
@@ -221,7 +222,7 @@ MatchConfig::MatchConfig(const char *stageName, char **teamNames,
   }
   numTeams_ = numTeams;
   winnerFilename_ = 0;
-  started_ = finished_ = processedResult_ = false;
+  started_ = finished_ = processedResult_ = hasScores_ = false;
   teamResults_ = 0;
   errorMessage_ = 0;
 }
@@ -295,6 +296,14 @@ void MatchConfig::setTeamResults(TeamResult **teamResults) {
   teamResults_ = teamResults;
 }
 
+void MatchConfig::setHasScores(bool hasScores) {
+  hasScores_ = hasScores;
+}
+
+bool MatchConfig::hasScores() {
+  return hasScores_;
+}
+
 bool MatchConfig::isStarted() {
   return started_;
 }
@@ -332,8 +341,8 @@ void MatchConfig::setErrorMessage(const char *errorMessage) {
 }
 
 MatchResult::MatchResult(const char *stageName, char **teamNames, int numTeams,
-                         const char *winner, TeamResult **teamResults,
-                         const char *errorMessage) {
+    const char *winner, TeamResult **teamResults, bool hasScores,
+    const char *errorMessage) {
   stageName_ = new char[strlen(stageName) + 1];
   strcpy(stageName_, stageName);
   teamNames_ = new char*[numTeams];
@@ -349,6 +358,7 @@ MatchResult::MatchResult(const char *stageName, char **teamNames, int numTeams,
     strcpy(winner_, winner);
   }
   teamResults_ = teamResults;
+  hasScores_ = hasScores;
   if (errorMessage == 0) {
     errorMessage_ = 0;
   } else {
@@ -389,6 +399,10 @@ const char* MatchResult::getWinner() {
 
 TeamResult** MatchResult::getTeamResults() {
   return teamResults_;
+}
+
+bool MatchResult::hasScores() {
+  return hasScores_;
 }
 
 bool MatchResult::errored() {

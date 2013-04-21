@@ -126,6 +126,7 @@ class BerryBotsEngine {
     const char* getWinnerName();
     const char* getWinnerFilename();
     TeamResult** getTeamResults();
+    bool hasScores();
 
     void initStage(const char *stagesBaseDir, const char *stageName,
                    const char *cacheDir) throw (EngineException*);

@@ -779,7 +779,7 @@ void GuiManager::showResults() {
   int yCenter = windowPosition.y + (windowSize.y / 2);
 
   resultsDialog_ = new ResultsDialog(rankedTeams, engine_->getNumTeams(),
-                                     wxPoint(xCenter, yCenter));
+      engine_->hasScores(), wxPoint(xCenter, yCenter));
   delete rankedTeams;
   resultsDialog_->Show();
   resultsDialog_->Raise();

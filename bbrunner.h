@@ -46,6 +46,7 @@ class MatchConfig {
   bool finished_;
   bool processedResult_;
   TeamResult **teamResults_;
+  bool hasScores_;
   char *errorMessage_;
 
   public:
@@ -62,6 +63,8 @@ class MatchConfig {
     void setWinnerFilename(const char *name);
     TeamResult** getTeamResults();
     void setTeamResults(TeamResult **teamResults);
+    void setHasScores(bool hasScores);
+    bool hasScores();
     bool isStarted();
     void started();
     bool isFinished();
@@ -78,11 +81,12 @@ class MatchResult {
   int numTeams_;
   char *winner_;
   TeamResult **teamResults_;
+  bool hasScores_;
   char *errorMessage_;
 
   public:
     MatchResult(const char *stageName, char **teamNames, int numTeams,
-                const char *winner, TeamResult **teamResults,
+                const char *winner, TeamResult **teamResults, bool hasScores,
                 const char *errorMessage);
     ~MatchResult();
     const char* getStageName();
@@ -90,6 +94,7 @@ class MatchResult {
     int getNumTeams();
     const char* getWinner();
     TeamResult** getTeamResults();
+    bool hasScores();
     bool errored();
     const char *getErrorMessage();
 };

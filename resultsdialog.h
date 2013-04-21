@@ -28,7 +28,7 @@ class ResultsDialog : public wxFrame {
   wxEventFilter *eventFilter_;
 
   public:
-    ResultsDialog(Team **teams, int numTeams, wxPoint center);
+    ResultsDialog(Team **teams, int numTeams, bool hasScores, wxPoint center);
     ~ResultsDialog();
     void onClose(wxCommandEvent &event);
 };

@@ -24,7 +24,8 @@
 #include "bbwx.h"
 #include "resultsdialog.h"
 
-ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint center)
+ResultsDialog::ResultsDialog(Team **teams, int numTeams, bool hasScores,
+                             wxPoint center)
     : wxFrame(NULL, wxID_ANY, "Results", wxDefaultPosition, wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxMAXIMIZE_BOX)) {
 
@@ -45,13 +46,6 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, wxPoint center)
   wxGrid *resultsGrid =
       new wxGrid(mainPanel, wxID_ANY, wxPoint(0, 0), wxDefaultSize);
 
-  bool hasScores = false;
-  for (int x = 0; x < numTeams; x++) {
-    if (teams[x]->result.score != 0) {
-      hasScores = true;
-      break;
-    }
-  }
   int baseCols = (hasScores ? 3 : 2);
 
   TeamResult *firstResult = &(teams[0]->result);

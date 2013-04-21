@@ -328,6 +328,10 @@ TeamResult** BerryBotsEngine::getTeamResults() {
   return results;
 }
 
+bool BerryBotsEngine::hasScores() {
+  return hasScores_;
+}
+
 void BerryBotsEngine::processWinnerRanksScores() {
   if (hasScores_ && !hasRanks_) {
     setTeamRanksByScore();
