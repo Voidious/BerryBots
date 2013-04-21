@@ -40,6 +40,18 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
     strcpy(message_, message);
   }
 
+#ifdef __WINDOWS__
+  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
+  
+  // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
+  wxFont windowFont = GetFont();
+  if (windowFont.GetPointSize() <= 9) {
+    SetFont(windowFont.Larger());
+  }
+#elif __WXGTK__
+  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
+#endif
+
   mainPanel_ = new wxPanel(this);
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
   mainSizer_->Add(mainPanel_);
@@ -76,18 +88,6 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
           wxCommandEventHandler(RunnerForm::onOk));
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(RunnerForm::onClose));
-
-#ifdef __WINDOWS__
-  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
-  
-  // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
-  wxFont windowFont = GetFont();
-  if (windowFont.GetPointSize() <= 9) {
-    SetFont(windowFont.Larger());
-  }
-#elif __WXGTK__
-  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
-#endif
 
   eventFilter_ = new RunnerFormEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);

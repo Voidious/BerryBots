@@ -75,6 +75,7 @@ OutputConsole::OutputConsole(const char *title, int style,
 #endif
 
   fontSize_ = defaultFontSize_;
+  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
   SetSizerAndFit(outerSizer_);
 
   menusInitialized_ = false;
