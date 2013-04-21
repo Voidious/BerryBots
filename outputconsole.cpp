@@ -44,10 +44,12 @@ OutputConsole::OutputConsole(const char *title, int style,
       gfxCheckBox_ = new wxCheckBox(bottomPanel, wxID_ANY, "Enable Gfx");
       bottomSizer->Add(gfxCheckBox_, 0, wxALIGN_RIGHT | wxALL, 4);
     } else if (style == CONSOLE_RUNNER) {
-      // TODO: Only show OS X hot key on cmd down. It's not disappearing on cmd
-      //       up, so just displaying it all the time for now.
+      // On Windows/Mac, it's not picking up the cmd/alt up to hide the hotkey,
+      // so just displaying it all the time for now.
 #ifdef __WXOSX__
       abortButton_ = new wxButton(bottomPanel, wxID_ANY, "Abo&rt \u2318R");
+#elif defined(__WINDOWS__)
+      abortButton_ = new wxButton(bottomPanel, wxID_ANY, "Abo&rt  alt-R");
 #else
       abortButton_ = new wxButton(bottomPanel, wxID_ANY, "    Abo&rt    ");
 #endif
@@ -212,7 +214,7 @@ void OutputConsole::setMnemonicLabels(bool modifierDown) {
   // TODO: I'd rather it look like the button was pressed when you hit the
   //       shortcut, if possible. For now having trouble figuring out the
   //       wxButton::Command() call.
-#ifndef __WXOSX__
+#ifdef __WXGTK__
   if (modifierDown) {
     abortButton_->SetLabel("Abo&rt  alt-R");
   } else {
