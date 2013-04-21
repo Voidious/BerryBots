@@ -9,11 +9,11 @@
 module "RunnerControl"
 
 --- Executes a BerryBots Game Runner control program.
--- @see RunnerForm, MatchRunner, RunnerFiles
--- @param form A userdata object used to specify input fields, prompt the user
---     with a form with these fields, and fetch the values input by the user.
+-- @see MatchRunner, RunnerForm, RunnerFiles
 -- @param runner A userdata object used to queue BerryBots matches and fetch the
 --     results.
+-- @param form A userdata object used to specify input fields, prompt the user
+--     with a form with these fields, and fetch the values input by the user.
 -- @param files A userdata object used to read from and write to files in the
 --     BerryBots runners directory.
-function run(form, runner, files)
+function run(runner, form, files)

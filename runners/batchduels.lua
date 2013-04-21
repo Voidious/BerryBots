@@ -12,7 +12,7 @@ scoresByShip = { }
 numResults = 0
 challenger = nil
 
-function run(form, runner, files, network)
+function run(runner, form, files, network)
   form:addStageSelect("Stage")
   form:addSingleShipSelect("Challenger")
   form:addMultiShipSelect("Reference Ships")

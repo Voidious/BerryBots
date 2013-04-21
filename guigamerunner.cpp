@@ -290,8 +290,8 @@ void GuiGameRunner::run(const char *runnerName) {
     lua_pushcfunction(runnerState_, traceback);
     int errfunc = lua_gettop(runnerState_);
     lua_getglobal(runnerState_, "run");
-    pushRunnerForm(runnerState_, this);
     pushGameRunner(runnerState_, this);
+    pushRunnerForm(runnerState_, this);
     pushRunnerFiles(runnerState_, this);
 
     int pcallValue = lua_pcall(runnerState_, 3, 0, errfunc);

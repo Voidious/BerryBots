@@ -124,7 +124,7 @@
 <table class="function_list">
 
 	<tr>
-	<td class="name" nowrap><a href="#run">run</a>&nbsp;(form, runner, files)</td>
+	<td class="name" nowrap><a href="#run">run</a>&nbsp;(runner, form, files)</td>
 	<td class="summary">Executes a BerryBots Game Runner control program.</td>
 	</tr>
 
@@ -145,7 +145,7 @@
 
 
 
-<dt><a name="run"></a><strong>run</strong>&nbsp;(form, runner, files)</dt>
+<dt><a name="run"></a><strong>run</strong>&nbsp;(runner, form, files)</dt>
 <br/>
 <dd>
 Executes a BerryBots Game Runner control program.
@@ -155,11 +155,11 @@ Executes a BerryBots Game Runner control program.
 <ul>
 	
 	<li>
-	  form: A userdata object used to specify input fields, prompt the user with a form with these fields, and fetch the values input by the user.
+	  runner: A userdata object used to queue BerryBots matches and fetch the results.
 	</li>
 	
 	<li>
-	  runner: A userdata object used to queue BerryBots matches and fetch the results.
+	  form: A userdata object used to specify input fields, prompt the user with a form with these fields, and fetch the values input by the user.
 	</li>
 	
 	<li>
@@ -178,12 +178,12 @@ Executes a BerryBots Game Runner control program.
 <h3>See also:</h3>
 <ul>
 	
-	<li><a href="../modules/RunnerForm.html">
-		RunnerForm
-	</a>
-	
 	<li><a href="../modules/MatchRunner.html">
 		MatchRunner
+	</a>
+	
+	<li><a href="../modules/RunnerForm.html">
+		RunnerForm
 	</a>
 	
 	<li><a href="../modules/RunnerFiles.html">

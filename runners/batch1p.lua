@@ -11,7 +11,7 @@ numWins = 0
 numSeasons = nil
 challenger = nil
 
-function run(form, runner, files, network)
+function run(runner, form, files, network)
   form:addStageSelect("Stage")
   form:addSingleShipSelect("Challenger")
   form:addIntegerText("Seasons")

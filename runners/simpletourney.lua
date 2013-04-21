@@ -7,7 +7,7 @@ SETTINGS_FILE = "settings/simpletourney.properties"
 
 shipData = { }
 
-function run(form, runner, files, network)
+function run(runner, form, files, network)
   form:addStageSelect("Stage")
   form:addMultiShipSelect("Ships")
   form:addIntegerText("Best of...")
