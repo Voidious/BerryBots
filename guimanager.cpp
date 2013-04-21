@@ -134,17 +134,17 @@ GuiManager::GuiManager(GuiListener *listener) {
 }
 
 GuiManager::~GuiManager() {
-  deleteStageConsole();
   deleteCurrentMatchSettings();
+  destroyStageConsole();
   destroyResultsDialog();
-  delete newMatchDialog_;
-  delete packageShipDialog_;
-  delete packageStageDialog_;
-  delete runnerDialog_;
-  delete packagingConsole_;
-  delete errorConsole_;
-  delete runnerConsole_;
-  delete previewConsole_;
+  newMatchDialog_->Destroy();
+  packageShipDialog_->Destroy();
+  packageStageDialog_->Destroy();
+  runnerDialog_->Destroy();
+  packagingConsole_->Destroy();
+  errorConsole_->Destroy();
+  runnerConsole_->Destroy();
+  previewConsole_->Destroy();
   delete previewConsoleListener_;
   delete runnerConsoleListener_;
   delete menuBarMaker_;
@@ -588,7 +588,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     guiPrintHandler = (GuiPrintHandler*) printHandler;
     guiPrintHandler->restartMode();
   } else {
-    deleteStageConsole();
+    destroyStageConsole();
     stageConsole_ = new OutputConsole(stageName, CONSOLE_SHIP_STAGE,
                                       menuBarMaker_);
     stageConsole_->Hide();
@@ -1256,10 +1256,10 @@ void GuiManager::closeStagePreview() {
   previewConsole_->Hide();
 }
 
-void GuiManager::deleteStageConsole() {
+void GuiManager::destroyStageConsole() {
   if (stageConsole_ != 0) {
     stageConsole_->Hide();
-    delete stageConsole_;
+    stageConsole_->Destroy();
     stageConsole_ = 0;
   }
 }

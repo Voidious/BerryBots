@@ -124,12 +124,6 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
 PackageDialog::~PackageDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
-  delete itemSelect_;
-  delete versionLabel_;
-  delete versionText_;
-  delete refreshButton_;
-  delete keyboardLabel_;
-  delete mainPanel_;
 }
 
 void PackageDialog::clearItems() {

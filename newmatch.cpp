@@ -245,33 +245,6 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 NewMatchDialog::~NewMatchDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
-  delete stageLabel_;
-  delete stageSelect_;
-  delete shipsLabel_;
-  delete shipsSelect_;
-  delete addArrow_;
-  delete removeArrow_;
-  delete clearButton_;
-  delete loadedShipsSelect_;
-  delete startButton_;
-  delete refreshButton_;
-  delete stagesBaseDirLabel_;
-  delete stagesBaseDirValueLabel_;
-  delete shipsBaseDirLabel_;
-  delete shipsBaseDirValueLabel_;
-  delete keyboardLabel_;
-  delete browseApidocsButton_;
-
-#if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
-  delete browseStagesButton_;
-  delete browseShipsButton_;
-#endif
-
-#ifdef __WXOSX__
-  delete folderButton_;
-#endif
-
-  delete mainPanel_;
 }
 
 void NewMatchDialog::clearStages() {

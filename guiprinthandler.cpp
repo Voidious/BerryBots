@@ -36,7 +36,7 @@ GuiPrintHandler::GuiPrintHandler(OutputConsole *stageConsole,
 GuiPrintHandler::~GuiPrintHandler() {
   for (int x = 0; x < numTeams_; x++) {
     teamConsoles_[x]->Hide();
-    delete teamConsoles_[x];
+    teamConsoles_[x]->Destroy();
   }
 }
 

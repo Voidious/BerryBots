@@ -97,10 +97,6 @@ OutputConsole::OutputConsole(const char *title, int style,
 OutputConsole::~OutputConsole() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
-  delete output_;
-  if (gfxCheckBox_ != 0) {
-    delete gfxCheckBox_;
-  }
   if (listener_ != 0) {
     delete listener_;
   }

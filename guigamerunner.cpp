@@ -145,7 +145,7 @@ bool GuiGameRunner::ok(const char *message) {
     }
   }
   bool ok = form->isOk();
-  delete form;
+  form->Destroy();
   return ok;
 }
 

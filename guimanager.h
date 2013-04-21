@@ -202,7 +202,7 @@ class GuiManager {
     void resumeMatch();
     void showDialog(wxFrame *dialog);
     bool confirmDialogSwitch(int nextWindow);
-    void deleteStageConsole();
+    void destroyStageConsole();
     void destroyResultsDialog();
     void saveCurrentMatchSettings(
         const char *stageName, char **teamNames, int numTeams);

@@ -96,7 +96,6 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
 RunnerForm::~RunnerForm() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
-  // TODO: figure out if I need to track and delete the controls
   if (message_ != 0) {
     delete message_;
   }

@@ -124,10 +124,6 @@ RunnerDialog::RunnerDialog(RunnerDialogListener *listener,
 RunnerDialog::~RunnerDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
-  delete itemSelect_;
-  delete refreshButton_;
-  delete keyboardLabel_;
-  delete mainPanel_;
 }
 
 void RunnerDialog::clearItems() {
