@@ -1,6 +1,6 @@
--- A sample BerryBots Game Runner. Takes as input a stage, a challenger, one
--- or more reference bots for the challenger to play against, and a number of
--- seasons. Runs <seasons> 1v1 battles of the challenger vs each reference bot
+-- A Game Runner for batch duels. Takes as input a stage, a challenger, one or
+-- more reference ships for the challenger to play against, and a number of
+-- seasons. Runs <seasons> 1v1 matches of the challenger vs each reference ship
 -- on the chosen stage and prints the results.
 
 PROPERTIES_FILE = "batchduels.properties"
