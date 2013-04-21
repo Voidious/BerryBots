@@ -1733,8 +1733,15 @@ int Admin_drawText(lua_State *L) {
   double x = luaL_checknumber(L, 3);
   double y = luaL_checknumber(L, 4);
   int fontSize = luaL_optint(L, 5, DEFAULT_STAGE_TEXT_SIZE);
+  RgbaColor textColor;
+  if (lua_istable(L, 6)) {
+    textColor = getRgbaColor(L, 6);
+  } else {
+    textColor = getSolidWhiteColor();
+  }
+  int drawTicks = std::max(1, luaL_optint(L, 7, 1));
   admin->engine->getStage()->addStageText(engine->getGameTime(), text, x, y,
-                                          fontSize, 1);
+                                          fontSize, textColor, drawTicks);
   return 1;
 }
 

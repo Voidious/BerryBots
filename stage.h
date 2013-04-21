@@ -130,7 +130,7 @@ class Stage {
     int getStageShipCount();
 
     int addStageText(int gameTime, const char *text, double x, double y,
-                     int fontSize, int drawTicks);
+                     int fontSize, RgbaColor textColor, int drawTicks);
     StageText** getStageTexts();
     int getStageTextCount();
     void clearStaleStageTexts(int gameTime);

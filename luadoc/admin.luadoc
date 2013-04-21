@@ -145,4 +145,7 @@ function gameOver()
 -- @param x The x coordinate of the left side of the text.
 -- @param y The y coordinate of the bottom of the text.
 -- @param size (optional) Size of characters, in pixels. Default is 28.
-function drawText(text, x, y, size)
+-- @param color (optional) The color of the text. Default is white.
+-- @param duration (optional) The number of ticks, in game time, that the text
+--     will stay on screen. Default is 1.
+function drawText(text, x, y, size, color, duration)

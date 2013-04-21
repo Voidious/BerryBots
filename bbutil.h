@@ -60,6 +60,10 @@ typedef struct {
   double y;
   int fontSize;
   int startTime;
+  short textR;
+  short textG;
+  short textB;
+  short textA;
   int drawTicks;
 } StageText;
 

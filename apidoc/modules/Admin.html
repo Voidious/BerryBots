@@ -129,7 +129,7 @@
 	</tr>
 
 	<tr>
-	<td class="name" nowrap><a href="#drawText">drawText</a>&nbsp;(text, x, y, size)</td>
+	<td class="name" nowrap><a href="#drawText">drawText</a>&nbsp;(text, x, y, size, color, duration)</td>
 	<td class="summary">Draws text on the screen.</td>
 	</tr>
 
@@ -282,7 +282,7 @@ Destroys a ship.
 
 
 
-<dt><a name="drawText"></a><strong>drawText</strong>&nbsp;(text, x, y, size)</dt>
+<dt><a name="drawText"></a><strong>drawText</strong>&nbsp;(text, x, y, size, color, duration)</dt>
 <br/>
 <dd>
 Draws text on the screen.
@@ -305,6 +305,14 @@ Draws text on the screen.
 	
 	<li>
 	  size: (optional) Size of characters, in pixels. Default is 28.
+	</li>
+	
+	<li>
+	  color: (optional) The color of the text. Default is white.
+	</li>
+	
+	<li>
+	  duration: (optional) The number of ticks, in game time, that the text will stay on screen. Default is 1.
 	</li>
 	
 </ul>
