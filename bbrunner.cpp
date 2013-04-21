@@ -20,6 +20,7 @@
 
 #include <string.h>
 #include <pthread.h>
+#include <stdlib.h>
 #include <platformstl/synch/sleep_functions.h>
 #include "basedir.h"
 #include "filemanager.h"
@@ -42,6 +43,7 @@ BerryBotsRunner::BerryBotsRunner(int threadCount, Zipper *zipper) {
   schedulerSettings_->matchesRunning = 0;
   schedulerSettings_->zipper = zipper;
   schedulerSettings_->done = false;
+  schedulerSettings_->randomSeed = rand();
   pthread_create(&schedulerThread_, 0, BerryBotsRunner::scheduler,
                  (void*) schedulerSettings_);
   pthread_detach(schedulerThread_);
@@ -113,6 +115,7 @@ void BerryBotsRunner::setListener(RefresherListener *listener) {
 
 void *BerryBotsRunner::scheduler(void *vargs) {
   SchedulerSettings *settings = (SchedulerSettings *) vargs;
+  srand(settings->randomSeed);
   while (!settings->done) {
     platformstl::micro_sleep(SLEEP_INTERVAL);
     if (settings->matchesRunning < settings->numThreads) {
@@ -131,6 +134,7 @@ void *BerryBotsRunner::scheduler(void *vargs) {
         MatchSettings *matchSettings = new MatchSettings;
         matchSettings->schedulerSettings = settings;
         matchSettings->matchConfig = nextMatch;
+        matchSettings->randomSeed = rand();
         pthread_create(&gameThread, 0, BerryBotsRunner::runMatch,
                        (void*) matchSettings);
         pthread_detach(gameThread);
@@ -162,6 +166,7 @@ void *BerryBotsRunner::scheduler(void *vargs) {
 
 void* BerryBotsRunner::runMatch(void *vargs) {
   MatchSettings *settings = (MatchSettings *) vargs;
+  srand(settings->randomSeed);
   MatchConfig *config = settings->matchConfig;
   SchedulerSettings *schedulerSettings = settings->schedulerSettings;
 

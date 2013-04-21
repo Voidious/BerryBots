@@ -106,11 +106,13 @@ typedef struct {
   volatile int matchesRunning;
   volatile bool done;
   Zipper *zipper;
+  int randomSeed;
 } SchedulerSettings;
 
 typedef struct {
   SchedulerSettings *schedulerSettings;
   MatchConfig *matchConfig;
+  int randomSeed;
 } MatchSettings;
 
 class BerryBotsRunner {
