@@ -816,6 +816,10 @@ char* FileManager::readFile(const char *filename)
 }
 
 void FileManager::writeFile(const char *filename, const char *contents) {
+  char *dir = parseDir(filename);
+  createDirectoryIfNecessary(dir);
+  delete dir;
+
   FILE *f = fopen(filename, "w");
   fputs(contents, f);
   fclose(f);

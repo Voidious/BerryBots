@@ -3,7 +3,7 @@
 -- seasons. Runs <seasons> 1v1 matches of the challenger vs each reference ship
 -- on the chosen stage and prints the results.
 
-PROPERTIES_FILE = "batchduels.properties"
+SETTINGS_FILE = "settings/batchduels.properties"
 
 scoreKeys = { }
 totalScores = { }
@@ -18,11 +18,7 @@ function run(form, runner, files, network)
   form:addMultiShipSelect("Reference Ships")
   form:addIntegerText("Seasons")
   form:addIntegerText("Threads")
-
-  setDefaultReferenceShips(form, files)
-  form:default("Seasons", 10) 
-  form:default("Threads", 2) 
-  form:default("Stage", "sample/battle1.lua")
+  defaultSettings(form, files)
 
   if (form:ok()) then
     local stage = form:get("Stage")
@@ -30,6 +26,8 @@ function run(form, runner, files, network)
     local referenceShips = form:get("Reference Ships")
     local seasons = form:get("Seasons")
     local threadCount = form:get("Threads")
+    saveSettings(files, stage, challenger, referenceShips, seasons, threadCount)
+
     print("Seasons: " .. seasons)
     print("Challenger: " .. challenger)
     print("Stage: " .. stage)
@@ -65,16 +63,39 @@ function run(form, runner, files, network)
   end
 end
 
-function setDefaultReferenceShips(form, files)
-  if (files:exists(PROPERTIES_FILE)) then
-    local configFile = files:read(PROPERTIES_FILE)
-    for shipName in string.gmatch(configFile, "referenceShip=([^\n])\n") do
-      form:default("Reference Ships", shipName)
+function defaultSettings(form, files)
+  if (files:exists(SETTINGS_FILE)) then
+    local settingsFile = files:read(SETTINGS_FILE)
+    local stage, challenger, seasons, threads, t
+    t, t, stage = string.find(settingsFile, "Stage=([^\n]*)\n")
+    t, t, challenger = string.find(settingsFile, "Challenger=([^\n]*)\n")
+    t, t, seasons = string.find(settingsFile, "Seasons=([^\n]*)\n")
+    t, t, threads = string.find(settingsFile, "Threads=([^\n]*)\n")
+
+    if (stage ~= nil) then form:default("Stage", stage) end
+    if (challenger ~= nil) then form:default("Challenger", challenger) end
+    if (seasons ~= nil) then form:default("Seasons", seasons) end
+    if (threads ~= nil) then form:default("Threads", threads) end
+    for ship in string.gmatch(settingsFile, "referenceShip=([^\n]*)\n") do
+      form:default("Reference Ships", ship)
     end
   else
-    form:default("Reference Ships", "supersample/basicbattler.lua",
-                 "sample/wallhugger.lua", "sample/randombot.lua")
+    form:default("Stage", "sample/battle1.lua")
+    form:default("Seasons", 10) 
+    form:default("Threads", 2) 
   end
+end
+
+function saveSettings(files, stage, challenger, referenceShips, numSeasons,
+                      threadCount)
+  local settings = "Stage=" .. stage .. "\n"
+      .. "Challenger=" .. challenger .. "\n"
+  for i, ship in ipairs(referenceShips) do
+    settings = settings .. "referenceShip=" .. ship .. "\n"
+  end
+  settings = settings .. "Seasons=" .. numSeasons .. "\n"
+      .. "Threads=" .. threadCount .. "\n"
+  files:write(SETTINGS_FILE, settings)
 end
 
 function processNextResult(runner)

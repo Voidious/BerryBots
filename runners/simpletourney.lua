@@ -3,6 +3,8 @@
 -- pairing. Runs a single-elimination tournament bracket with random seeds and
 -- prints the results.
 
+SETTINGS_FILE = "settings/simpletourney.properties"
+
 shipData = { }
 
 function run(form, runner, files, network)
@@ -10,10 +12,7 @@ function run(form, runner, files, network)
   form:addMultiShipSelect("Ships")
   form:addIntegerText("Best of...")
   form:addIntegerText("Threads")
-
-  form:default("Stage", "sample/battle1.lua")
-  form:default("Best of...", 7) 
-  form:default("Threads", 2) 
+  defaultSettings(form, files)
 
   local stage = nil
   local ships = nil
@@ -43,6 +42,8 @@ function run(form, runner, files, network)
   if (not ok) then
     return
   end
+
+  saveSettings(files, stage, ships, matches, threadCount)
 
   -- TODO: Add option for pool play to determine seeds instead of random seeds.
 
@@ -149,6 +150,37 @@ function run(form, runner, files, network)
 
     slots = slots / 2
   end
+end
+
+function defaultSettings(form, files)
+  if (files:exists(SETTINGS_FILE)) then
+    local settingsFile = files:read(SETTINGS_FILE)
+    local stage, matches, threads, t
+    t, t, stage = string.find(settingsFile, "Stage=([^\n]*)\n")
+    t, t, matches = string.find(settingsFile, "Matches=([^\n]*)\n")
+    t, t, threads = string.find(settingsFile, "Threads=([^\n]*)\n")
+
+    if (stage ~= nil) then form:default("Stage", stage) end
+    if (matches ~= nil) then form:default("Best of...", matches) end
+    if (threads ~= nil) then form:default("Threads", threads) end
+    for ship in string.gmatch(settingsFile, "Ship=([^\n]*)\n") do
+      form:default("Ships", ship)
+    end
+  else
+    form:default("Stage", "sample/battle1.lua")
+    form:default("Best of...", 7) 
+    form:default("Threads", 2) 
+  end
+end
+
+function saveSettings(files, stage, ships, matches, threadCount)
+  local settings = "Stage=" .. stage .. "\n"
+  for i, ship in ipairs(ships) do
+    settings = settings .. "Ship=" .. ship .. "\n"
+  end
+  settings = settings .. "Matches=" .. matches .. "\n"
+      .. "Threads=" .. threadCount .. "\n"
+  files:write(SETTINGS_FILE, settings)
 end
 
 function getSortedShips(ships)

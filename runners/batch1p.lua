@@ -3,7 +3,7 @@
 -- of seasons. Runs <seasons> matches of the challenger on the chosen stage and
 -- prints the results.
 
-PROPERTIES_FILE = "batch1p.properties"
+SETTINGS_FILE = "settings/batch1p.properties"
 
 scoreKeys = { }
 totalScores = { }
@@ -16,22 +16,21 @@ function run(form, runner, files, network)
   form:addSingleShipSelect("Challenger")
   form:addIntegerText("Seasons")
   form:addIntegerText("Threads")
-
-  form:default("Stage", "sample/lasergallery.lua")
-  form:default("Seasons", 100) 
-  form:default("Threads", 2) 
+  defaultSettings(form, files)
 
   if (form:ok()) then
     local stage = form:get("Stage")
     challenger = form:get("Challenger")
     numSeasons = form:get("Seasons")
     local threadCount = form:get("Threads")
+    saveSettings(files, stage, challenger, numSeasons, threadCount)
+
     print("Seasons: " .. numSeasons)
     print("Challenger: " .. challenger)
     print("Stage: " .. stage)
     print()
-    runner:setThreadCount(threadCount)
 
+    runner:setThreadCount(threadCount)
     for i = 1, numSeasons do
       runner:queueMatch(stage, {challenger})
     end
@@ -48,6 +47,34 @@ function run(form, runner, files, network)
   else
     -- user canceled, do nothing
   end
+end
+
+function defaultSettings(form, files)
+  if (files:exists(SETTINGS_FILE)) then
+    local settingsFile = files:read(SETTINGS_FILE)
+    local stage, challenger, seasons, threads, t
+    t, t, stage = string.find(settingsFile, "Stage=([^\n]*)\n")
+    t, t, challenger = string.find(settingsFile, "Challenger=([^\n]*)\n")
+    t, t, seasons = string.find(settingsFile, "Seasons=([^\n]*)\n")
+    t, t, threads = string.find(settingsFile, "Threads=([^\n]*)\n")
+
+    if (stage ~= nil) then form:default("Stage", stage) end
+    if (challenger ~= nil) then form:default("Challenger", challenger) end
+    if (seasons ~= nil) then form:default("Seasons", seasons) end
+    if (threads ~= nil) then form:default("Threads", threads) end
+  else
+    form:default("Stage", "sample/lasergallery.lua")
+    form:default("Seasons", 100) 
+    form:default("Threads", 2) 
+  end
+end
+
+function saveSettings(files, stage, challenger, numSeasons, threadCount)
+  local settings = "Stage=" .. stage .. "\n"
+      .. "Challenger=" .. challenger .. "\n"
+      .. "Seasons=" .. numSeasons .. "\n"
+      .. "Threads=" .. threadCount .. "\n"
+  files:write(SETTINGS_FILE, settings)
 end
 
 function processNextResult(runner)
