@@ -302,33 +302,35 @@ int main(int argc, char *argv[]) {
   }
 
   for (int x = 0; x < engine->getNumTeams(); x++) {
-    std::cout << "    " << rankedTeams[x]->name << ":" << std::endl;
     TeamResult *result = &(rankedTeams[x]->result);
-    std::cout << "        Rank: ";
-    if (result->rank == 0) {
-      std::cout << "-";
-    } else {
-      std::cout << result->rank;
-    }
-    std::cout << std::endl;
-    if (hasScores) {
-      std::cout << "        Score: " << round(result->score, 2) << std::endl;
-    }
+    if (result->showResult) {
+      std::cout << "    " << rankedTeams[x]->name << ":" << std::endl;
+      std::cout << "        Rank: ";
+      if (result->rank == 0) {
+        std::cout << "-";
+      } else {
+        std::cout << result->rank;
+      }
+      std::cout << std::endl;
+      if (hasScores) {
+        std::cout << "        Score: " << round(result->score, 2) << std::endl;
+      }
 
-    for (int y = 0; y < numStats; y++) {
-      char *key = statKeys[y];
-      bool found = false;
-      for (int z = 0; z < result->numStats; z++) {
+      for (int y = 0; y < numStats; y++) {
+        char *key = statKeys[y];
+        bool found = false;
+        for (int z = 0; z < result->numStats; z++) {
         char *resultKey = result->stats[z]->key;
         if (strcmp(key, resultKey) == 0) {
           std::cout << "        " << key << ": "
-                    << round(result->stats[z]->value, 2) << std::endl;
+              << round(result->stats[z]->value, 2) << std::endl;
           found = true;
           break;
         }
-      }
-      if (!found) {
+        }
+        if (!found) {
         std::cout << "        " << key << ": -" << std::endl;
+        }
       }
     }
   }
