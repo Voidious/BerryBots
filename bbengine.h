@@ -33,6 +33,8 @@
 #define PCALL_SHIP      2
 #define PCALL_VALIDATE  3
 
+#define MAX_REPLAY_SIZE  (4 * 1024 * 1024 / 4)  // 4 megs of ints
+
 extern "C" {
   #include "lua.h"
   #include "lualib.h"
@@ -105,6 +107,9 @@ class BerryBotsEngine {
   bool hasRanks_;
   bool hasScores_;
 
+  int replayData_[MAX_REPLAY_SIZE];
+  int numReplayInts_;
+
   public:
     BerryBotsEngine(FileManager *manager);
     ~BerryBotsEngine();
@@ -156,6 +161,7 @@ class BerryBotsEngine {
     static void* timer(void *vargs);
     int callUserLuaCode(lua_State *L,int nargs, const char *errorMsg,
                         int callStyle) throw (EngineException*);
+    void saveReplay(const char *filename);
   private:
     void processWinnerRanksScores();
     void setTeamRanksByScore();
@@ -165,6 +171,7 @@ class BerryBotsEngine {
     void uniqueShipNames(Ship** ships, int numShips);
     void uniqueTeamNames(Team** teams, int numTeams);
     void copyShips(Ship **srcShips, Ship **destShips, int numShips);
+    void saveReplayInt(int i);
     void printLuaErrorToShipConsole(lua_State *L, const char *formatString);
     void throwForLuaError(lua_State *L, const char *formatString)
         throw (EngineException*);

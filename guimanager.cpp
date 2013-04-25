@@ -732,6 +732,7 @@ void GuiManager::runCurrentMatch() {
           nextDrawTime_ += tpsFactor_;
         }
         if (engine_->isGameOver() && !showedResults_) {
+          engine_->saveReplay("test.replay");
           showResults();
           showedResults_ = true;
         }

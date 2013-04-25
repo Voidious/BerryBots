@@ -21,6 +21,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include <algorithm>
 #include <pthread.h>
 #include <limits.h>
@@ -30,6 +31,7 @@
 #include "bblua.h"
 #include "printhandler.h"
 #include "zipper.h"
+#include "filemanager.h"
 #include "bbengine.h"
 
 extern PrintHandler *printHandler;
@@ -78,6 +80,8 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
                  (void*) timerSettings_);
   pthread_detach(timerThread_);
   // TODO: how to handle failure to create thread
+
+  numReplayInts_ = 0;
 }
 
 BerryBotsEngine::~BerryBotsEngine() {
@@ -455,6 +459,14 @@ int BerryBotsEngine::callUserLuaCode(lua_State *L, int nargs,
   return pcallValue;
 }
 
+void BerryBotsEngine::saveReplay(const char *filename) {
+  char *absFilename = fileManager_->getFilePath("/Users/pcupka", filename);
+  FILE *f = fopen(absFilename, "wb");
+  fwrite(replayData_, sizeof(int), numReplayInts_, f);
+  fclose(f);
+  delete absFilename;
+}
+
 void *BerryBotsEngine::timer(void *vargs) {
   TickTimerSettings *settings = (TickTimerSettings *) vargs;
   while (settings->enabled) {
@@ -530,6 +542,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   int userTeams = numTeams;
   int numStageShips = stage_->getStageShipCount();
   numShips_ = (userTeams * teamSize_) + numStageShips;
+  saveReplayInt(numShips_);
   numTeams_ = userTeams + numStageShips;
   ships_ = new Ship*[numShips_];
   shipProperties_ = new ShipProperties*[numShips_];
@@ -848,6 +861,11 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
   stage_->clearStaleUserGfxs(gameTime_);
   copyShips(oldShips_, prevShips_, numShips_);
   copyShips(ships_, oldShips_, numShips_);
+  for (int x = 0; x < numShips_; x++) {
+    Ship *ship = ships_[x];
+    saveReplayInt(floor((ship->x * 10) + .5));
+    saveReplayInt(floor((ship->y * 10) + .5));
+  }
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
     if (team->shipsAlive > 0 && !team->disabled) {
@@ -1010,6 +1028,12 @@ void BerryBotsEngine::copyShips(
     Ship **srcShips, Ship **destShips, int numShips) {
   for (int x = 0; x < numShips; x++) {
     *(destShips[x]) = *(srcShips[x]);
+  }
+}
+
+void BerryBotsEngine::saveReplayInt(int i) {
+  if (numReplayInts_ < MAX_REPLAY_SIZE) {
+    replayData_[numReplayInts_++] = i;
   }
 }
 
