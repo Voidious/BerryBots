@@ -122,9 +122,9 @@
       layer.add(wallRect4);
 
       var values = replayData.split(":");
-      var teams = parseInt(values[0], 16);
+      var numShips = parseInt(values[0], 16);
       var ships = new Array();
-      for (var x = 0; x < teams; x++) {
+      for (var x = 0; x < numShips; x++) {
         ships[x] = shipGroup.clone();
         layer.add(ships[x]);
       }
@@ -137,12 +137,18 @@
         var time = frame.time,
             timeDiff = frame.timeDiff,
             frameRate = frame.frameRate;
-        for (var x = 0; x < teams; x++) {
-          ships[x].setX(parseInt(values[1 + ((gameTime - 1) * teams * 2) + (x * 2)], 16) / 10);
-          ships[x].setY(800 - parseInt(values[1 + ((gameTime - 1) * teams * 2) + (x * 2) + 1], 16) / 10);
+        for (var x = 0; x < numShips; x++) {
+          var shipHexX = values[1 + ((gameTime - 1) * numShips * 2) + (x * 2)];
+          var shipHexY =
+              values[1 + ((gameTime - 1) * numShips * 2) + (x * 2) + 1];
+          ships[x].setX(parseInt(shipHexX, 16) / 10);
+          ships[x].setY(800 - parseInt(shipHexY, 16) / 10);
           ships[x].setRotation(ships[x].getRotation() + shipRotation);
         }
         gameTime++;
+        var scale = Math.min(window.innerWidth / stage.getWidth(),
+                             window.innerHeight / stage.getHeight());
+        stage.setScale(Math.min(1, scale, scale));
       }, layer);
 
       anim.start();
