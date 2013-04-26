@@ -820,6 +820,8 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   }
   copyShips(ships_, oldShips_, numShips_);
 
+  saveShipReplayStates();
+
   lua_getglobal(stageState_, "run");
   stageRun_ = (strcmp(luaL_typename(stageState_, -1), "nil") != 0);
   lua_settop(stageState_, 0);
@@ -878,11 +880,6 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
   stage_->clearStaleUserGfxs(gameTime_);
   copyShips(oldShips_, prevShips_, numShips_);
   copyShips(ships_, oldShips_, numShips_);
-  for (int x = 0; x < numShips_; x++) {
-    Ship *ship = ships_[x];
-    saveReplayInt(floor((ship->x * 10) + .5));
-    saveReplayInt(floor((ship->y * 10) + .5));
-  }
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
     if (team->shipsAlive > 0 && !team->disabled) {
@@ -909,6 +906,7 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
   }
   stage_->moveAndCheckCollisions(oldShips_, ships_, numShips_, gameTime_);
   physicsOver_ = true;
+  saveShipReplayStates();
 
   if (stageRun_) {
     this->setRoundOver(false);
@@ -1045,6 +1043,17 @@ void BerryBotsEngine::copyShips(
     Ship **srcShips, Ship **destShips, int numShips) {
   for (int x = 0; x < numShips; x++) {
     *(destShips[x]) = *(srcShips[x]);
+  }
+}
+
+void BerryBotsEngine::saveShipReplayStates() {
+  for (int x = 0; x < numShips_; x++) {
+    Ship *ship = ships_[x];
+    saveReplayInt(floor((ship->x * 10) + .5));
+    saveReplayInt(floor((ship->y * 10) + .5));
+    saveReplayInt(floor((normalAbsoluteAngle(ship->thrusterAngle) * 100) + .5));
+    saveReplayInt(floor((limit(0, ship->thrusterForce, 1) * 100) + .5));
+    saveReplayInt(floor((std::max(0.0, ship->energy) * 10) + .5));
   }
 }
 

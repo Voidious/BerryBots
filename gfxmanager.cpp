@@ -725,7 +725,7 @@ void GfxManager::drawShips(sf::RenderWindow *window, Ship **ships, int numShips,
     if (ship->alive) {
       shipShape_.setOutlineColor(shipColors_[x]);
       shipShape_.setPosition(adjustX(ship->x - DRAW_SHIP_RADIUS),
-                            adjustY(ship->y - DRAW_SHIP_RADIUS, DRAW_SHIP_RADIUS * 2));
+                             adjustY(ship->y - DRAW_SHIP_RADIUS, DRAW_SHIP_RADIUS * 2));
       window->draw(shipShape_);
 
       shipDotShape_.setFillColor(laserColors_[x]);
@@ -745,7 +745,7 @@ void GfxManager::drawShips(sf::RenderWindow *window, Ship **ships, int numShips,
     Ship *ship = ships[x];
     if (ship->alive && ship->energyEnabled) {
       energyShape_.setPosition(adjustX(ship->x - (ENERGY_LENGTH / 2)),
-                              adjustY(ship->y - DRAW_SHIP_RADIUS - 8));
+                               adjustY(ship->y - DRAW_SHIP_RADIUS - 8));
       energyShape_.setScale(ship->energy / DEFAULT_ENERGY, 1);
       window->draw(energyShape_);
     }

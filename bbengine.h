@@ -171,6 +171,7 @@ class BerryBotsEngine {
     void uniqueShipNames(Ship** ships, int numShips);
     void uniqueTeamNames(Team** teams, int numTeams);
     void copyShips(Ship **srcShips, Ship **destShips, int numShips);
+    void saveShipReplayStates();
     void saveReplayInt(int i);
     void printLuaErrorToShipConsole(lua_State *L, const char *formatString);
     void throwForLuaError(lua_State *L, const char *formatString)

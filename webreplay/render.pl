@@ -30,13 +30,18 @@ for (my $x = 0; $x < $numShips; $x++) {
   $hexString .= $name . ":";
 }
 
-$/ = \8;
+$/ = \20;
 my($z) = 0;
 while (<REPLAYFILE>) {
-  my($x, $y) = unpack 'i i';
+  my($x, $y, $thrusterAngle, $thrusterForce, $energy) = unpack 'i i i i i';
   $hexString .= sprintf("%x", $x) . ":";
   $hexString .= sprintf("%x", $y) . ":";
-  print ("Ship " . $z . " position: " . ($x / 10) . ", " . ($y / 10) . "\n");
+  $hexString .= sprintf("%x", $thrusterAngle) . ":";
+  $hexString .= sprintf("%x", $thrusterForce) . ":";
+  $hexString .= sprintf("%x", $energy) . ":";
+  print ("Ship " . $z . " position: " . ($x / 10) . ", " . ($y / 10)
+      . " Thruster: " . ($thrusterAngle / 100) . " / "
+      . ($thrusterForce / 100) . " Energy: " . ($energy / 10) . "\n");
   $z = ($z + 1) % $numShips;
 }
 
