@@ -677,9 +677,9 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
 
     char *shipFilenameRoot = fileManager_->stripExtension(filename);
     char *defaultShipName = fileManager_->parseFilename(shipFilenameRoot);
-    int nameLength = std::min(MAX_NAME_LENGTH, (int) strlen(defaultShipName));
-    strncpy(team->name, defaultShipName, nameLength);
-    team->name[nameLength] = '\0';
+    int defaultNameLength = std::min(MAX_NAME_LENGTH, (int) strlen(defaultShipName));
+    strncpy(team->name, defaultShipName, defaultNameLength);
+    team->name[defaultNameLength] = '\0';
     int filenameLength = std::min(MAX_NAME_LENGTH, (int) strlen(filename));
     strncpy(team->filename, filename, filenameLength);
     team->filename[filenameLength] = '\0';
@@ -728,8 +728,8 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
       properties->thrusterR = 255;
       properties->engine = this;
   
-      strncpy(properties->name, defaultShipName, nameLength);
-      properties->name[nameLength] = '\0';
+      strncpy(properties->name, defaultShipName, defaultNameLength);
+      properties->name[defaultNameLength] = '\0';
       initShipRound(ship);
     }
     delete defaultShipName;
@@ -759,7 +759,24 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
         }
       }
     }
-
+    for (int y = 0; y < numStateShips; y++) {
+      Ship *ship = stateShips[y];
+      saveReplayInt(ship->properties->shipR);
+      saveReplayInt(ship->properties->shipG);
+      saveReplayInt(ship->properties->shipB);
+      saveReplayInt(ship->properties->laserR);
+      saveReplayInt(ship->properties->laserG);
+      saveReplayInt(ship->properties->laserB);
+      saveReplayInt(ship->properties->thrusterR);
+      saveReplayInt(ship->properties->thrusterG);
+      saveReplayInt(ship->properties->thrusterB);
+      int nameLength = (int) strlen(ship->properties->name);
+      saveReplayInt(nameLength);
+      const char *name = ship->properties->name;
+      for (int z = 0; z < nameLength; z++) {
+        saveReplayInt((int) name[z]);
+      }
+    }
     if (deleteFilename) {
       delete filename;
     }
