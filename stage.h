@@ -44,6 +44,8 @@ typedef struct {
 
 typedef struct {
   bool initialized;
+  double startXSpeed;
+  double startYSpeed;
   double xSpeed;
   double ySpeed;
   double dxSpeed;

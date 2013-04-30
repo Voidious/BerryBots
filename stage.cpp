@@ -721,8 +721,10 @@ void Stage::moveAndCheckCollisions(
       double forceAngle = ship->thrusterAngle;
       shipDatum.dxSpeed = cos(forceAngle) * force;
       shipDatum.dySpeed = sin(forceAngle) * force;
-      shipDatum.xSpeed = (cos(ship->heading) * ship->speed) + shipDatum.dxSpeed;
-      shipDatum.ySpeed = (sin(ship->heading) * ship->speed) + shipDatum.dySpeed;
+      shipDatum.startXSpeed = cos(ship->heading) * ship->speed;
+      shipDatum.startYSpeed = sin(ship->heading) * ship->speed;
+      shipDatum.xSpeed = shipDatum.startXSpeed + shipDatum.dxSpeed;
+      shipDatum.ySpeed = shipDatum.startYSpeed + shipDatum.dySpeed;
       ship->x += shipDatum.xSpeed;
       ship->y += shipDatum.ySpeed;
       ship->hitWall = false;
@@ -1099,8 +1101,8 @@ void Stage::moveAndCheckCollisions(
 
             for (int z = 0; z < numEventHandlers_; z++) {
               eventHandlers_[z]->handleTorpedoHitShip(ships[torpedo->shipIndex],
-                  ship, shipDatum->dx, shipDatum->dy, blastAngle, blastForce,
-                  blastDamage, gameTime);
+                  ship, shipDatum->startXSpeed, shipDatum->startYSpeed,
+                  blastAngle, blastForce, blastDamage, gameTime);
             }
   
             if (ship->energy <= 0) {
@@ -1205,8 +1207,8 @@ void Stage::checkLaserShipCollisions(Ship **ships, ShipMoveData *shipData,
           ship->energy -= laserDamage;
           for (int z = 0; z < numEventHandlers_; z++) {
             eventHandlers_[z]->handleLaserHitShip(ships[laser->shipIndex],
-                ship, shipDatum->dx, shipDatum->dy, laser->x, laser->y,
-                laser->heading, gameTime);
+                ship, shipDatum->startXSpeed, shipDatum->startYSpeed, laser->x,
+                laser->y, laser->heading, gameTime);
           }
 
           if (ship->energy <= 0) {
