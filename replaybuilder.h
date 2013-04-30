@@ -30,30 +30,30 @@ typedef struct {
   int size;
 } ReplayChunk;
 
-class ChunkSet {
+class ReplayData {
   ReplayChunk* chunks_[MAX_MISC_CHUNKS];
   int numChunks_;
   int maxChunks_;
 
   public:
-    ChunkSet(int maxChunks);
-    ~ChunkSet();
+    ReplayData(int maxChunks);
+    ~ReplayData();
     void saveInt(int x);
 };
 
 class ReplayBuilder {
   bool *shipsAlive_;
   int numShips_;
-  ChunkSet *shipPropertiesChunks_;
-  ChunkSet *shipAddChunks_;
-  ChunkSet *shipRemoveChunks_;
-  ChunkSet *shipTickChunks_;
-  ChunkSet *laserChunks_;
-  ChunkSet *laserSparkChunks_;
-  ChunkSet *torpedoChunks_;
-  ChunkSet *torpedoDebrisChunks_;
-  ChunkSet *shipDestroyChunks_;
-  ChunkSet *textChunks_;
+  ReplayData *shipPropertiesData_;
+  ReplayData *shipAddData_;
+  ReplayData *shipRemoveData_;
+  ReplayData *shipTickData_;
+  ReplayData *laserData_;
+  ReplayData *laserSparkData_;
+  ReplayData *torpedoData_;
+  ReplayData *torpedoDebrisData_;
+  ReplayData *shipDestroyData_;
+  ReplayData *textData_;
   
   public:
     ReplayBuilder(int numShips);

@@ -29,65 +29,65 @@ ReplayBuilder::ReplayBuilder(int numShips) {
   for (int x = 0; x < numShips; x++) {
     shipsAlive_[x] = false;
   }
-  shipPropertiesChunks_ = new ChunkSet(MAX_MISC_CHUNKS);
-  shipAddChunks_ = new ChunkSet(MAX_MISC_CHUNKS);
-  shipRemoveChunks_ = new ChunkSet(MAX_MISC_CHUNKS);
-  shipTickChunks_ = new ChunkSet(MAX_SHIP_TICK_CHUNKS);
-  laserChunks_ = new ChunkSet(MAX_LASER_CHUNKS);
-  laserSparkChunks_ = new ChunkSet(MAX_LASER_CHUNKS);
-  torpedoChunks_ = new ChunkSet(MAX_MISC_CHUNKS);
-  torpedoDebrisChunks_ = new ChunkSet(MAX_MISC_CHUNKS);
-  shipDestroyChunks_ = new ChunkSet(MAX_MISC_CHUNKS);
-  textChunks_ = new ChunkSet(MAX_MISC_CHUNKS);
+  shipPropertiesData_ = new ReplayData(MAX_MISC_CHUNKS);
+  shipAddData_ = new ReplayData(MAX_MISC_CHUNKS);
+  shipRemoveData_ = new ReplayData(MAX_MISC_CHUNKS);
+  shipTickData_ = new ReplayData(MAX_SHIP_TICK_CHUNKS);
+  laserData_ = new ReplayData(MAX_LASER_CHUNKS);
+  laserSparkData_ = new ReplayData(MAX_LASER_CHUNKS);
+  torpedoData_ = new ReplayData(MAX_MISC_CHUNKS);
+  torpedoDebrisData_ = new ReplayData(MAX_MISC_CHUNKS);
+  shipDestroyData_ = new ReplayData(MAX_MISC_CHUNKS);
+  textData_ = new ReplayData(MAX_MISC_CHUNKS);
 }
 
 ReplayBuilder::~ReplayBuilder() {
   delete shipsAlive_;
-  delete shipPropertiesChunks_;
-  delete shipAddChunks_;
-  delete shipRemoveChunks_;
-  delete shipTickChunks_;
-  delete laserChunks_;
-  delete laserSparkChunks_;
-  delete torpedoChunks_;
-  delete torpedoDebrisChunks_;
-  delete shipDestroyChunks_;
-  delete textChunks_;
+  delete shipPropertiesData_;
+  delete shipAddData_;
+  delete shipRemoveData_;
+  delete shipTickData_;
+  delete laserData_;
+  delete laserSparkData_;
+  delete torpedoData_;
+  delete torpedoDebrisData_;
+  delete shipDestroyData_;
+  delete textData_;
 }
 
 // Ship properties format:  (variable)
 // ship R | G | B | laser R | G | B | thruster R | G | B | nameLength | <name>
 void ReplayBuilder::saveShipProperties(Ship *ship) {
   ShipProperties *properties = ship->properties;
-  shipPropertiesChunks_->saveInt(properties->shipR);
-  shipPropertiesChunks_->saveInt(properties->shipG);
-  shipPropertiesChunks_->saveInt(properties->shipB);
-  shipPropertiesChunks_->saveInt(properties->laserR);
-  shipPropertiesChunks_->saveInt(properties->laserG);
-  shipPropertiesChunks_->saveInt(properties->laserB);
-  shipPropertiesChunks_->saveInt(properties->thrusterR);
-  shipPropertiesChunks_->saveInt(properties->thrusterG);
-  shipPropertiesChunks_->saveInt(properties->thrusterB);
+  shipPropertiesData_->saveInt(properties->shipR);
+  shipPropertiesData_->saveInt(properties->shipG);
+  shipPropertiesData_->saveInt(properties->shipB);
+  shipPropertiesData_->saveInt(properties->laserR);
+  shipPropertiesData_->saveInt(properties->laserG);
+  shipPropertiesData_->saveInt(properties->laserB);
+  shipPropertiesData_->saveInt(properties->thrusterR);
+  shipPropertiesData_->saveInt(properties->thrusterG);
+  shipPropertiesData_->saveInt(properties->thrusterB);
   const char *name = ship->properties->name;
   int nameLength = (int) strlen(name);
-  shipPropertiesChunks_->saveInt(nameLength);
+  shipPropertiesData_->saveInt(nameLength);
   for (int x = 0; x < nameLength; x++) {
-    shipPropertiesChunks_->saveInt((int) name[x]);
+    shipPropertiesData_->saveInt((int) name[x]);
   }
 }
 
 // Ship add format:  (2)
 // ship index | time
 void ReplayBuilder::saveShipAdd(int shipIndex, int time) {
-  shipAddChunks_->saveInt(shipIndex);
-  shipAddChunks_->saveInt(time);
+  shipAddData_->saveInt(shipIndex);
+  shipAddData_->saveInt(time);
 }
 
 // Ship remove format:  (2)
 // ship index | time
 void ReplayBuilder::saveShipRemove(int shipIndex, int time) {
-  shipRemoveChunks_->saveInt(shipIndex);
-  shipRemoveChunks_->saveInt(time);
+  shipRemoveData_->saveInt(shipIndex);
+  shipRemoveData_->saveInt(time);
 }
 
 // Ship tick format:  (5)
@@ -107,107 +107,107 @@ void ReplayBuilder::saveShipStates(Ship **ships, int time) {
 
   for (int x = 0; x < numShips_; x++) {
     Ship *ship = ships[x];
-    shipTickChunks_->saveInt(round(ship->x * 10));
-    shipTickChunks_->saveInt(round(ship->y * 10));
-    shipTickChunks_->saveInt(
+    shipTickData_->saveInt(round(ship->x * 10));
+    shipTickData_->saveInt(round(ship->y * 10));
+    shipTickData_->saveInt(
         round(normalAbsoluteAngle(ship->thrusterAngle) * 100));
-    shipTickChunks_->saveInt(round(limit(0, ship->thrusterForce, 1) * 100));
-    shipTickChunks_->saveInt(round(std::max(0.0, ship->energy) * 10));
+    shipTickData_->saveInt(round(limit(0, ship->thrusterForce, 1) * 100));
+    shipTickData_->saveInt(round(std::max(0.0, ship->energy) * 10));
   }
 }
 
 // Laser format:  (4)
 // ship index | fire time | heading * 100 | duration
 void ReplayBuilder::saveLaser(Laser *laser, int duration) {
-  laserChunks_->saveInt(laser->shipIndex);
-  laserChunks_->saveInt(laser->fireTime);
-  laserChunks_->saveInt(round(laser->heading * 100));
-  laserChunks_->saveInt(duration);
+  laserData_->saveInt(laser->shipIndex);
+  laserData_->saveInt(laser->fireTime);
+  laserData_->saveInt(round(laser->heading * 100));
+  laserData_->saveInt(duration);
 }
 
 // Laser spark format:  (6)
 // ship index | time | x * 10 | y * 10 | speed * 100 | heading * 100
 void ReplayBuilder::saveLaserSpark(Laser *laser, double x, double y,
                                    double speed, double heading) {
-  laserSparkChunks_->saveInt(laser->shipIndex);
-  laserSparkChunks_->saveInt(laser->fireTime);
-  laserSparkChunks_->saveInt(round(x * 10));
-  laserSparkChunks_->saveInt(round(y * 10));
-  laserSparkChunks_->saveInt(round(speed * 100));
-  laserSparkChunks_->saveInt(round(heading * 100));
+  laserSparkData_->saveInt(laser->shipIndex);
+  laserSparkData_->saveInt(laser->fireTime);
+  laserSparkData_->saveInt(round(x * 10));
+  laserSparkData_->saveInt(round(y * 10));
+  laserSparkData_->saveInt(round(speed * 100));
+  laserSparkData_->saveInt(round(heading * 100));
 }
 
 // Torpedo format:  (6)
 // ship index | fire time | heading * 100 | duration | blast x * 10 | y * 10
 void ReplayBuilder::saveTorpedo(Torpedo *torpedo, int fireTime, int duration,
                                 double x, double y) {
-  torpedoChunks_->saveInt(torpedo->shipIndex);
-  torpedoChunks_->saveInt(fireTime);
-  torpedoChunks_->saveInt(round(torpedo->heading * 100));
-  torpedoChunks_->saveInt(duration);
-  torpedoChunks_->saveInt(round(x * 10));
-  torpedoChunks_->saveInt(round(y * 10));
+  torpedoData_->saveInt(torpedo->shipIndex);
+  torpedoData_->saveInt(fireTime);
+  torpedoData_->saveInt(round(torpedo->heading * 100));
+  torpedoData_->saveInt(duration);
+  torpedoData_->saveInt(round(x * 10));
+  torpedoData_->saveInt(round(y * 10));
 }
 
 // Torpedo debris format:  (7)
 // ship index | time | x * 10 | y * 10 | dx * 100 | dy * 100 | parts
 void ReplayBuilder::saveTorpedoDebris(Ship *ship, int time, double dx,
                                       double dy, int parts) {
-  torpedoDebrisChunks_->saveInt(ship->index);
-  torpedoDebrisChunks_->saveInt(time);
-  torpedoDebrisChunks_->saveInt(round(ship->x * 10));
-  torpedoDebrisChunks_->saveInt(round(ship->y * 10));
-  torpedoDebrisChunks_->saveInt(round(dx * 100));
-  torpedoDebrisChunks_->saveInt(round(dy * 100));
-  torpedoDebrisChunks_->saveInt(parts);
+  torpedoDebrisData_->saveInt(ship->index);
+  torpedoDebrisData_->saveInt(time);
+  torpedoDebrisData_->saveInt(round(ship->x * 10));
+  torpedoDebrisData_->saveInt(round(ship->y * 10));
+  torpedoDebrisData_->saveInt(round(dx * 100));
+  torpedoDebrisData_->saveInt(round(dy * 100));
+  torpedoDebrisData_->saveInt(parts);
 }
 
 // Ship destroy format:  (4)
 // ship index | time | x * 10 | y * 10
 void ReplayBuilder::saveShipDestroy(Ship *ship, int time) {
-  shipDestroyChunks_->saveInt(ship->index);
-  shipDestroyChunks_->saveInt(time);
-  shipDestroyChunks_->saveInt(round(ship->x * 10));
-  shipDestroyChunks_->saveInt(round(ship->y * 10));
+  shipDestroyData_->saveInt(ship->index);
+  shipDestroyData_->saveInt(time);
+  shipDestroyData_->saveInt(round(ship->x * 10));
+  shipDestroyData_->saveInt(round(ship->y * 10));
 }
 
 // Text format:  (variable)
 // time | textLength | text | x * 10 | y * 10 | size | text R | G | B | A | duration
 void ReplayBuilder::saveText(int time, const char *text, double x, double y,
                              int size, RgbaColor textColor, int duration) {
-  textChunks_->saveInt(time);
+  textData_->saveInt(time);
   int textLength = (int) strlen(text);
-  textChunks_->saveInt(textLength);
+  textData_->saveInt(textLength);
   for (int x = 0; x < textLength; x++) {
-    textChunks_->saveInt((int) text[x]);
+    textData_->saveInt((int) text[x]);
   }
-  textChunks_->saveInt(round(x * 10));
-  textChunks_->saveInt(round(y * 10));
-  textChunks_->saveInt(size);
-  textChunks_->saveInt(textColor.r);
-  textChunks_->saveInt(textColor.g);
-  textChunks_->saveInt(textColor.b);
-  textChunks_->saveInt(textColor.a);
-  textChunks_->saveInt(duration);
+  textData_->saveInt(round(x * 10));
+  textData_->saveInt(round(y * 10));
+  textData_->saveInt(size);
+  textData_->saveInt(textColor.r);
+  textData_->saveInt(textColor.g);
+  textData_->saveInt(textColor.b);
+  textData_->saveInt(textColor.a);
+  textData_->saveInt(duration);
 }
 
 int ReplayBuilder::round(double f) {
   return floor(f + .5);
 }
 
-ChunkSet::ChunkSet(int maxChunks) {
+ReplayData::ReplayData(int maxChunks) {
   maxChunks_ = maxChunks;
   chunks_[0] = new ReplayChunk;
   numChunks_ = 1;
 }
 
-ChunkSet::~ChunkSet() {
+ReplayData::~ReplayData() {
   for (int x = 0; x < numChunks_; x++) {
     delete chunks_[x];
   }
 }
 
-void ChunkSet::saveInt(int x) {
+void ReplayData::saveInt(int x) {
   ReplayChunk *chunk = chunks_[numChunks_ - 1];
   if (chunk->size == CHUNK_SIZE) {
     if (numChunks_ == maxChunks_) {
