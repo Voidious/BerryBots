@@ -81,7 +81,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   pthread_detach(timerThread_);
   // TODO: how to handle failure to create thread
 
-  numReplayInts_ = 0;
+  replayBuilder_ = 0;
 }
 
 BerryBotsEngine::~BerryBotsEngine() {
@@ -162,6 +162,9 @@ BerryBotsEngine::~BerryBotsEngine() {
   delete stage_;
   if (sensorHandler_ != 0) {
     delete sensorHandler_;
+  }
+  if (replayBuilder_ != 0) {
+    delete replayBuilder_;
   }
 }
 
@@ -459,14 +462,6 @@ int BerryBotsEngine::callUserLuaCode(lua_State *L, int nargs,
   return pcallValue;
 }
 
-void BerryBotsEngine::saveReplay(const char *filename) {
-  char *absFilename = fileManager_->getFilePath("/Users/pcupka", filename);
-  FILE *f = fopen(absFilename, "wb");
-  fwrite(replayData_, sizeof(int), numReplayInts_, f);
-  fclose(f);
-  delete absFilename;
-}
-
 void *BerryBotsEngine::timer(void *vargs) {
   TickTimerSettings *settings = (TickTimerSettings *) vargs;
   while (settings->enabled) {
@@ -542,7 +537,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   int userTeams = numTeams;
   int numStageShips = stage_->getStageShipCount();
   numShips_ = (userTeams * teamSize_) + numStageShips;
-  saveReplayInt(numShips_);
+  initReplayBuilder(numShips_, stage_);
   numTeams_ = userTeams + numStageShips;
   ships_ = new Ship*[numShips_];
   shipProperties_ = new ShipProperties*[numShips_];
@@ -761,21 +756,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     }
     for (int y = 0; y < numStateShips; y++) {
       Ship *ship = stateShips[y];
-      saveReplayInt(ship->properties->shipR);
-      saveReplayInt(ship->properties->shipG);
-      saveReplayInt(ship->properties->shipB);
-      saveReplayInt(ship->properties->laserR);
-      saveReplayInt(ship->properties->laserG);
-      saveReplayInt(ship->properties->laserB);
-      saveReplayInt(ship->properties->thrusterR);
-      saveReplayInt(ship->properties->thrusterG);
-      saveReplayInt(ship->properties->thrusterB);
-      int nameLength = (int) strlen(ship->properties->name);
-      saveReplayInt(nameLength);
-      const char *name = ship->properties->name;
-      for (int z = 0; z < nameLength; z++) {
-        saveReplayInt((int) name[z]);
-      }
+      replayBuilder_->saveShipProperties(ship);
     }
     if (deleteFilename) {
       delete filename;
@@ -820,7 +801,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   }
   copyShips(ships_, oldShips_, numShips_);
 
-  saveShipReplayStates();
+  replayBuilder_->saveShipStates(ships_, gameTime_);
 
   lua_getglobal(stageState_, "run");
   stageRun_ = (strcmp(luaL_typename(stageState_, -1), "nil") != 0);
@@ -831,6 +812,25 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   }
 
   shipInitComplete_ = true;
+}
+
+void BerryBotsEngine::initReplayBuilder(int numShips, Stage *stage) {
+  replayBuilder_ = new ReplayBuilder(numShips);
+  replayBuilder_->saveStageSize(stage->getWidth(), stage->getHeight());
+  Wall **walls = stage->getWalls();
+  int numWalls = stage->getWallCount();
+  for (int x = 0; x < numWalls; x++) {
+    Wall *wall = walls[x];
+    replayBuilder_->saveWall(wall->getLeft(), wall->getBottom(),
+                             wall->getWidth(), wall->getHeight());
+  }
+  Zone **zones = stage->getZones();
+  int numZones = stage->getZoneCount();
+  for (int x = 0; x < numZones; x++) {
+    Zone *zone = zones[x];
+    replayBuilder_->saveZone(zone->getLeft(), zone->getBottom(),
+                             zone->getWidth(), zone->getHeight());
+  }
 }
 
 void BerryBotsEngine::initShipRound(Ship *ship) {
@@ -906,7 +906,7 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
   }
   stage_->moveAndCheckCollisions(oldShips_, ships_, numShips_, gameTime_);
   physicsOver_ = true;
-  saveShipReplayStates();
+  replayBuilder_->saveShipStates(ships_, gameTime_);
 
   if (stageRun_) {
     this->setRoundOver(false);
@@ -1043,23 +1043,6 @@ void BerryBotsEngine::copyShips(
     Ship **srcShips, Ship **destShips, int numShips) {
   for (int x = 0; x < numShips; x++) {
     *(destShips[x]) = *(srcShips[x]);
-  }
-}
-
-void BerryBotsEngine::saveShipReplayStates() {
-  for (int x = 0; x < numShips_; x++) {
-    Ship *ship = ships_[x];
-    saveReplayInt(floor((ship->x * 10) + .5));
-    saveReplayInt(floor((ship->y * 10) + .5));
-    saveReplayInt(floor((normalAbsoluteAngle(ship->thrusterAngle) * 100) + .5));
-    saveReplayInt(floor((limit(0, ship->thrusterForce, 1) * 100) + .5));
-    saveReplayInt(floor((std::max(0.0, ship->energy) * 10) + .5));
-  }
-}
-
-void BerryBotsEngine::saveReplayInt(int i) {
-  if (numReplayInts_ < MAX_REPLAY_SIZE) {
-    replayData_[numReplayInts_++] = i;
   }
 }
 

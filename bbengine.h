@@ -28,12 +28,11 @@
 #include "stage.h"
 #include "filemanager.h"
 #include "sensorhandler.h"
+#include "replaybuilder.h"
 
 #define PCALL_STAGE     1
 #define PCALL_SHIP      2
 #define PCALL_VALIDATE  3
-
-#define MAX_REPLAY_SIZE  (4 * 1024 * 1024 / 4)  // 4 megs of ints
 
 extern "C" {
   #include "lua.h"
@@ -106,9 +105,7 @@ class BerryBotsEngine {
   char winnerFilename_[MAX_NAME_LENGTH + 1];
   bool hasRanks_;
   bool hasScores_;
-
-  int replayData_[MAX_REPLAY_SIZE];
-  int numReplayInts_;
+  ReplayBuilder *replayBuilder_;
 
   public:
     BerryBotsEngine(FileManager *manager);
@@ -161,8 +158,8 @@ class BerryBotsEngine {
     static void* timer(void *vargs);
     int callUserLuaCode(lua_State *L,int nargs, const char *errorMsg,
                         int callStyle) throw (EngineException*);
-    void saveReplay(const char *filename);
   private:
+    void initReplayBuilder(int numShips, Stage *stage);
     void processWinnerRanksScores();
     void setTeamRanksByScore();
     void initShipRound(Ship *ship);
@@ -171,8 +168,6 @@ class BerryBotsEngine {
     void uniqueShipNames(Ship** ships, int numShips);
     void uniqueTeamNames(Team** teams, int numTeams);
     void copyShips(Ship **srcShips, Ship **destShips, int numShips);
-    void saveShipReplayStates();
-    void saveReplayInt(int i);
     void printLuaErrorToShipConsole(lua_State *L, const char *formatString);
     void throwForLuaError(lua_State *L, const char *formatString)
         throw (EngineException*);
