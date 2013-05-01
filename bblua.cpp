@@ -927,8 +927,8 @@ StageBuilder* pushStageBuilder(lua_State *L) {
 
 int StageBuilder_setSize(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
-  int width = luaL_checkint(L, 2);
-  int height = luaL_checkint(L, 3);
+  int width = std::max(SHIP_SIZE, luaL_checkint(L, 2));
+  int height = std::max(SHIP_SIZE, luaL_checkint(L, 3));
   if (stageBuilder->engine->isStageConfigureComplete()) {
     luaL_error(L, "Can't set stage size outside of 'configure' function.");
   } else {
@@ -962,8 +962,8 @@ int StageBuilder_addWall(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int left = luaL_checkint(L, 2);
   int bottom = luaL_checkint(L, 3);
-  int width = luaL_checkint(L, 4);
-  int height = luaL_checkint(L, 5);
+  int width = std::max(0, luaL_checkint(L, 4));
+  int height = std::max(0, luaL_checkint(L, 5));
   Stage *stage = stageBuilder->engine->getStage();
   if (stageBuilder->engine->isStageConfigureComplete()) {
     luaL_error(L, "Can't add walls outside of 'configure' function.");
@@ -1003,8 +1003,8 @@ int StageBuilder_addZone(lua_State *L) {
   StageBuilder *stageBuilder = checkStageBuilder(L, 1);
   int left = luaL_checkint(L, 2);
   int bottom = luaL_checkint(L, 3);
-  int width = luaL_checkint(L, 4);
-  int height = luaL_checkint(L, 5);
+  int width = std::max(0, luaL_checkint(L, 4));
+  int height = std::max(0, luaL_checkint(L, 5));
   const char *zoneTag = luaL_optstring(L, 6, "");
   Stage *stage = stageBuilder->engine->getStage();
   if (stageBuilder->engine->isStageConfigureComplete()) {

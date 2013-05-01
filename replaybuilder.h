@@ -20,10 +20,10 @@
 
 #include "bbutil.h"
 
-#define CHUNK_SIZE            (1024 * 1024 / 8)  // 500 kb of ints
-#define MAX_SHIP_TICK_CHUNKS  40                 // 20 megs
-#define MAX_LASER_CHUNKS      40                 // 20 megs lasers/sparks
-#define MAX_MISC_CHUNKS       2                  // 1 megs each
+#define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
+#define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
+#define MAX_LASER_CHUNKS      640              // 20 megs lasers/sparks
+#define MAX_MISC_CHUNKS       32               // 1 meg each
 
 typedef struct {
   int data[CHUNK_SIZE];
@@ -44,6 +44,9 @@ class ReplayData {
 class ReplayBuilder {
   bool *shipsAlive_;
   int numShips_;
+  ReplayData *stagePropertiesData_;
+  ReplayData *wallsData_;
+  ReplayData *zonesData_;
   ReplayData *shipPropertiesData_;
   ReplayData *shipAddData_;
   ReplayData *shipRemoveData_;
@@ -58,6 +61,9 @@ class ReplayBuilder {
   public:
     ReplayBuilder(int numShips);
     ~ReplayBuilder();
+    void saveStageSize(int width, int height);
+    void saveWall(int left, int bottom, int width, int height);
+    void saveZone(int left, int bottom, int width, int height);
     void saveShipProperties(Ship *ship);
     void saveShipStates(Ship **ships, int time);
     void saveLaser(Laser *laser, int duration);

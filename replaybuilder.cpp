@@ -29,6 +29,9 @@ ReplayBuilder::ReplayBuilder(int numShips) {
   for (int x = 0; x < numShips; x++) {
     shipsAlive_[x] = false;
   }
+  stagePropertiesData_ = new ReplayData(1);
+  wallsData_ = new ReplayData(MAX_MISC_CHUNKS);
+  zonesData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipPropertiesData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipAddData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipRemoveData_ = new ReplayData(MAX_MISC_CHUNKS);
@@ -43,6 +46,9 @@ ReplayBuilder::ReplayBuilder(int numShips) {
 
 ReplayBuilder::~ReplayBuilder() {
   delete shipsAlive_;
+  delete stagePropertiesData_;
+  delete wallsData_;
+  delete zonesData_;
   delete shipPropertiesData_;
   delete shipAddData_;
   delete shipRemoveData_;
@@ -53,6 +59,31 @@ ReplayBuilder::~ReplayBuilder() {
   delete torpedoDebrisData_;
   delete shipDestroyData_;
   delete textData_;
+}
+
+// Stage size format:  (2)
+// width | height
+void ReplayBuilder::saveStageSize(int width, int height) {
+  stagePropertiesData_->saveInt(width);
+  stagePropertiesData_->saveInt(height);
+}
+
+// Wall format:  (4)
+// left | bottom | width | height
+void ReplayBuilder::saveWall(int left, int bottom, int width, int height) {
+  wallsData_->saveInt(left);
+  wallsData_->saveInt(bottom);
+  wallsData_->saveInt(width);
+  wallsData_->saveInt(height);
+}
+
+// Zone format:  (4)
+// left | bottom | width | height
+void ReplayBuilder::saveZone(int left, int bottom, int width, int height) {
+  zonesData_->saveInt(left);
+  zonesData_->saveInt(bottom);
+  zonesData_->saveInt(width);
+  zonesData_->saveInt(height);
 }
 
 // Ship properties format:  (variable)
