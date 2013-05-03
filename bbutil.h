@@ -244,8 +244,11 @@ typedef struct {
 } Sensors;
 
 typedef struct {
+  int id;
   short shipIndex;
   int fireTime;
+  double srcX;
+  double srcY;
   double x;
   double y;
   double heading;
@@ -255,7 +258,11 @@ typedef struct {
 } Laser;
 
 typedef struct {
+  int id;
   short shipIndex;
+  int fireTime;
+  double srcX;
+  double srcY;
   double x;
   double y;
   double heading;

@@ -98,6 +98,8 @@ class Stage {
   UserGfxText* gfxTexts_[MAX_USER_TEXTS];
   int numGfxTexts_;
   bool userGfxDisabled_;
+  int nextLaserId_;
+  int nextTorpedoId_;
 
   public:
     Stage(int width, int height);

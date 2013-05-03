@@ -51,9 +51,11 @@ class ReplayBuilder {
   ReplayData *shipAddData_;
   ReplayData *shipRemoveData_;
   ReplayData *shipTickData_;
-  ReplayData *laserData_;
+  ReplayData *laserStartData_;
+  ReplayData *laserEndData_;
   ReplayData *laserSparkData_;
-  ReplayData *torpedoData_;
+  ReplayData *torpedoStartData_;
+  ReplayData *torpedoEndData_;
   ReplayData *torpedoDebrisData_;
   ReplayData *shipDestroyData_;
   ReplayData *textData_;
@@ -66,11 +68,12 @@ class ReplayBuilder {
     void saveZone(int left, int bottom, int width, int height);
     void saveShipProperties(Ship *ship);
     void saveShipStates(Ship **ships, int time);
-    void saveLaser(Laser *laser, int duration);
-    void saveLaserSpark(Laser *laser, double x, double y, double speed,
-                        double heading);
-    void saveTorpedo(Torpedo *torpedo, int fireTime, int duration, double x,
-                     double y);
+    void saveLaserStart(Laser *laser);
+    void saveLaserEnd(Laser *laser, int time);
+    void saveLaserSpark(Laser *laser, int time, double x, double y,
+                        double dx, double dy);
+    void saveTorpedoStart(Torpedo *torpedo);
+    void saveTorpedoEnd(Torpedo *torpedo, int time, double x, double y);
     void saveTorpedoDebris(Ship *ship, int time, double dx, double dy,
                            int parts);
     void saveShipDestroy(Ship *ship, int time);

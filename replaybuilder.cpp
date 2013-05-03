@@ -36,9 +36,11 @@ ReplayBuilder::ReplayBuilder(int numShips) {
   shipAddData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipRemoveData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipTickData_ = new ReplayData(MAX_SHIP_TICK_CHUNKS);
-  laserData_ = new ReplayData(MAX_LASER_CHUNKS);
+  laserStartData_ = new ReplayData(MAX_LASER_CHUNKS);
+  laserEndData_ = new ReplayData(MAX_LASER_CHUNKS);
   laserSparkData_ = new ReplayData(MAX_LASER_CHUNKS);
-  torpedoData_ = new ReplayData(MAX_MISC_CHUNKS);
+  torpedoStartData_ = new ReplayData(MAX_MISC_CHUNKS);
+  torpedoEndData_ = new ReplayData(MAX_MISC_CHUNKS);
   torpedoDebrisData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipDestroyData_ = new ReplayData(MAX_MISC_CHUNKS);
   textData_ = new ReplayData(MAX_MISC_CHUNKS);
@@ -53,9 +55,11 @@ ReplayBuilder::~ReplayBuilder() {
   delete shipAddData_;
   delete shipRemoveData_;
   delete shipTickData_;
-  delete laserData_;
+  delete laserStartData_;
+  delete laserEndData_;
   delete laserSparkData_;
-  delete torpedoData_;
+  delete torpedoStartData_;
+  delete torpedoEndData_;
   delete torpedoDebrisData_;
   delete shipDestroyData_;
   delete textData_;
@@ -147,37 +151,55 @@ void ReplayBuilder::saveShipStates(Ship **ships, int time) {
   }
 }
 
-// Laser format:  (4)
-// ship index | fire time | heading * 100 | duration
-void ReplayBuilder::saveLaser(Laser *laser, int duration) {
-  laserData_->saveInt(laser->shipIndex);
-  laserData_->saveInt(laser->fireTime);
-  laserData_->saveInt(round(laser->heading * 100));
-  laserData_->saveInt(duration);
+// Laser start format:  (6)
+// laser ID | ship index | fire time | x * 10 | y * 10 | heading * 100
+void ReplayBuilder::saveLaserStart(Laser *laser) {
+  laserStartData_->saveInt(laser->id);
+  laserStartData_->saveInt(laser->shipIndex);
+  laserStartData_->saveInt(laser->fireTime);
+  laserStartData_->saveInt(round(laser->srcX * 10));
+  laserStartData_->saveInt(round(laser->srcY * 10));
+  laserStartData_->saveInt(round(laser->heading * 100));
+}
+
+// Laser end format:  (2)
+// laser ID | end time
+void ReplayBuilder::saveLaserEnd(Laser *laser, int time) {
+  laserEndData_->saveInt(laser->id);
+  laserEndData_->saveInt(time);
 }
 
 // Laser spark format:  (6)
-// ship index | time | x * 10 | y * 10 | speed * 100 | heading * 100
-void ReplayBuilder::saveLaserSpark(Laser *laser, double x, double y,
-                                   double speed, double heading) {
+// ship index | time | x * 10 | y * 10 | dx * 100 | dy * 100
+void ReplayBuilder::saveLaserSpark(Laser *laser, int time, double x, double y,
+                                   double dx, double dy) {
   laserSparkData_->saveInt(laser->shipIndex);
-  laserSparkData_->saveInt(laser->fireTime);
+  laserSparkData_->saveInt(time);
   laserSparkData_->saveInt(round(x * 10));
   laserSparkData_->saveInt(round(y * 10));
-  laserSparkData_->saveInt(round(speed * 100));
-  laserSparkData_->saveInt(round(heading * 100));
+  laserSparkData_->saveInt(round(dx * 100));
+  laserSparkData_->saveInt(round(dy * 100));
 }
 
-// Torpedo format:  (6)
-// ship index | fire time | heading * 100 | duration | blast x * 10 | y * 10
-void ReplayBuilder::saveTorpedo(Torpedo *torpedo, int fireTime, int duration,
-                                double x, double y) {
-  torpedoData_->saveInt(torpedo->shipIndex);
-  torpedoData_->saveInt(fireTime);
-  torpedoData_->saveInt(round(torpedo->heading * 100));
-  torpedoData_->saveInt(duration);
-  torpedoData_->saveInt(round(x * 10));
-  torpedoData_->saveInt(round(y * 10));
+// Torpedo start format:  (6)
+// torpedo ID | ship index | fire time | x * 10 | y * 10 | heading * 100 
+void ReplayBuilder::saveTorpedoStart(Torpedo *torpedo) {
+  torpedoStartData_->saveInt(torpedo->id);
+  torpedoStartData_->saveInt(torpedo->shipIndex);
+  torpedoStartData_->saveInt(torpedo->fireTime);
+  torpedoStartData_->saveInt(round(torpedo->srcX * 10));
+  torpedoStartData_->saveInt(round(torpedo->srcY * 10));
+  torpedoStartData_->saveInt(round(torpedo->heading * 100));
+}
+
+// Torpedo end format:  (4)
+// torpedo ID | end time | x * 10 | y * 10
+void ReplayBuilder::saveTorpedoEnd(Torpedo *torpedo, int time, double x,
+                                   double y) {
+  torpedoEndData_->saveInt(torpedo->id);
+  torpedoEndData_->saveInt(time);
+  torpedoEndData_->saveInt(round(x * 10));
+  torpedoEndData_->saveInt(round(y * 10));
 }
 
 // Torpedo debris format:  (7)

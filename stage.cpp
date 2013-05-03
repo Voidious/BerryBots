@@ -61,6 +61,7 @@ Stage::Stage(int width, int height) {
   numGfxCircles_ = 0;
   numGfxTexts_ = 0;
   userGfxDisabled_ = false;
+  nextLaserId_ = nextTorpedoId_ = 0;
 }
 
 void Stage::setName(char *name) {
@@ -1308,10 +1309,13 @@ int Stage::fireLaser(Ship *ship, double heading, int gameTime) {
     Line2D laserStartLine(ship->x, ship->y, laserX, laserY);
     if (hasVision(&laserStartLine)) {
       Laser *laser = new Laser;
+      laser->id = nextLaserId_++;
       laser->shipIndex = ship->index;
       laser->fireTime = gameTime;
       double dx = cosHeading * LASER_SPEED;
       double dy = sinHeading * LASER_SPEED;
+      laser->srcX = ship->x;
+      laser->srcY = ship->y;
       laser->x = laserX;
       laser->y = laserY;
       laser->heading = heading;
@@ -1333,11 +1337,15 @@ int Stage::fireTorpedo(
     return 0;
   } else {
     Torpedo *torpedo = new Torpedo;
+    torpedo->id = nextTorpedoId_++;
     torpedo->shipIndex = ship->index;
+    torpedo->fireTime = gameTime;
     double cosHeading = cos(heading);
     double sinHeading = sin(heading);
     double dx = cosHeading * TORPEDO_SPEED;
     double dy = sinHeading * TORPEDO_SPEED;
+    torpedo->srcX = ship->x;
+    torpedo->srcY = ship->y;
     torpedo->x = ship->x + (cosHeading * SHIP_RADIUS);
     torpedo->y = ship->y + (sinHeading * SHIP_RADIUS);
     torpedo->heading = heading;
