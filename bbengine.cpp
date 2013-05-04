@@ -756,7 +756,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     }
     for (int y = 0; y < numStateShips; y++) {
       Ship *ship = stateShips[y];
-      replayBuilder_->saveShipProperties(ship);
+      replayBuilder_->addShipProperties(ship);
     }
     if (deleteFilename) {
       delete filename;
@@ -801,7 +801,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   }
   copyShips(ships_, oldShips_, numShips_);
 
-  replayBuilder_->saveShipStates(ships_, gameTime_);
+  replayBuilder_->addShipStates(ships_, gameTime_);
 
   lua_getglobal(stageState_, "run");
   stageRun_ = (strcmp(luaL_typename(stageState_, -1), "nil") != 0);
@@ -816,19 +816,19 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
 
 void BerryBotsEngine::initReplayBuilder(int numShips, Stage *stage) {
   replayBuilder_ = new ReplayBuilder(numShips);
-  replayBuilder_->saveStageSize(stage->getWidth(), stage->getHeight());
+  replayBuilder_->addStageSize(stage->getWidth(), stage->getHeight());
   Wall **walls = stage->getWalls();
   int numWalls = stage->getWallCount();
   for (int x = 0; x < numWalls; x++) {
     Wall *wall = walls[x];
-    replayBuilder_->saveWall(wall->getLeft(), wall->getBottom(),
+    replayBuilder_->addWall(wall->getLeft(), wall->getBottom(),
                              wall->getWidth(), wall->getHeight());
   }
   Zone **zones = stage->getZones();
   int numZones = stage->getZoneCount();
   for (int x = 0; x < numZones; x++) {
     Zone *zone = zones[x];
-    replayBuilder_->saveZone(zone->getLeft(), zone->getBottom(),
+    replayBuilder_->addZone(zone->getLeft(), zone->getBottom(),
                              zone->getWidth(), zone->getHeight());
   }
 }
@@ -906,7 +906,7 @@ void BerryBotsEngine::processTick() throw (EngineException*) {
   }
   stage_->moveAndCheckCollisions(oldShips_, ships_, numShips_, gameTime_);
   physicsOver_ = true;
-  replayBuilder_->saveShipStates(ships_, gameTime_);
+  replayBuilder_->addShipStates(ships_, gameTime_);
 
   if (stageRun_) {
     this->setRoundOver(false);

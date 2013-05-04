@@ -67,74 +67,74 @@ ReplayBuilder::~ReplayBuilder() {
 
 // Stage size format:  (2)
 // width | height
-void ReplayBuilder::saveStageSize(int width, int height) {
-  stagePropertiesData_->saveInt(width);
-  stagePropertiesData_->saveInt(height);
+void ReplayBuilder::addStageSize(int width, int height) {
+  stagePropertiesData_->addInt(width);
+  stagePropertiesData_->addInt(height);
 }
 
 // Wall format:  (4)
 // left | bottom | width | height
-void ReplayBuilder::saveWall(int left, int bottom, int width, int height) {
-  wallsData_->saveInt(left);
-  wallsData_->saveInt(bottom);
-  wallsData_->saveInt(width);
-  wallsData_->saveInt(height);
+void ReplayBuilder::addWall(int left, int bottom, int width, int height) {
+  wallsData_->addInt(left);
+  wallsData_->addInt(bottom);
+  wallsData_->addInt(width);
+  wallsData_->addInt(height);
 }
 
 // Zone format:  (4)
 // left | bottom | width | height
-void ReplayBuilder::saveZone(int left, int bottom, int width, int height) {
-  zonesData_->saveInt(left);
-  zonesData_->saveInt(bottom);
-  zonesData_->saveInt(width);
-  zonesData_->saveInt(height);
+void ReplayBuilder::addZone(int left, int bottom, int width, int height) {
+  zonesData_->addInt(left);
+  zonesData_->addInt(bottom);
+  zonesData_->addInt(width);
+  zonesData_->addInt(height);
 }
 
 // Ship properties format:  (variable)
 // ship R | G | B | laser R | G | B | thruster R | G | B | nameLength | <name>
-void ReplayBuilder::saveShipProperties(Ship *ship) {
+void ReplayBuilder::addShipProperties(Ship *ship) {
   ShipProperties *properties = ship->properties;
-  shipPropertiesData_->saveInt(properties->shipR);
-  shipPropertiesData_->saveInt(properties->shipG);
-  shipPropertiesData_->saveInt(properties->shipB);
-  shipPropertiesData_->saveInt(properties->laserR);
-  shipPropertiesData_->saveInt(properties->laserG);
-  shipPropertiesData_->saveInt(properties->laserB);
-  shipPropertiesData_->saveInt(properties->thrusterR);
-  shipPropertiesData_->saveInt(properties->thrusterG);
-  shipPropertiesData_->saveInt(properties->thrusterB);
+  shipPropertiesData_->addInt(properties->shipR);
+  shipPropertiesData_->addInt(properties->shipG);
+  shipPropertiesData_->addInt(properties->shipB);
+  shipPropertiesData_->addInt(properties->laserR);
+  shipPropertiesData_->addInt(properties->laserG);
+  shipPropertiesData_->addInt(properties->laserB);
+  shipPropertiesData_->addInt(properties->thrusterR);
+  shipPropertiesData_->addInt(properties->thrusterG);
+  shipPropertiesData_->addInt(properties->thrusterB);
   const char *name = ship->properties->name;
   int nameLength = (int) strlen(name);
-  shipPropertiesData_->saveInt(nameLength);
+  shipPropertiesData_->addInt(nameLength);
   for (int x = 0; x < nameLength; x++) {
-    shipPropertiesData_->saveInt((int) name[x]);
+    shipPropertiesData_->addInt((int) name[x]);
   }
 }
 
 // Ship add format:  (2)
 // ship index | time
-void ReplayBuilder::saveShipAdd(int shipIndex, int time) {
-  shipAddData_->saveInt(shipIndex);
-  shipAddData_->saveInt(time);
+void ReplayBuilder::addShip(int shipIndex, int time) {
+  shipAddData_->addInt(shipIndex);
+  shipAddData_->addInt(time);
 }
 
 // Ship remove format:  (2)
 // ship index | time
-void ReplayBuilder::saveShipRemove(int shipIndex, int time) {
-  shipRemoveData_->saveInt(shipIndex);
-  shipRemoveData_->saveInt(time);
+void ReplayBuilder::removeShip(int shipIndex, int time) {
+  shipRemoveData_->addInt(shipIndex);
+  shipRemoveData_->addInt(time);
 }
 
 // Ship tick format:  (5)
 // x * 10 | y * 10 | thruster angle * 100 | force * 100 | energy * 10
-void ReplayBuilder::saveShipStates(Ship **ships, int time) {
+void ReplayBuilder::addShipStates(Ship **ships, int time) {
   for (int x = 0; x < numShips_; x++) {
     Ship *ship = ships[x];
     if (shipsAlive_[x] != ship->alive) {
       if (ship->alive) {
-        saveShipAdd(ship->index, time);
+        addShip(ship->index, time);
       } else {
-        saveShipRemove(ship->index, time);
+        removeShip(ship->index, time);
       }
       shipsAlive_[x] = ship->alive;
     }
@@ -142,105 +142,105 @@ void ReplayBuilder::saveShipStates(Ship **ships, int time) {
 
   for (int x = 0; x < numShips_; x++) {
     Ship *ship = ships[x];
-    shipTickData_->saveInt(round(ship->x * 10));
-    shipTickData_->saveInt(round(ship->y * 10));
-    shipTickData_->saveInt(
+    shipTickData_->addInt(round(ship->x * 10));
+    shipTickData_->addInt(round(ship->y * 10));
+    shipTickData_->addInt(
         round(normalAbsoluteAngle(ship->thrusterAngle) * 100));
-    shipTickData_->saveInt(round(limit(0, ship->thrusterForce, 1) * 100));
-    shipTickData_->saveInt(round(std::max(0.0, ship->energy) * 10));
+    shipTickData_->addInt(round(limit(0, ship->thrusterForce, 1) * 100));
+    shipTickData_->addInt(round(std::max(0.0, ship->energy) * 10));
   }
 }
 
 // Laser start format:  (6)
 // laser ID | ship index | fire time | x * 10 | y * 10 | heading * 100
-void ReplayBuilder::saveLaserStart(Laser *laser) {
-  laserStartData_->saveInt(laser->id);
-  laserStartData_->saveInt(laser->shipIndex);
-  laserStartData_->saveInt(laser->fireTime);
-  laserStartData_->saveInt(round(laser->srcX * 10));
-  laserStartData_->saveInt(round(laser->srcY * 10));
-  laserStartData_->saveInt(round(laser->heading * 100));
+void ReplayBuilder::addLaserStart(Laser *laser) {
+  laserStartData_->addInt(laser->id);
+  laserStartData_->addInt(laser->shipIndex);
+  laserStartData_->addInt(laser->fireTime);
+  laserStartData_->addInt(round(laser->srcX * 10));
+  laserStartData_->addInt(round(laser->srcY * 10));
+  laserStartData_->addInt(round(laser->heading * 100));
 }
 
 // Laser end format:  (2)
 // laser ID | end time
-void ReplayBuilder::saveLaserEnd(Laser *laser, int time) {
-  laserEndData_->saveInt(laser->id);
-  laserEndData_->saveInt(time);
+void ReplayBuilder::addLaserEnd(Laser *laser, int time) {
+  laserEndData_->addInt(laser->id);
+  laserEndData_->addInt(time);
 }
 
 // Laser spark format:  (6)
 // ship index | time | x * 10 | y * 10 | dx * 100 | dy * 100
-void ReplayBuilder::saveLaserSpark(Laser *laser, int time, double x, double y,
+void ReplayBuilder::addLaserSpark(Laser *laser, int time, double x, double y,
                                    double dx, double dy) {
-  laserSparkData_->saveInt(laser->shipIndex);
-  laserSparkData_->saveInt(time);
-  laserSparkData_->saveInt(round(x * 10));
-  laserSparkData_->saveInt(round(y * 10));
-  laserSparkData_->saveInt(round(dx * 100));
-  laserSparkData_->saveInt(round(dy * 100));
+  laserSparkData_->addInt(laser->shipIndex);
+  laserSparkData_->addInt(time);
+  laserSparkData_->addInt(round(x * 10));
+  laserSparkData_->addInt(round(y * 10));
+  laserSparkData_->addInt(round(dx * 100));
+  laserSparkData_->addInt(round(dy * 100));
 }
 
 // Torpedo start format:  (6)
 // torpedo ID | ship index | fire time | x * 10 | y * 10 | heading * 100 
-void ReplayBuilder::saveTorpedoStart(Torpedo *torpedo) {
-  torpedoStartData_->saveInt(torpedo->id);
-  torpedoStartData_->saveInt(torpedo->shipIndex);
-  torpedoStartData_->saveInt(torpedo->fireTime);
-  torpedoStartData_->saveInt(round(torpedo->srcX * 10));
-  torpedoStartData_->saveInt(round(torpedo->srcY * 10));
-  torpedoStartData_->saveInt(round(torpedo->heading * 100));
+void ReplayBuilder::addTorpedoStart(Torpedo *torpedo) {
+  torpedoStartData_->addInt(torpedo->id);
+  torpedoStartData_->addInt(torpedo->shipIndex);
+  torpedoStartData_->addInt(torpedo->fireTime);
+  torpedoStartData_->addInt(round(torpedo->srcX * 10));
+  torpedoStartData_->addInt(round(torpedo->srcY * 10));
+  torpedoStartData_->addInt(round(torpedo->heading * 100));
 }
 
 // Torpedo end format:  (4)
 // torpedo ID | end time | x * 10 | y * 10
-void ReplayBuilder::saveTorpedoEnd(Torpedo *torpedo, int time) {
-  torpedoEndData_->saveInt(torpedo->id);
-  torpedoEndData_->saveInt(time);
-  torpedoEndData_->saveInt(round(torpedo->x * 10));
-  torpedoEndData_->saveInt(round(torpedo->y * 10));
+void ReplayBuilder::addTorpedoEnd(Torpedo *torpedo, int time) {
+  torpedoEndData_->addInt(torpedo->id);
+  torpedoEndData_->addInt(time);
+  torpedoEndData_->addInt(round(torpedo->x * 10));
+  torpedoEndData_->addInt(round(torpedo->y * 10));
 }
 
 // Torpedo debris format:  (7)
 // ship index | time | x * 10 | y * 10 | dx * 100 | dy * 100 | parts
-void ReplayBuilder::saveTorpedoDebris(Ship *ship, int time, double dx,
+void ReplayBuilder::addTorpedoDebris(Ship *ship, int time, double dx,
                                       double dy, int parts) {
-  torpedoDebrisData_->saveInt(ship->index);
-  torpedoDebrisData_->saveInt(time);
-  torpedoDebrisData_->saveInt(round(ship->x * 10));
-  torpedoDebrisData_->saveInt(round(ship->y * 10));
-  torpedoDebrisData_->saveInt(round(dx * 100));
-  torpedoDebrisData_->saveInt(round(dy * 100));
-  torpedoDebrisData_->saveInt(parts);
+  torpedoDebrisData_->addInt(ship->index);
+  torpedoDebrisData_->addInt(time);
+  torpedoDebrisData_->addInt(round(ship->x * 10));
+  torpedoDebrisData_->addInt(round(ship->y * 10));
+  torpedoDebrisData_->addInt(round(dx * 100));
+  torpedoDebrisData_->addInt(round(dy * 100));
+  torpedoDebrisData_->addInt(parts);
 }
 
 // Ship destroy format:  (4)
 // ship index | time | x * 10 | y * 10
-void ReplayBuilder::saveShipDestroy(Ship *ship, int time) {
-  shipDestroyData_->saveInt(ship->index);
-  shipDestroyData_->saveInt(time);
-  shipDestroyData_->saveInt(round(ship->x * 10));
-  shipDestroyData_->saveInt(round(ship->y * 10));
+void ReplayBuilder::addShipDestroy(Ship *ship, int time) {
+  shipDestroyData_->addInt(ship->index);
+  shipDestroyData_->addInt(time);
+  shipDestroyData_->addInt(round(ship->x * 10));
+  shipDestroyData_->addInt(round(ship->y * 10));
 }
 
 // Text format:  (variable)
 // time | textLength | text | x * 10 | y * 10 | size | text R | G | B | A | duration
-void ReplayBuilder::saveText(int time, const char *text, double x, double y,
+void ReplayBuilder::addText(int time, const char *text, double x, double y,
                              int size, RgbaColor textColor, int duration) {
-  textData_->saveInt(time);
+  textData_->addInt(time);
   int textLength = (int) strlen(text);
-  textData_->saveInt(textLength);
+  textData_->addInt(textLength);
   for (int x = 0; x < textLength; x++) {
-    textData_->saveInt((int) text[x]);
+    textData_->addInt((int) text[x]);
   }
-  textData_->saveInt(round(x * 10));
-  textData_->saveInt(round(y * 10));
-  textData_->saveInt(size);
-  textData_->saveInt(textColor.r);
-  textData_->saveInt(textColor.g);
-  textData_->saveInt(textColor.b);
-  textData_->saveInt(textColor.a);
-  textData_->saveInt(duration);
+  textData_->addInt(round(x * 10));
+  textData_->addInt(round(y * 10));
+  textData_->addInt(size);
+  textData_->addInt(textColor.r);
+  textData_->addInt(textColor.g);
+  textData_->addInt(textColor.b);
+  textData_->addInt(textColor.a);
+  textData_->addInt(duration);
 }
 
 int ReplayBuilder::round(double f) {
@@ -262,7 +262,7 @@ ReplayData::~ReplayData() {
   delete chunks_;
 }
 
-void ReplayData::saveInt(int x) {
+void ReplayData::addInt(int x) {
   ReplayChunk *chunk = chunks_[numChunks_ - 1];
   if (chunk->size == CHUNK_SIZE) {
     if (numChunks_ == maxChunks_) {
@@ -280,30 +280,30 @@ ReplayEventHandler::ReplayEventHandler(ReplayBuilder *replayBuilder) {
 }
 
 void ReplayEventHandler::handleShipFiredLaser(Ship *firingShip, Laser *laser) {
-  replayBuilder_->saveLaserStart(laser);
+  replayBuilder_->addLaserStart(laser);
 }
 
 void ReplayEventHandler::handleLaserDestroyed(Laser *laser, int time) {
-  replayBuilder_->saveLaserEnd(laser, time);
+  replayBuilder_->addLaserEnd(laser, time);
 }
 
 void ReplayEventHandler::handleShipFiredTorpedo(Ship *firingShip,
                                                 Torpedo *torpedo) {
-  replayBuilder_->saveTorpedoStart(torpedo);
+  replayBuilder_->addTorpedoStart(torpedo);
 }
 
 void ReplayEventHandler::handleTorpedoExploded(Torpedo *torpedo, int time) {
-  replayBuilder_->saveTorpedoEnd(torpedo, time);
+  replayBuilder_->addTorpedoEnd(torpedo, time);
 }
 
 void ReplayEventHandler::handleShipDestroyed(
     Ship *destroyedShip, int time, Ship **destroyerShips, int numDestroyers) {
-  replayBuilder_->saveShipDestroy(destroyedShip, time);
+  replayBuilder_->addShipDestroy(destroyedShip, time);
 }
 
 void ReplayEventHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
     Laser *laser, double dx, double dy, int time) {
-  replayBuilder_->saveLaserSpark(
+  replayBuilder_->addLaserSpark(
       laser, time, targetShip->x, targetShip->y, dx, dy);
 }
 
@@ -311,12 +311,12 @@ void ReplayEventHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
     double dx, double dy, double hitAngle, double hitForce, double hitDamage,
     int time) {
   int parts = ceil((hitDamage / TORPEDO_BLAST_DAMAGE) * MAX_TORPEDO_SPARKS);
-  replayBuilder_->saveTorpedoDebris(targetShip, time, dx, dy, parts);
+  replayBuilder_->addTorpedoDebris(targetShip, time, dx, dy, parts);
 }
 
 void ReplayEventHandler::handleStageText(StageText *stageText) {
   RgbaColor textColor {stageText->textR, stageText->textG, stageText->textB,
                        stageText->textA};
-  replayBuilder_->saveText(stageText->startTime, stageText->text, stageText->x,
+  replayBuilder_->addText(stageText->startTime, stageText->text, stageText->x,
       stageText->y, stageText->fontSize, textColor, stageText->drawTicks);
 }

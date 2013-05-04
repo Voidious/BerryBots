@@ -40,7 +40,7 @@ class ReplayData {
   public:
     ReplayData(int maxChunks);
     ~ReplayData();
-    void saveInt(int x);
+    void addInt(int x);
 };
 
 class ReplayBuilder {
@@ -65,26 +65,26 @@ class ReplayBuilder {
   public:
     ReplayBuilder(int numShips);
     ~ReplayBuilder();
-    void saveStageSize(int width, int height);
-    void saveWall(int left, int bottom, int width, int height);
-    void saveZone(int left, int bottom, int width, int height);
-    void saveShipProperties(Ship *ship);
-    void saveShipStates(Ship **ships, int time);
-    void saveLaserStart(Laser *laser);
-    void saveLaserEnd(Laser *laser, int time);
-    void saveLaserSpark(Laser *laser, int time, double x, double y,
+    void addStageSize(int width, int height);
+    void addWall(int left, int bottom, int width, int height);
+    void addZone(int left, int bottom, int width, int height);
+    void addShipProperties(Ship *ship);
+    void addShipStates(Ship **ships, int time);
+    void addLaserStart(Laser *laser);
+    void addLaserEnd(Laser *laser, int time);
+    void addLaserSpark(Laser *laser, int time, double x, double y,
                         double dx, double dy);
-    void saveTorpedoStart(Torpedo *torpedo);
-    void saveTorpedoEnd(Torpedo *torpedo, int time);
-    void saveTorpedoDebris(Ship *ship, int time, double dx, double dy,
+    void addTorpedoStart(Torpedo *torpedo);
+    void addTorpedoEnd(Torpedo *torpedo, int time);
+    void addTorpedoDebris(Ship *ship, int time, double dx, double dy,
                            int parts);
-    void saveShipDestroy(Ship *ship, int time);
-    void saveText(int time, const char *text, double x, double y, int size,
+    void addShipDestroy(Ship *ship, int time);
+    void addText(int time, const char *text, double x, double y, int size,
                   RgbaColor textColor, int duration);
 
   private:
-    void saveShipAdd(int shipIndex, int time);
-    void saveShipRemove(int shipIndex, int time);
+    void addShip(int shipIndex, int time);
+    void removeShip(int shipIndex, int time);
     int round(double f);
 };
 
