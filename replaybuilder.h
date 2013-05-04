@@ -21,6 +21,8 @@
 #include "bbutil.h"
 #include "eventhandler.h"
 
+#define REPLAY_VERSION        1
+
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
 #define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
 #define MAX_LASER_CHUNKS      640              // 20 megs lasers/sparks
@@ -58,6 +60,7 @@ class ReplayBuilder {
   ReplayData *laserSparkData_;
   ReplayData *torpedoStartData_;
   ReplayData *torpedoEndData_;
+  ReplayData *torpedoBlastData_;
   ReplayData *torpedoDebrisData_;
   ReplayData *shipDestroyData_;
   ReplayData *textData_;
@@ -76,6 +79,7 @@ class ReplayBuilder {
                         double dx, double dy);
     void addTorpedoStart(Torpedo *torpedo);
     void addTorpedoEnd(Torpedo *torpedo, int time);
+    void addTorpedoBlast(Torpedo *torpedo, int time);
     void addTorpedoDebris(Ship *ship, int time, double dx, double dy,
                            int parts);
     void addShipDestroy(Ship *ship, int time);
@@ -96,6 +100,7 @@ class ReplayEventHandler : public EventHandler {
     virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser);
     virtual void handleLaserDestroyed(Laser *laser, int time);
     virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo);
+    virtual void handleTorpedoDestroyed(Torpedo *torpedo, int time);
     virtual void handleTorpedoExploded(Torpedo *torpedo, int time);
     virtual void handleShipDestroyed(Ship *destroyedShip, int time,
         Ship **destroyerShips, int numDestroyers);

@@ -44,6 +44,7 @@ class EventHandler {
     // TODO: consider combining LaserDestroyed with LaserHitShip/Wall
     virtual void handleLaserDestroyed(Laser *laser, int time) = 0;
     virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) = 0;
+    virtual void handleTorpedoDestroyed(Torpedo *torpedo, int time) = 0;
     virtual void handleStageText(StageText *stageText) = 0;
     virtual void tooManyUserGfxRectangles(Team *team) = 0;
     virtual void tooManyUserGfxLines(Team *team) = 0;

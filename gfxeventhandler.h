@@ -94,6 +94,7 @@ class GfxEventHandler : public EventHandler {
     virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser) {};
     virtual void handleLaserDestroyed(Laser *laser, int time) {};
     virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) {};
+    virtual void handleTorpedoDestroyed(Torpedo *torpedo, int time) {};
     virtual void handleStageText(StageText *stageText) {};
     virtual void tooManyUserGfxRectangles(Team *team) {};
     virtual void tooManyUserGfxLines(Team *team) {};

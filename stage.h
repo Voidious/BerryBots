@@ -191,7 +191,7 @@ class Stage {
     int getTorpedoCount();
     void destroyShip(Ship *ship, int gameTime);
     int addEventHandler(EventHandler *eventHandler);
-    void reset();
+    void reset(int time);
   private:
     void checkLaserShipCollisions(Ship **ships, ShipMoveData *shipData,
         int numShips, bool **laserHits, int numLasers, int gameTime,

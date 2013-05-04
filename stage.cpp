@@ -1408,14 +1408,20 @@ int Stage::addEventHandler(EventHandler *eventHandler) {
   }
 }
 
-void Stage::reset() {
+void Stage::reset(int time) {
   startIndex_ = 0;
   for (int x = 0; x < numLasers_; x++) {
+    for (int y = 0; y < numEventHandlers_; y++) {
+      eventHandlers_[y]->handleLaserDestroyed(lasers_[x], time);
+    }
     delete lasers_[x];
     delete laserLines_[x];
   }
   numLasers_ = 0;
   for (int x = 0; x < numTorpedos_; x++) {
+    for (int y = 0; y < numEventHandlers_; y++) {
+      eventHandlers_[y]->handleTorpedoDestroyed(torpedos_[x], time);
+    }
     delete torpedos_[x];
   }
   numTorpedos_ = 0;

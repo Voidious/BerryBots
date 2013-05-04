@@ -932,7 +932,7 @@ void BerryBotsEngine::processStageRun() throw (EngineException*) {
 
 void BerryBotsEngine::processRoundOver() {
   copyShips(stageShips_, ships_, numShips_);
-  stage_->reset();
+  stage_->reset(gameTime_);
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
     if (team->hasRoundOver) {

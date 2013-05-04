@@ -41,6 +41,7 @@ ReplayBuilder::ReplayBuilder(int numShips) {
   laserSparkData_ = new ReplayData(MAX_LASER_CHUNKS);
   torpedoStartData_ = new ReplayData(MAX_MISC_CHUNKS);
   torpedoEndData_ = new ReplayData(MAX_MISC_CHUNKS);
+  torpedoBlastData_ = new ReplayData(MAX_MISC_CHUNKS);
   torpedoDebrisData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipDestroyData_ = new ReplayData(MAX_MISC_CHUNKS);
   textData_ = new ReplayData(MAX_MISC_CHUNKS);
@@ -60,6 +61,7 @@ ReplayBuilder::~ReplayBuilder() {
   delete laserSparkData_;
   delete torpedoStartData_;
   delete torpedoEndData_;
+  delete torpedoBlastData_;
   delete torpedoDebrisData_;
   delete shipDestroyData_;
   delete textData_;
@@ -192,13 +194,19 @@ void ReplayBuilder::addTorpedoStart(Torpedo *torpedo) {
   torpedoStartData_->addInt(round(torpedo->heading * 100));
 }
 
-// Torpedo end format:  (4)
-// torpedo ID | end time | x * 10 | y * 10
+// Torpedo end format:  (3)
+// torpedo ID | end time
 void ReplayBuilder::addTorpedoEnd(Torpedo *torpedo, int time) {
   torpedoEndData_->addInt(torpedo->id);
   torpedoEndData_->addInt(time);
-  torpedoEndData_->addInt(round(torpedo->x * 10));
-  torpedoEndData_->addInt(round(torpedo->y * 10));
+}
+
+// Torpedo blast format:  (3)
+// time | x * 10 | y * 10
+void ReplayBuilder::addTorpedoBlast(Torpedo *torpedo, int time) {
+  torpedoBlastData_->addInt(time);
+  torpedoBlastData_->addInt(round(torpedo->x * 10));
+  torpedoBlastData_->addInt(round(torpedo->y * 10));
 }
 
 // Torpedo debris format:  (7)
@@ -292,8 +300,13 @@ void ReplayEventHandler::handleShipFiredTorpedo(Ship *firingShip,
   replayBuilder_->addTorpedoStart(torpedo);
 }
 
+void ReplayEventHandler::handleTorpedoDestroyed(Torpedo *torpedo, int time) {
+  replayBuilder_->addTorpedoEnd(torpedo, time);
+}
+
 void ReplayEventHandler::handleTorpedoExploded(Torpedo *torpedo, int time) {
   replayBuilder_->addTorpedoEnd(torpedo, time);
+  replayBuilder_->addTorpedoBlast(torpedo, time);
 }
 
 void ReplayEventHandler::handleShipDestroyed(
