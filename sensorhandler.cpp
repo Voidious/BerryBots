@@ -129,7 +129,7 @@ void SensorHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
   }
 }
 
-void SensorHandler::handleTorpedoExploded(double x, double y, int time) {
+void SensorHandler::handleTorpedoExploded(Torpedo *torpedo, int time) {
   // no stage event for this for now, just HitByTorpedo
 }
 
@@ -268,6 +268,10 @@ void SensorHandler::handleShipFiredLaser(Ship *firingShip, Laser *laser) {
       }
     }
   }
+}
+
+void SensorHandler::handleLaserDestroyed(Laser *laser, int time) {
+  // no stage event for this
 }
 
 void SensorHandler::handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) {

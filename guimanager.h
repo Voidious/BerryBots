@@ -311,7 +311,7 @@ class ConsoleEventHandler : public EventHandler {
     virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip, double dx,
         double dy, double laserX, double laserY, double laserHeading,
         int time) {};
-    virtual void handleTorpedoExploded(double x, double y, int time) {};
+    virtual void handleTorpedoExploded(Torpedo *torpedo, int time) {};
     virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
         double dx, double dy, double hitAngle, double hitForce,
         double hitDamage, int time) {};
@@ -321,6 +321,7 @@ class ConsoleEventHandler : public EventHandler {
     virtual void handleShipHitWall(
         Ship *hittingShip, double bounceAngle, double bounceForce, int time) {};
     virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser) {};
+    virtual void handleLaserDestroyed(Laser *laser, int time) {};
     virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) {};
 };
 

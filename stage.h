@@ -35,7 +35,7 @@
 // we're not hitting the far side of a wall. Don't test all the way to
 // intersection point or it will intersect with wall itself.
 #define VERTEX_FUDGE        0.0001
-#define MAX_EVENT_HANDLERS  4
+#define MAX_EVENT_HANDLERS  8
 
 typedef struct {
   double angle;

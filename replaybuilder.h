@@ -19,6 +19,7 @@
 */
 
 #include "bbutil.h"
+#include "eventhandler.h"
 
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
 #define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
@@ -73,7 +74,7 @@ class ReplayBuilder {
     void saveLaserSpark(Laser *laser, int time, double x, double y,
                         double dx, double dy);
     void saveTorpedoStart(Torpedo *torpedo);
-    void saveTorpedoEnd(Torpedo *torpedo, int time, double x, double y);
+    void saveTorpedoEnd(Torpedo *torpedo, int time);
     void saveTorpedoDebris(Ship *ship, int time, double dx, double dy,
                            int parts);
     void saveShipDestroy(Ship *ship, int time);
@@ -84,4 +85,33 @@ class ReplayBuilder {
     void saveShipAdd(int shipIndex, int time);
     void saveShipRemove(int shipIndex, int time);
     int round(double f);
+};
+
+class ReplayEventHandler : public EventHandler {
+  ReplayBuilder *replayBuilder_;
+
+  public:
+    ReplayEventHandler(ReplayBuilder *replayBuilder);
+    virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser);
+    virtual void handleLaserDestroyed(Laser *laser, int time);
+    virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo);
+    virtual void handleTorpedoExploded(Torpedo *torpedo, int time);
+
+    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip, double dx,
+        double dy, double laserX, double laserY, double laserHeading,
+        int time) {};
+    virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
+        double dx, double dy, double hitAngle, double hitForce,
+        double hitDamage, int time) {};
+    virtual void handleShipHitShip(Ship *hittingShip, Ship *targetShip,
+        double inAngle, double inForce, double outAngle, double outForce,
+        int time) {};
+    virtual void handleShipHitWall(Ship *hittingShip, double bounceAngle,
+        double bounceForce, int time) {};
+    virtual void handleShipDestroyed(Ship *destroyedShip, int time,
+        Ship **destroyerShips, int numDestroyers) {};
+    virtual void tooManyUserGfxRectangles(Team *team) {};
+    virtual void tooManyUserGfxLines(Team *team) {};
+    virtual void tooManyUserGfxCircles(Team *team) {};
+    virtual void tooManyUserGfxTexts(Team *team) {};
 };

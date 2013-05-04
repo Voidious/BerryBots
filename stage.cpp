@@ -1041,6 +1041,9 @@ void Stage::moveAndCheckCollisions(
         lasers_[x] = lasers_[numLasers_ - 1];
         laserLines_[x] = laserLines_[numLasers_ - 1];
       }
+      for (int y = 0; y < numEventHandlers_; y++) {
+        eventHandlers_[y]->handleLaserDestroyed(laser, gameTime);
+      }
       delete laser;
       delete laserLine;
       numLasers_--;
@@ -1072,12 +1075,13 @@ void Stage::moveAndCheckCollisions(
       torpedo->y += torpedo->dy;
       torpedo->distanceTraveled += TORPEDO_SPEED;
     } else {
-      double blastX = torpedo->x + cos(torpedo->heading) * distanceRemaining;
-      double blastY = torpedo->y + sin(torpedo->heading) * distanceRemaining;
+      torpedo->x += cos(torpedo->heading) * distanceRemaining;
+      torpedo->y += sin(torpedo->heading) * distanceRemaining;
       for (int y = 0; y < numShips; y++) {
         Ship *ship = ships[y];
         if (ship->alive) {
-          double distSq = square(blastX - ship->x) + square(blastY - ship->y);
+          double distSq =
+              square(torpedo->x - ship->x) + square(torpedo->y - ship->y);
           if (distSq < square(TORPEDO_BLAST_RADIUS)) {
             int firingShipIndex = torpedo->shipIndex;
             torpedoHits[firingShipIndex][y] = true;
@@ -1088,7 +1092,8 @@ void Stage::moveAndCheckCollisions(
             double blastForce = blastFactor * TORPEDO_BLAST_FORCE;
             double blastDamage = blastFactor
                 * (ship->energyEnabled ? TORPEDO_BLAST_DAMAGE : 0);
-            double blastAngle = atan2(ship->y - blastY, ship->x - blastX);
+            double blastAngle =
+                atan2(ship->y - torpedo->y, ship->x - torpedo->x);
             double damageScore = (blastDamage / DEFAULT_ENERGY);
             if (ship->teamIndex == ships[firingShipIndex]->teamIndex) {
               ships[firingShipIndex]->friendlyDamage += damageScore;
@@ -1114,7 +1119,7 @@ void Stage::moveAndCheckCollisions(
       }
 
       for (int z = 0; z < numEventHandlers_; z++) {
-        eventHandlers_[z]->handleTorpedoExploded(blastX, blastY, gameTime);
+        eventHandlers_[z]->handleTorpedoExploded(torpedo, gameTime);
       }
 
       if (numTorpedos_ > 1) {

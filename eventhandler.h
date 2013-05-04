@@ -28,7 +28,7 @@ class EventHandler {
     virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip, double dx,
         double dy, double laserX, double laserY, double laserHeading,
         int time) = 0;
-    virtual void handleTorpedoExploded(double x, double y, int time) = 0;
+    virtual void handleTorpedoExploded(Torpedo *torpedo, int time) = 0;
     virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
         double dx, double dy, double hitAngle, double hitForce,
         double hitDamage, int time) = 0;
@@ -42,6 +42,8 @@ class EventHandler {
     virtual void handleShipDestroyed(Ship *destroyedShip, int time,
         Ship **destroyerShips, int numDestroyers) = 0;
     virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser) = 0;
+    // TODO: consider combining LaserDestroyed with LaserHitShip/Wall
+    virtual void handleLaserDestroyed(Laser *laser, int time) = 0;
     virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) = 0;
     virtual void tooManyUserGfxRectangles(Team *team) = 0;
     virtual void tooManyUserGfxLines(Team *team) = 0;

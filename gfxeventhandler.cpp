@@ -48,11 +48,11 @@ void GfxEventHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
   }
 }
 
-void GfxEventHandler::handleTorpedoExploded(double x, double y, int time) {
+void GfxEventHandler::handleTorpedoExploded(Torpedo *torpedo, int time) {
   if (numTorpedoBlasts_ < MAX_TORPEDOS) {
     TorpedoBlastGraphic *blastGraphic = new TorpedoBlastGraphic;
-    blastGraphic->x = x;
-    blastGraphic->y = y;
+    blastGraphic->x = torpedo->x;
+    blastGraphic->y = torpedo->y;
     blastGraphic->time = time;
     torpedoBlasts_[numTorpedoBlasts_++] = blastGraphic;
   }
