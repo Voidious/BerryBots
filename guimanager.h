@@ -320,10 +320,8 @@ class ConsoleEventHandler : public EventHandler {
         int time) {};
     virtual void handleShipHitWall(
         Ship *hittingShip, double bounceAngle, double bounceForce, int time) {};
-    virtual void handleShipFiredLaser(
-        Ship *firingShip, double laserHeading, int time) {};
-    virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,
-        double torpedoDistance, int time) {};
+    virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser) {};
+    virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) {};
 };
 
 class StageConsoleListener : public ConsoleListener {

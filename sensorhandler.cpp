@@ -243,15 +243,14 @@ void SensorHandler::handleShipDestroyed(Ship *destroyedShip, int time,
   }
 }
 
-void SensorHandler::handleShipFiredLaser(
-    Ship *firingShip, double laserHeading, int time) {
+void SensorHandler::handleShipFiredLaser(Ship *firingShip, Laser *laser) {
   if (numStageShipFiredLasers_ < MAX_SHIP_FIRED_LASERS) {
     StageShipFiredLaser *shipFiredLaser = new StageShipFiredLaser;
-    shipFiredLaser->time = time;
+    shipFiredLaser->time = laser->fireTime;
     shipFiredLaser->shipIndex = firingShip->index;
     shipFiredLaser->shipX = firingShip->x;
     shipFiredLaser->shipY = firingShip->y;
-    shipFiredLaser->laserHeading = laserHeading;
+    shipFiredLaser->laserHeading = laser->heading;
     stageShipFiredLasers_[numStageShipFiredLasers_++] = shipFiredLaser;
   }
 
@@ -261,7 +260,7 @@ void SensorHandler::handleShipFiredLaser(
     if (x != teamIndex && teamVision_[x][targetShipIndex]) {
       if (numShipFiredLasers_[x] < MAX_SHIP_FIRED_LASERS) {
         ShipFiredLaser *shipFiredLaser = new ShipFiredLaser;
-        shipFiredLaser->time = time;
+        shipFiredLaser->time = laser->fireTime;
         shipFiredLaser->shipIndex = targetShipIndex;
         shipFiredLaser->shipX = firingShip->x;
         shipFiredLaser->shipY = firingShip->y;
@@ -271,16 +270,15 @@ void SensorHandler::handleShipFiredLaser(
   }
 }
 
-void SensorHandler::handleShipFiredTorpedo(
-    Ship *firingShip, double torpedoHeading, double torpedoDistance, int time) {
+void SensorHandler::handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) {
   if (numStageShipFiredTorpedos_ < MAX_SHIP_FIRED_TORPEDOS) {
     StageShipFiredTorpedo *shipFiredTorpedo = new StageShipFiredTorpedo;
-    shipFiredTorpedo->time = time;
+    shipFiredTorpedo->time = torpedo->fireTime;
     shipFiredTorpedo->shipIndex = firingShip->index;
     shipFiredTorpedo->shipX = firingShip->x;
     shipFiredTorpedo->shipY = firingShip->y;
-    shipFiredTorpedo->torpedoHeading = torpedoHeading;
-    shipFiredTorpedo->torpedoDistance = torpedoDistance;
+    shipFiredTorpedo->torpedoHeading = torpedo->heading;
+    shipFiredTorpedo->torpedoDistance = torpedo->distance;
     stageShipFiredTorpedos_[numStageShipFiredTorpedos_++] = shipFiredTorpedo;
   }
 
@@ -290,7 +288,7 @@ void SensorHandler::handleShipFiredTorpedo(
     if (x != teamIndex && teamVision_[x][firingShipIndex]) {
       if (numShipFiredTorpedos_[x] < MAX_SHIP_FIRED_TORPEDOS) {
         ShipFiredTorpedo *shipFiredTorpedo = new ShipFiredTorpedo;
-        shipFiredTorpedo->time = time;
+        shipFiredTorpedo->time = torpedo->fireTime;
         shipFiredTorpedo->shipIndex = firingShipIndex;
         shipFiredTorpedo->shipX = firingShip->x;
         shipFiredTorpedo->shipY = firingShip->y;

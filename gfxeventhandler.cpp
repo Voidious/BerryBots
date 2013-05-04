@@ -81,17 +81,6 @@ void GfxEventHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
   }
 }
 
-void GfxEventHandler::handleShipHitShip(Ship *hittingShip, Ship *targetShip,
-    double inAngle, double inForce, double outAngle, double outForce,
-    int time) {
-
-}
-
-void GfxEventHandler::handleShipHitWall(
-    Ship *hittingShip, double bounceAngle, double bounceForce, int time) {
-
-}
-
 void GfxEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
     Ship **destroyerShips, int numDestroyers) {
   if (numShipDeaths_ < MAX_SHIP_DEATHS) {
@@ -102,16 +91,6 @@ void GfxEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
     deathGraphic->time = time;
     shipDeaths_[numShipDeaths_++] = deathGraphic;
   }
-}
-
-void GfxEventHandler::handleShipFiredLaser(
-    Ship *firingShip, double laserHeading, int time) {
-  
-}
-
-void GfxEventHandler::handleShipFiredTorpedo(
-    Ship *firingShip, double torpedoHeading, double torpedoDistance, int time) {
-  
 }
 
 LaserHitShipGraphic** GfxEventHandler::getLaserHits() {

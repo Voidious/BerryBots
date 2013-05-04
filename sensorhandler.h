@@ -205,10 +205,8 @@ class SensorHandler : public EventHandler {
         Ship *hittingShip, double bounceAngle, double bounceForce, int time);
     virtual void handleShipDestroyed(Ship *destroyedShip, int time,
         Ship **destroyerShips, int numDestroyers);
-    virtual void handleShipFiredLaser(
-        Ship *firingShip, double laserHeading, int time);
-    virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,
-        double torpedoDistance, int time);
+    virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser);
+    virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo);
     virtual void tooManyUserGfxRectangles(Team *team) {};
     virtual void tooManyUserGfxLines(Team *team) {};
     virtual void tooManyUserGfxCircles(Team *team) {};

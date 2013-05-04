@@ -41,10 +41,8 @@ class EventHandler {
         double bounceForce, int time) = 0;
     virtual void handleShipDestroyed(Ship *destroyedShip, int time,
         Ship **destroyerShips, int numDestroyers) = 0;
-    virtual void handleShipFiredLaser(
-        Ship *firingShip, double laserHeading, int time) = 0;
-    virtual void handleShipFiredTorpedo(Ship *firingShip, double torpedoHeading,
-        double torpedoDistance, int time) = 0;
+    virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser) = 0;
+    virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) = 0;
     virtual void tooManyUserGfxRectangles(Team *team) = 0;
     virtual void tooManyUserGfxLines(Team *team) = 0;
     virtual void tooManyUserGfxCircles(Team *team) = 0;

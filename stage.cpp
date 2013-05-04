@@ -1298,10 +1298,6 @@ int Stage::fireLaser(Ship *ship, double heading, int gameTime) {
   if (ship->laserGunHeat > 0 || numLasers_ >= MAX_LASERS) {
     return 0;
   } else {
-    for (int z = 0; z < numEventHandlers_; z++) {
-      eventHandlers_[z]->handleShipFiredLaser(ship, heading, gameTime);
-    }
-
     double cosHeading = cos(heading);
     double sinHeading = sin(heading);
     double laserX = ship->x + (cosHeading * LASER_SPEED);
@@ -1325,6 +1321,10 @@ int Stage::fireLaser(Ship *ship, double heading, int gameTime) {
       lasers_[numLasers_] = laser;
       laserLines_[numLasers_++] = new Line2D(
           laser->x - laser->dx, laser->y - laser->dy, laser->x, laser->y);
+
+      for (int z = 0; z < numEventHandlers_; z++) {
+        eventHandlers_[z]->handleShipFiredLaser(ship, laser);
+      }
     }
 
     return 1;
@@ -1356,8 +1356,7 @@ int Stage::fireTorpedo(
     torpedos_[numTorpedos_++] = torpedo;
 
     for (int z = 0; z < numEventHandlers_; z++) {
-      eventHandlers_[z]->handleShipFiredTorpedo(
-          ship, heading, distance, gameTime);
+      eventHandlers_[z]->handleShipFiredTorpedo(ship, torpedo);
     }
 
     return 1;
