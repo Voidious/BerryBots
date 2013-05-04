@@ -104,7 +104,8 @@ class ReplayEventHandler : public EventHandler {
     virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
         double dx, double dy, double hitAngle, double hitForce,
         double hitDamage, int time);
-  
+    virtual void handleStageText(StageText *stageText);
+
     virtual void handleShipHitShip(Ship *hittingShip, Ship *targetShip,
         double inAngle, double inForce, double outAngle, double outForce,
         int time) {};

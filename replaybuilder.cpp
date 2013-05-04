@@ -313,3 +313,10 @@ void ReplayEventHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
   int parts = ceil((hitDamage / TORPEDO_BLAST_DAMAGE) * MAX_TORPEDO_SPARKS);
   replayBuilder_->saveTorpedoDebris(targetShip, time, dx, dy, parts);
 }
+
+void ReplayEventHandler::handleStageText(StageText *stageText) {
+  RgbaColor textColor {stageText->textR, stageText->textG, stageText->textB,
+                       stageText->textA};
+  replayBuilder_->saveText(stageText->startTime, stageText->text, stageText->x,
+      stageText->y, stageText->fontSize, textColor, stageText->drawTicks);
+}

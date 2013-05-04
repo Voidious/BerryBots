@@ -336,6 +336,12 @@ int Stage::addStageText(int gameTime, const char *text, double x, double y,
     stageText->startTime = gameTime;
     stageText->drawTicks = drawTicks;
     stageTexts_[numStageTexts_++] = stageText;
+
+    // TODO: Both event handling and having GfxManager fetch these is weird.
+    for (int x = 0; x < numEventHandlers_; x++) {
+      eventHandlers_[x]->handleStageText(stageText);
+    }
+
     return 1;
   }
 }
