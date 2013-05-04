@@ -46,10 +46,11 @@
 #include "resultsdialog.h"
 #include "printhandler.h"
 #include "guiprinthandler.h"
-#include "guimanager.h"
 #include "basedir.h"
 #include "bbwx.h"
 #include "guizipper.h"
+#include "replaybuilder.h"
+#include "guimanager.h"
 
 extern PrintHandler *printHandler;
 
@@ -734,6 +735,7 @@ void GuiManager::runCurrentMatch() {
         if (engine_->isGameOver() && !showedResults_) {
           showResults();
           showedResults_ = true;
+          engine_->getReplayBuilder()->saveReplay("test2.bbr");
         }
       }
     }

@@ -106,6 +106,7 @@ class BerryBotsEngine {
   bool hasRanks_;
   bool hasScores_;
   ReplayBuilder *replayBuilder_;
+  ReplayEventHandler *replayHandler_;
 
   public:
     BerryBotsEngine(FileManager *manager);
@@ -158,6 +159,7 @@ class BerryBotsEngine {
     static void* timer(void *vargs);
     int callUserLuaCode(lua_State *L,int nargs, const char *errorMsg,
                         int callStyle) throw (EngineException*);
+    ReplayBuilder* getReplayBuilder();
   private:
     void initReplayBuilder(int numShips, Stage *stage);
     void processWinnerRanksScores();

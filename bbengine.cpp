@@ -32,6 +32,7 @@
 #include "printhandler.h"
 #include "zipper.h"
 #include "filemanager.h"
+#include "replaybuilder.h"
 #include "bbengine.h"
 
 extern PrintHandler *printHandler;
@@ -82,6 +83,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
   // TODO: how to handle failure to create thread
 
   replayBuilder_ = 0;
+  replayHandler_ = 0;
 }
 
 BerryBotsEngine::~BerryBotsEngine() {
@@ -165,6 +167,9 @@ BerryBotsEngine::~BerryBotsEngine() {
   }
   if (replayBuilder_ != 0) {
     delete replayBuilder_;
+  }
+  if (replayHandler_ != 0) {
+    delete replayHandler_;
   }
 }
 
@@ -816,20 +821,22 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
 
 void BerryBotsEngine::initReplayBuilder(int numShips, Stage *stage) {
   replayBuilder_ = new ReplayBuilder(numShips);
+  replayHandler_ = new ReplayEventHandler(replayBuilder_);
+  stage_->addEventHandler(replayHandler_);
   replayBuilder_->addStageSize(stage->getWidth(), stage->getHeight());
   Wall **walls = stage->getWalls();
   int numWalls = stage->getWallCount();
   for (int x = 0; x < numWalls; x++) {
     Wall *wall = walls[x];
     replayBuilder_->addWall(wall->getLeft(), wall->getBottom(),
-                             wall->getWidth(), wall->getHeight());
+                            wall->getWidth(), wall->getHeight());
   }
   Zone **zones = stage->getZones();
   int numZones = stage->getZoneCount();
   for (int x = 0; x < numZones; x++) {
     Zone *zone = zones[x];
     replayBuilder_->addZone(zone->getLeft(), zone->getBottom(),
-                             zone->getWidth(), zone->getHeight());
+                            zone->getWidth(), zone->getHeight());
   }
 }
 
@@ -1044,6 +1051,10 @@ void BerryBotsEngine::copyShips(
   for (int x = 0; x < numShips; x++) {
     *(destShips[x]) = *(srcShips[x]);
   }
+}
+
+ReplayBuilder* BerryBotsEngine::getReplayBuilder() {
+  return replayBuilder_;
 }
 
 // Note: We don't have to log stage errors to the output console because they

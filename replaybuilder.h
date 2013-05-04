@@ -18,6 +18,9 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+#ifndef REPLAY_BUILDER_H
+#define REPLAY_BUILDER_H
+
 #include "bbutil.h"
 #include "eventhandler.h"
 
@@ -26,6 +29,7 @@
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
 #define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
 #define MAX_LASER_CHUNKS      640              // 20 megs lasers/sparks
+#define MAX_TEXT_CHUNKS       640              // 20 megs
 #define MAX_MISC_CHUNKS       32               // 1 meg each
 #define MAX_TORPEDO_SPARKS    30
 
@@ -43,6 +47,8 @@ class ReplayData {
     ReplayData(int maxChunks);
     ~ReplayData();
     void addInt(int x);
+    int getSize();
+    void writeChunks(FILE *f);
 };
 
 class ReplayBuilder {
@@ -64,6 +70,7 @@ class ReplayBuilder {
   ReplayData *torpedoDebrisData_;
   ReplayData *shipDestroyData_;
   ReplayData *textData_;
+  int numTexts_;
   
   public:
     ReplayBuilder(int numShips);
@@ -85,7 +92,7 @@ class ReplayBuilder {
     void addShipDestroy(Ship *ship, int time);
     void addText(int time, const char *text, double x, double y, int size,
                   RgbaColor textColor, int duration);
-
+    void saveReplay(const char *filename);
   private:
     void addShip(int shipIndex, int time);
     void removeShip(int shipIndex, int time);
@@ -121,3 +128,5 @@ class ReplayEventHandler : public EventHandler {
     virtual void tooManyUserGfxCircles(Team *team) {};
     virtual void tooManyUserGfxTexts(Team *team) {};
 };
+
+#endif

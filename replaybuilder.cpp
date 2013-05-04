@@ -20,6 +20,8 @@
 
 #include <math.h>
 #include <algorithm>
+#include <stdio.h>
+#include "filemanager.h"
 #include "bbutil.h"
 #include "replaybuilder.h"
 
@@ -44,7 +46,8 @@ ReplayBuilder::ReplayBuilder(int numShips) {
   torpedoBlastData_ = new ReplayData(MAX_MISC_CHUNKS);
   torpedoDebrisData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipDestroyData_ = new ReplayData(MAX_MISC_CHUNKS);
-  textData_ = new ReplayData(MAX_MISC_CHUNKS);
+  textData_ = new ReplayData(MAX_TEXT_CHUNKS);
+  numTexts_ = 0;
 }
 
 ReplayBuilder::~ReplayBuilder() {
@@ -144,12 +147,14 @@ void ReplayBuilder::addShipStates(Ship **ships, int time) {
 
   for (int x = 0; x < numShips_; x++) {
     Ship *ship = ships[x];
-    shipTickData_->addInt(round(ship->x * 10));
-    shipTickData_->addInt(round(ship->y * 10));
-    shipTickData_->addInt(
-        round(normalAbsoluteAngle(ship->thrusterAngle) * 100));
-    shipTickData_->addInt(round(limit(0, ship->thrusterForce, 1) * 100));
-    shipTickData_->addInt(round(std::max(0.0, ship->energy) * 10));
+    if (ship->alive) {
+      shipTickData_->addInt(round(ship->x * 10));
+      shipTickData_->addInt(round(ship->y * 10));
+      shipTickData_->addInt(
+          round(normalAbsoluteAngle(ship->thrusterAngle) * 100));
+      shipTickData_->addInt(round(limit(0, ship->thrusterForce, 1) * 100));
+      shipTickData_->addInt(round(std::max(0.0, ship->energy) * 10));
+    }
   }
 }
 
@@ -194,7 +199,7 @@ void ReplayBuilder::addTorpedoStart(Torpedo *torpedo) {
   torpedoStartData_->addInt(round(torpedo->heading * 100));
 }
 
-// Torpedo end format:  (3)
+// Torpedo end format:  (2)
 // torpedo ID | end time
 void ReplayBuilder::addTorpedoEnd(Torpedo *torpedo, int time) {
   torpedoEndData_->addInt(torpedo->id);
@@ -234,7 +239,7 @@ void ReplayBuilder::addShipDestroy(Ship *ship, int time) {
 // Text format:  (variable)
 // time | textLength | text | x * 10 | y * 10 | size | text R | G | B | A | duration
 void ReplayBuilder::addText(int time, const char *text, double x, double y,
-                             int size, RgbaColor textColor, int duration) {
+                            int size, RgbaColor textColor, int duration) {
   textData_->addInt(time);
   int textLength = (int) strlen(text);
   textData_->addInt(textLength);
@@ -249,10 +254,94 @@ void ReplayBuilder::addText(int time, const char *text, double x, double y,
   textData_->addInt(textColor.b);
   textData_->addInt(textColor.a);
   textData_->addInt(duration);
+  numTexts_++;
 }
 
 int ReplayBuilder::round(double f) {
   return floor(f + .5);
+}
+
+// Format of saved replay file:
+// | replay version
+// | stage width | stage height | num walls | <walls> | num zones | <zones>
+// | num ships | <ship properties> | num ship adds | <ship adds>
+// | num ship removes | <ship removes> | num ship ticks | <ship ticks>
+// | num laser starts | <laser starts> | num laser ends | <laser ends>
+// | num laser sparks | <laser sparks>
+// | num torpedo starts | <torpedo starts> | num torpedo ends | <torpedo ends>
+// | num torpedo blasts | <torpedo blasts> | num torpedo debris | <torpedo debris>
+// | num ship destroys | <ship destroys> | num texts | <texts>
+void ReplayBuilder::saveReplay(const char *filename) {
+  FileManager *fileManager = new FileManager();
+  char *absFilename = fileManager->getFilePath("/Users/pcupka", filename);
+  FILE *f = fopen(absFilename, "wb");
+
+  int v = REPLAY_VERSION;
+  fwrite(&v, sizeof(int), 1, f);
+
+  stagePropertiesData_->writeChunks(f);
+
+  int numWalls = wallsData_->getSize() / 4;
+  fwrite(&numWalls, sizeof(int), 1, f);
+  wallsData_->writeChunks(f);
+
+  int numZones = zonesData_->getSize() / 4;
+  fwrite(&numZones, sizeof(int), 1, f);
+  zonesData_->writeChunks(f);
+
+  fwrite(&numShips_, sizeof(int), 1, f);
+  shipPropertiesData_->writeChunks(f);
+
+  int numAddShips = shipAddData_->getSize() / 2;
+  fwrite(&numAddShips, sizeof(int), 1, f);
+  shipAddData_->writeChunks(f);
+
+  int numRemoveShips = shipRemoveData_->getSize() / 2;
+  fwrite(&numRemoveShips, sizeof(int), 1, f);
+  shipRemoveData_->writeChunks(f);
+
+  int numShipTicks = shipTickData_->getSize() / 5;
+  fwrite(&numShipTicks, sizeof(int), 1, f);
+  shipTickData_->writeChunks(f);
+
+  int numLaserStarts = laserStartData_->getSize() / 6;
+  fwrite(&numLaserStarts, sizeof(int), 1, f);
+  laserStartData_->writeChunks(f);
+
+  int numLaserEnds = laserEndData_->getSize() / 2;
+  fwrite(&numLaserEnds, sizeof(int), 1, f);
+  laserEndData_->writeChunks(f);
+
+  int numLaserSparks = laserSparkData_->getSize() / 6;
+  fwrite(&numLaserSparks, sizeof(int), 1, f);
+  laserSparkData_->writeChunks(f);
+
+  int numTorpedoStarts = torpedoStartData_->getSize() / 6;
+  fwrite(&numTorpedoStarts, sizeof(int), 1, f);
+  torpedoStartData_->writeChunks(f);
+
+  int numTorpedoEnds = torpedoEndData_->getSize() / 2;
+  fwrite(&numTorpedoEnds, sizeof(int), 1, f);
+  torpedoEndData_->writeChunks(f);
+
+  int numTorpedoBlasts = torpedoBlastData_->getSize() / 3;
+  fwrite(&numTorpedoBlasts, sizeof(int), 1, f);
+  torpedoBlastData_->writeChunks(f);
+
+  int numTorpedoDebris = torpedoDebrisData_->getSize() / 7;
+  fwrite(&numTorpedoDebris, sizeof(int), 1, f);
+  torpedoDebrisData_->writeChunks(f);
+
+  int numShipDestroys = shipDestroyData_->getSize() / 4;
+  fwrite(&numShipDestroys, sizeof(int), 1, f);
+  shipDestroyData_->writeChunks(f);
+  
+  fwrite(&numTexts_, sizeof(int), 1, f);
+  textData_->writeChunks(f);
+
+  fclose(f);
+  delete absFilename;
+  delete fileManager;
 }
 
 ReplayData::ReplayData(int maxChunks) {
@@ -281,6 +370,16 @@ void ReplayData::addInt(int x) {
     chunk->size = 0;
   }
   chunk->data[chunk->size++] = x;
+}
+
+int ReplayData::getSize() {
+  return ((numChunks_ - 1) * CHUNK_SIZE) + chunks_[numChunks_ - 1]->size;
+}
+
+void ReplayData::writeChunks(FILE *f) {
+  for (int x = 0; x < numChunks_; x++) {
+    fwrite(chunks_[x], sizeof(int), chunks_[x]->size, f);
+  }
 }
 
 ReplayEventHandler::ReplayEventHandler(ReplayBuilder *replayBuilder) {
