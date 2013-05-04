@@ -33,7 +33,7 @@ typedef struct {
 } ReplayChunk;
 
 class ReplayData {
-  ReplayChunk* chunks_[MAX_MISC_CHUNKS];
+  ReplayChunk **chunks_;
   int numChunks_;
   int maxChunks_;
 

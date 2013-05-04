@@ -248,6 +248,7 @@ int ReplayBuilder::round(double f) {
 }
 
 ReplayData::ReplayData(int maxChunks) {
+  chunks_ = new ReplayChunk*[maxChunks];
   maxChunks_ = maxChunks;
   chunks_[0] = new ReplayChunk;
   chunks_[0]->size = 0;
@@ -258,6 +259,7 @@ ReplayData::~ReplayData() {
   for (int x = 0; x < numChunks_; x++) {
     delete chunks_[x];
   }
+  delete chunks_;
 }
 
 void ReplayData::saveInt(int x) {
