@@ -293,3 +293,21 @@ void ReplayEventHandler::handleShipFiredTorpedo(Ship *firingShip,
 void ReplayEventHandler::handleTorpedoExploded(Torpedo *torpedo, int time) {
   replayBuilder_->saveTorpedoEnd(torpedo, time);
 }
+
+void ReplayEventHandler::handleShipDestroyed(
+    Ship *destroyedShip, int time, Ship **destroyerShips, int numDestroyers) {
+  replayBuilder_->saveShipDestroy(destroyedShip, time);
+}
+
+void ReplayEventHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
+    Laser *laser, double dx, double dy, int time) {
+  replayBuilder_->saveLaserSpark(
+      laser, time, targetShip->x, targetShip->y, dx, dy);
+}
+
+void ReplayEventHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
+    double dx, double dy, double hitAngle, double hitForce, double hitDamage,
+    int time) {
+  int parts = ceil((hitDamage / TORPEDO_BLAST_DAMAGE) * MAX_TORPEDO_SPARKS);
+  replayBuilder_->saveTorpedoDebris(targetShip, time, dx, dy, parts);
+}

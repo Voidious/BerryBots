@@ -30,8 +30,7 @@ GfxEventHandler::GfxEventHandler() {
 }
 
 void GfxEventHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
-    double dx, double dy, double laserX, double laserY, double hitAngle,
-    int time) {
+    Laser *laser, double dx, double dy, int time) {
   if (numLaserHits_ < MAX_LASERS) {
     LaserHitShipGraphic *hitGraphic = new LaserHitShipGraphic;
     hitGraphic->srcShipIndex = srcShip->index;

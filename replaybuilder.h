@@ -25,6 +25,7 @@
 #define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
 #define MAX_LASER_CHUNKS      640              // 20 megs lasers/sparks
 #define MAX_MISC_CHUNKS       32               // 1 meg each
+#define MAX_TORPEDO_SPARKS    30
 
 typedef struct {
   int data[CHUNK_SIZE];
@@ -96,20 +97,19 @@ class ReplayEventHandler : public EventHandler {
     virtual void handleLaserDestroyed(Laser *laser, int time);
     virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo);
     virtual void handleTorpedoExploded(Torpedo *torpedo, int time);
-
-    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip, double dx,
-        double dy, double laserX, double laserY, double laserHeading,
-        int time) {};
+    virtual void handleShipDestroyed(Ship *destroyedShip, int time,
+        Ship **destroyerShips, int numDestroyers);
+    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip,
+        Laser *laser, double dx, double dy, int time);
     virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
         double dx, double dy, double hitAngle, double hitForce,
-        double hitDamage, int time) {};
+        double hitDamage, int time);
+  
     virtual void handleShipHitShip(Ship *hittingShip, Ship *targetShip,
         double inAngle, double inForce, double outAngle, double outForce,
         int time) {};
     virtual void handleShipHitWall(Ship *hittingShip, double bounceAngle,
         double bounceForce, int time) {};
-    virtual void handleShipDestroyed(Ship *destroyedShip, int time,
-        Ship **destroyerShips, int numDestroyers) {};
     virtual void tooManyUserGfxRectangles(Team *team) {};
     virtual void tooManyUserGfxLines(Team *team) {};
     virtual void tooManyUserGfxCircles(Team *team) {};

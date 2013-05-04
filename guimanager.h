@@ -308,9 +308,8 @@ class ConsoleEventHandler : public EventHandler {
     virtual void tooManyUserGfxCircles(Team *team);
     virtual void tooManyUserGfxTexts(Team *team);
 
-    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip, double dx,
-        double dy, double laserX, double laserY, double laserHeading,
-        int time) {};
+    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip,
+        Laser *laser, double dx, double dy, int time) {};
     virtual void handleTorpedoExploded(Torpedo *torpedo, int time) {};
     virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
         double dx, double dy, double hitAngle, double hitForce,

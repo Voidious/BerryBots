@@ -90,17 +90,16 @@ SensorHandler::SensorHandler(Team **teams, int numTeams, bool **teamVision) {
 }
 
 void SensorHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
-    double dx, double dy, double laserX, double laserY, double laserHeading,
-    int time) {
+    Laser *laser, double dx, double dy, int time) {
   int targetShipIndex = targetShip->index;
   int teamIndex = targetShip->teamIndex;
   if (numHitByLasers_[teamIndex] < MAX_HIT_BY_LASERS) {
     HitByLaser *hitByLaser = new HitByLaser;
     hitByLaser->time = time;
     hitByLaser->targetShipIndex = targetShipIndex;
-    hitByLaser->laserX = laserX;
-    hitByLaser->laserY = laserY;
-    hitByLaser->laserHeading = laserHeading;
+    hitByLaser->laserX = laser->x;
+    hitByLaser->laserY = laser->y;
+    hitByLaser->laserHeading = laser->heading;
     hitByLasers_[teamIndex][numHitByLasers_[teamIndex]++] = hitByLaser;
   }
 
@@ -122,9 +121,9 @@ void SensorHandler::handleLaserHitShip(Ship *srcShip, Ship *targetShip,
     laserHitShip->time = time;
     laserHitShip->srcShipIndex = srcShip->index;
     laserHitShip->targetShipIndex = targetShipIndex;
-    laserHitShip->laserX = laserX;
-    laserHitShip->laserY = laserY;
-    laserHitShip->laserHeading = laserHeading;
+    laserHitShip->laserX = laser->x;
+    laserHitShip->laserY = laser->y;
+    laserHitShip->laserHeading = laser->heading;
     stageLaserHitShips_[numStageLaserHitShips_++] = laserHitShip;
   }
 }

@@ -1213,8 +1213,8 @@ void Stage::checkLaserShipCollisions(Ship **ships, ShipMoveData *shipData,
           ship->energy -= laserDamage;
           for (int z = 0; z < numEventHandlers_; z++) {
             eventHandlers_[z]->handleLaserHitShip(ships[laser->shipIndex],
-                ship, shipDatum->startXSpeed, shipDatum->startYSpeed, laser->x,
-                laser->y, laser->heading, gameTime);
+                ship, laser, shipDatum->startXSpeed, shipDatum->startYSpeed,
+                gameTime);
           }
 
           if (ship->energy <= 0) {
