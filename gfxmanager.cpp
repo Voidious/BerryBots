@@ -59,7 +59,7 @@ GfxManager::GfxManager(bool showDock) {
   destroyedShape_.setRadius(SHIP_DEATH_RADIUS);
   laserSparkShape_.setSize(sf::Vector2f(LASER_SPARK_LENGTH,
                                         LASER_SPARK_THICKNESS));
-  laserSparkPoint_ = sf::Vector2f(DRAW_SHIP_RADIUS, -0.5);
+  laserSparkPoint_ = sf::Vector2f(DRAW_SHIP_RADIUS, -LASER_SPARK_THICKNESS / 2);
   laserShape_.setSize(sf::Vector2f(LASER_SPEED, LASER_THICKNESS));
   laserPoint_ = sf::Vector2f(0, LASER_THICKNESS / 2);
   torpedoSparkShape_.setRadius(TORPEDO_SPARK_RADIUS);
