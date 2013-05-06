@@ -62,7 +62,7 @@ use strict;
 # | num torpedo blasts | <torpedo blasts> | num torpedo debris | <torpedo debris>
 # | num ship destroys | <ship destroys> | num texts | <texts>
 
-my $filename = "/Users/pcupka/test2.bbr";
+my $filename = "/Users/pcupka/replay1.bbr";
 
 open(REPLAYFILE, "<" . $filename) || die "Can't open file";
 binmode(REPLAYFILE); 
@@ -104,7 +104,7 @@ for (my $x = 0; $x < $numShips; $x++) {
     $name .= chr(unpack 'i', <REPLAYFILE>);
   }
   print("Ship " . $x . " name: " . $name . "\n");
-  $hexString .= $name . ":";
+  $hexString .= escapeColons($name) . ":";
 }
 
 my $numShipAdds = processDataBlock(2);
@@ -152,7 +152,7 @@ for (my $x = 0; $x < $numTexts; $x++) {
   for (my $y = 0; $y < $textLength; $y++) {
     $text .= chr(unpack 'i', <REPLAYFILE>);
   }
-  $hexString .= $text . ":";
+  $hexString .= escapeColons($text) . ":";
 
   for (my $y = 0; $y < 3; $y++) {
     my $z = unpack 'i', <REPLAYFILE>;
@@ -196,4 +196,10 @@ sub hexAppend {
   } else {
     $hexString .= "-" . sprintf("%x", $i * -1) . ":";
   }
+}
+
+sub escapeColons {
+  my $s = $_[0];
+  $s =~ s/:/\\\\:/g;
+  return $s;
 }
