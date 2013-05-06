@@ -326,219 +326,222 @@ var anim = new Kinetic.Animation(function(frame) {
       timeDiff = frame.timeDiff,
       frameRate = frame.frameRate;
 
-  // Lasers.
-  while (nextLaserStart < numLaserStarts
-         && laserStarts[nextLaserStart].fireTime <= gameTime) {
-    var laserStart = laserStarts[nextLaserStart++];
-    var laser = laserProto.clone();
-    var dx = Math.cos(laserStart.heading) * LASER_SPEED;
-    var dy = Math.sin(laserStart.heading) * LASER_SPEED;
-    laser.setX(laserStart.srcX);
-    laser.setY(laserStart.srcY);
-    laser.setFill(ships[laserStart.shipIndex].laserColor);
-    laser.setRotation(TWO_PI - laserStart.heading);
-    laser.laserData = {dx: dx, dy: dy, id: laserStart.id};
-    lasers.push(laser);
-    layer.add(laser);
-  }
+  if (nextShipState < numShipStates) {
+    // Lasers.
+    while (nextLaserStart < numLaserStarts
+           && laserStarts[nextLaserStart].fireTime <= gameTime) {
+      var laserStart = laserStarts[nextLaserStart++];
+      var laser = laserProto.clone();
+      var dx = Math.cos(laserStart.heading) * LASER_SPEED;
+      var dy = Math.sin(laserStart.heading) * LASER_SPEED;
+      laser.setX(laserStart.srcX);
+      laser.setY(laserStart.srcY);
+      laser.setFill(ships[laserStart.shipIndex].laserColor);
+      laser.setRotation(TWO_PI - laserStart.heading);
+      laser.laserData = {dx: dx, dy: dy, id: laserStart.id};
+      lasers.push(laser);
+      layer.add(laser);
+    }
 
-  while (nextLaserEnd < numLaserEnds
-         && laserEnds[nextLaserEnd].time <= gameTime) {
-    var laserEnd = laserEnds[nextLaserEnd++];
-    // TODO: use a map instead?
+    while (nextLaserEnd < numLaserEnds
+           && laserEnds[nextLaserEnd].time <= gameTime) {
+      var laserEnd = laserEnds[nextLaserEnd++];
+      // TODO: use a map instead?
+      for (var x = 0; x < lasers.length; x++) {
+        var laser = lasers[x];
+        if (laser.laserData.id == laserEnd.id) {
+          lasers.splice(x--, 1);
+          laser.hide(); // TODO: need to remove it from the layer too?
+        }
+      }
+    }
+
     for (var x = 0; x < lasers.length; x++) {
       var laser = lasers[x];
-      if (laser.laserData.id == laserEnd.id) {
-        lasers.splice(x--, 1);
-        laser.hide(); // TODO: need to remove it from the layer too?
+      laser.setX(laser.getX() + laser.laserData.dx);
+      laser.setY(laser.getY() - laser.laserData.dy);
+    }
+
+    for (var x = 0; x < laserSparkRects.length; x++) {
+      var laserSparkRect = laserSparkRects[x];
+      if (laserSparkRect.sparkData.endTime < gameTime) {
+        laserSparkRects.splice(x--, 1);
+        laserSparkRect.hide(); // TODO: need to remove it from the layer too?
+      } else {
+        laserSparkRect.setOffset({x: laserSparkRect.getOffset().x + 5,
+                                  y: LASER_SPARK_THICKNESS / 2});
+        laserSparkRect.move(laserSparkRect.sparkData.dx,
+                            -laserSparkRect.sparkData.dy);
       }
     }
-  }
 
-  for (var x = 0; x < lasers.length; x++) {
-    var laser = lasers[x];
-    laser.setX(laser.getX() + laser.laserData.dx);
-    laser.setY(laser.getY() - laser.laserData.dy);
-  }
-
-  for (var x = 0; x < laserSparkRects.length; x++) {
-    var laserSparkRect = laserSparkRects[x];
-    if (laserSparkRect.sparkData.endTime < gameTime) {
-      laserSparkRects.splice(x--, 1);
-      laserSparkRect.hide(); // TODO: need to remove it from the layer too?
-    } else {
-      laserSparkRect.setOffset({x: laserSparkRect.getOffset().x + 5,
-                                y: LASER_SPARK_THICKNESS / 2});
-      laserSparkRect.move(laserSparkRect.sparkData.dx,
-                          -laserSparkRect.sparkData.dy);
+    while (nextLaserSpark < numLaserSparks
+           && laserSparks[nextLaserSpark].startTime <= gameTime) {
+      var laserSpark = laserSparks[nextLaserSpark++];
+      for (var x = 0; x < 4; x++) {
+        var laserSparkRect = laserSparkProto.clone();
+        laserSparkRect.setX(laserSpark.x);
+        laserSparkRect.setY(laserSpark.y);
+        laserSparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
+        laserSparkRect.setRotation(Math.random() * TWO_PI);
+        laserSparkRect.setOffset({x: 9, y: LASER_SPARK_THICKNESS / 2});
+        laserSparkRect.sparkData = laserSpark;
+        laserSparkRects.push(laserSparkRect);
+        layer.add(laserSparkRect);
+      }
     }
-  }
 
-  while (nextLaserSpark < numLaserSparks
-         && laserSparks[nextLaserSpark].startTime <= gameTime) {
-    var laserSpark = laserSparks[nextLaserSpark++];
-    for (var x = 0; x < 4; x++) {
-      var laserSparkRect = laserSparkProto.clone();
-      laserSparkRect.setX(laserSpark.x);
-      laserSparkRect.setY(laserSpark.y);
-      laserSparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
-      laserSparkRect.setRotation(Math.random() * TWO_PI);
-      laserSparkRect.setOffset({x: 9, y: LASER_SPARK_THICKNESS / 2});
-      laserSparkRect.sparkData = laserSpark;
-      laserSparkRects.push(laserSparkRect);
-      layer.add(laserSparkRect);
+    // Torpedos.
+    while (nextTorpedoStart < numTorpedoStarts
+           && torpedoStarts[nextTorpedoStart].fireTime <= gameTime) {
+      var torpedoStart = torpedoStarts[nextTorpedoStart++];
+      var torpedo = torpedoProto.clone();
+      var dx = Math.cos(torpedoStart.heading) * TORPEDO_SPEED;
+      var dy = Math.sin(torpedoStart.heading) * TORPEDO_SPEED;
+      torpedo.setX(torpedoStart.srcX);
+      torpedo.setY(torpedoStart.srcY);
+      torpedo.torpedoData = {dx: dx, dy: dy, id: torpedoStart.id};
+      torpedos.push(torpedo);
+      layer.add(torpedo);
     }
-  }
 
-  // Torpedos.
-  while (nextTorpedoStart < numTorpedoStarts
-         && torpedoStarts[nextTorpedoStart].fireTime <= gameTime) {
-    var torpedoStart = torpedoStarts[nextTorpedoStart++];
-    var torpedo = torpedoProto.clone();
-    var dx = Math.cos(torpedoStart.heading) * TORPEDO_SPEED;
-    var dy = Math.sin(torpedoStart.heading) * TORPEDO_SPEED;
-    torpedo.setX(torpedoStart.srcX);
-    torpedo.setY(torpedoStart.srcY);
-    torpedo.torpedoData = {dx: dx, dy: dy, id: torpedoStart.id};
-    torpedos.push(torpedo);
-    layer.add(torpedo);
-  }
+    while (nextTorpedoEnd < numTorpedoEnds
+           && torpedoEnds[nextTorpedoEnd].time <= gameTime) {
+      var torpedoEnd = torpedoEnds[nextTorpedoEnd++];
+      // TODO: use a map instead?
+      for (var x = 0; x < torpedos.length; x++) {
+        var torpedo = torpedos[x];
+        if (torpedo.torpedoData.id == torpedoEnd.id) {
+          torpedos.splice(x--, 1);
+          torpedo.hide(); // TODO: need to remove it from the layer too?
+        }
+      }
+    }
 
-  while (nextTorpedoEnd < numTorpedoEnds
-         && torpedoEnds[nextTorpedoEnd].time <= gameTime) {
-    var torpedoEnd = torpedoEnds[nextTorpedoEnd++];
-    // TODO: use a map instead?
     for (var x = 0; x < torpedos.length; x++) {
       var torpedo = torpedos[x];
-      if (torpedo.torpedoData.id == torpedoEnd.id) {
-        torpedos.splice(x--, 1);
-        torpedo.hide(); // TODO: need to remove it from the layer too?
-      }
+      torpedo.setX(torpedo.getX() + torpedo.torpedoData.dx);
+      torpedo.setY(torpedo.getY() - torpedo.torpedoData.dy);
     }
-  }
 
-  for (var x = 0; x < torpedos.length; x++) {
-    var torpedo = torpedos[x];
-    torpedo.setX(torpedo.getX() + torpedo.torpedoData.dx);
-    torpedo.setY(torpedo.getY() - torpedo.torpedoData.dy);
-  }
-
-  for (var x = 0; x < torpedoBlastCircles.length; x++) {
-    var torpedoBlastCircle = torpedoBlastCircles[x];
-    if (torpedoBlastCircle.blastData.endTime < gameTime) {
-      torpedoBlastCircles.splice(x--, 1);
-      torpedoBlastCircle.hide(); // TODO: need to remove it from the layer too?
-    } else {
-      var blastTime = gameTime - torpedoBlastCircle.blastData.startTime;
-      var blastScale;
-      if (blastTime < 5) {
-        blastScale = (4 - blastTime) / 4;
+    for (var x = 0; x < torpedoBlastCircles.length; x++) {
+      var torpedoBlastCircle = torpedoBlastCircles[x];
+      if (torpedoBlastCircle.blastData.endTime < gameTime) {
+        torpedoBlastCircles.splice(x--, 1);
+        torpedoBlastCircle.hide(); // TODO: need to remove it from the layer too?
       } else {
-        blastScale = (blastTime - 3) / (TORPEDO_BLAST_TIME - 4);
+        var blastTime = gameTime - torpedoBlastCircle.blastData.startTime;
+        var blastScale;
+        if (blastTime < 5) {
+          blastScale = (4 - blastTime) / 4;
+        } else {
+          blastScale = (blastTime - 3) / (TORPEDO_BLAST_TIME - 4);
+        }
+        torpedoBlastCircle.setScale(blastScale);
       }
-      torpedoBlastCircle.setScale(blastScale);
     }
-  }
 
-  while (nextTorpedoBlast < numTorpedoBlasts
-         && torpedoBlasts[nextTorpedoBlast].startTime <= gameTime) {
-    var torpedoBlast = torpedoBlasts[nextTorpedoBlast++];
-    var torpedoBlastCircle = torpedoBlastProto.clone();
-    torpedoBlastCircle.setX(torpedoBlast.x);
-    torpedoBlastCircle.setY(torpedoBlast.y);
-    torpedoBlastCircle.blastData = torpedoBlast;
-    torpedoBlastCircles.push(torpedoBlastCircle);
-    layer.add(torpedoBlastCircle);
-  }
-
-  for (var x = 0; x < torpedoDebrisCircles.length; x++) {
-    var torpedoDebrisCircle = torpedoDebrisCircles[x];
-    if (torpedoDebrisCircle.debrisData.endTime < gameTime) {
-      torpedoDebrisCircles.splice(x--, 1);
-      torpedoDebrisCircle.hide(); // TODO: need to remove it from the layer too?
-    } else {
-      torpedoDebrisCircle.setOffset({x: torpedoDebrisCircle.getOffset().x
-                                     + torpedoDebrisCircle.debrisData.speed});
-      torpedoDebrisCircle.move(torpedoDebrisCircle.debrisData.dx,
-                              -torpedoDebrisCircle.debrisData.dy);
+    while (nextTorpedoBlast < numTorpedoBlasts
+           && torpedoBlasts[nextTorpedoBlast].startTime <= gameTime) {
+      var torpedoBlast = torpedoBlasts[nextTorpedoBlast++];
+      var torpedoBlastCircle = torpedoBlastProto.clone();
+      torpedoBlastCircle.setX(torpedoBlast.x);
+      torpedoBlastCircle.setY(torpedoBlast.y);
+      torpedoBlastCircle.blastData = torpedoBlast;
+      torpedoBlastCircles.push(torpedoBlastCircle);
+      layer.add(torpedoBlastCircle);
     }
-  }
 
-  while (nextTorpedoDebris < numTorpedoDebris
-         && torpedoDebris[nextTorpedoDebris].startTime <= gameTime) {
-    var debrisData = torpedoDebris[nextTorpedoDebris++];
-    for (var x = 0; x < debrisData.parts; x++) {
-      var torpedoDebrisCircle = torpedoDebrisProto.clone();
-      torpedoDebrisCircle.setX(debrisData.x);
-      torpedoDebrisCircle.setY(debrisData.y);
-      torpedoDebrisCircle.setFill(ships[debrisData.shipIndex].shipColor);
-      torpedoDebrisCircle.setRotation(Math.random() * TWO_PI);
-      torpedoDebrisCircle.setOffset({x: 9});
-      torpedoDebrisCircle.debrisData = debrisData;
-      torpedoDebrisCircles.push(torpedoDebrisCircle);
-      layer.add(torpedoDebrisCircle);
-    }
-  }
-
-  // Ship destroys.
-  for (var x = 0; x < shipDestroyCircles.length; x++) {
-    var shipDestroyCircle = shipDestroyCircles[x];
-    if (shipDestroyCircle.destroyData.endTime < gameTime) {
-      shipDestroyCircles.splice(x--, 1);
-      shipDestroyCircle.hide(); // TODO: need to remove it from the layer too?
-    } else {
-      var radiusFactor = 1 + Math.floor(
-          (gameTime - shipDestroyCircle.destroyData.startTime) / 2);
-      shipDestroyCircle.setRadius(radiusFactor * DESTROY_BASE_RADIUS);
-    }
-  }
-
-  while (nextShipDestroy < numShipDestroys
-         && shipDestroys[nextShipDestroy].startTime <= gameTime) {
-    var shipDestroy = shipDestroys[nextShipDestroy++];
-    var shipDestroyCircle = shipDestroyProto.clone();
-    shipDestroyCircle.setX(shipDestroy.x);
-    shipDestroyCircle.setY(shipDestroy.y);
-    shipDestroyCircle.setStroke(ships[shipDestroy.shipIndex].shipColor);
-    shipDestroyCircle.destroyData = shipDestroy;
-    shipDestroyCircles.push(shipDestroyCircle);
-    layer.add(shipDestroyCircle);
-  }
-
-  // Ships.
-  while (nextShipAdd < numShipAdds && shipAdds[nextShipAdd].time <= gameTime) {
-    shipAlives[shipAdds[nextShipAdd++].index] = true;
-  }
-
-  while (nextShipRemove < numShipRemoves
-         && shipRemoves[nextShipRemove].time <= gameTime) {
-    shipAlives[shipRemoves[nextShipRemove++].index] = false;
-  }
-
-  for (var x = 0; x < numShips; x++) {
-    if (shipAlives[x]) {
-      var shipState = shipStates[nextShipState++];
-      ships[x].show();
-      ships[x].setX(shipState.x);
-      ships[x].setY(shipState.y);
-      var thruster = ships[x].getChildren()[0];
-      thruster.setRotation(Math.PI + (TWO_PI - shipState.thrusterAngle));
-      var forceFactor = shipState.thrusterForce;
-      if (forceFactor < 0.0001) {
-        thruster.setScale(0);
+    for (var x = 0; x < torpedoDebrisCircles.length; x++) {
+      var torpedoDebrisCircle = torpedoDebrisCircles[x];
+      if (torpedoDebrisCircle.debrisData.endTime < gameTime) {
+        torpedoDebrisCircles.splice(x--, 1);
+        torpedoDebrisCircle.hide(); // TODO: need to remove it from the layer too?
       } else {
-        thruster.setScale(THRUSTER_ZERO + (forceFactor * (1 - THRUSTER_ZERO)));
+        torpedoDebrisCircle.setOffset({x: torpedoDebrisCircle.getOffset().x
+                                       + torpedoDebrisCircle.debrisData.speed});
+        torpedoDebrisCircle.move(torpedoDebrisCircle.debrisData.dx,
+                                -torpedoDebrisCircle.debrisData.dy);
       }
-
-      ships[x].getChildren()[2].setScale(shipState.energy / 100, 1);
-      var shipDotGroup = ships[x].getChildren()[4];
-      shipDotGroup.setRotation(
-          shipDotGroup.getRotation() + (SHIP_ROTATION * shipOrbits[x]));
-    } else {
-      ships[x].hide();
     }
+
+    while (nextTorpedoDebris < numTorpedoDebris
+           && torpedoDebris[nextTorpedoDebris].startTime <= gameTime) {
+      var debrisData = torpedoDebris[nextTorpedoDebris++];
+      for (var x = 0; x < debrisData.parts; x++) {
+        var torpedoDebrisCircle = torpedoDebrisProto.clone();
+        torpedoDebrisCircle.setX(debrisData.x);
+        torpedoDebrisCircle.setY(debrisData.y);
+        torpedoDebrisCircle.setFill(ships[debrisData.shipIndex].shipColor);
+        torpedoDebrisCircle.setRotation(Math.random() * TWO_PI);
+        torpedoDebrisCircle.setOffset({x: 9});
+        torpedoDebrisCircle.debrisData = debrisData;
+        torpedoDebrisCircles.push(torpedoDebrisCircle);
+        layer.add(torpedoDebrisCircle);
+      }
+    }
+
+    // Ship destroys.
+    for (var x = 0; x < shipDestroyCircles.length; x++) {
+      var shipDestroyCircle = shipDestroyCircles[x];
+      if (shipDestroyCircle.destroyData.endTime < gameTime) {
+        shipDestroyCircles.splice(x--, 1);
+        shipDestroyCircle.hide(); // TODO: need to remove it from the layer too?
+      } else {
+        var radiusFactor = 1 + Math.floor(
+            (gameTime - shipDestroyCircle.destroyData.startTime) / 2);
+        shipDestroyCircle.setRadius(radiusFactor * DESTROY_BASE_RADIUS);
+      }
+    }
+
+    while (nextShipDestroy < numShipDestroys
+           && shipDestroys[nextShipDestroy].startTime <= gameTime) {
+      var shipDestroy = shipDestroys[nextShipDestroy++];
+      var shipDestroyCircle = shipDestroyProto.clone();
+      shipDestroyCircle.setX(shipDestroy.x);
+      shipDestroyCircle.setY(shipDestroy.y);
+      shipDestroyCircle.setStroke(ships[shipDestroy.shipIndex].shipColor);
+      shipDestroyCircle.destroyData = shipDestroy;
+      shipDestroyCircles.push(shipDestroyCircle);
+      layer.add(shipDestroyCircle);
+    }
+
+    // Ships.
+    while (nextShipAdd < numShipAdds && shipAdds[nextShipAdd].time <= gameTime) {
+      shipAlives[shipAdds[nextShipAdd++].index] = true;
+    }
+
+    while (nextShipRemove < numShipRemoves
+           && shipRemoves[nextShipRemove].time <= gameTime) {
+      shipAlives[shipRemoves[nextShipRemove++].index] = false;
+    }
+
+    for (var x = 0; x < numShips; x++) {
+      if (shipAlives[x]) {
+        var shipState = shipStates[nextShipState++];
+        ships[x].show();
+        ships[x].setX(shipState.x);
+        ships[x].setY(shipState.y);
+        var thruster = ships[x].getChildren()[0];
+        thruster.setRotation(Math.PI + (TWO_PI - shipState.thrusterAngle));
+        var forceFactor = shipState.thrusterForce;
+        if (forceFactor < 0.0001) {
+          thruster.setScale(0);
+        } else {
+          thruster.setScale(THRUSTER_ZERO + (forceFactor * (1 - THRUSTER_ZERO)));
+        }
+
+        ships[x].getChildren()[2].setScale(shipState.energy / 100, 1);
+        var shipDotGroup = ships[x].getChildren()[4];
+        shipDotGroup.setRotation(
+            shipDotGroup.getRotation() + (SHIP_ROTATION * shipOrbits[x]));
+      } else {
+        ships[x].hide();
+      }
+    }
+    gameTime++;
   }
-  gameTime++;
+
   var scale = Math.min(window.innerWidth / stage.getWidth(),
                        window.innerHeight / stage.getHeight());
   stage.setScale(Math.min(1, scale, scale));
