@@ -735,7 +735,7 @@ void GuiManager::runCurrentMatch() {
         if (engine_->isGameOver() && !showedResults_) {
           showResults();
           showedResults_ = true;
-          engine_->getReplayBuilder()->saveReplay("test2.bbr");
+          engine_->getReplayBuilder()->saveReplay("test.bbr");
         }
       }
     }

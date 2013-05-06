@@ -62,7 +62,7 @@ use strict;
 # | num torpedo blasts | <torpedo blasts> | num torpedo debris | <torpedo debris>
 # | num ship destroys | <ship destroys> | num texts | <texts>
 
-my $filename = "/Users/pcupka/replay1.bbr";
+my $filename = "/Users/pcupka/test.bbr";
 
 open(REPLAYFILE, "<" . $filename) || die "Can't open file";
 binmode(REPLAYFILE); 
