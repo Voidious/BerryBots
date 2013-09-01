@@ -990,6 +990,11 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
 }
 
 void GuiManager::launchGameRunner(const char *runnerName) {
+  PrintHandler *oldPrintHandler = 0;
+  if (printHandler != 0) {
+    oldPrintHandler = printHandler;
+  }
+
   printHandler = new GuiPrintHandler(0, runnerConsole_, menuBarMaker_);
   loadStages();
   loadShips();
@@ -1015,7 +1020,7 @@ void GuiManager::launchGameRunner(const char *runnerName) {
   }
   delete shipNames;
   delete printHandler;
-  printHandler = 0;
+  printHandler = oldPrintHandler;
 
   switch (nextWindow_) {
     case NEXT_NEW_MATCH:
