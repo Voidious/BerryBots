@@ -56,6 +56,10 @@ std::string getTmpDir() {
   return getFullPath(".tmp");
 }
 
+std::string getReplaysDir() {
+  return getFullPath("replays");
+}
+
 std::string getApidocPath() {
   return getFullPath("apidoc/index.html");
 }

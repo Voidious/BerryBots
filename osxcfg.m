@@ -34,6 +34,7 @@
 @synthesize runnersDir;
 @synthesize cacheDir;
 @synthesize tmpDir;
+@synthesize replaysDir;
 @synthesize apidocPath;
 @synthesize samplesVersion;
 @synthesize aaDisabled;
@@ -170,6 +171,7 @@ bool fileExists(const char *filename) {
       self.runnersDir = [temp objectForKey:@"Runners dir"];
       self.cacheDir = [temp objectForKey:@"Cache dir"];
       self.tmpDir = [temp objectForKey:@"Tmp dir"];
+      self.replaysDir = [temp objectForKey:@"Replays dir"];
       self.apidocPath = [temp objectForKey:@"Apidoc Path"];
       self.samplesVersion = [temp objectForKey:@"Samples Version"];
       if (self.samplesVersion == nil) {
@@ -183,6 +185,11 @@ bool fileExists(const char *filename) {
         selectRoot = false;
         if (self.runnersDir == nil) {
           self.runnersDir = [NSString stringWithFormat:@"%@/runners",
+                             [self.shipsDir stringByDeletingLastPathComponent]];
+          [self save];
+        }
+        if (self.replaysDir == nil) {
+          self.replaysDir = [NSString stringWithFormat:@"%@/replays",
                              [self.shipsDir stringByDeletingLastPathComponent]];
           [self save];
         }
@@ -239,6 +246,8 @@ bool fileExists(const char *filename) {
                    newRootDir, @CACHE_SUBDIR];
   self.tmpDir = [NSString stringWithFormat:@"%@/%@",
                  newRootDir, @TMP_SUBDIR];
+  self.replaysDir = [NSString stringWithFormat:@"%@/%@",
+                     newRootDir, @REPLAYS_SUBDIR];
   self.apidocPath = [NSString stringWithFormat:@"%@/%@",
                      newRootDir, @"apidoc/index.html"];
   self.samplesVersion = @SAMPLES_VERSION;
@@ -286,12 +295,12 @@ bool fileExists(const char *filename) {
   NSDictionary *plistDict =
       [NSDictionary dictionaryWithObjects:
        [NSArray arrayWithObjects:stagesDir, shipsDir, runnersDir, cacheDir,
-        tmpDir, apidocPath, samplesVersion,
+        tmpDir, replaysDir, apidocPath, samplesVersion,
         [NSNumber numberWithBool:aaDisabled], nil]
             forKeys:[NSArray arrayWithObjects:
                      @"Stage dir", @"Ships dir", @"Runners dir", @"Cache dir",
-                     @"Tmp dir", @"Apidoc Path", @"Samples Version",
-                     @"Disable Anti-aliasing", nil]];
+                     @"Tmp dir", @"Replays dir", @"Apidoc Path",
+                     @"Samples Version", @"Disable Anti-aliasing", nil]];
   NSData *plistData =
       [NSPropertyListSerialization dataFromPropertyList:plistDict
           format:NSPropertyListXMLFormat_v1_0

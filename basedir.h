@@ -29,6 +29,7 @@ extern std::string getShipsDir(void);
 extern std::string getRunnersDir(void);
 extern std::string getCacheDir(void);
 extern std::string getTmpDir(void);
+extern std::string getReplaysDir(void);
 extern std::string getApidocPath(void);
 extern void setRootDir(std::string newRootDir);
 extern void chooseNewRootDir();

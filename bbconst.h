@@ -21,12 +21,13 @@
 #ifndef BBCONST_H
 #define BBCONST_H
 
-#define SAMPLES_VERSION       "1.2.0"
+#define SAMPLES_VERSION       "1.3.0"
 
 #define SHIPS_SUBDIR          "bots"
 #define STAGES_SUBDIR         "stages"
 #define CACHE_SUBDIR          "cache"
 #define TMP_SUBDIR            ".tmp"
+#define REPLAYS_SUBDIR        "replays"
 #define ZIP_EXTENSION         ".tar.gz"
 #define LUA_EXTENSION         ".lua"
 #define STAGE_METAFILE        "stage.filename"

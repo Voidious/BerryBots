@@ -79,6 +79,14 @@ std::string getTmpDir(void) {
   }
 }
 
+std::string getReplaysDir(void) {
+  if (loadCfg()) {
+    return [cfg.replaysDir UTF8String];
+  } else {
+    exit(0);
+  }
+}
+
 std::string getApidocPath(void) {
   if (loadCfg()) {
     return [cfg.apidocPath UTF8String];

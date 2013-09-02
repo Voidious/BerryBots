@@ -27,6 +27,7 @@
   NSString *runnersDir;
   NSString *cacheDir;
   NSString *tmpDir;
+  NSString *replaysDir;
   NSString *apidocPath;
   NSString *samplesVersion;
   bool overwrite;
@@ -44,6 +45,7 @@
 @property (copy, nonatomic) NSString *runnersDir;
 @property (copy, nonatomic) NSString *cacheDir;
 @property (copy, nonatomic) NSString *tmpDir;
+@property (copy, nonatomic) NSString *replaysDir;
 @property (copy, nonatomic) NSString *apidocPath;
 @property (copy, nonatomic) NSString *samplesVersion;
 @property (nonatomic) bool aaDisabled;
