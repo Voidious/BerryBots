@@ -221,7 +221,7 @@ void GuiManager::loadStages() {
 }
 
 void GuiManager::loadStagesFromDir(const char *loadDir) {
-  BerryBotsEngine engine(fileManager_);
+  BerryBotsEngine engine(fileManager_, 0);
   numStages_ = loadItemsFromDir(stagesBaseDir_, loadDir, ITEM_STAGE,
                                 packageStageDialog_, &engine);
 }
@@ -320,7 +320,7 @@ void GuiManager::loadShips() {
 }
 
 void GuiManager::loadShipsFromDir(const char *loadDir) {
-  BerryBotsEngine engine(fileManager_);
+  BerryBotsEngine engine(fileManager_, 0);
   numShips_ = loadItemsFromDir(shipsBaseDir_, loadDir, ITEM_SHIP,
                                packageShipDialog_, &engine);
 }
@@ -414,7 +414,7 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
 
 void GuiManager::loadRunners() {
   runnerDialog_->clearItems();
-  BerryBotsEngine engine(fileManager_);
+  BerryBotsEngine engine(fileManager_, 0);
   numRunners_ = loadItemsFromDir(runnersBaseDir_, runnersBaseDir_, ITEM_RUNNER,
                                  runnerDialog_, &engine);
 }
@@ -609,7 +609,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   stageConsole_->print("== Stage control program loaded: ");
   stageConsole_->println(stageName);
 
-  engine_ = new BerryBotsEngine(fileManager_);
+  engine_ = new BerryBotsEngine(fileManager_, resourcePath().c_str());
   engine_->setListener(printStateListener_);
   Stage *stage = engine_->getStage();
   if (restarting_) {
@@ -1001,7 +1001,7 @@ void GuiManager::launchGameRunner(const char *runnerName) {
   char **stageNames = newMatchDialog_->getStageNames();
   char **shipNames = newMatchDialog_->getShipNames();
   gameRunner_ = new GuiGameRunner(runnerConsole_, stageNames, numStages_,
-                                  shipNames, numShips_, zipper_);
+      shipNames, numShips_, zipper_, resourcePath().c_str());
   runnerDialog_->Hide();
   nextWindow_ = 0;
   runnerRunning_ = true;
@@ -1144,7 +1144,7 @@ void GuiManager::showStagePreview(const char *stageName) {
 #endif
 
   GfxEventHandler *gfxHandler = new GfxEventHandler();
-  BerryBotsEngine *engine = new BerryBotsEngine(fileManager_);
+  BerryBotsEngine *engine = new BerryBotsEngine(fileManager_, 0);
   try {
     engine->initStage(stagesBaseDir_, stageName, getCacheDir().c_str());
   } catch (EngineException *e) {

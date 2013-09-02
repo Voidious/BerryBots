@@ -38,6 +38,7 @@ class MatchConfig {
   char *stagesDir_;
   char *shipsDir_;
   char *cacheDir_;
+  char *replayTemplateDir_;
   char *stageName_;
   char **teamNames_;
   int numTeams_;
@@ -51,11 +52,13 @@ class MatchConfig {
 
   public:
     MatchConfig(const char *stageName, char **teamNames, int numTeams,
-                char *stagesDir, char *shipsDir, char *cacheDir);
+        const char *stagesDir, const char *shipsDir, const char *cacheDir,
+        const char *replayTemplateDir);
     ~MatchConfig();
     const char *getStagesDir();
     const char *getShipsDir();
     const char *getCacheDir();
+    const char *getReplayTemplateDir();
     const char *getStageName();
     char **getTeamNames();
     int getNumTeams();
@@ -119,12 +122,14 @@ class BerryBotsRunner {
   char *stagesDir_;
   char *shipsDir_;
   char *cacheDir_;
+  char *replayTemplateDir_;
   pthread_t schedulerThread_;
   SchedulerSettings *schedulerSettings_;
   RefresherListener *listener_;
 
   public:
-    BerryBotsRunner(int threadCount, Zipper *zipper);
+    BerryBotsRunner(int threadCount, Zipper *zipper,
+                    const char *replayTemplateDir);
     ~BerryBotsRunner();
     void queueMatch(const char *stageName, char **teamNames, int numTeams);
     MatchResult* nextResult();

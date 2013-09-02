@@ -37,7 +37,8 @@
 
 extern PrintHandler *printHandler;
 
-BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
+BerryBotsEngine::BerryBotsEngine(FileManager *fileManager,
+                                 const char *replayTemplateDir) {
   stage_ = new Stage(DEFAULT_STAGE_WIDTH, DEFAULT_STAGE_HEIGHT);
   listener_ = 0;
   gameTime_ = 0;
@@ -84,6 +85,12 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager) {
 
   replayBuilder_ = 0;
   replayHandler_ = 0;
+  if (replayTemplateDir == 0) {
+    replayTemplateDir_ = 0;
+  } else {
+    replayTemplateDir_ = new char[strlen(replayTemplateDir) + 1];
+    strcpy(replayTemplateDir_, replayTemplateDir);
+  }
 }
 
 BerryBotsEngine::~BerryBotsEngine() {
@@ -170,6 +177,9 @@ BerryBotsEngine::~BerryBotsEngine() {
   }
   if (replayHandler_ != 0) {
     delete replayHandler_;
+  }
+  if (replayTemplateDir_ != 0) {
+    delete replayTemplateDir_;
   }
 }
 
@@ -820,7 +830,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
 }
 
 void BerryBotsEngine::initReplayBuilder(int numShips, Stage *stage) {
-  replayBuilder_ = new ReplayBuilder(numShips);
+  replayBuilder_ = new ReplayBuilder(numShips, replayTemplateDir_);
   replayHandler_ = new ReplayEventHandler(replayBuilder_);
   stage_->addEventHandler(replayHandler_);
   replayBuilder_->addStageSize(stage->getWidth(), stage->getHeight());

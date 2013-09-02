@@ -44,10 +44,12 @@ class GuiGameRunner : public GameRunner {
   lua_State *runnerState_;
   BerryBotsRunner *bbRunner_;
   Zipper *zipper_;
+  char *replayTemplateDir_;
 
   public:
     GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
-        int numStages, char **teamNames, int numTeams, Zipper *zipper);
+        int numStages, char **teamNames, int numTeams, Zipper *zipper,
+        const char *replayTemplateDir);
     ~GuiGameRunner();
     virtual void addStageSelect(const char *name);
     virtual void addSingleShipSelect(const char *name);

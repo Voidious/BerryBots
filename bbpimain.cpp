@@ -36,6 +36,7 @@
 #include "cliprinthandler.h"
 #include "clipackagereporter.h"
 #include "tarzipper.h"
+#include "ResourcePath.hpp"
 
 BerryBotsEngine *engine = 0;
 Stage *stage = 0;
@@ -134,7 +135,7 @@ int main(int argc, char *argv[]) {
   int screenHeight;
   init(&screenWidth, &screenHeight);
 
-  engine = new BerryBotsEngine(fileManager);
+  engine = new BerryBotsEngine(fileManager, resourcePath().c_str());
   stage = engine->getStage();
   // TODO: Enable graphical debugging on Raspberry Pi. Main barrier is UI.
   stage->disableUserGfx();

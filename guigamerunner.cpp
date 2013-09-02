@@ -35,7 +35,8 @@ extern "C" {
 }
 
 GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
-    int numStages, char **teamNames, int numTeams, Zipper *zipper) {
+    int numStages, char **teamNames, int numTeams, Zipper *zipper,
+    const char *replayTemplateDir) {
   runnerName_ = 0;
   runnerConsole_ = runnerConsole;
   numFormElements_ = 0;
@@ -49,6 +50,12 @@ GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
   quitting_ = false;
   runnerState_ = 0;
   bbRunner_ = 0;
+  if (replayTemplateDir == 0) {
+    replayTemplateDir_ = 0;
+  } else {
+    replayTemplateDir_ = new char[strlen(replayTemplateDir) + 1];
+    strcpy(replayTemplateDir_, replayTemplateDir);
+  }
 }
 
 GuiGameRunner::~GuiGameRunner() {
@@ -60,6 +67,9 @@ GuiGameRunner::~GuiGameRunner() {
   }
   for (int x = 0; x < numFormElements_; x++) {
     delete formElements_[x];
+  }
+  if (replayTemplateDir_ != 0) {
+    delete replayTemplateDir_;
   }
 }
 
@@ -216,7 +226,7 @@ void GuiGameRunner::setThreadCount(int threadCount) {
 void GuiGameRunner::queueMatch(const char *stageName, char **teamNames,
                                int numTeams) {
   if (!started_) {
-    bbRunner_ = new BerryBotsRunner(threadCount_, zipper_);
+    bbRunner_ = new BerryBotsRunner(threadCount_, zipper_, replayTemplateDir_);
     bbRunner_->setListener(new GuiRefresherListener());
     started_ = true;
   }

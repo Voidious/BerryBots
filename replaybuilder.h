@@ -25,6 +25,7 @@
 #include "eventhandler.h"
 
 #define REPLAY_VERSION        1
+#define REPLAY_TEMPLATE       "resources/replay_template.html"
 
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
 #define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
@@ -71,9 +72,10 @@ class ReplayBuilder {
   ReplayData *shipDestroyData_;
   ReplayData *textData_;
   int numTexts_;
+  char *templatePath_;
   
   public:
-    ReplayBuilder(int numShips);
+    ReplayBuilder(int numShips, const char *templateDir);
     ~ReplayBuilder();
     void addStageSize(int width, int height);
     void addWall(int left, int bottom, int width, int height);

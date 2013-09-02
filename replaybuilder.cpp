@@ -21,11 +21,12 @@
 #include <math.h>
 #include <algorithm>
 #include <stdio.h>
+#include <string.h>
 #include "filemanager.h"
 #include "bbutil.h"
 #include "replaybuilder.h"
 
-ReplayBuilder::ReplayBuilder(int numShips) {
+ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
   shipsAlive_ = new bool[numShips];
   numShips_ = numShips;
   for (int x = 0; x < numShips; x++) {
@@ -48,6 +49,13 @@ ReplayBuilder::ReplayBuilder(int numShips) {
   shipDestroyData_ = new ReplayData(MAX_MISC_CHUNKS);
   textData_ = new ReplayData(MAX_TEXT_CHUNKS);
   numTexts_ = 0;
+
+  if (templateDir == 0) {
+    templatePath_ = 0;
+  } else {
+    FileManager fileManager;
+    templatePath_ = fileManager.getFilePath(templateDir, REPLAY_TEMPLATE);
+  }
 }
 
 ReplayBuilder::~ReplayBuilder() {
@@ -68,6 +76,9 @@ ReplayBuilder::~ReplayBuilder() {
   delete torpedoDebrisData_;
   delete shipDestroyData_;
   delete textData_;
+  if (templatePath_ != 0) {
+    delete templatePath_;
+  }
 }
 
 // Stage size format:  (2)
@@ -243,8 +254,8 @@ void ReplayBuilder::addText(int time, const char *text, double x, double y,
   textData_->addInt(time);
   int textLength = (int) strlen(text);
   textData_->addInt(textLength);
-  for (int x = 0; x < textLength; x++) {
-    textData_->addInt((int) text[x]);
+  for (int z = 0; z < textLength; z++) {
+    textData_->addInt((int) text[z]);
   }
   textData_->addInt(round(x * 10));
   textData_->addInt(round(y * 10));
@@ -272,8 +283,8 @@ int ReplayBuilder::round(double f) {
 // | num torpedo blasts | <torpedo blasts> | num torpedo debris | <torpedo debris>
 // | num ship destroys | <ship destroys> | num texts | <texts>
 void ReplayBuilder::saveReplay(const char *filename) {
-  FileManager *fileManager = new FileManager();
-  char *absFilename = fileManager->getFilePath("/Users/pcupka", filename);
+  FileManager fileManager;
+  char *absFilename = fileManager.getFilePath("/Users/pcupka", filename);
   FILE *f = fopen(absFilename, "wb");
 
   int v = REPLAY_VERSION;
@@ -341,7 +352,6 @@ void ReplayBuilder::saveReplay(const char *filename) {
 
   fclose(f);
   delete absFilename;
-  delete fileManager;
 }
 
 ReplayData::ReplayData(int maxChunks) {
@@ -427,8 +437,12 @@ void ReplayEventHandler::handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
 }
 
 void ReplayEventHandler::handleStageText(StageText *stageText) {
-  RgbaColor textColor {stageText->textR, stageText->textG, stageText->textB,
-                       stageText->textA};
+  RgbaColor textColor;
+  textColor.r = stageText->textR;
+  textColor.g = stageText->textG;
+  textColor.b = stageText->textB;
+  textColor.a = stageText->textA;
+  
   replayBuilder_->addText(stageText->startTime, stageText->text, stageText->x,
       stageText->y, stageText->fontSize, textColor, stageText->drawTicks);
 }

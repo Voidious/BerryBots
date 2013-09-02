@@ -18,7 +18,7 @@ WIN_SFML_BUILD_PATH = ${SFML_PATH}\build
 
 # You shouldn't have to edit anything below this line. #######################
 
-VERSION = 1.2.0
+VERSION = 1.3.0
 
 ##############################################################################
 # BerryBots GUI common source files
@@ -29,7 +29,7 @@ SOURCES += bbengine.cpp bblua.cpp gfxeventhandler.cpp rectangle.cpp stage.cpp
 SOURCES += packagedialog.cpp packageship.cpp packagestage.cpp dockitem.cpp
 SOURCES += dockshape.cpp docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp
 SOURCES += menubarmaker.cpp guigamerunner.cpp runnerdialog.cpp runnerform.cpp
-SOURCES += bbrunner.cpp resultsdialog.cpp
+SOURCES += bbrunner.cpp resultsdialog.cpp replaybuilder.cpp
 ##############################################################################
 
 
@@ -40,7 +40,7 @@ RPI_SOURCES += line2d.cpp point2d.cpp circle2d.cpp rectangle.cpp zone.cpp
 RPI_SOURCES += bbpigfx.cpp filemanager.cpp gfxeventhandler.cpp sensorhandler.cpp
 RPI_SOURCES += cliprinthandler.cpp clipackagereporter.cpp libshapes.c oglinit.c
 RPI_SOURCES += zipper.cpp tarzipper.cpp bbrunner.cpp relativebasedir.cpp
-RPI_SOURCES += ./luajit/src/libluajit.a
+RPI_SOURCES += relativerespath.cpp replaybuilder.cpp ./luajit/src/libluajit.a
 
 RPI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include -I/opt/vc/include
 RPI_CFLAGS += -I/opt/vc/include/interface/vcos/pthreads
@@ -57,7 +57,7 @@ CLI_SOURCES += circle2d.cpp line2d.cpp point2d.cpp sensorhandler.cpp zone.cpp
 CLI_SOURCES += bbengine.cpp bblua.cpp gfxeventhandler.cpp rectangle.cpp
 CLI_SOURCES += stage.cpp cliprinthandler.cpp clipackagereporter.cpp dockitem.cpp
 CLI_SOURCES += dockshape.cpp docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp
-CLI_SOURCES += bbrunner.cpp
+CLI_SOURCES += bbrunner.cpp replaybuilder.cpp
 ##############################################################################
 
 
@@ -75,7 +75,8 @@ OSX_LDFLAGS =  -L./sfml-lib `${WXWIDGETS_PATH}/wx-config --libs`
 OSX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
 OSX_LDFLAGS += -pagezero_size 10000 -image_base 100000000 -std=c99
 
-OSXCLI_EXTRA_SOURCES = relativebasedir.cpp ./luajit/src/libluajit.a
+OSXCLI_EXTRA_SOURCES = relativebasedir.cpp relativerespath.cpp
+OSXCLI_EXTRA_SOURCES += ./luajit/src/libluajit.a
 OSXCLI_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
 OSXCLI_EXTRA_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
 

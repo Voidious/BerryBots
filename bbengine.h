@@ -107,9 +107,10 @@ class BerryBotsEngine {
   bool hasScores_;
   ReplayBuilder *replayBuilder_;
   ReplayEventHandler *replayHandler_;
+  char *replayTemplateDir_;
 
   public:
-    BerryBotsEngine(FileManager *manager);
+    BerryBotsEngine(FileManager *manager, const char *replayTemplateDir);
     ~BerryBotsEngine();
 
     void setListener(NewTeamStateListener *listener);

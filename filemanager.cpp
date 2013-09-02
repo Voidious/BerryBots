@@ -120,13 +120,8 @@ char* FileManager::getFilePath(const char *dir, const char *filename) {
   long absFilenameLen = strlen(dir) + strlen(BB_DIRSEP) + strlen(filename);
   absFilename = new char[absFilenameLen + 1];
   sprintf(absFilename, "%s%s%s", dir, BB_DIRSEP, filename);
-#ifdef __WIN32__
-  for (int x = 0; x < absFilenameLen; x++) {
-    if (absFilename[x] == '/') {
-      absFilename[x] = '\\';
-    }
-  }
-#endif
+
+  fixSlashes(absFilename);
 
   char *dots;
   int i = 0;
@@ -597,7 +592,7 @@ void FileManager::packageStage(const char *stagesBaseDir, const char *stageName,
   lua_State *stageState;
   initStageState(&stageState, stageAbsBaseDir);
   
-  BerryBotsEngine engine(this);
+  BerryBotsEngine engine(this, 0);
   Stage *stage = engine.getStage();
   if (luaL_loadfile(stageState, stageName)
       || engine.callUserLuaCode(stageState, 0, "", PCALL_VALIDATE)) {
@@ -726,7 +721,7 @@ void FileManager::packageShip(const char *shipBaseDir, const char *shipName,
   char *shipAbsBaseDir = getAbsFilePath(shipBaseDir);
   lua_State *shipState;
   initShipState(&shipState, shipAbsBaseDir);
-  BerryBotsEngine engine(this);
+  BerryBotsEngine engine(this, 0);
   crawlFiles(shipState, shipName, &engine);
 
   lua_getfield(shipState, LUA_REGISTRYINDEX, "__FILES");
@@ -795,6 +790,17 @@ void FileManager::fixSlashes(char *filename) {
       filename[x] = BB_DIRSEP_CHR;
     }
   }
+
+  char *slashes;
+  int i = 0;
+  char *slashSlash = new char[3];
+  sprintf(slashSlash, "%s%s", BB_DIRSEP, BB_DIRSEP);
+  while ((slashes = strstr(&(filename[i]), slashSlash)) != NULL) {
+    int offset = (int) (slashes - filename);
+    sliceString(filename, offset, offset + 1);
+    i = offset;
+  }
+  delete slashSlash;
 }
 
 char* FileManager::readFile(const char *filename)

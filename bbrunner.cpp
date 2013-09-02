@@ -28,13 +28,20 @@
 #include "bbengine.h"
 #include "bbrunner.h"
 
-BerryBotsRunner::BerryBotsRunner(int threadCount, Zipper *zipper) {
+BerryBotsRunner::BerryBotsRunner(int threadCount, Zipper *zipper,
+                                 const char *replayTemplateDir) {
   stagesDir_ = new char[getStagesDir().length() + 1];
   strcpy(stagesDir_, getStagesDir().c_str());
   shipsDir_ = new char[getShipsDir().length() + 1];
   strcpy(shipsDir_, getShipsDir().c_str());
   cacheDir_ = new char[getCacheDir().length() + 1];
   strcpy(cacheDir_, getCacheDir().c_str());
+  if (replayTemplateDir == 0) {
+    replayTemplateDir_ = 0;
+  } else {
+    replayTemplateDir_ = new char[strlen(replayTemplateDir) + 1];
+    strcpy(replayTemplateDir_, replayTemplateDir);
+  }
   listener_ = 0;
 
   schedulerSettings_ = new SchedulerSettings;
@@ -53,6 +60,9 @@ BerryBotsRunner::~BerryBotsRunner() {
   delete stagesDir_;
   delete shipsDir_;
   delete cacheDir_;
+  if (replayTemplateDir_ != 0) {
+    delete replayTemplateDir_;
+  }
   if (listener_ != 0) {
     delete listener_;
   }
@@ -62,7 +72,7 @@ void BerryBotsRunner::queueMatch(const char *stageName, char **teamNames,
                                  int numTeams) {
   if (schedulerSettings_->numMatches < MAX_MATCHES) {
     MatchConfig *matchConfig = new MatchConfig(stageName, teamNames, numTeams,
-        stagesDir_, shipsDir_, cacheDir_);
+        stagesDir_, shipsDir_, cacheDir_, replayTemplateDir_);
     schedulerSettings_->matches[schedulerSettings_->numMatches++] = matchConfig;
     // TODO: error handling for scheduling > max matches
   }
@@ -171,7 +181,8 @@ void* BerryBotsRunner::runMatch(void *vargs) {
   SchedulerSettings *schedulerSettings = settings->schedulerSettings;
 
   FileManager *fileManager = new FileManager(schedulerSettings->zipper);
-  BerryBotsEngine *engine = new BerryBotsEngine(fileManager);
+  BerryBotsEngine *engine =
+      new BerryBotsEngine(fileManager, config->getReplayTemplateDir());
   bool aborted = false;
   try {
     engine->initStage(config->getStagesDir(), config->getStageName(),
@@ -211,13 +222,21 @@ void* BerryBotsRunner::runMatch(void *vargs) {
 }
 
 MatchConfig::MatchConfig(const char *stageName, char **teamNames,
-    int numTeams, char *stagesDir, char *shipsDir, char *cacheDir) {
+    int numTeams, const char *stagesDir, const char *shipsDir,
+    const char *cacheDir, const char *replayTemplateDir) {
   stagesDir_ = new char[strlen(stagesDir) + 1];
   strcpy(stagesDir_, stagesDir);
   shipsDir_ = new char[strlen(shipsDir) + 1];
   strcpy(shipsDir_, shipsDir);
   cacheDir_ = new char[strlen(cacheDir) + 1];
   strcpy(cacheDir_, cacheDir);
+  if (replayTemplateDir == 0) {
+    replayTemplateDir_ = 0;
+  } else {
+    replayTemplateDir_ = new char[strlen(replayTemplateDir) + 1];
+    strcpy(replayTemplateDir_, replayTemplateDir);
+  }
+
   stageName_ = new char[strlen(stageName) + 1];
   strcpy(stageName_, stageName);
   teamNames_ = new char*[numTeams];
@@ -255,6 +274,9 @@ MatchConfig::~MatchConfig() {
   delete stagesDir_;
   delete shipsDir_;
   delete cacheDir_;
+  if (replayTemplateDir_ != 0) {
+    delete replayTemplateDir_;
+  }
   if (errorMessage_ != 0) {
     delete errorMessage_;
   }
@@ -270,6 +292,10 @@ const char* MatchConfig::getShipsDir() {
 
 const char* MatchConfig::getCacheDir() {
   return cacheDir_;
+}
+
+const char* MatchConfig::getReplayTemplateDir() {
+  return replayTemplateDir_;
 }
 
 const char* MatchConfig::getStageName() {
