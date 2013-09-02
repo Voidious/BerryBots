@@ -24,8 +24,9 @@
 #include "bbutil.h"
 #include "eventhandler.h"
 
-#define REPLAY_VERSION        1
-#define REPLAY_TEMPLATE       "resources/replay_template.html"
+#define REPLAY_VERSION           1
+#define REPLAY_TEMPLATE          "resources/replay_template.html"
+#define REPLAY_DATA_PLACEHOLDER  "{$replayData}"
 
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
 #define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
@@ -99,6 +100,8 @@ class ReplayBuilder {
     void addShip(int shipIndex, int time);
     void removeShip(int shipIndex, int time);
     int round(double f);
+    char* buildReplayDataString();
+    char* readReplayTemplate();
 };
 
 class ReplayEventHandler : public EventHandler {

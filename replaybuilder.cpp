@@ -24,6 +24,7 @@
 #include <string.h>
 #include "filemanager.h"
 #include "bbutil.h"
+#include "basedir.h"
 #include "replaybuilder.h"
 
 ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
@@ -283,8 +284,42 @@ int ReplayBuilder::round(double f) {
 // | num torpedo blasts | <torpedo blasts> | num torpedo debris | <torpedo debris>
 // | num ship destroys | <ship destroys> | num texts | <texts>
 void ReplayBuilder::saveReplay(const char *filename) {
+  // TODO: throw exceptions for failing to save replay, don't silently fail
+
   FileManager fileManager;
-  char *absFilename = fileManager.getFilePath("/Users/pcupka", filename);
+  char *replayTemplate;
+  try {
+    replayTemplate = fileManager.readFile(templatePath_);
+  } catch (FileNotFoundException *e) {
+    delete e;
+    replayTemplate = 0;
+  }
+
+  if (replayTemplate != 0) {
+    std::string replayHtml;
+    const char *phStart = strstr(replayTemplate, REPLAY_DATA_PLACEHOLDER);
+    if (phStart == NULL) {
+      return;
+    }
+    replayHtml.append(replayTemplate, (phStart - replayTemplate));
+
+    char *replayData = buildReplayDataString();
+    replayHtml.append(replayData);
+    delete replayData;
+
+    const char *phEnd = &(phStart[strlen(REPLAY_DATA_PLACEHOLDER)]);
+    replayHtml.append(phEnd);
+
+    char *filePath = fileManager.getFilePath(getReplaysDir().c_str(), filename);
+    char *absFilename = fileManager.getAbsFilePath(filePath);
+    delete filePath;
+    fileManager.writeFile(absFilename, replayHtml.c_str());
+    delete absFilename;
+  }
+}
+
+char* ReplayBuilder::buildReplayDataString() {
+/*
   FILE *f = fopen(absFilename, "wb");
 
   int v = REPLAY_VERSION;
@@ -351,7 +386,10 @@ void ReplayBuilder::saveReplay(const char *filename) {
   textData_->writeChunks(f);
 
   fclose(f);
-  delete absFilename;
+*/
+  char *replayDataString = new char[1];
+  replayDataString[0] = '\0';
+  return replayDataString;
 }
 
 ReplayData::ReplayData(int maxChunks) {
