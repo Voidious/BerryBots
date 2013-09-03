@@ -30,9 +30,10 @@
 
 ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
   shipsAlive_ = new bool[numShips];
+  shipsShowName_ = new bool[numShips];
   numShips_ = numShips;
   for (int x = 0; x < numShips; x++) {
-    shipsAlive_[x] = false;
+    shipsAlive_[x] = shipsShowName_[x] = false;
   }
   stagePropertiesData_ = new ReplayData(1);
   wallsData_ = new ReplayData(MAX_MISC_CHUNKS);
@@ -40,6 +41,8 @@ ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
   shipPropertiesData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipAddData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipRemoveData_ = new ReplayData(MAX_MISC_CHUNKS);
+  shipShowNameData_ = new ReplayData(MAX_MISC_CHUNKS);
+  shipHideNameData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipTickData_ = new ReplayData(MAX_SHIP_TICK_CHUNKS);
   laserStartData_ = new ReplayData(MAX_LASER_CHUNKS);
   laserEndData_ = new ReplayData(MAX_LASER_CHUNKS);
@@ -62,12 +65,15 @@ ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
 
 ReplayBuilder::~ReplayBuilder() {
   delete shipsAlive_;
+  delete shipsShowName_;
   delete stagePropertiesData_;
   delete wallsData_;
   delete zonesData_;
   delete shipPropertiesData_;
   delete shipAddData_;
   delete shipRemoveData_;
+  delete shipShowNameData_;
+  delete shipHideNameData_;
   delete shipTickData_;
   delete laserStartData_;
   delete laserEndData_;
@@ -143,6 +149,20 @@ void ReplayBuilder::removeShip(int shipIndex, int time) {
   shipRemoveData_->addInt(time);
 }
 
+// Ship show name format:  (2)
+// ship index | time
+void ReplayBuilder::addShipShowName(int shipIndex, int time) {
+  shipShowNameData_->addInt(shipIndex);
+  shipShowNameData_->addInt(time);
+}
+
+// Ship hide name format:  (2)
+// ship index | time
+void ReplayBuilder::addShipHideName(int shipIndex, int time) {
+  shipHideNameData_->addInt(shipIndex);
+  shipHideNameData_->addInt(time);
+}
+
 // Ship tick format:  (5)
 // x * 10 | y * 10 | thruster angle * 100 | force * 100 | energy * 10
 void ReplayBuilder::addShipStates(Ship **ships, int time) {
@@ -155,6 +175,14 @@ void ReplayBuilder::addShipStates(Ship **ships, int time) {
         removeShip(ship->index, time);
       }
       shipsAlive_[x] = ship->alive;
+    }
+    if (shipsShowName_[x] != ship->showName) {
+      if (ship->showName) {
+        addShipShowName(ship->index, time);
+      } else {
+        addShipHideName(ship->index, time);
+      }
+      shipsShowName_[x] = ship->showName;
     }
   }
 
@@ -326,6 +354,8 @@ std::string ReplayBuilder::buildReplayDataString() {
              << ':' << shipPropertiesHexString()
              << ':' << shipAddData_->toHexString(2)
              << ':' << shipRemoveData_->toHexString(2)
+             << ':' << shipShowNameData_->toHexString(2)
+             << ':' << shipHideNameData_->toHexString(2)
              << ':' << shipTickData_->toHexString(5)
              << ':' << laserStartData_->toHexString(6)
              << ':' << laserEndData_->toHexString(2)

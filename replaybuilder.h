@@ -59,6 +59,7 @@ class ReplayData {
 
 class ReplayBuilder {
   bool *shipsAlive_;
+  bool *shipsShowName_;
   int numShips_;
   ReplayData *stagePropertiesData_;
   ReplayData *wallsData_;
@@ -66,6 +67,8 @@ class ReplayBuilder {
   ReplayData *shipPropertiesData_;
   ReplayData *shipAddData_;
   ReplayData *shipRemoveData_;
+  ReplayData *shipShowNameData_;
+  ReplayData *shipHideNameData_;
   ReplayData *shipTickData_;
   ReplayData *laserStartData_;
   ReplayData *laserEndData_;
@@ -103,6 +106,8 @@ class ReplayBuilder {
   private:
     void addShip(int shipIndex, int time);
     void removeShip(int shipIndex, int time);
+    void addShipShowName(int shipIndex, int time);
+    void addShipHideName(int shipIndex, int time);
     int round(double f);
     std::string buildReplayDataString();
     char* readReplayTemplate();

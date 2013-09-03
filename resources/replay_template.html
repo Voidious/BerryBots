@@ -28,6 +28,8 @@
 // Ship properties:  ship color | laser color | thruster color | name
 // Ship add:  ship index | time
 // Ship remove:  ship index | time
+// Ship show name:  ship index | time
+// Ship hide name:  ship index | time
 // Ship tick:  x * 10 | y * 10 | thruster angle * 100 | force * 100 | energy * 10
 // Laser start:  laser ID | ship index | fire time | x * 10 | y * 10 | heading * 100
 // Laser end:  laser ID | end time
@@ -43,7 +45,8 @@
 // | replay version
 // | stage width | stage height | num walls | <walls> | num zones | <zones>
 // | num ships | <ship properties> | num ship adds | <ship adds>
-// | num ship removes | <ship removes> | num ship ticks | <ship ticks>
+// | num ship removes | <ship removes> | num ship show names | <ship show names>
+// | num ship hide names | <ship hide names> | num ship ticks | <ship ticks>
 // | num laser starts | <laser starts> | num laser ends | <laser ends>
 // | num laser sparks | <laser sparks>
 // | num torpedo starts | <torpedo starts> | num torpedo ends | <torpedo ends>
@@ -265,7 +268,17 @@ var shipRemovesOffset = shipAddsOffset + 1 + (numShipAdds * 2);
 var shipRemoves = getShipStateChanges(shipRemovesOffset);
 var numShipRemoves = shipRemoves.length;
 
-var shipStatesOffset = shipRemovesOffset + 1 + (numShipRemoves * 2);
+var shipAddShowNamesOffset = shipRemovesOffset + 1 + (numShipRemoves * 2);
+var shipAddShowNames = getShipStateChanges(shipAddShowNamesOffset);
+var numShipAddShowNames = shipAddShowNames.length;
+
+var shipAddHideNamesOffset =
+    shipAddShowNamesOffset + 1 + (numShipAddShowNames * 2);
+var shipAddHideNames = getShipStateChanges(shipAddHideNamesOffset);
+var numShipAddHideNames = shipAddHideNames.length;
+
+var shipStatesOffset =
+    shipAddHideNamesOffset + 1 + (numShipAddHideNames * 2);
 var shipStates = getShipStates(shipStatesOffset);
 var numShipStates = shipStates.length;
 
@@ -313,10 +326,17 @@ for (var x = 0; x < numShips; x++) {
   shipAlives[x] = false;
 }
 
+var shipShowNames = new Array();
+for (var x = 0; x < numShips; x++) {
+  shipShowNames[x] = false;
+}
+
 var gameTime = 0;
 var nextShipState = 0;
 var nextShipAdd = 0;
 var nextShipRemove = 0;
+var nextShipShowName = 0;
+var nextShipHideName = 0;
 var shipDestroyCircles = new Array();
 var nextShipDestroy = 0;
 
@@ -532,6 +552,16 @@ var anim = new Kinetic.Animation(function(frame) {
       shipAlives[shipRemoves[nextShipRemove++].index] = false;
     }
 
+    while (nextShipShowName < numShipAddShowNames
+           && shipAddShowNames[nextShipShowName].time <= gameTime) {
+      shipShowNames[shipAddShowNames[nextShipShowName++].index] = true;
+    }
+
+    while (nextShipHideName < numShipAddHideNames
+           && shipAddHideNames[nextShipHideName].time <= gameTime) {
+      shipShowNames[shipAddHideNames[nextShipHideName++].index] = false;
+    }
+
     for (var x = 0; x < numShips; x++) {
       if (shipAlives[x]) {
         var shipState = shipStates[nextShipState++];
@@ -551,6 +581,7 @@ var anim = new Kinetic.Animation(function(frame) {
         var shipDotGroup = ships[x].getChildren()[4];
         shipDotGroup.setRotation(
             shipDotGroup.getRotation() + (SHIP_ROTATION * shipOrbits[x]));
+        ships[x].getChildren()[1].setVisible(shipShowNames[x]);
       } else {
         ships[x].hide();
       }
