@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <stdio.h>
 #include <string.h>
+#include <sstream>
 #include "filemanager.h"
 #include "bbutil.h"
 #include "basedir.h"
@@ -301,12 +302,9 @@ void ReplayBuilder::saveReplay(const char *filename) {
     if (phStart == NULL) {
       return;
     }
+
     replayHtml.append(replayTemplate, (phStart - replayTemplate));
-
-    char *replayData = buildReplayDataString();
-    replayHtml.append(replayData);
-    delete replayData;
-
+    replayHtml.append(buildReplayDataString());
     const char *phEnd = &(phStart[strlen(REPLAY_DATA_PLACEHOLDER)]);
     replayHtml.append(phEnd);
 
@@ -318,78 +316,112 @@ void ReplayBuilder::saveReplay(const char *filename) {
   }
 }
 
-char* ReplayBuilder::buildReplayDataString() {
-/*
-  FILE *f = fopen(absFilename, "wb");
+std::string ReplayBuilder::buildReplayDataString() {
+  std::stringstream dataStream;
 
-  int v = REPLAY_VERSION;
-  fwrite(&v, sizeof(int), 1, f);
+  dataStream << std::hex << REPLAY_VERSION;
+  dataStream << ':' << stagePropertiesData_->toHexString(0)
+             << ':' << wallsData_->toHexString(4)
+             << ':' << zonesData_->toHexString(4)
+             << ':' << shipPropertiesHexString()
+             << ':' << shipAddData_->toHexString(2)
+             << ':' << shipRemoveData_->toHexString(2)
+             << ':' << shipTickData_->toHexString(5)
+             << ':' << laserStartData_->toHexString(6)
+             << ':' << laserEndData_->toHexString(2)
+             << ':' << laserSparkData_->toHexString(6)
+             << ':' << torpedoStartData_->toHexString(6)
+             << ':' << torpedoEndData_->toHexString(2)
+             << ':' << torpedoBlastData_->toHexString(3)
+             << ':' << torpedoDebrisData_->toHexString(7)
+             << ':' << shipDestroyData_->toHexString(4)
+             << ':' << textDataHexString();
 
-  stagePropertiesData_->writeChunks(f);
+  return dataStream.str();
+}
 
-  int numWalls = wallsData_->getSize() / 4;
-  fwrite(&numWalls, sizeof(int), 1, f);
-  wallsData_->writeChunks(f);
+std::string ReplayBuilder::shipPropertiesHexString() {
+  std::stringstream hexStream;
+  hexStream << std::hex << numShips_;
 
-  int numZones = zonesData_->getSize() / 4;
-  fwrite(&numZones, sizeof(int), 1, f);
-  zonesData_->writeChunks(f);
+  int i = 0;
+  char *rgbString = new char[8]; // "#RRGGBB\0"
+  for (int x = 0; x < numShips_; x++) {
+    for (int y = 0; y < 3; y++) {
+      int r = shipPropertiesData_->getInt(i++);
+      int g = shipPropertiesData_->getInt(i++);
+      int b = shipPropertiesData_->getInt(i++);
+      sprintf(rgbString, "#%02x%02x%02x", r, g, b);
+      hexStream << ':' << rgbString;
+    }
 
-  fwrite(&numShips_, sizeof(int), 1, f);
-  shipPropertiesData_->writeChunks(f);
+    int nameLength = shipPropertiesData_->getInt(i++);
+    std::stringstream nameStream;
+    for (int y = 0; y < nameLength; y++) {
+      nameStream << (char) shipPropertiesData_->getInt(i++);
+    }
+    hexStream << ':' << escapeColons(nameStream.str());
+  }
+  delete rgbString;
 
-  int numAddShips = shipAddData_->getSize() / 2;
-  fwrite(&numAddShips, sizeof(int), 1, f);
-  shipAddData_->writeChunks(f);
+  return hexStream.str();
+}
 
-  int numRemoveShips = shipRemoveData_->getSize() / 2;
-  fwrite(&numRemoveShips, sizeof(int), 1, f);
-  shipRemoveData_->writeChunks(f);
+std::string ReplayBuilder::textDataHexString() {
+  std::stringstream hexStream;
+  hexStream << std::hex << numTexts_;
 
-  int numShipTicks = shipTickData_->getSize() / 5;
-  fwrite(&numShipTicks, sizeof(int), 1, f);
-  shipTickData_->writeChunks(f);
+  int i = 0;
+  char *rgbString = new char[8]; // "#RRGGBB\0"
+  for (int x = 0; x < numTexts_; x++) {
+    int time = textData_->getInt(i++);
+    hexStream << ':';
+    hexStream << std::hex << time;
 
-  int numLaserStarts = laserStartData_->getSize() / 6;
-  fwrite(&numLaserStarts, sizeof(int), 1, f);
-  laserStartData_->writeChunks(f);
+    int textLength = textData_->getInt(i++);
+    std::stringstream textStream;
+    for (int y = 0; y < textLength; y++) {
+      textStream << (char) textData_->getInt(i++);
+    }
+    hexStream << ':' << escapeColons(textStream.str());
 
-  int numLaserEnds = laserEndData_->getSize() / 2;
-  fwrite(&numLaserEnds, sizeof(int), 1, f);
-  laserEndData_->writeChunks(f);
+    for (int y = 0; y < 3; y++) {
+      appendHex(hexStream, textData_->getInt(i++));
+    }
 
-  int numLaserSparks = laserSparkData_->getSize() / 6;
-  fwrite(&numLaserSparks, sizeof(int), 1, f);
-  laserSparkData_->writeChunks(f);
+    int r = textData_->getInt(i++);
+    int g = textData_->getInt(i++);
+    int b = textData_->getInt(i++);
+    sprintf(rgbString, "#%02x%02x%02x", r, g, b);
+    hexStream << ':' << rgbString;
 
-  int numTorpedoStarts = torpedoStartData_->getSize() / 6;
-  fwrite(&numTorpedoStarts, sizeof(int), 1, f);
-  torpedoStartData_->writeChunks(f);
+    for (int y = 0; y < 2; y++) {
+      appendHex(hexStream, textData_->getInt(i++));
+    }
+  }
+  delete rgbString;
 
-  int numTorpedoEnds = torpedoEndData_->getSize() / 2;
-  fwrite(&numTorpedoEnds, sizeof(int), 1, f);
-  torpedoEndData_->writeChunks(f);
+  return hexStream.str();
+}
 
-  int numTorpedoBlasts = torpedoBlastData_->getSize() / 3;
-  fwrite(&numTorpedoBlasts, sizeof(int), 1, f);
-  torpedoBlastData_->writeChunks(f);
+std::string ReplayBuilder::escapeColons(std::string s) {
+  size_t pos = 0;
+  size_t i;
+  while ((i = s.find(':', pos)) != std::string::npos) {
+    s.replace(i, 0, "\\\\");
+    pos = i + 3;
+  }
+  return s;
+}
 
-  int numTorpedoDebris = torpedoDebrisData_->getSize() / 7;
-  fwrite(&numTorpedoDebris, sizeof(int), 1, f);
-  torpedoDebrisData_->writeChunks(f);
-
-  int numShipDestroys = shipDestroyData_->getSize() / 4;
-  fwrite(&numShipDestroys, sizeof(int), 1, f);
-  shipDestroyData_->writeChunks(f);
-  
-  fwrite(&numTexts_, sizeof(int), 1, f);
-  textData_->writeChunks(f);
-
-  fclose(f);
-*/
-  char *replayDataString = new char[1];
-  replayDataString[0] = '\0';
-  return replayDataString;
+void ReplayBuilder::appendHex(std::stringstream &hexStream, int i) {
+  hexStream << ':';
+  int sign = 1;
+  if (i < 0) {
+    hexStream << '-';
+    sign = -1;
+  }
+  hexStream << std::hex << (sign * i);
 }
 
 ReplayData::ReplayData(int maxChunks) {
@@ -424,10 +456,40 @@ int ReplayData::getSize() {
   return ((numChunks_ - 1) * CHUNK_SIZE) + chunks_[numChunks_ - 1]->size;
 }
 
+int ReplayData::getInt(int index) {
+  int chunk = index / CHUNK_SIZE;
+  int i = index % CHUNK_SIZE;
+  return chunks_[chunk]->data[i];
+}
+
 void ReplayData::writeChunks(FILE *f) {
   for (int x = 0; x < numChunks_; x++) {
-    fwrite(chunks_[x], sizeof(int), chunks_[x]->size, f);
+    fwrite(chunks_[x]->data, sizeof(int), chunks_[x]->size, f);
   }
+}
+
+std::string ReplayData::toHexString(int blockSize) {
+  std::stringstream hexStream;
+  if (blockSize > 0) {
+    int numElements = getSize() / blockSize;
+    hexStream << ':';
+    hexStream << std::hex << numElements;
+  }
+  for (int x = 0; x < numChunks_; x++) {
+    int chunkSize = chunks_[x]->size;
+    ReplayChunk *chunk = chunks_[x];
+    for (int y = 0; y < chunkSize; y++) {
+      hexStream << ':';
+      int d = chunk->data[y];
+      int sign = 1;
+      if (d < 0) {
+        hexStream << '-';
+        sign = -1;
+      }
+      hexStream << std::hex << (sign * d);
+    }
+  }
+  return hexStream.str().substr(1);
 }
 
 ReplayEventHandler::ReplayEventHandler(ReplayBuilder *replayBuilder) {

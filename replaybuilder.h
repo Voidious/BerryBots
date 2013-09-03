@@ -21,6 +21,8 @@
 #ifndef REPLAY_BUILDER_H
 #define REPLAY_BUILDER_H
 
+#include <string.h>
+#include <sstream>
 #include "bbutil.h"
 #include "eventhandler.h"
 
@@ -50,7 +52,9 @@ class ReplayData {
     ~ReplayData();
     void addInt(int x);
     int getSize();
+    int getInt(int index);
     void writeChunks(FILE *f);
+    std::string toHexString(int blockSize);
 };
 
 class ReplayBuilder {
@@ -100,8 +104,12 @@ class ReplayBuilder {
     void addShip(int shipIndex, int time);
     void removeShip(int shipIndex, int time);
     int round(double f);
-    char* buildReplayDataString();
+    std::string buildReplayDataString();
     char* readReplayTemplate();
+    std::string shipPropertiesHexString();
+    std::string textDataHexString();
+    std::string escapeColons(std::string s);
+    void appendHex(std::stringstream &hexStream, int i);
 };
 
 class ReplayEventHandler : public EventHandler {

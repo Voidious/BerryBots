@@ -13,6 +13,11 @@
   <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
   <body>
     <div id="container"></div>
+    <style type="text/css">
+      body {
+          overflow:hidden;
+      }
+    </style>
     <script src="kinetic-v4.4.3.js"></script>
     <script defer="defer">
 
@@ -588,7 +593,7 @@ var anim = new Kinetic.Animation(function(frame) {
 anim.start();
 
 
-function drawRectangles(baseOffset) {
+function drawRectangles(baseOffset, fillColor) {
   var numRectangles = getValue(baseOffset);
   for (var x = 0; x < numRectangles; x++) {
     var offset = baseOffset + 1 + (x * 4);
@@ -598,10 +603,10 @@ function drawRectangles(baseOffset) {
     var height = getValue(offset + 3);
     var wallRect = new Kinetic.Rect({
       x: STAGE_MARGIN + left,
-      y: STAGE_MARGIN + bottom,
+      y: STAGE_MARGIN + stageHeight - height - bottom,
       width: width,
       height: height,
-      fill: 'white'
+      fill: fillColor
     });
     layer.add(wallRect);
   }
