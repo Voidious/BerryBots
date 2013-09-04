@@ -23,14 +23,24 @@
 
 #include <wx/wx.h>
 #include "bbutil.h"
+#include "replaybuilder.h"
 
 class ResultsDialog : public wxFrame {
+  wxButton *saveButton_;
+  wxButton *viewButton_;
+  ReplayBuilder *replayBuilder_;
   wxEventFilter *eventFilter_;
 
   public:
-    ResultsDialog(Team **teams, int numTeams, bool hasScores, wxPoint center);
+    ResultsDialog(Team **teams, int numTeams, bool hasScores, wxPoint center,
+                  ReplayBuilder *replayBuilder);
     ~ResultsDialog();
     void onClose(wxCommandEvent &event);
+    void onSaveReplay(wxCommandEvent &event);
+    void onViewReplay(wxCommandEvent &event);
+    void saveReplay();
+    void viewReplay();
+    void setMnemonicLabels(bool modifierDown);
 };
 
 class ResultsEventFilter : public wxEventFilter {

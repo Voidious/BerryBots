@@ -733,9 +733,8 @@ void GuiManager::runCurrentMatch() {
           nextDrawTime_ += tpsFactor_;
         }
         if (engine_->isGameOver() && !showedResults_) {
-          showResults();
+          showResults(engine_->getReplayBuilder());
           showedResults_ = true;
-          engine_->getReplayBuilder()->saveReplay("replay1.html");
         }
       }
     }
@@ -773,7 +772,7 @@ void GuiManager::drawFrame(sf::RenderWindow *window) {
   window->display();
 }
 
-void GuiManager::showResults() {
+void GuiManager::showResults(ReplayBuilder *replayBuilder) {
   Team **rankedTeams = engine_->getRankedTeams();
   sf::Vector2u windowSize = window_->getSize();
   sf::Vector2i windowPosition = window_->getPosition();
@@ -781,7 +780,7 @@ void GuiManager::showResults() {
   int yCenter = windowPosition.y + (windowSize.y / 2);
 
   resultsDialog_ = new ResultsDialog(rankedTeams, engine_->getNumTeams(),
-      engine_->hasScores(), wxPoint(xCenter, yCenter));
+      engine_->hasScores(), wxPoint(xCenter, yCenter), replayBuilder);
   delete rankedTeams;
   resultsDialog_->Show();
   resultsDialog_->Raise();

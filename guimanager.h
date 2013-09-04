@@ -34,6 +34,7 @@
 #include "menubarmaker.h"
 #include "guiprinthandler.h"
 #include "resultsdialog.h"
+#include "replaybuilder.h"
 
 #define ITEM_STAGE   1
 #define ITEM_SHIP    2
@@ -197,7 +198,7 @@ class GuiManager {
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
     void drawFrame(sf::RenderWindow *window);
-    void showResults();
+    void showResults(ReplayBuilder *replayBuilder);
     void clearTeamErroredForActiveConsoles(BerryBotsEngine *engine);
     void resumeMatch();
     void showDialog(wxFrame *dialog);

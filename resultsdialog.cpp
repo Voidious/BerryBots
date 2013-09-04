@@ -25,9 +25,11 @@
 #include "resultsdialog.h"
 
 ResultsDialog::ResultsDialog(Team **teams, int numTeams, bool hasScores,
-                             wxPoint center)
+                             wxPoint center, ReplayBuilder *replayBuilder)
     : wxFrame(NULL, wxID_ANY, "Results", wxDefaultPosition, wxDefaultSize,
-              wxDEFAULT_FRAME_STYLE & ~ (wxMAXIMIZE_BOX)) {
+              wxDEFAULT_FRAME_STYLE & ~ (wxMAXIMIZE_BOX | wxRESIZE_BORDER)) {
+
+  replayBuilder_ = replayBuilder;
 
 #ifdef __WINDOWS__
   SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
@@ -42,7 +44,7 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, bool hasScores,
 #endif
 
   wxPanel *mainPanel = new wxPanel(this, wxID_ANY);
-  wxBoxSizer *tableSizer = new wxBoxSizer(wxHORIZONTAL);
+  wxBoxSizer *tableSizer = new wxBoxSizer(wxVERTICAL);
   wxGrid *resultsGrid =
       new wxGrid(mainPanel, wxID_ANY, wxPoint(0, 0), wxDefaultSize);
 
@@ -121,6 +123,20 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, bool hasScores,
   }
 
   tableSizer->Add(resultsGrid, 0, wxEXPAND);
+  tableSizer->AddSpacer(3);
+
+  wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+  saveButton_ = new wxButton(mainPanel, wxID_ANY, "    &Save Replay    ");
+  viewButton_ = new wxButton(mainPanel, wxID_ANY, "    &View Replay    ");
+  buttonSizer->AddStretchSpacer(1);
+  buttonSizer->Add(saveButton_, 0, wxEXPAND);
+  buttonSizer->AddSpacer(5);
+  buttonSizer->Add(viewButton_, 0, wxEXPAND);
+  buttonSizer->AddStretchSpacer(1);
+
+  tableSizer->Add(buttonSizer, 0, wxEXPAND, 50);
+  tableSizer->AddSpacer(3);
+
   wxBoxSizer *mainSizer = new wxBoxSizer(wxHORIZONTAL);
   mainSizer->Add(mainPanel);
   mainPanel->SetSizerAndFit(tableSizer);
@@ -131,6 +147,11 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, bool hasScores,
 
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(ResultsDialog::onClose));
+  Connect(saveButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(ResultsDialog::onSaveReplay));
+  Connect(viewButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(ResultsDialog::onViewReplay));
+
   eventFilter_ = new ResultsEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
 }
@@ -138,10 +159,46 @@ ResultsDialog::ResultsDialog(Team **teams, int numTeams, bool hasScores,
 ResultsDialog::~ResultsDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
+  delete saveButton_;
+  delete viewButton_;
 }
 
 void ResultsDialog::onClose(wxCommandEvent &event) {
   Hide();
+}
+
+void ResultsDialog::onSaveReplay(wxCommandEvent &event) {
+  saveReplay();
+}
+
+void ResultsDialog::onViewReplay(wxCommandEvent &event) {
+  viewReplay();
+}
+
+void ResultsDialog::saveReplay() {
+  replayBuilder_->saveReplay("replay2.html");
+}
+
+void ResultsDialog::viewReplay() {
+  
+}
+
+void ResultsDialog::setMnemonicLabels(bool modifierDown) {
+  // TODO: I'd rather it look like the button was pressed when you hit the
+  //       shortcut, if possible. For now having trouble figuring out the
+  //       wxButton::Command() call.
+  if (modifierDown) {
+#ifdef __WXOSX__
+    saveButton_->SetLabel("&Save Replay \u2318S");
+    viewButton_->SetLabel("&View Replay \u2318V");
+#else
+    saveButton_->SetLabel("&Save Replay  alt-S");
+    viewButton_->SetLabel("&View Replay  alt-V");
+#endif
+  } else {
+    saveButton_->SetLabel("    &Save Replay    ");
+    viewButton_->SetLabel("    &View Replay    ");
+  }
 }
 
 ResultsEventFilter::ResultsEventFilter(ResultsDialog *resultsDialog) {
@@ -153,15 +210,38 @@ ResultsEventFilter::~ResultsEventFilter() {
 }
 
 int ResultsEventFilter::FilterEvent(wxEvent& event) {
+  bool modifierDown = false;
+  wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+#if defined(__WXOSX__)
+  modifierDown = keyEvent->ControlDown();
+#elif defined(__WINDOWS__)
+  modifierDown = keyEvent->AltDown();
+#endif
+
   const wxEventType type = event.GetEventType();
   if (resultsDialog_->IsActive() && type == wxEVT_KEY_DOWN) {
+    resultsDialog_->setMnemonicLabels(modifierDown);
     wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
     int keyCode = keyEvent->GetKeyCode();
     if (keyCode == WXK_ESCAPE
-        || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
+        || (keyEvent->GetUnicodeKey() == 'W' && modifierDown)) {
       resultsDialog_->Close();
       return Event_Processed;
+#ifdef __WXOSX__
+    // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
+    } else if (keyEvent->GetUnicodeKey() == 'S' && modifierDown) {
+      resultsDialog_->saveReplay();
+      return Event_Processed;
+    } else if (keyEvent->GetUnicodeKey() == 'V' && modifierDown) {
+      resultsDialog_->viewReplay();
+      return Event_Processed;
+#endif
     }
   }
+
+  if (type == wxEVT_KEY_UP) {
+    resultsDialog_->setMnemonicLabels(modifierDown);
+  }
+
   return Event_Skip;
 }
