@@ -21,15 +21,20 @@
 #include <string.h>
 #include <wx/wx.h>
 #include <wx/grid.h>
+#include <wx/datetime.h>
 #include "bbwx.h"
+#include "filemanager.h"
 #include "resultsdialog.h"
 
-ResultsDialog::ResultsDialog(Team **teams, int numTeams, bool hasScores,
-                             wxPoint center, ReplayBuilder *replayBuilder)
+ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
+    bool hasScores, wxPoint center, ReplayBuilder *replayBuilder)
     : wxFrame(NULL, wxID_ANY, "Results", wxDefaultPosition, wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxMAXIMIZE_BOX | wxRESIZE_BORDER)) {
 
+  stageName_ = new char[strlen(stageName) + 1];
+  strcpy(stageName_, stageName);
   replayBuilder_ = replayBuilder;
+  fileManager_ = new FileManager();
 
 #ifdef __WINDOWS__
   SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
@@ -161,6 +166,8 @@ ResultsDialog::~ResultsDialog() {
   delete eventFilter_;
   delete saveButton_;
   delete viewButton_;
+  delete stageName_;
+  delete fileManager_;
 }
 
 void ResultsDialog::onClose(wxCommandEvent &event) {
@@ -175,11 +182,55 @@ void ResultsDialog::onViewReplay(wxCommandEvent &event) {
   viewReplay();
 }
 
-void ResultsDialog::saveReplay() {
-  replayBuilder_->saveReplay("replay2.html");
+char* ResultsDialog::saveReplay() {
+  char *filename = generateFilename();
+  replayBuilder_->saveReplay(filename);
+  displayFilename(filename);
+  return filename;
 }
 
 void ResultsDialog::viewReplay() {
+  
+}
+
+char* ResultsDialog::generateFilename() {
+  char *filename = 0;
+  do {
+    if (filename != 0) {
+      delete filename;
+    }
+    filename = newFilename();
+  } while (fileManager_->fileExists(filename));
+
+  return filename;
+}
+
+char* ResultsDialog::newFilename() {
+  std::string filename(stageName_);
+  filename.append(" - ");
+  wxDateTime dateTime;
+  dateTime.SetToCurrent();
+  filename.append(dateTime.FormatDate());
+  filename.append(" ");
+  filename.append(dateTime.FormatTime());
+  filename.append(".html");
+
+  char *newFilename = new char[filename.length() + 1];
+  strcpy(newFilename, filename.c_str());
+
+  long filenameLen = strlen(newFilename);
+  for (int x = 0; x < filenameLen; x++) {
+    if (newFilename[x] == '/') {
+      newFilename[x] = '-';
+    }
+    if (newFilename[x] == ':') {
+      newFilename[x] = '.';
+    }
+  }
+  return newFilename;
+}
+
+void ResultsDialog::displayFilename(const char *filename) {
   
 }
 

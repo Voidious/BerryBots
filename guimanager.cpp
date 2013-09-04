@@ -779,8 +779,9 @@ void GuiManager::showResults(ReplayBuilder *replayBuilder) {
   int xCenter = windowPosition.x + (windowSize.x / 2);
   int yCenter = windowPosition.y + (windowSize.y / 2);
 
-  resultsDialog_ = new ResultsDialog(rankedTeams, engine_->getNumTeams(),
-      engine_->hasScores(), wxPoint(xCenter, yCenter), replayBuilder);
+  resultsDialog_ = new ResultsDialog(engine_->getStage()->getName(),
+      rankedTeams, engine_->getNumTeams(), engine_->hasScores(),
+      wxPoint(xCenter, yCenter), replayBuilder);
   delete rankedTeams;
   resultsDialog_->Show();
   resultsDialog_->Raise();
