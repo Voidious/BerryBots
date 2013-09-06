@@ -36,6 +36,7 @@
 #include "bbutil.h"
 #include "basedir.h"
 #include "filemanager.h"
+#include "sysexec.h"
 
 using namespace std;
 
@@ -45,6 +46,7 @@ class BerryBotsApp : public wxApp {
   GuiManager *guiManager_;
   GuiListener *guiListener_;
   FileManager *fileManager_;
+  SystemExecutor *systemExecutor_;
 
   public:
     virtual bool OnInit();
@@ -61,9 +63,6 @@ class BerryBotsApp : public wxApp {
     void onBrowseShips(wxCommandEvent &event);
     void onBrowseRunners(wxCommandEvent &event);
     void onBrowseApidocs(wxCommandEvent &event);
-  private:
-    void browseDirectory(const char *dir);
-    void openHtmlFile(const char *file);
 };
 
 class AppGuiListener : public GuiListener {
@@ -131,6 +130,7 @@ bool BerryBotsApp::OnInit() {
   guiListener_ = new AppGuiListener(this);
   guiManager_ = new GuiManager(guiListener_);
   fileManager_ = new FileManager();
+  systemExecutor_ = new SystemExecutor();
 
   Connect(wxID_EXIT, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::OnQuit));
@@ -213,71 +213,19 @@ void BerryBotsApp::onChangeBaseDir(wxCommandEvent &event) {
 }
 
 void BerryBotsApp::onBrowseStages(wxCommandEvent &event) {
-  browseDirectory(getStagesDir().c_str());
+  systemExecutor_->browseDirectory(getStagesDir().c_str());
 }
 
 void BerryBotsApp::onBrowseShips(wxCommandEvent &event) {
-  browseDirectory(getShipsDir().c_str());
+  systemExecutor_->browseDirectory(getShipsDir().c_str());
 }
 
 void BerryBotsApp::onBrowseRunners(wxCommandEvent &event) {
-  browseDirectory(getRunnersDir().c_str());
+  systemExecutor_->browseDirectory(getRunnersDir().c_str());
 }
 
 void BerryBotsApp::onBrowseApidocs(wxCommandEvent &event) {
-  openHtmlFile(getApidocPath().c_str());
-}
-
-void BerryBotsApp::browseDirectory(const char *dir) {
-  if (!fileManager_->fileExists(dir)) {
-    std::string fileNotFoundString("Directory not found: ");
-    fileNotFoundString.append(dir);
-    wxMessageDialog cantBrowseMessage(NULL, "Directory not found",
-                                      fileNotFoundString, wxOK);
-    cantBrowseMessage.ShowModal();
-  } else {
-#if defined(__WXOSX__)
-    ::wxExecute(wxString::Format("open \"%s\"", dir), wxEXEC_ASYNC, NULL);
-#elif defined(__LINUX__)
-    ::wxExecute(wxString::Format("xdg-open \"%s\"", dir), wxEXEC_ASYNC, NULL);
-#elif defined(__WINDOWS__)
-    ::wxExecute(wxString::Format("explorer \"%s\"", dir), wxEXEC_ASYNC, NULL);
-#else
-    wxMessageDialog cantBrowseMessage(NULL, "Couldn't browse directory",
-        "Sorry, don't know how to open/browse files on your platform.", wxOK);
-    cantBrowseMessage.ShowModal();
-#endif
-  }
-}
-
-void BerryBotsApp::openHtmlFile(const char *file) {
-  if (!fileManager_->fileExists(file)) {
-    std::string fileNotFoundString("File not found: ");
-    fileNotFoundString.append(file);
-    wxMessageDialog cantBrowseMessage(NULL, "File not found",
-                                      fileNotFoundString, wxOK);
-    cantBrowseMessage.ShowModal();
-  } else {
-    // On Mac OS X, wxFileType::GetOpenCommand always returns Safari instead of
-    // the default browser. And what's worse, Safari doesn't load the CSS
-    // properly when we open it that way. But we can trust the 'open' command.
-#if defined(__WXOSX__)
-    ::wxExecute(wxString::Format("open \"%s\"", file), wxEXEC_ASYNC, NULL);
-#else
-    wxMimeTypesManager *typeManager = new wxMimeTypesManager();
-    wxFileType *htmlType = typeManager->GetFileTypeFromExtension(".html");
-    wxString openCommand = htmlType->GetOpenCommand(file);
-    if (openCommand.IsEmpty()) {
-      wxMessageDialog cantBrowseMessage(NULL, "Couldn't open file",
-          "Sorry, don't know how to open/browse files on your platform.", wxOK);
-      cantBrowseMessage.ShowModal();
-    } else {
-      ::wxExecute(openCommand, wxEXEC_ASYNC, NULL);
-    }
-    delete htmlType;
-    delete typeManager;
-#endif
-  }
+  systemExecutor_->openHtmlFile(getApidocPath().c_str());
 }
 
 AppGuiListener::AppGuiListener(BerryBotsApp *app) {
