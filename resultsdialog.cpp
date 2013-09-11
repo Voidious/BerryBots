@@ -54,7 +54,7 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
 #endif
 
   wxPanel *mainPanel = new wxPanel(this, wxID_ANY);
-  wxBoxSizer *tableSizer = new wxBoxSizer(wxVERTICAL);
+  wxBoxSizer *panelSizer = new wxBoxSizer(wxVERTICAL);
   wxGrid *resultsGrid =
       new wxGrid(mainPanel, wxID_ANY, wxPoint(0, 0), wxDefaultSize);
 
@@ -132,8 +132,8 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
     }
   }
 
-  tableSizer->Add(resultsGrid, 0, wxEXPAND);
-  tableSizer->AddSpacer(3);
+  panelSizer->Add(resultsGrid, 0, wxEXPAND);
+  panelSizer->AddSpacer(3);
 
   wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
   saveButton_ = new wxButton(mainPanel, wxID_ANY, "    &Save Replay    ");
@@ -144,13 +144,13 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
   buttonSizer->Add(viewButton_, 0, wxEXPAND);
   buttonSizer->AddStretchSpacer(1);
 
-  tableSizer->Add(buttonSizer, 0, wxEXPAND, 50);
-  tableSizer->AddSpacer(3);
+  panelSizer->Add(buttonSizer, 0, wxEXPAND, 50);
+  panelSizer->AddSpacer(3);
 
-  wxBoxSizer *mainSizer = new wxBoxSizer(wxHORIZONTAL);
-  mainSizer->Add(mainPanel);
-  mainPanel->SetSizerAndFit(tableSizer);
-  SetSizerAndFit(mainSizer);
+  wxBoxSizer *dialogSizer = new wxBoxSizer(wxHORIZONTAL);
+  dialogSizer->Add(mainPanel);
+  mainPanel->SetSizerAndFit(panelSizer);
+  SetSizerAndFit(dialogSizer);
   wxSize windowSize = GetSize();
   this->SetPosition(wxPoint(center.x - (windowSize.x / 2),
                             center.y - (windowSize.y / 2)));
