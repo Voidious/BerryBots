@@ -23,7 +23,9 @@
 #include <wx/grid.h>
 #include <wx/datetime.h>
 #include "bbwx.h"
+#include "basedir.h"
 #include "filemanager.h"
+#include "sysexec.h"
 #include "resultsdialog.h"
 
 ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
@@ -32,9 +34,12 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
               wxDEFAULT_FRAME_STYLE & ~ (wxMAXIMIZE_BOX | wxRESIZE_BORDER)) {
 
   stageName_ = new char[strlen(stageName) + 1];
+  replayFilename_ = 0;
+  savedReplay_ = false;
   strcpy(stageName_, stageName);
   replayBuilder_ = replayBuilder;
   fileManager_ = new FileManager();
+  systemExecutor_ = new SystemExecutor();
 
 #ifdef __WINDOWS__
   SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
@@ -168,6 +173,10 @@ ResultsDialog::~ResultsDialog() {
   delete viewButton_;
   delete stageName_;
   delete fileManager_;
+  delete systemExecutor_;
+  if (replayFilename_ != 0) {
+    delete replayFilename_;
+  }
 }
 
 void ResultsDialog::onClose(wxCommandEvent &event) {
@@ -182,51 +191,46 @@ void ResultsDialog::onViewReplay(wxCommandEvent &event) {
   viewReplay();
 }
 
-char* ResultsDialog::saveReplay() {
-  char *filename = generateFilename();
-  replayBuilder_->saveReplay(filename);
-  displayFilename(filename);
-  return filename;
+void ResultsDialog::saveReplay() {
+  if (!savedReplay_) {
+    replayFilename_ = generateFilename();
+    replayBuilder_->saveReplay(replayFilename_);
+    displayFilename(replayFilename_);
+    savedReplay_ = true;
+  }
 }
 
 void ResultsDialog::viewReplay() {
-  
+  saveReplay();
+  systemExecutor_->openHtmlFile(replayFilename_);
 }
 
 char* ResultsDialog::generateFilename() {
-  char *filename = 0;
+  char *absFilename = 0;
   do {
-    if (filename != 0) {
-      delete filename;
+    if (absFilename != 0) {
+      delete absFilename;
     }
-    filename = newFilename();
-  } while (fileManager_->fileExists(filename));
+    char *filename = newFilename();
+    absFilename = fileManager_->getFilePath(getReplaysDir().c_str(), filename);
+    delete filename;
+    
+  } while (fileManager_->fileExists(absFilename));
 
-  return filename;
+  return absFilename;
 }
 
 char* ResultsDialog::newFilename() {
   std::string filename(stageName_);
-  filename.append(" - ");
+  filename.append("-");
   wxDateTime dateTime;
   dateTime.SetToCurrent();
-  filename.append(dateTime.FormatDate());
-  filename.append(" ");
-  filename.append(dateTime.FormatTime());
+  filename.append(dateTime.Format("%Y.%m.%d-%H.%M.%S"));
   filename.append(".html");
 
   char *newFilename = new char[filename.length() + 1];
   strcpy(newFilename, filename.c_str());
 
-  long filenameLen = strlen(newFilename);
-  for (int x = 0; x < filenameLen; x++) {
-    if (newFilename[x] == '/') {
-      newFilename[x] = '-';
-    }
-    if (newFilename[x] == ':') {
-      newFilename[x] = '.';
-    }
-  }
   return newFilename;
 }
 

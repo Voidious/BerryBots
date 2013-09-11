@@ -25,13 +25,17 @@
 #include "bbutil.h"
 #include "replaybuilder.h"
 #include "filemanager.h"
+#include "sysexec.h"
 
 class ResultsDialog : public wxFrame {
   wxButton *saveButton_;
   wxButton *viewButton_;
   char *stageName_;
+  char *replayFilename_;
+  bool savedReplay_;
   ReplayBuilder *replayBuilder_;
   FileManager *fileManager_;
+  SystemExecutor *systemExecutor_;
   wxEventFilter *eventFilter_;
 
   public:
@@ -41,7 +45,7 @@ class ResultsDialog : public wxFrame {
     void onClose(wxCommandEvent &event);
     void onSaveReplay(wxCommandEvent &event);
     void onViewReplay(wxCommandEvent &event);
-    char* saveReplay();
+    void saveReplay();
     void viewReplay();
     void setMnemonicLabels(bool modifierDown);
   private:
