@@ -28,6 +28,7 @@
 
 #define REPLAY_VERSION           1
 #define REPLAY_TEMPLATE          "resources/replay_template.html"
+#define KINETIC_JS               "resources/kinetic-v4.6.0.js"
 #define REPLAY_DATA_PLACEHOLDER  "{$replayData}"
 
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
@@ -81,6 +82,7 @@ class ReplayBuilder {
   ReplayData *textData_;
   int numTexts_;
   char *templatePath_;
+  char *kineticResourcePath_;
   
   public:
     ReplayBuilder(int numShips, const char *templateDir);

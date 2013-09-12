@@ -57,9 +57,11 @@ ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
 
   if (templateDir == 0) {
     templatePath_ = 0;
+    kineticResourcePath_ = 0;
   } else {
     FileManager fileManager;
     templatePath_ = fileManager.getFilePath(templateDir, REPLAY_TEMPLATE);
+    kineticResourcePath_ = fileManager.getFilePath(templateDir, KINETIC_JS);
   }
 }
 
@@ -86,6 +88,9 @@ ReplayBuilder::~ReplayBuilder() {
   delete textData_;
   if (templatePath_ != 0) {
     delete templatePath_;
+  }
+  if (kineticResourcePath_ != 0) {
+    delete kineticResourcePath_;
   }
 }
 
@@ -324,6 +329,27 @@ void ReplayBuilder::saveReplay(const char *filename) {
     replayTemplate = 0;
   }
 
+  char *kineticJsFilename = fileManager.parseFilename(KINETIC_JS);
+  char *kineticPath =
+      fileManager.getFilePath(getReplaysDir().c_str(), kineticJsFilename);
+  delete kineticJsFilename;
+
+  if (!fileManager.fileExists(kineticPath)) {
+    char *kineticJs;
+    try {
+      kineticJs = fileManager.readFile(kineticResourcePath_);
+    } catch (FileNotFoundException *e) {
+      delete e;
+      kineticJs = 0;
+    }
+    
+    fileManager.writeFile(kineticPath, kineticJs);
+    if (kineticJs != 0) {
+      delete kineticJs;
+    }
+  }
+  delete kineticPath;
+    
   if (replayTemplate != 0) {
     std::string replayHtml;
     const char *phStart = strstr(replayTemplate, REPLAY_DATA_PLACEHOLDER);
@@ -341,6 +367,7 @@ void ReplayBuilder::saveReplay(const char *filename) {
     delete filePath;
     fileManager.writeFile(absFilename, replayHtml.c_str());
     delete absFilename;
+    delete replayTemplate;
   }
 }
 
