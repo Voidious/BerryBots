@@ -21,6 +21,8 @@
 #ifndef RESULTS_DIALOG_H
 #define RESULTS_DIALOG_H
 
+#define MAX_DISPLAY_NAME_LENGTH  64
+
 #include <wx/wx.h>
 #include "bbutil.h"
 #include "replaybuilder.h"
@@ -30,6 +32,9 @@
 class ResultsDialog : public wxFrame {
   wxButton *saveButton_;
   wxButton *viewButton_;
+  wxPanel *mainPanel_;
+  wxBoxSizer *dialogSizer_;
+  wxBoxSizer *panelSizer_;
   char *stageName_;
   char *replayFilename_;
   bool savedReplay_;

@@ -53,10 +53,10 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
   SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
-  wxPanel *mainPanel = new wxPanel(this, wxID_ANY);
-  wxBoxSizer *panelSizer = new wxBoxSizer(wxVERTICAL);
+  mainPanel_ = new wxPanel(this, wxID_ANY);
+  panelSizer_ = new wxBoxSizer(wxVERTICAL);
   wxGrid *resultsGrid =
-      new wxGrid(mainPanel, wxID_ANY, wxPoint(0, 0), wxDefaultSize);
+      new wxGrid(mainPanel_, wxID_ANY, wxPoint(0, 0), wxDefaultSize);
 
   int baseCols = (hasScores ? 3 : 2);
 
@@ -132,25 +132,27 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
     }
   }
 
-  panelSizer->Add(resultsGrid, 0, wxEXPAND);
-  panelSizer->AddSpacer(3);
+  panelSizer_->Add(resultsGrid, 0, wxEXPAND);
+  panelSizer_->AddSpacer(3);
 
   wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-  saveButton_ = new wxButton(mainPanel, wxID_ANY, "    &Save Replay    ");
-  viewButton_ = new wxButton(mainPanel, wxID_ANY, "    &View Replay    ");
+  saveButton_ = new wxButton(mainPanel_, wxID_ANY, "    &Save Replay    ");
+  viewButton_ = new wxButton(mainPanel_, wxID_ANY, "    &View Replay    ");
+  buttonSizer->AddSpacer(3);
   buttonSizer->AddStretchSpacer(1);
   buttonSizer->Add(saveButton_, 0, wxEXPAND);
   buttonSizer->AddSpacer(5);
   buttonSizer->Add(viewButton_, 0, wxEXPAND);
   buttonSizer->AddStretchSpacer(1);
+  buttonSizer->AddSpacer(3);
 
-  panelSizer->Add(buttonSizer, 0, wxEXPAND, 50);
-  panelSizer->AddSpacer(3);
+  panelSizer_->Add(buttonSizer, 0, wxEXPAND, 50);
+  panelSizer_->AddSpacer(3);
 
-  wxBoxSizer *dialogSizer = new wxBoxSizer(wxHORIZONTAL);
-  dialogSizer->Add(mainPanel);
-  mainPanel->SetSizerAndFit(panelSizer);
-  SetSizerAndFit(dialogSizer);
+  dialogSizer_ = new wxBoxSizer(wxHORIZONTAL);
+  dialogSizer_->Add(mainPanel_);
+  mainPanel_->SetSizerAndFit(panelSizer_);
+  SetSizerAndFit(dialogSizer_);
   wxSize windowSize = GetSize();
   this->SetPosition(wxPoint(center.x - (windowSize.x / 2),
                             center.y - (windowSize.y / 2)));
@@ -197,6 +199,7 @@ void ResultsDialog::saveReplay() {
     replayBuilder_->saveReplay(replayFilename_);
     displayFilename(replayFilename_);
     savedReplay_ = true;
+    saveButton_->Disable();
   }
 }
 
@@ -235,7 +238,31 @@ char* ResultsDialog::newFilename() {
 }
 
 void ResultsDialog::displayFilename(const char *filename) {
-  
+  char *displayName;
+  if (strlen(filename) > MAX_DISPLAY_NAME_LENGTH) {
+    displayName = new char[MAX_DISPLAY_NAME_LENGTH + 1];
+    int first = ((MAX_DISPLAY_NAME_LENGTH - 3) / 6);
+    int last = MAX_DISPLAY_NAME_LENGTH - 3 - first;
+    strncpy(displayName, filename, first);
+    displayName[first] = displayName[first + 1] = displayName[first + 2] = '.';
+    strncpy(
+        &(displayName[first + 3]), &(filename[strlen(filename) - last]), last);
+    displayName[MAX_DISPLAY_NAME_LENGTH] = '\0';
+  } else {
+    displayName = new char[strlen(filename) + 1];
+    strcpy(displayName, filename);
+  }
+  wxBoxSizer *saveSizer = new wxBoxSizer(wxHORIZONTAL);
+
+  wxStaticText *replayFilenameText = new wxStaticText(
+      mainPanel_, wxID_ANY, wxString::Format("Saved: %s", displayName));
+  saveSizer->AddSpacer(3);
+  saveSizer->Add(replayFilenameText);
+  saveSizer->AddSpacer(3);
+  panelSizer_->Add(saveSizer, 0, wxALIGN_CENTER);
+  panelSizer_->AddSpacer(3);
+  mainPanel_->SetSizerAndFit(panelSizer_);
+  SetSizerAndFit(dialogSizer_);
 }
 
 void ResultsDialog::setMnemonicLabels(bool modifierDown) {
