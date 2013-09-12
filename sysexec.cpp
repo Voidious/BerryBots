@@ -18,8 +18,9 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include <wx/wx.h>
 #include <string>
+#include <wx/wx.h>
+#include <wx/mimetype.h>
 #include "filemanager.h"
 #include "sysexec.h"
 

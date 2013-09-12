@@ -26,7 +26,6 @@
 #include <math.h>
 #include <SFML/Graphics.hpp>
 #include <wx/wx.h>
-#include <wx/mimetype.h>
 
 #include "bbwx.h"
 #include "stage.h"
