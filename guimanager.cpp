@@ -605,11 +605,13 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     printStateListener_ = new PrintStateListener(guiPrintHandler);
     printHandler = guiPrintHandler;
   }
-  stageConsole_->print("== Stage control program loaded: ");
-  stageConsole_->println(stageName);
 
   engine_ = new BerryBotsEngine(fileManager_, resourcePath().c_str());
   engine_->setListener(printStateListener_);
+
+  printHandler->stagePrint("== Stage control program loaded: ");
+  printHandler->stagePrint(stageName);
+
   Stage *stage = engine_->getStage();
   if (restarting_) {
     stage->setGfxEnabled(stageConsole_->isChecked());
@@ -623,9 +625,9 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
 
     for (int x = 0; x < engine_->getNumTeams(); x++) {
       teamConsoles_[x]->SetTitle(engine_->getTeam(x)->name);
-      teamConsoles_[x]->println();
+      printHandler->shipPrint(engine_->getTeam(x)->state, "");
     }
-    stageConsole_->println();
+    printHandler->stagePrint("");
   } catch (EngineException *e) {
 #ifdef __WXOSX__
     // Since we initialized the window early.
@@ -1340,97 +1342,96 @@ void GuiManager::gameRunnerInitialFocus() {
 
 void GuiManager::printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip,
                                     int time) {
-  std::stringstream timeStream;
-  timeStream << " @ " << time;
-  std::string timeString = timeStream.str();
-  const char *atTime = timeString.c_str();
-
   if (destroyedShip->index == destroyerShip->index) {
-    OutputConsole *console = teamConsoles_[destroyerShip->teamIndex];
-    console->print("== ");
-    console->print(destroyerShip->properties->name);
-    console->print(" destroyed itself");
-    console->println(atTime);
+    lua_State *teamState = engine_->getTeam(destroyerShip->teamIndex)->state;
+    std::stringstream msgStream;
+    msgStream << "== " << destroyerShip->properties->name
+              << " destroyed itself @ " << time;
+    printHandler->shipPrint(teamState, msgStream.str().c_str());
   } else {
-    OutputConsole *destroyerConsole = teamConsoles_[destroyerShip->teamIndex];
-    destroyerConsole->print("== ");
-    destroyerConsole->print(destroyerShip->properties->name);
-    destroyerConsole->print(" destroyed ");
-    destroyerConsole->print((destroyedShip->teamIndex == destroyerShip->teamIndex)
-        ? "friendly" : "enemy");
-    destroyerConsole->print(" ship: ");
-    destroyerConsole->print(destroyedShip->properties->name);
-    destroyerConsole->println(atTime);
-    
-    OutputConsole *destroyeeConsole = teamConsoles_[destroyedShip->teamIndex];
-    destroyeeConsole->print("== ");
-    destroyeeConsole->print(destroyedShip->properties->name);
-    destroyeeConsole->print(" destroyed by: ");
-    destroyeeConsole->print(destroyerShip->properties->name);
-    destroyeeConsole->println(atTime);
+    lua_State *destroyerState =
+        engine_->getTeam(destroyerShip->teamIndex)->state;
+    std::stringstream destroyerStream;
+    destroyerStream << "== " << destroyerShip->properties->name << " destroyed "
+        << ((destroyedShip->teamIndex == destroyerShip->teamIndex)
+            ? "friendly" : "enemy")
+        << " ship: " << destroyedShip->properties->name << " @ " << time;
+    printHandler->shipPrint(destroyerState, destroyerStream.str().c_str());
+
+    std::stringstream destroyeeStream;
+    lua_State *destroyeeState =
+        engine_->getTeam(destroyedShip->teamIndex)->state;
+    destroyeeStream << "== " << destroyedShip->properties->name
+        << " destroyed by: " << destroyerShip->properties->name << " @ "
+        << time;
+    printHandler->shipPrint(destroyeeState, destroyeeStream.str().c_str());
   }
 }
 
 void GuiManager::printTooManyUserGfxRectangles(Team *team) {
+  std::stringstream msgStream;
+  msgStream << TOO_MANY_RECTANGLES << TOO_MANY_MORE_INFO;
+
   if (team == 0) {
     // TODO: display error status in stage consoles too
     if (!tooManyStageRectangles_) {
-      stageConsole_->print(TOO_MANY_RECTANGLES);
-      stageConsole_->println(TOO_MANY_MORE_INFO);
+      printHandler->stagePrint(msgStream.str().c_str());
       tooManyStageRectangles_ = true;
     }
   } else {
     if (!team->tooManyRectangles) {
-      teamConsoles_[team->index]->print(TOO_MANY_RECTANGLES);
-      teamConsoles_[team->index]->println(TOO_MANY_MORE_INFO);
+      printHandler->shipPrint(team->state, msgStream.str().c_str());
       team->errored = team->tooManyRectangles = true;
     }
   }
 }
 
 void GuiManager::printTooManyUserGfxLines(Team *team) {
+  std::stringstream msgStream;
+  msgStream << TOO_MANY_LINES << TOO_MANY_MORE_INFO;
+
   if (team == 0) {
     if (!tooManyStageLines_) {
-      stageConsole_->print(TOO_MANY_LINES);
-      stageConsole_->println(TOO_MANY_MORE_INFO);
+      printHandler->stagePrint(msgStream.str().c_str());
       tooManyStageLines_ = true;
     }
   } else {
     if (!team->tooManyLines) {
-      teamConsoles_[team->index]->print(TOO_MANY_LINES);
-      teamConsoles_[team->index]->println(TOO_MANY_MORE_INFO);
+      printHandler->shipPrint(team->state, msgStream.str().c_str());
       team->errored = team->tooManyLines = true;
     }
   }
 }
 
 void GuiManager::printTooManyUserGfxCircles(Team *team) {
+  std::stringstream msgStream;
+  msgStream << TOO_MANY_CIRCLES << TOO_MANY_MORE_INFO;
+
   if (team == 0) {
     if (!tooManyStageCircles_) {
-      stageConsole_->print(TOO_MANY_CIRCLES);
-      stageConsole_->println(TOO_MANY_MORE_INFO);
+      printHandler->stagePrint(msgStream.str().c_str());
       tooManyStageCircles_ = true;
     }
   } else {
     if (!team->tooManyCircles) {
-      teamConsoles_[team->index]->print(TOO_MANY_CIRCLES);
-      teamConsoles_[team->index]->println(TOO_MANY_MORE_INFO);
+      printHandler->shipPrint(team->state, msgStream.str().c_str());
       team->errored = team->tooManyCircles = true;
     }
   }
 }
 
 void GuiManager::printTooManyUserGfxTexts(Team *team) {
+  std::stringstream msgStream;
+  msgStream << TOO_MANY_TEXTS << TOO_MANY_MORE_INFO;
+
   if (team == 0) {
     if (!tooManyStageTexts_) {
-      stageConsole_->print(TOO_MANY_TEXTS);
-      stageConsole_->println(TOO_MANY_MORE_INFO);
+      printHandler->stagePrint(msgStream.str().c_str());
       tooManyStageTexts_ = true;
     }
   } else {
     if (!team->tooManyTexts) {
-      teamConsoles_[team->index]->print(TOO_MANY_TEXTS);
-      teamConsoles_[team->index]->println(TOO_MANY_MORE_INFO);
+      printHandler->shipPrint(team->state, msgStream.str().c_str());
       team->errored = team->tooManyTexts = true;
     }
   }
