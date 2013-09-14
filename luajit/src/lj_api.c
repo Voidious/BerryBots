@@ -126,6 +126,21 @@ LUA_API const char *lua_getcwd (lua_State *L)
   return g->cwd;
 }
 
+// @Voidious: Set a printer so BerryBots can pipe each Lua state's output to
+//            the right place.
+LUA_API void lua_setprinter (lua_State *L, void *printer)
+{
+  global_State *g = G(L);
+  g->printer = printer;
+}
+
+// @Voidious: Get printer.
+LUA_API void *lua_getprinter (lua_State *L)
+{
+  global_State *g = G(L);
+  return g->printer;
+}
+
 /* -- Stack manipulation -------------------------------------------------- */
 
 LUA_API int lua_gettop(lua_State *L)

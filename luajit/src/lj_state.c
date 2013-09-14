@@ -211,6 +211,7 @@ LUA_API lua_State *lua_newstate(lua_Alloc f, void *ud)
   g->gc.pause = LUAI_GCPAUSE;
   g->gc.stepmul = LUAI_GCMUL;
   g->cwd = 0;
+  g->printer = 0;
   lj_dispatch_init((GG_State *)L);
   L->status = LUA_ERRERR+1;  /* Avoid touching the stack upon memory error. */
   if (lj_vm_cpcall(L, NULL, NULL, cpluaopen) != 0) {
