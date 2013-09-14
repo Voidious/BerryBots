@@ -54,6 +54,8 @@ ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
   shipDestroyData_ = new ReplayData(MAX_MISC_CHUNKS);
   textData_ = new ReplayData(MAX_TEXT_CHUNKS);
   numTexts_ = 0;
+  logData_ = new ReplayData(MAX_TEXT_CHUNKS);
+  numLogEntries_ = 0;
   resultsData_ = new ReplayData(MAX_MISC_CHUNKS);
 
   if (templateDir == 0) {
@@ -310,6 +312,19 @@ void ReplayBuilder::addText(int time, const char *text, double x, double y,
   numTexts_++;
 }
 
+// Log format:  (variable)
+// ship index | time | messageLength | message
+void ReplayBuilder::addLogEntry(Ship *ship, int time, const char *logMessage) {
+  logData_->addInt(ship->index);
+  logData_->addInt(time);
+  int messageLen = (int) strlen(logMessage);
+  logData_->addInt(messageLen);
+  for (int x = 0; x < messageLen; x++) {
+    logData_->addInt((int) logMessage[x]);
+  }
+  numLogEntries_++;
+}
+
 // All results format:  (variable)
 // num results | <team results>
 //
@@ -484,6 +499,7 @@ std::string ReplayBuilder::buildReplayDataString() {
              << ':' << torpedoDebrisData_->toHexString(7)
              << ':' << shipDestroyData_->toHexString(4)
              << ':' << textDataHexString()
+             << ':' << logDataHexString()
              << ':' << resultsDataHexString();
 
   return dataStream.str();
@@ -552,6 +568,28 @@ std::string ReplayBuilder::textDataHexString() {
   return hexStream.str();
 }
 
+std::string ReplayBuilder::logDataHexString() {
+  std::stringstream hexStream;
+  hexStream << std::hex << numLogEntries_;
+  
+  int i = 0;
+  for (int x = 0; x < numLogEntries_; x++) {
+    for (int y = 0; y < 2; y++) {
+      appendHex(hexStream, logData_->getInt(i++));
+    }
+    int messageLen = logData_->getInt(i++);
+    appendHex(hexStream, messageLen);
+    
+    std::stringstream msgStream;
+    for (int y = 0; y < messageLen; y++) {
+      msgStream << (char) logData_->getInt(i++);
+    }
+    hexStream << ':' << escapeColons(msgStream.str());
+  }
+  
+  return hexStream.str();
+}
+
 // Expanded results format:
 // num results | <team results>
 //   Team result: name length | name | rank | score * 100 | num stats | stats
@@ -567,7 +605,6 @@ std::string ReplayBuilder::resultsDataHexString() {
   int numResults = resultsData_->getInt(i++);
   hexStream << std::hex << numResults;
   
-  char *rgbString = new char[8]; // "#RRGGBB\0"
   for (int x = 0; x < numResults; x++) {
     int nameLength = resultsData_->getInt(i++);
     std::stringstream nameStream;
@@ -592,7 +629,6 @@ std::string ReplayBuilder::resultsDataHexString() {
       appendHex(hexStream, resultsData_->getInt(i++));
     }
   }
-  delete rgbString;
   
   return hexStream.str();
 }

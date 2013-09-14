@@ -175,7 +175,6 @@ GuiManager::~GuiManager() {
   delete packageReporter_;
   if (printStateListener_ != 0) {
     delete printStateListener_;
-    printStateListener_ = 0;
   }
   if (printHandler != 0) {
     delete printHandler;
