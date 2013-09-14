@@ -81,6 +81,7 @@ class ReplayBuilder {
   ReplayData *torpedoDebrisData_;
   ReplayData *shipDestroyData_;
   ReplayData *textData_;
+  ReplayData *resultsData_;
   int numTexts_;
   char *templatePath_;
   char *kineticResourcePath_;
@@ -106,17 +107,21 @@ class ReplayBuilder {
     void addShipDestroy(Ship *ship, int time);
     void addText(int time, const char *text, double x, double y, int size,
                   RgbaColor textColor, int duration);
+    void setResults(Team **rankedTeams, int numTeams);
     void saveReplay(const char *filename);
   private:
     void addShip(int shipIndex, int time);
     void removeShip(int shipIndex, int time);
     void addShipShowName(int shipIndex, int time);
     void addShipHideName(int shipIndex, int time);
+    void addResult(Team *team);
+    void addStat(ScoreStat *stat);
     int round(double f);
     std::string buildReplayDataString();
     char* readReplayTemplate();
     std::string shipPropertiesHexString();
     std::string textDataHexString();
+    std::string resultsDataHexString();
     std::string escapeColons(std::string s);
     void appendHex(std::stringstream &hexStream, int i);
 };

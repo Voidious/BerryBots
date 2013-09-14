@@ -38,6 +38,7 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
   savedReplay_ = false;
   strcpy(stageName_, stageName);
   replayBuilder_ = replayBuilder;
+  replayBuilder_->setResults(teams, numTeams);
   fileManager_ = new FileManager();
   systemExecutor_ = new SystemExecutor();
 

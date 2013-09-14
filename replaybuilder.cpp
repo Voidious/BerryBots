@@ -54,6 +54,7 @@ ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
   shipDestroyData_ = new ReplayData(MAX_MISC_CHUNKS);
   textData_ = new ReplayData(MAX_TEXT_CHUNKS);
   numTexts_ = 0;
+  resultsData_ = new ReplayData(MAX_MISC_CHUNKS);
 
   if (templateDir == 0) {
     templatePath_ = 0;
@@ -88,6 +89,7 @@ ReplayBuilder::~ReplayBuilder() {
   delete torpedoDebrisData_;
   delete shipDestroyData_;
   delete textData_;
+  delete resultsData_;
   if (templatePath_ != 0) {
     delete templatePath_;
   }
@@ -308,6 +310,69 @@ void ReplayBuilder::addText(int time, const char *text, double x, double y,
   numTexts_++;
 }
 
+// All results format:  (variable)
+// num results | <team results>
+//
+// Expanded results format:
+// num results | <team results>
+//   Team result: name length | name | rank | score * 100 | num stats | stats
+//     Stat: key length | key | value * 100
+void ReplayBuilder::setResults(Team **rankedTeams, int numTeams) {
+  if (resultsData_->getSize() > 0) {
+    delete resultsData_;
+    resultsData_ = new ReplayData(MAX_MISC_CHUNKS);
+  }
+
+  int numTeamsShowingResults = 0;
+  for (int x = 0; x < numTeams; x++) {
+    if (rankedTeams[x]->result.showResult) {
+      numTeamsShowingResults++;
+    }
+  }
+
+  resultsData_->addInt(numTeamsShowingResults);
+
+  for (int x = 0; x < numTeams; x++) {
+    TeamResult *teamResult = &(rankedTeams[x]->result);
+    if (teamResult->showResult) {
+      addResult(rankedTeams[x]);
+    }
+  }
+}
+
+// Result format:  (variable)
+// name length | name | rank | score * 100 | num stats | stats
+void ReplayBuilder::addResult(Team *team) {
+  int nameLen = (int) strlen(team->name);
+  resultsData_->addInt(nameLen);
+  for (int x = 0; x < nameLen; x++) {
+    resultsData_->addInt((int) team->name[x]);
+  }
+
+  TeamResult *teamResult = &(team->result);
+  resultsData_->addInt(teamResult->rank);
+  resultsData_->addInt(round(teamResult->score * 100));
+
+  int numStats = teamResult->numStats;
+  ScoreStat **stats = teamResult->stats;
+  resultsData_->addInt(numStats);
+  for (int x = 0; x < numStats; x++) {
+    addStat(stats[x]);
+  }
+}
+
+// Stat format:  (variable)
+// key length | key | value * 100
+void ReplayBuilder::addStat(ScoreStat *stat) {
+  int keyLength = (int) strlen(stat->key);
+  char *key = stat->key;
+  resultsData_->addInt(keyLength);
+  for (int x = 0; x < keyLength; x++) {
+    resultsData_->addInt((int) key[x]);
+  }
+  resultsData_->addInt(round(stat->value * 100));
+}
+
 int ReplayBuilder::round(double f) {
   return floor(f + .5);
 }
@@ -418,7 +483,8 @@ std::string ReplayBuilder::buildReplayDataString() {
              << ':' << torpedoBlastData_->toHexString(3)
              << ':' << torpedoDebrisData_->toHexString(7)
              << ':' << shipDestroyData_->toHexString(4)
-             << ':' << textDataHexString();
+             << ':' << textDataHexString()
+             << ':' << resultsDataHexString();
 
   return dataStream.str();
 }
@@ -458,8 +524,7 @@ std::string ReplayBuilder::textDataHexString() {
   char *rgbString = new char[8]; // "#RRGGBB\0"
   for (int x = 0; x < numTexts_; x++) {
     int time = textData_->getInt(i++);
-    hexStream << ':';
-    hexStream << std::hex << time;
+    appendHex(hexStream, time);
 
     int textLength = textData_->getInt(i++);
     std::stringstream textStream;
@@ -484,6 +549,51 @@ std::string ReplayBuilder::textDataHexString() {
   }
   delete rgbString;
 
+  return hexStream.str();
+}
+
+// Expanded results format:
+// num results | <team results>
+//   Team result: name length | name | rank | score * 100 | num stats | stats
+//     Stat: key length | key | value * 100
+//
+// Encoded to hex format:
+// num results : <team results>
+//   Team result: name : rank : score * 100 : num stats : stats
+//     Stat: key : value * 100
+std::string ReplayBuilder::resultsDataHexString() {
+  std::stringstream hexStream;
+  int i = 0;
+  int numResults = resultsData_->getInt(i++);
+  hexStream << std::hex << numResults;
+  
+  char *rgbString = new char[8]; // "#RRGGBB\0"
+  for (int x = 0; x < numResults; x++) {
+    int nameLength = resultsData_->getInt(i++);
+    std::stringstream nameStream;
+    for (int y = 0; y < nameLength; y++) {
+      nameStream << (char) resultsData_->getInt(i++);
+    }
+    hexStream << ':' << escapeColons(nameStream.str());
+    
+    for (int y = 0; y < 2; y++) {
+      appendHex(hexStream, resultsData_->getInt(i++));
+    }
+
+    int numStats = resultsData_->getInt(i++);
+    appendHex(hexStream, numStats);
+    for (int y = 0; y < numStats; y++) {
+      int keyLength = resultsData_->getInt(i++);
+      std::stringstream keyStream;
+      for (int y = 0; y < keyLength; y++) {
+        keyStream << (char) resultsData_->getInt(i++);
+      }
+      hexStream << ':' << escapeColons(keyStream.str());
+      appendHex(hexStream, resultsData_->getInt(i++));
+    }
+  }
+  delete rgbString;
+  
   return hexStream.str();
 }
 
