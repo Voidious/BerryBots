@@ -58,10 +58,12 @@ ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
   if (templateDir == 0) {
     templatePath_ = 0;
     kineticResourcePath_ = 0;
+    replayJsResourcePath_ = 0;
   } else {
     FileManager fileManager;
     templatePath_ = fileManager.getFilePath(templateDir, REPLAY_TEMPLATE);
     kineticResourcePath_ = fileManager.getFilePath(templateDir, KINETIC_JS);
+    replayJsResourcePath_ = fileManager.getFilePath(templateDir, BBREPLAY_JS);
   }
 }
 
@@ -91,6 +93,9 @@ ReplayBuilder::~ReplayBuilder() {
   }
   if (kineticResourcePath_ != 0) {
     delete kineticResourcePath_;
+  }
+  if (replayJsResourcePath_ != 0) {
+    delete replayJsResourcePath_;
   }
 }
 
@@ -349,7 +354,28 @@ void ReplayBuilder::saveReplay(const char *filename) {
     }
   }
   delete kineticPath;
+
+  char *replayJsFilename = fileManager.parseFilename(BBREPLAY_JS);
+  char *replayJsPath =
+      fileManager.getFilePath(getReplaysDir().c_str(), replayJsFilename);
+  delete replayJsFilename;
+  
+  if (!fileManager.fileExists(replayJsPath)) {
+    char *replayJs;
+    try {
+      replayJs = fileManager.readFile(replayJsResourcePath_);
+    } catch (FileNotFoundException *e) {
+      delete e;
+      replayJs = 0;
+    }
     
+    fileManager.writeFile(replayJsPath, replayJs);
+    if (replayJs != 0) {
+      delete replayJs;
+    }
+  }
+  delete replayJsPath;
+
   if (replayTemplate != 0) {
     std::string replayHtml;
     const char *phStart = strstr(replayTemplate, REPLAY_DATA_PLACEHOLDER);
