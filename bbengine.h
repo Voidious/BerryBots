@@ -27,6 +27,7 @@
 #include "bbutil.h"
 #include "stage.h"
 #include "filemanager.h"
+#include "eventhandler.h"
 #include "sensorhandler.h"
 #include "replaybuilder.h"
 #include "printhandler.h"
@@ -34,6 +35,12 @@
 #define PCALL_STAGE     1
 #define PCALL_SHIP      2
 #define PCALL_VALIDATE  3
+
+#define TOO_MANY_RECTANGLES  "== Warning: Tried to draw too many DebugGfx rectangles (max 4096)."
+#define TOO_MANY_LINES       "== Warning: Tried to draw too many DebugGfx lines (max 4096)."
+#define TOO_MANY_CIRCLES     "== Warning: Tried to draw too many DebugGfx circles (max 4096)."
+#define TOO_MANY_TEXTS       "== Warning: Tried to draw too many DebugGfx texts (max 4096)."
+#define TOO_MANY_MORE_INFO   " Some of your graphics are being ignored. See API docs for more info."
 
 extern "C" {
   #include "lua.h"
@@ -58,6 +65,8 @@ typedef struct {
   volatile bool enabled;
 } TickTimerSettings;
 
+class ConsoleEventHandler;
+
 class BerryBotsEngine {
   Stage *stage_;
   PrintHandler *printHandler_;
@@ -66,6 +75,7 @@ class BerryBotsEngine {
   char *stagesDir_;
   char *stageFilename_;
   World *stageWorld_;
+  ConsoleEventHandler *consoleHandler_;
 
   Team **teams_;
   Ship **ships_;
@@ -172,6 +182,46 @@ class BerryBotsEngine {
     void throwForLuaError(lua_State *L, const char *formatString)
         throw (EngineException*);
     char* formatLuaError(lua_State *L, const char *formatString);
+};
+
+class ConsoleEventHandler : public EventHandler {
+  BerryBotsEngine *engine_;
+  bool tooManyStageRectangles_;
+  bool tooManyStageLines_;
+  bool tooManyStageCircles_;
+  bool tooManyStageTexts_;
+
+  public:
+    ConsoleEventHandler(BerryBotsEngine *engine);
+    virtual void handleShipDestroyed(Ship *destroyedShip, int time,
+        Ship **destroyerShips, int numDestroyers);
+    virtual void tooManyUserGfxRectangles(Team *team);
+    virtual void tooManyUserGfxLines(Team *team);
+    virtual void tooManyUserGfxCircles(Team *team);
+    virtual void tooManyUserGfxTexts(Team *team);
+
+    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip,
+        Laser *laser, double dx, double dy, int time) {};
+    virtual void handleTorpedoExploded(Torpedo *torpedo, int time) {};
+    virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
+        double dx, double dy, double hitAngle, double hitForce,
+        double hitDamage, int time) {};
+    virtual void handleShipHitShip(Ship *hittingShip, Ship *targetShip,
+        double inAngle, double inForce, double outAngle, double outForce,
+        int time) {};
+    virtual void handleShipHitWall(
+        Ship *hittingShip, double bounceAngle, double bounceForce, int time) {};
+    virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser) {};
+    virtual void handleLaserDestroyed(Laser *laser, int time) {};
+    virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) {};
+    virtual void handleTorpedoDestroyed(Torpedo *torpedo, int time) {};
+    virtual void handleStageText(StageText *stageText) {};
+  private:
+    void printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip, int time);
+    void printTooManyUserGfxRectangles(Team *team);
+    void printTooManyUserGfxLines(Team *team);
+    void printTooManyUserGfxCircles(Team *team);
+    void printTooManyUserGfxTexts(Team *team);
 };
 
 #endif

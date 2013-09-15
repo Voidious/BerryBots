@@ -38,6 +38,8 @@
 BerryBotsEngine::BerryBotsEngine(PrintHandler *printHandler,
     FileManager *fileManager, const char *replayTemplateDir) {
   stage_ = new Stage(DEFAULT_STAGE_WIDTH, DEFAULT_STAGE_HEIGHT);
+  consoleHandler_ = new ConsoleEventHandler(this);
+  stage_->addEventHandler(consoleHandler_);
   printHandler_ = printHandler;
   fileManager_ = fileManager;
 
@@ -180,6 +182,7 @@ BerryBotsEngine::~BerryBotsEngine() {
   if (replayTemplateDir_ != 0) {
     delete replayTemplateDir_;
   }
+  delete consoleHandler_;
 }
 
 Stage* BerryBotsEngine::getStage() {
@@ -1144,4 +1147,129 @@ const char* EngineException::what() const throw() {
 
 EngineException::~EngineException() throw() {
   delete message_;
+}
+
+ConsoleEventHandler::ConsoleEventHandler(BerryBotsEngine *engine) {
+  engine_ = engine;
+  tooManyStageRectangles_ = tooManyStageLines_ = false;
+  tooManyStageCircles_ = tooManyStageTexts_ = false;
+}
+
+void ConsoleEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
+    Ship **destroyerShips, int numDestroyers) {
+  for (int x = 0; x < numDestroyers; x++) {
+    printShipDestroyed(destroyedShip, destroyerShips[x], time);
+  }
+}
+
+void ConsoleEventHandler::tooManyUserGfxRectangles(Team *team) {
+  printTooManyUserGfxRectangles(team);
+}
+
+void ConsoleEventHandler::tooManyUserGfxLines(Team *team) {
+  printTooManyUserGfxLines(team);
+}
+
+void ConsoleEventHandler::tooManyUserGfxCircles(Team *team) {
+  printTooManyUserGfxCircles(team);
+}
+
+void ConsoleEventHandler::tooManyUserGfxTexts(Team *team) {
+  printTooManyUserGfxTexts(team);
+}
+
+void ConsoleEventHandler::printShipDestroyed(
+    Ship *destroyedShip, Ship *destroyerShip, int time) {
+  if (destroyedShip->index == destroyerShip->index) {
+    lua_State *teamState = engine_->getTeam(destroyerShip->teamIndex)->state;
+    std::stringstream msgStream;
+    msgStream << "== " << destroyerShip->properties->name
+              << " destroyed itself @ " << time;
+    engine_->shipPrint(teamState, msgStream.str().c_str());
+  } else {
+    lua_State *destroyerState =
+        engine_->getTeam(destroyerShip->teamIndex)->state;
+    std::stringstream destroyerStream;
+    destroyerStream << "== " << destroyerShip->properties->name << " destroyed "
+        << ((destroyedShip->teamIndex == destroyerShip->teamIndex)
+            ? "friendly" : "enemy")
+        << " ship: " << destroyedShip->properties->name << " @ " << time;
+    engine_->shipPrint(destroyerState, destroyerStream.str().c_str());
+
+    std::stringstream destroyeeStream;
+    lua_State *destroyeeState =
+        engine_->getTeam(destroyedShip->teamIndex)->state;
+    destroyeeStream << "== " << destroyedShip->properties->name
+        << " destroyed by: " << destroyerShip->properties->name << " @ "
+        << time;
+    engine_->shipPrint(destroyeeState, destroyeeStream.str().c_str());
+  }
+}
+
+void ConsoleEventHandler::printTooManyUserGfxRectangles(Team *team) {
+  std::stringstream msgStream;
+  msgStream << TOO_MANY_RECTANGLES << TOO_MANY_MORE_INFO;
+
+  if (team == 0) {
+    if (!tooManyStageRectangles_) {
+      engine_->stagePrint(msgStream.str().c_str());
+      tooManyStageRectangles_ = true;
+    }
+  } else {
+    if (!team->tooManyRectangles) {
+      engine_->shipPrint(team->state, msgStream.str().c_str());
+      team->errored = team->tooManyRectangles = true;
+    }
+  }
+}
+
+void ConsoleEventHandler::printTooManyUserGfxLines(Team *team) {
+  std::stringstream msgStream;
+  msgStream << TOO_MANY_LINES << TOO_MANY_MORE_INFO;
+
+  if (team == 0) {
+    if (!tooManyStageLines_) {
+      engine_->stagePrint(msgStream.str().c_str());
+      tooManyStageLines_ = true;
+    }
+  } else {
+    if (!team->tooManyLines) {
+      engine_->shipPrint(team->state, msgStream.str().c_str());
+      team->errored = team->tooManyLines = true;
+    }
+  }
+}
+
+void ConsoleEventHandler::printTooManyUserGfxCircles(Team *team) {
+  std::stringstream msgStream;
+  msgStream << TOO_MANY_CIRCLES << TOO_MANY_MORE_INFO;
+
+  if (team == 0) {
+    if (!tooManyStageCircles_) {
+      engine_->stagePrint(msgStream.str().c_str());
+      tooManyStageCircles_ = true;
+    }
+  } else {
+    if (!team->tooManyCircles) {
+      engine_->shipPrint(team->state, msgStream.str().c_str());
+      team->errored = team->tooManyCircles = true;
+    }
+  }
+}
+
+void ConsoleEventHandler::printTooManyUserGfxTexts(Team *team) {
+  std::stringstream msgStream;
+  msgStream << TOO_MANY_TEXTS << TOO_MANY_MORE_INFO;
+
+  if (team == 0) {
+    if (!tooManyStageTexts_) {
+      engine_->stagePrint(msgStream.str().c_str());
+      tooManyStageTexts_ = true;
+    }
+  } else {
+    if (!team->tooManyTexts) {
+      engine_->shipPrint(team->state, msgStream.str().c_str());
+      team->errored = team->tooManyTexts = true;
+    }
+  }
 }

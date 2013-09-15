@@ -46,19 +46,11 @@
 #define NEXT_GAME_RUNNER     4
 #define NEXT_RESUME_MATCH    5
 
-#define TOO_MANY_RECTANGLES  "== Warning: Tried to draw too many DebugGfx rectangles (max 4096)."
-#define TOO_MANY_LINES       "== Warning: Tried to draw too many DebugGfx lines (max 4096)."
-#define TOO_MANY_CIRCLES     "== Warning: Tried to draw too many DebugGfx circles (max 4096)."
-#define TOO_MANY_TEXTS       "== Warning: Tried to draw too many DebugGfx texts (max 4096)."
-#define TOO_MANY_MORE_INFO   " Some of your graphics are being ignored. See API docs for more info."
-
 class GuiListener {
   public:
     virtual void onAllWindowsClosed() = 0;
     virtual ~GuiListener() {};
 };
-
-class ConsoleEventHandler;
 
 class GuiManager {
   GuiListener *listener_;
@@ -101,7 +93,6 @@ class GuiManager {
   unsigned int viewWidth_;
   unsigned int viewHeight_;
   GfxEventHandler *gfxHandler_;
-  ConsoleEventHandler *consoleHandler_;
   // Interrupted means the user brought up a modal dialog (eg, "New Match")...
   // The run loop exits but everything stays initialized. Match may be resumed
   // if user closes the New Match window, or clobbered to start a new match.
@@ -119,10 +110,6 @@ class GuiManager {
   int nextWindow_;
   double tpsFactor_;
   double nextDrawTime_;
-  bool tooManyStageRectangles_;
-  bool tooManyStageLines_;
-  bool tooManyStageCircles_;
-  bool tooManyStageTexts_;
   int numStages_;
   int numShips_;
   int numRunners_;
@@ -168,11 +155,6 @@ class GuiManager {
     void packageShipInitialFocus();
     void packageStageInitialFocus();
     void gameRunnerInitialFocus();
-    void printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip, int time);
-    void printTooManyUserGfxRectangles(Team *team);
-    void printTooManyUserGfxLines(Team *team);
-    void printTooManyUserGfxCircles(Team *team);
-    void printTooManyUserGfxTexts(Team *team);
     void togglePause();
     void restartMatch();
     void setTpsFactor(double tpsFactor);
@@ -286,36 +268,6 @@ class PackageReporter : public PackagingListener {
     PackageReporter(OutputConsole *packagingConsole);
     virtual void packagingComplete(char **sourceFiles, int numFiles,
                                    bool obfuscate, const char *destinationFile);
-};
-
-class ConsoleEventHandler : public EventHandler {
-  GuiManager *guiManager_;
-
-  public:
-    ConsoleEventHandler(GuiManager *guiManager);
-    virtual void handleShipDestroyed(Ship *destroyedShip, int time,
-        Ship **destroyerShips, int numDestroyers);
-    virtual void tooManyUserGfxRectangles(Team *team);
-    virtual void tooManyUserGfxLines(Team *team);
-    virtual void tooManyUserGfxCircles(Team *team);
-    virtual void tooManyUserGfxTexts(Team *team);
-
-    virtual void handleLaserHitShip(Ship *srcShip, Ship *targetShip,
-        Laser *laser, double dx, double dy, int time) {};
-    virtual void handleTorpedoExploded(Torpedo *torpedo, int time) {};
-    virtual void handleTorpedoHitShip(Ship *srcShip, Ship *targetShip,
-        double dx, double dy, double hitAngle, double hitForce,
-        double hitDamage, int time) {};
-    virtual void handleShipHitShip(Ship *hittingShip, Ship *targetShip,
-        double inAngle, double inForce, double outAngle, double outForce,
-        int time) {};
-    virtual void handleShipHitWall(
-        Ship *hittingShip, double bounceAngle, double bounceForce, int time) {};
-    virtual void handleShipFiredLaser(Ship *firingShip, Laser *laser) {};
-    virtual void handleLaserDestroyed(Laser *laser, int time) {};
-    virtual void handleShipFiredTorpedo(Ship *firingShip, Torpedo *torpedo) {};
-    virtual void handleTorpedoDestroyed(Torpedo *torpedo, int time) {};
-    virtual void handleStageText(StageText *stageText) {};
 };
 
 class StageConsoleListener : public ConsoleListener {

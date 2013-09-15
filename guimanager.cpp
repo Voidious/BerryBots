@@ -106,7 +106,6 @@ GuiManager::GuiManager(GuiListener *listener) {
   fileManager_->setListener(packageReporter_);
   newMatchDialog_->Show();
   newMatchDialog_->SetFocus();
-  consoleHandler_ = new ConsoleEventHandler(this);
   engine_ = 0;
   gfxHandler_ = 0;
   currentStagePath_ = 0;
@@ -174,7 +173,6 @@ GuiManager::~GuiManager() {
   if (guiPrintHandler_ != 0) {
     delete guiPrintHandler_;
   }
-  delete consoleHandler_;
 }
 
 void GuiManager::setBaseDirs(const char *stagesBaseDir,
@@ -540,8 +538,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                              int numUserTeams) {
   tpsFactor_ = 1;
   nextDrawTime_ = 1;
-  tooManyStageRectangles_ = tooManyStageLines_ = false;
-  tooManyStageCircles_ = tooManyStageTexts_ = false;
   showedResults_ = false;
 
   sf::RenderWindow *window;
@@ -664,7 +660,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   packageShipDialog_->Hide();
   gfxHandler_ = new GfxEventHandler();
   stage->addEventHandler((EventHandler*) gfxHandler_);
-  stage->addEventHandler(consoleHandler_);
 
   // TODO: If/when SFML getPosition() works, adjust the window position to
   //       keep the whole window on the screen (if necessary). Might be worth
@@ -1317,103 +1312,6 @@ void GuiManager::gameRunnerInitialFocus() {
   runnerDialog_->focusItemSelect();
 }
 
-void GuiManager::printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip,
-                                    int time) {
-  if (destroyedShip->index == destroyerShip->index) {
-    lua_State *teamState = engine_->getTeam(destroyerShip->teamIndex)->state;
-    std::stringstream msgStream;
-    msgStream << "== " << destroyerShip->properties->name
-              << " destroyed itself @ " << time;
-    engine_->shipPrint(teamState, msgStream.str().c_str());
-  } else {
-    lua_State *destroyerState =
-        engine_->getTeam(destroyerShip->teamIndex)->state;
-    std::stringstream destroyerStream;
-    destroyerStream << "== " << destroyerShip->properties->name << " destroyed "
-        << ((destroyedShip->teamIndex == destroyerShip->teamIndex)
-            ? "friendly" : "enemy")
-        << " ship: " << destroyedShip->properties->name << " @ " << time;
-    engine_->shipPrint(destroyerState, destroyerStream.str().c_str());
-
-    std::stringstream destroyeeStream;
-    lua_State *destroyeeState =
-        engine_->getTeam(destroyedShip->teamIndex)->state;
-    destroyeeStream << "== " << destroyedShip->properties->name
-        << " destroyed by: " << destroyerShip->properties->name << " @ "
-        << time;
-    engine_->shipPrint(destroyeeState, destroyeeStream.str().c_str());
-  }
-}
-
-void GuiManager::printTooManyUserGfxRectangles(Team *team) {
-  std::stringstream msgStream;
-  msgStream << TOO_MANY_RECTANGLES << TOO_MANY_MORE_INFO;
-
-  if (team == 0) {
-    // TODO: display error status in stage consoles too
-    if (!tooManyStageRectangles_) {
-      engine_->stagePrint(msgStream.str().c_str());
-      tooManyStageRectangles_ = true;
-    }
-  } else {
-    if (!team->tooManyRectangles) {
-      engine_->shipPrint(team->state, msgStream.str().c_str());
-      team->errored = team->tooManyRectangles = true;
-    }
-  }
-}
-
-void GuiManager::printTooManyUserGfxLines(Team *team) {
-  std::stringstream msgStream;
-  msgStream << TOO_MANY_LINES << TOO_MANY_MORE_INFO;
-
-  if (team == 0) {
-    if (!tooManyStageLines_) {
-      engine_->stagePrint(msgStream.str().c_str());
-      tooManyStageLines_ = true;
-    }
-  } else {
-    if (!team->tooManyLines) {
-      engine_->shipPrint(team->state, msgStream.str().c_str());
-      team->errored = team->tooManyLines = true;
-    }
-  }
-}
-
-void GuiManager::printTooManyUserGfxCircles(Team *team) {
-  std::stringstream msgStream;
-  msgStream << TOO_MANY_CIRCLES << TOO_MANY_MORE_INFO;
-
-  if (team == 0) {
-    if (!tooManyStageCircles_) {
-      engine_->stagePrint(msgStream.str().c_str());
-      tooManyStageCircles_ = true;
-    }
-  } else {
-    if (!team->tooManyCircles) {
-      engine_->shipPrint(team->state, msgStream.str().c_str());
-      team->errored = team->tooManyCircles = true;
-    }
-  }
-}
-
-void GuiManager::printTooManyUserGfxTexts(Team *team) {
-  std::stringstream msgStream;
-  msgStream << TOO_MANY_TEXTS << TOO_MANY_MORE_INFO;
-
-  if (team == 0) {
-    if (!tooManyStageTexts_) {
-      engine_->stagePrint(msgStream.str().c_str());
-      tooManyStageTexts_ = true;
-    }
-  } else {
-    if (!team->tooManyTexts) {
-      engine_->shipPrint(team->state, msgStream.str().c_str());
-      team->errored = team->tooManyTexts = true;
-    }
-  }
-}
-
 void GuiManager::saveCurrentMatchSettings(
     const char *stagePath, char **teamPaths, int numTeams) {
   deleteCurrentMatchSettings();
@@ -1760,33 +1658,6 @@ void PackageReporter::packagingComplete(char **sourceFiles, int numFiles,
   packagingConsole_->print("Saved to: ");
   packagingConsole_->println(destinationFile);
   packagingConsole_->Raise();
-}
-
-ConsoleEventHandler::ConsoleEventHandler(GuiManager *guiManager) {
-  guiManager_ = guiManager;
-}
-
-void ConsoleEventHandler::handleShipDestroyed(Ship *destroyedShip, int time,
-    Ship **destroyerShips, int numDestroyers) {
-  for (int x = 0; x < numDestroyers; x++) {
-    guiManager_->printShipDestroyed(destroyedShip, destroyerShips[x], time);
-  }
-}
-
-void ConsoleEventHandler::tooManyUserGfxRectangles(Team *team) {
-  guiManager_->printTooManyUserGfxRectangles(team);
-}
-
-void ConsoleEventHandler::tooManyUserGfxLines(Team *team) {
-  guiManager_->printTooManyUserGfxLines(team);
-}
-
-void ConsoleEventHandler::tooManyUserGfxCircles(Team *team) {
-  guiManager_->printTooManyUserGfxCircles(team);
-}
-
-void ConsoleEventHandler::tooManyUserGfxTexts(Team *team) {
-  guiManager_->printTooManyUserGfxTexts(team);
 }
 
 StageConsoleListener::StageConsoleListener(Stage *stage) {
