@@ -129,8 +129,9 @@ void ReplayBuilder::addZone(int left, int bottom, int width, int height) {
 }
 
 // Ship properties format:  (variable)
-// ship R | G | B | laser R | G | B | thruster R | G | B | nameLength | <name>
+// team index | ship R | G | B | laser R | G | B | thruster R | G | B | nameLength | <name>
 void ReplayBuilder::addShipProperties(Ship *ship) {
+  shipPropertiesData_->addInt(ship->teamIndex);
   ShipProperties *properties = ship->properties;
   shipPropertiesData_->addInt(properties->shipR);
   shipPropertiesData_->addInt(properties->shipG);
@@ -402,6 +403,7 @@ int ReplayBuilder::round(double f) {
 // | num torpedo starts | <torpedo starts> | num torpedo ends | <torpedo ends>
 // | num torpedo blasts | <torpedo blasts> | num torpedo debris | <torpedo debris>
 // | num ship destroys | <ship destroys> | num texts | <texts>
+// | num log entries | <log entries> | num results | <team results>
 void ReplayBuilder::saveReplay(const char *filename) {
   // TODO: throw exceptions for failing to save replay, don't silently fail
 
@@ -512,6 +514,7 @@ std::string ReplayBuilder::shipPropertiesHexString() {
   int i = 0;
   char *rgbString = new char[8]; // "#RRGGBB\0"
   for (int x = 0; x < numShips_; x++) {
+    appendHex(hexStream, shipPropertiesData_->getInt(i++));
     for (int y = 0; y < 3; y++) {
       int r = shipPropertiesData_->getInt(i++);
       int g = shipPropertiesData_->getInt(i++);

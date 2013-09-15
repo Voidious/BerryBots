@@ -67,7 +67,7 @@ setMaximumPixelRatio(1);
 // Zone:
 //   left | bottom | width | height
 // Ship properties:
-//   ship color | laser color | thruster color | name
+//   team index | ship color | laser color | thruster color | name
 // Ship add:
 //   ship index | time
 // Ship remove:
@@ -323,7 +323,7 @@ stage.add(layer);
 
 // Parse dynamic replay data for the whole match into a workable data model.
 
-var shipAddsOffset = shipsOffset + 1 + (numShips * 4);
+var shipAddsOffset = shipsOffset + 1 + (numShips * 5);
 var shipAdds = getShipStateChanges(shipAddsOffset);
 var numShipAdds = shipAdds.length;
 
@@ -713,21 +713,22 @@ function getShipProperties(baseOffset) {
   var numShips = getValue(baseOffset);
   var ships = new Array();
   for (var x = 0; x < numShips; x++) {
-    var offset = baseOffset + 1 + (x * 4);
+    var offset = baseOffset + 1 + (x * 5);
     ships[x] = shipGroup.clone();
 
-    ships[x].getChildren()[0].setFill(values[offset + 2]);
+    ships[x].teamIndex = getValue(offset);
+    ships[x].getChildren()[0].setFill(values[offset + 3]);
     var shipName = ships[x].getChildren()[1];
-    shipName.setText(values[offset + 3].replace(/@;@/g, ":"));
+    shipName.setText(values[offset + 4].replace(/@;@/g, ":"));
     shipName.setOffset({x: shipName.getWidth() / 2 });
 
-    ships[x].getChildren()[3].setStroke(values[offset + 0]);
+    ships[x].getChildren()[3].setStroke(values[offset + 1]);
     var shipDots = ships[x].getChildren()[4].getChildren();
-    shipDots[0].setFill(values[offset + 1]);
-    shipDots[1].setFill(values[offset + 1]);
-    shipDots[2].setFill(values[offset + 1]);
-    ships[x].shipColor = values[offset];
-    ships[x].laserColor = values[offset + 1];
+    shipDots[0].setFill(values[offset + 2]);
+    shipDots[1].setFill(values[offset + 2]);
+    shipDots[2].setFill(values[offset + 2]);
+    ships[x].shipColor = values[offset + 1];
+    ships[x].laserColor = values[offset + 2];
 
     layer.add(ships[x]);
   }
