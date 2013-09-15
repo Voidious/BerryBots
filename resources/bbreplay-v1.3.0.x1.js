@@ -446,6 +446,13 @@ var nextTorpedoDebris = 0;
 
 var stageTextShapes = new Array();
 var nextStageText = 0;
+var stageConsole = new Object();
+stageConsole.logMessages = new Array();
+stageConsole.logDiv = null;
+stageConsole.showing = false;
+stageConsole.consoleId = 'console0';
+stageConsole.name = stageName;
+var nextLogEntry = 0;
 
 var showedResults = false;
 
@@ -470,11 +477,12 @@ var anim = new Kinetic.Animation(function(frame) {
     if (!showingOverlay) {
       var d = new Date();
       startShowing = d.getTime();
-      var s = '<style type="text/css">.console { border: 1px solid #fff; '
+      var s = '<style type="text/css">.console-tab { border: 1px solid #fff; '
           + 'padding: 5px; margin: 4px; color: #fff} '
-          + '.console:hover { color: #0f0; cursor: pointer; '
-          + 'border-color: #0f0; } .stage { margin-bottom: 0.7em; }</style>'
-          + '<div class="console stage">' + stageName + '</div>';
+          + '.console-tab:hover { color: #0f0; cursor: pointer; '
+          + 'border-color: #0f0; } .stage-tab { margin-bottom: 0.7em; }</style>'
+          + '<div class="console-tab stage-tab" onclick="showConsole(-1)">' + stageName
+          + '</div>';
       for (var x = 0; x < numTeams; x++) {
         var showName = false;
         for (var y = 0; y < numShips; y++) {
@@ -484,7 +492,8 @@ var anim = new Kinetic.Animation(function(frame) {
           }
         }
         if (showName) {
-          s += '<div class="console">' + teams[x].name + '</div>';
+          s += '<div class="console-tab" onclick="showConsole(' + teams[x].index
+              + ')">' + teams[x].name + '</div>';
         }
       }
       var d = document.createElement('div');
@@ -765,6 +774,18 @@ var anim = new Kinetic.Animation(function(frame) {
       layer.add(stageTextShape);
     }
 
+    while (nextLogEntry < numLogEntries
+           && logEntries[nextLogEntry].time <= gameTime) {
+      var logEntry = logEntries[nextLogEntry++];
+      var console = getConsole(logEntry.teamIndex);
+      console.logMessages.push(logEntry.message);
+      if (console.showing) {
+        var consoleDiv = document.getElementById(console.consoleId);
+        consoleDiv.innerHTML += "<br>" + logEntry.message;
+        scrollToBottom(console.consoleId);
+      }
+    }
+
     gameTime++;
   } else if (!showedResults) {
     showResults();
@@ -780,7 +801,7 @@ anim.start();
 
 function showResults() {
   var s = '<style type="text/css">table, td, th { border-collapse: collapse; '
-      + 'background-color: #fff; border:1px solid #000; color: #000 }'
+      + 'background-color: #fff; border: 1px solid #000; color: #000 }'
       + '.num { text-align: right; } .mid { text-align: center; }'
       + '</style>';
   
@@ -854,6 +875,54 @@ function showResults() {
   d.style.top = top + "px";
 }
 
+function showConsole(teamIndex) {
+  for (var x = -1; x < numTeams; x++) {
+    var console = getConsole(x);
+    if (x != teamIndex && console.showing) {
+      document.getElementById('container').removeChild(console.logDiv);
+      console.showing = false;
+    }
+  }
+
+  var console = getConsole(teamIndex);
+  var consoleId = console.consoleId;
+  if (console.logDiv == null) {
+    var s = '<style type="text/css">.console { border-collapse: collapse; '
+        + 'border: 1px solid #fff; padding: 0.5em; background-color: #000; '
+        + 'font-family: Consolas, Courier, monospace; font-size: 0.8em; '
+        + 'color: #fff; overflow: auto; width: 550px; height: 400px; } '
+        + '.console-title { background-color: #fff; color: #000; text-align: center; '
+        + 'font-family: Ubuntu, Arial, Tahoma, sans-serif; }</style>'
+        + '<div class="console-title">' + console.name
+        + '</div><div class="console" id="' + consoleId + '">';
+
+    // TODO: escape or strip HTML
+    s += console.logMessages.join('<br>');
+    s += '</div>';
+    var d = document.createElement('div');
+    d.innerHTML = s;
+    d.margin = '0';
+    d.padding = '0';
+    document.getElementById('container').appendChild(d);
+    console.logDiv = d;
+  } else {
+    document.getElementById('container').appendChild(console.logDiv);
+  }
+
+  var d = console.logDiv;
+  d.style.position = 'absolute';
+  d.style.left =
+      Math.max(0, ((stage.getScaleX() * stage.getWidth()) - 600)) + 'px';
+  d.style.top = '35px';
+
+  console.showing = true;
+  scrollToBottom(console.consoleId);
+}
+
+function scrollToBottom(divId) {
+  var d = document.getElementById(divId);
+  d.scrollTop = d.scrollHeight;
+}
 
 // Functions for parsing replay data into data model.
 
@@ -882,8 +951,13 @@ function getTeamProperties(baseOffset) {
   var teams = new Array();
   for (var x = 0; x < numTeams; x++) {
     var offset = baseOffset + 1 + (x * 2);
-    var team = {index: getValue(offset)};
+    var team = new Object();
+    team.index = getValue(offset);
     team.name = values[offset + 1].replace(/@;@/g, ":");
+    team.logMessages = new Array();
+    team.logDiv = null;
+    team.showing = false;
+    team.consoleId = 'console' + (team.index + 1);
     teams.push(team);
   }
   return teams;
@@ -894,23 +968,24 @@ function getShipProperties(baseOffset) {
   var ships = new Array();
   for (var x = 0; x < numShips; x++) {
     var offset = baseOffset + 1 + (x * 5);
-    ships[x] = shipGroup.clone();
+    var ship = shipGroup.clone();
 
-    ships[x].teamIndex = getValue(offset);
-    ships[x].getChildren()[0].setFill(values[offset + 3]);
-    var shipName = ships[x].getChildren()[1];
+    ship.teamIndex = getValue(offset);
+    ship.getChildren()[0].setFill(values[offset + 3]);
+    var shipName = ship.getChildren()[1];
     shipName.setText(values[offset + 4].replace(/@;@/g, ":"));
     shipName.setOffset({x: shipName.getWidth() / 2 });
 
-    ships[x].getChildren()[3].setStroke(values[offset + 1]);
-    var shipDots = ships[x].getChildren()[4].getChildren();
+    ship.getChildren()[3].setStroke(values[offset + 1]);
+    var shipDots = ship.getChildren()[4].getChildren();
     shipDots[0].setFill(values[offset + 2]);
     shipDots[1].setFill(values[offset + 2]);
     shipDots[2].setFill(values[offset + 2]);
-    ships[x].shipColor = values[offset + 1];
-    ships[x].laserColor = values[offset + 2];
+    ship.shipColor = values[offset + 1];
+    ship.laserColor = values[offset + 2];
 
-    layer.add(ships[x]);
+    ships.push(ship);
+    layer.add(ship);
   }
   return ships;
 }
@@ -1105,6 +1180,10 @@ function getResults(baseOffset) {
         {teamIndex: teamIndex, rank: rank, score: score, stats: stats});
   }
   return results;
+}
+
+function getConsole(teamIndex) {
+  return (teamIndex == -1) ? stageConsole : teams[teamIndex];
 }
 
 function getValue(offset) {

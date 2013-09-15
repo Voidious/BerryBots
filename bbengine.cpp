@@ -695,9 +695,14 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     int defaultNameLength = std::min(MAX_NAME_LENGTH, (int) strlen(defaultShipName));
     strncpy(team->name, defaultShipName, defaultNameLength);
     team->name[defaultNameLength] = '\0';
+
     int filenameLength = std::min(MAX_NAME_LENGTH, (int) strlen(filename));
     strncpy(team->filename, filename, filenameLength);
     team->filename[filenameLength] = '\0';
+
+    std::stringstream msgStream;
+    msgStream << "== Ship control program loaded: " << shipFilename;
+
     delete shipFilename;
     delete shipFilenameRoot;
     team->stageShip = stageShip;
@@ -755,6 +760,9 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
       Ship *ship = stateShips[y];
       ships_[ship->index] = ship;
       numInitializedShips_++;
+    }
+    if (!disabled) {
+      shipPrint(teamState, msgStream.str().c_str());
     }
 
     if (!disabled) {

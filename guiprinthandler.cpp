@@ -86,10 +86,6 @@ void GuiPrintHandler::registerTeam(Team *team, const char *filename) {
       nextTeamIndex_ = numTeams_++;
     }
   }
-  if (teamConsole != 0) {
-    teamConsole->print("== Ship control program loaded: ");
-    teamConsole->println(filename);
-  }
 }
 
 void GuiPrintHandler::restartMode() {
