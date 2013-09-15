@@ -592,7 +592,7 @@ void FileManager::packageStage(const char *stagesBaseDir, const char *stageName,
   lua_State *stageState;
   initStageState(&stageState, stageAbsBaseDir);
   
-  BerryBotsEngine engine(this, 0);
+  BerryBotsEngine engine(0, this, 0);
   Stage *stage = engine.getStage();
   if (luaL_loadfile(stageState, stageName)
       || engine.callUserLuaCode(stageState, 0, "", PCALL_VALIDATE)) {
@@ -721,7 +721,7 @@ void FileManager::packageShip(const char *shipBaseDir, const char *shipName,
   char *shipAbsBaseDir = getAbsFilePath(shipBaseDir);
   lua_State *shipState;
   initShipState(&shipState, shipAbsBaseDir);
-  BerryBotsEngine engine(this, 0);
+  BerryBotsEngine engine(0, this, 0);
   crawlFiles(shipState, shipName, &engine);
 
   lua_getfield(shipState, LUA_REGISTRYINDEX, "__FILES");

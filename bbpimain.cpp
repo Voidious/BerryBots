@@ -135,14 +135,13 @@ int main(int argc, char *argv[]) {
   int screenHeight;
   init(&screenWidth, &screenHeight);
 
-  engine = new BerryBotsEngine(fileManager, resourcePath().c_str());
+  CliPrintHandler *cliPrintHandler = new CliPrintHandler();
+  printHandler = (PrintHandler*) cliPrintHandler;
+
+  engine = new BerryBotsEngine(printHandler, fileManager, resourcePath().c_str());
   stage = engine->getStage();
   // TODO: Enable graphical debugging on Raspberry Pi. Main barrier is UI.
   stage->disableUserGfx();
-
-  CliPrintHandler *cliPrintHandler = new CliPrintHandler();
-  printHandler = (PrintHandler*) cliPrintHandler;
-  CliStateListener *cliStateListener = new CliStateListener(cliPrintHandler);
 
   char *stageAbsName = fileManager->getAbsFilePath(argv[nodisplay ? 2 : 1]);
   char *stageName =
@@ -182,7 +181,6 @@ int main(int argc, char *argv[]) {
   }
 
   cliPrintHandler->setNumTeams(numTeams);
-  engine->setListener(cliStateListener);
   try {
     engine->initShips(shipsBaseDir, teams, numTeams, CACHE_SUBDIR);
   } catch (EngineException *e) {

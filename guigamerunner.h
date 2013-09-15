@@ -21,10 +21,10 @@
 #ifndef GUI_GAME_RUNNER_H
 #define GUI_GAME_RUNNER_H
 
-#include "outputconsole.h"
 #include "runnerform.h"
 #include "bbrunner.h"
 #include "zipper.h"
+#include "printhandler.h"
 #include "gamerunner.h"
 
 #define MAX_FORM_ELEMENTS  20
@@ -37,7 +37,7 @@ class GuiGameRunner : public GameRunner {
   int numStages_;
   char **teamNames_;
   int numTeams_;
-  OutputConsole *runnerConsole_;
+  PrintHandler *printHandler_;
   int threadCount_;
   bool started_;
   bool quitting_;
@@ -47,8 +47,8 @@ class GuiGameRunner : public GameRunner {
   char *replayTemplateDir_;
 
   public:
-    GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
-        int numStages, char **teamNames, int numTeams, Zipper *zipper,
+    GuiGameRunner(PrintHandler *printHandler, char **stageNames, int numStages,
+        char **teamNames, int numTeams, Zipper *zipper,
         const char *replayTemplateDir);
     ~GuiGameRunner();
     virtual void addStageSelect(const char *name);

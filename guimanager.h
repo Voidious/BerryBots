@@ -58,15 +58,6 @@ class GuiListener {
     virtual ~GuiListener() {};
 };
 
-class PrintStateListener : public NewTeamStateListener {
-  GuiPrintHandler *guiPrintHandler_;
-  
-  public:
-    PrintStateListener(GuiPrintHandler *guiPrintHandler);
-    virtual void newTeam(Team *team, const char *filename);
-    OutputConsole** getTeams();
-};
-
 class ConsoleEventHandler;
 
 class GuiManager {
@@ -77,6 +68,7 @@ class GuiManager {
   RunnerDialog *runnerDialog_;
   sf::RenderWindow *window_;
   sf::RenderWindow *previewWindow_;
+  GuiPrintHandler *guiPrintHandler_;
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
   OutputConsole *packagingConsole_;
@@ -99,7 +91,6 @@ class GuiManager {
   PackageDialogListener *stagePackager_;
   RunnerDialogListener *runnerLauncher_;
   PackagingListener *packageReporter_;
-  PrintStateListener *printStateListener_;
   BerryBotsEngine *engine_;
   char *stagesBaseDir_;
   char *shipsBaseDir_;

@@ -42,16 +42,8 @@ class CliPrintHandler : public PrintHandler {
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
     virtual void runnerPrint(const char *text);
-    void registerTeam(Team *team, const char *name);
+    virtual void registerTeam(Team *team, const char *filename);
     void updateTeams(Team** teams);
-};
-
-class CliStateListener : public NewTeamStateListener {
-  CliPrintHandler *cliPrintHandler_;
-  
-  public:
-    CliStateListener(CliPrintHandler *cliPrintHandler);
-    virtual void newTeam(Team *team, const char *filename);
 };
 
 #endif

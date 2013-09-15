@@ -21,12 +21,14 @@
 #ifndef PRINT_HANDLER_H
 #define PRINT_HANDLER_H
 
+#include "bbutil.h"
+
 extern "C" {
   #include "lua.h"
 }
 
 // Custom implementation of the print() Lua function to accomodate command line
-// and GUI implementations of BerryBots stage/ship output.
+// and GUI implementations of BerryBots stage/ship/runner output.
 //
 // Note that the PrintHandler is the only global in the BerryBots code base. So
 // while the game is fairly thread-safe - if using one engine per thread, and
@@ -38,6 +40,7 @@ class PrintHandler {
     virtual void stagePrint(const char *text) = 0;
     virtual void shipPrint(lua_State *L, const char *text) = 0;
     virtual void runnerPrint(const char *text) = 0;
+    virtual void registerTeam(Team *team, const char *filename) = 0;
     virtual ~PrintHandler() {};
 };
 

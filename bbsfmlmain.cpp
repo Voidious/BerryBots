@@ -132,13 +132,12 @@ int main(int argc, char *argv[]) {
     printUsage();
   }
 
-  srand(time(NULL));
-  engine = new BerryBotsEngine(fileManager, resourcePath().c_str());
-  stage = engine->getStage();
-
   CliPrintHandler *cliPrintHandler = new CliPrintHandler();
   printHandler = (PrintHandler*) cliPrintHandler;
-  CliStateListener *cliStateListener = new CliStateListener(cliPrintHandler);
+
+  srand(time(NULL));
+  engine = new BerryBotsEngine(cliPrintHandler, fileManager, resourcePath().c_str());
+  stage = engine->getStage();
 
   char *stageAbsName = fileManager->getAbsFilePath(argv[nodisplay ? 2 : 1]);
   char *stageName =
@@ -178,7 +177,6 @@ int main(int argc, char *argv[]) {
   }
 
   cliPrintHandler->setNumTeams(numTeams);
-  engine->setListener(cliStateListener);
   try {
     engine->initShips(shipsBaseDir, teams, numTeams, CACHE_SUBDIR);
   } catch (EngineException *e) {

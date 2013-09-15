@@ -28,15 +28,10 @@
 #include "basedir.h"
 #include "replaybuilder.h"
 
-ReplayBuilder::ReplayBuilder(int numTeams, int numShips,
-                             const char *templateDir) {
-  shipsAlive_ = new bool[numShips];
-  shipsShowName_ = new bool[numShips];
-  numTeams_ = numTeams;
-  numShips_ = numShips;
-  for (int x = 0; x < numShips; x++) {
-    shipsAlive_[x] = shipsShowName_[x] = false;
-  }
+ReplayBuilder::ReplayBuilder(const char *templateDir) {
+  numTeams_ = 0;
+  numShips_ = 0;
+  shipsAlive_ = shipsShowName_ = 0;
   stagePropertiesData_ = new ReplayData(1);
   wallsData_ = new ReplayData(MAX_MISC_CHUNKS);
   zonesData_ = new ReplayData(MAX_MISC_CHUNKS);
@@ -107,9 +102,25 @@ ReplayBuilder::~ReplayBuilder() {
   }
 }
 
-// Stage size format:  (2)
-// width | height
-void ReplayBuilder::addStageSize(int width, int height) {
+void ReplayBuilder::initShips(int numTeams, int numShips) {
+  numTeams_ = numTeams;
+  numShips_ = numShips;
+  shipsAlive_ = new bool[numShips];
+  shipsShowName_ = new bool[numShips];
+  for (int x = 0; x < numShips; x++) {
+    shipsAlive_[x] = shipsShowName_[x] = false;
+  }
+}
+
+// Stage properties format:  (variable)
+// name length | name | width | height
+void ReplayBuilder::addStageProperties(const char *name, int width,
+                                       int height) {
+  int nameLength = (int) strlen(name);
+  stagePropertiesData_->addInt(nameLength);
+  for (int x = 0; x < nameLength; x++) {
+    stagePropertiesData_->addInt((int) name[x]);
+  }
   stagePropertiesData_->addInt(width);
   stagePropertiesData_->addInt(height);
 }
@@ -330,9 +341,9 @@ void ReplayBuilder::addText(int time, const char *text, double x, double y,
 }
 
 // Log format:  (variable)
-// ship index | time | messageLength | message
-void ReplayBuilder::addLogEntry(Ship *ship, int time, const char *logMessage) {
-  logData_->addInt(ship->index);
+// team index | time | message length | message
+void ReplayBuilder::addLogEntry(Team *team, int time, const char *logMessage) {
+  logData_->addInt((team == 0) ? -1 : team->index);
   logData_->addInt(time);
   int messageLen = (int) strlen(logMessage);
   logData_->addInt(messageLen);
@@ -407,7 +418,8 @@ int ReplayBuilder::round(double f) {
 
 // Format of saved replay file:
 // | replay version
-// | stage width | stage height | num walls | <walls> | num zones | <zones>
+// | stage name length | stage name | stage width | stage height
+// | num walls | <walls> | num zones | <zones>
 // | num ships | <ship properties> | num ship adds | <ship adds>
 // | num ship removes | <ship removes> | num ship ticks | <ship ticks>
 // | num laser starts | <laser starts> | num laser ends | <laser ends>
@@ -495,7 +507,7 @@ std::string ReplayBuilder::buildReplayDataString() {
   std::stringstream dataStream;
 
   dataStream << std::hex << REPLAY_VERSION;
-  dataStream << ':' << stagePropertiesData_->toHexString(0)
+  dataStream << ':' << stagePropertiesHexString()
              << ':' << wallsData_->toHexString(4)
              << ':' << zonesData_->toHexString(4)
              << ':' << teamPropertiesHexString()
@@ -518,6 +530,24 @@ std::string ReplayBuilder::buildReplayDataString() {
              << ':' << resultsDataHexString();
 
   return dataStream.str();
+}
+
+std::string ReplayBuilder::stagePropertiesHexString() {
+  std::stringstream hexStream;
+  int i = 0;
+
+  int nameLength = stagePropertiesData_->getInt(i++);
+  std::stringstream nameStream;
+  for (int y = 0; y < nameLength; y++) {
+    nameStream << (char) stagePropertiesData_->getInt(i++);
+  }
+  hexStream << escapeColons(nameStream.str());
+
+  for (int x = 0; x < 2; x++) {
+    appendHex(hexStream, stagePropertiesData_->getInt(i++));
+  }
+  
+  return hexStream.str();
 }
 
 std::string ReplayBuilder::teamPropertiesHexString() {
@@ -611,9 +641,8 @@ std::string ReplayBuilder::logDataHexString() {
     for (int y = 0; y < 2; y++) {
       appendHex(hexStream, logData_->getInt(i++));
     }
+
     int messageLen = logData_->getInt(i++);
-    appendHex(hexStream, messageLen);
-    
     std::stringstream msgStream;
     for (int y = 0; y < messageLen; y++) {
       msgStream << (char) logData_->getInt(i++);

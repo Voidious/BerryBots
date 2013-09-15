@@ -92,9 +92,10 @@ class ReplayBuilder {
   char *replayJsResourcePath_;
   
   public:
-    ReplayBuilder(int numTeams, int numShips, const char *templateDir);
+    ReplayBuilder(const char *templateDir);
     ~ReplayBuilder();
-    void addStageSize(int width, int height);
+    void initShips(int numTeams, int numShips);
+    void addStageProperties(const char *name, int width, int height);
     void addWall(int left, int bottom, int width, int height);
     void addZone(int left, int bottom, int width, int height);
     void addTeamProperties(Team *team);
@@ -112,7 +113,7 @@ class ReplayBuilder {
     void addShipDestroy(Ship *ship, int time);
     void addText(int time, const char *text, double x, double y, int size,
                   RgbaColor textColor, int duration);
-    void addLogEntry(Ship *ship, int time, const char *logMessage);
+    void addLogEntry(Team *team, int time, const char *logMessage);
     void setResults(Team **rankedTeams, int numTeams);
     void saveReplay(const char *filename);
   private:
@@ -125,6 +126,7 @@ class ReplayBuilder {
     int round(double f);
     std::string buildReplayDataString();
     char* readReplayTemplate();
+    std::string stagePropertiesHexString();
     std::string teamPropertiesHexString();
     std::string shipPropertiesHexString();
     std::string textDataHexString();

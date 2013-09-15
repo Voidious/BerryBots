@@ -62,6 +62,8 @@ setMaximumPixelRatio(1);
 
 // Replay format:
 //
+// Stage properties:
+//   name | width | height
 // Wall:
 //   left | bottom | width | height
 // Zone:
@@ -101,7 +103,7 @@ setMaximumPixelRatio(1);
 //
 // Complete file:
 // | replay version
-// | stage width | stage height
+// | stage name | stage width | stage height
 // | num walls | <walls>
 // | num zones | <zones>
 // | num teams | <team properties>
@@ -294,8 +296,9 @@ shipGroup.add(shipDotGroup);
 // Parse global stage stuff and draw it once.
 
 var values = replayData.replace(/\\:/g, "@;@").split(":");
-var stageWidth = getValue(1);
-var stageHeight = getValue(2);
+var stageName = getValue(1);
+var stageWidth = getValue(2);
+var stageHeight = getValue(3);
 
 var bgRect = new Kinetic.Rect({
   x: 0,
@@ -312,8 +315,8 @@ var stage = new Kinetic.Stage({
   height: stageHeight + (STAGE_MARGIN * 2)
 });
 
-var numWalls = drawRectangles(3, 'white');
-var zonesOffset = 4 + (numWalls * 4);
+var numWalls = drawRectangles(4, 'white');
+var zonesOffset = 5 + (numWalls * 4);
 var numZones = drawRectangles(zonesOffset, ZONE_COLOR);
 
 var teamsOffset = zonesOffset + 1 + (numZones * 4);

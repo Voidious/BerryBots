@@ -29,6 +29,7 @@
 #include "filemanager.h"
 #include "sensorhandler.h"
 #include "replaybuilder.h"
+#include "printhandler.h"
 
 #define PCALL_STAGE     1
 #define PCALL_SHIP      2
@@ -39,12 +40,6 @@ extern "C" {
   #include "lualib.h"
   #include "lauxlib.h"
 }
-
-class NewTeamStateListener {
-  public:
-    virtual void newTeam(Team *team, const char *name) = 0;
-    virtual ~NewTeamStateListener() {};
-};
 
 class EngineException : public std::exception {
   char *message_;
@@ -65,12 +60,12 @@ typedef struct {
 
 class BerryBotsEngine {
   Stage *stage_;
+  PrintHandler *printHandler_;
   FileManager *fileManager_;
   lua_State *stageState_;
   char *stagesDir_;
   char *stageFilename_;
   World *stageWorld_;
-  NewTeamStateListener *listener_;
 
   Team **teams_;
   Ship **ships_;
@@ -110,10 +105,10 @@ class BerryBotsEngine {
   char *replayTemplateDir_;
 
   public:
-    BerryBotsEngine(FileManager *manager, const char *replayTemplateDir);
+    BerryBotsEngine(PrintHandler *printHandler, FileManager *manager,
+                    const char *replayTemplateDir);
     ~BerryBotsEngine();
 
-    void setListener(NewTeamStateListener *listener);
     bool isStageConfigureComplete();
     bool isShipInitComplete();
     void setBattleMode(bool battleMode);
@@ -136,6 +131,8 @@ class BerryBotsEngine {
                    const char *cacheDir) throw (EngineException*);
     void initShips(const char *shipsBaseDir, char **teamNames, int numTeams,
                    const char *cacheDir) throw (EngineException*);
+    void stagePrint(const char *text);
+    void shipPrint(lua_State *L, const char *text);
     void processTick() throw (EngineException*);
     void processRoundOver();
     void processGameOver();

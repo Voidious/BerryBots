@@ -72,7 +72,7 @@ void Stage::setName(char *name) {
   strcpy(name_, name);
 }
 
-char* Stage::getName() {
+const char* Stage::getName() {
   return name_;
 }
 

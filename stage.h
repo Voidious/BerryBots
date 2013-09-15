@@ -105,7 +105,7 @@ class Stage {
     Stage(int width, int height);
     ~Stage();
     void setName(char *name);
-    char* getName();
+    const char* getName();
     void setSize(int width, int height);
     int getWidth();
     int getHeight();

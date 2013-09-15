@@ -19,6 +19,7 @@
 */
 
 #include <string.h>
+#include <sstream>
 #include <wx/wx.h>
 #include <platformstl/synch/sleep_functions.h>
 #include "basedir.h"
@@ -34,11 +35,11 @@ extern "C" {
   #include "lauxlib.h"
 }
 
-GuiGameRunner::GuiGameRunner(OutputConsole *runnerConsole, char **stageNames,
+GuiGameRunner::GuiGameRunner(PrintHandler *printHandler, char **stageNames,
     int numStages, char **teamNames, int numTeams, Zipper *zipper,
     const char *replayTemplateDir) {
   runnerName_ = 0;
-  runnerConsole_ = runnerConsole;
+  printHandler_ = printHandler;
   numFormElements_ = 0;
   stageNames_ = stageNames;
   numStages_ = numStages;
@@ -269,33 +270,32 @@ void GuiGameRunner::run(const char *runnerName) {
   runnerName_ = new char[strlen(runnerName) + 1];
   strcpy(runnerName_, runnerName);
 
-  runnerConsole_->clear();
-  runnerConsole_->Show();
-  runnerConsole_->Raise();
-
   std::string runnersDir = getRunnersDir();
   initRunnerState(&runnerState_, runnersDir.c_str());
+  lua_setprinter(runnerState_, printHandler_);
 
   bool error = false;
   bool opened = false;
   if (luaL_loadfile(runnerState_, runnerName)) {
-    runnerConsole_->print("Error loading game runner file: ");
-    runnerConsole_->println(runnerName);
+    std::stringstream msgStream;
+    msgStream << "Error loading game runner file: " << runnerName;
+    printHandler_->runnerPrint(msgStream.str().c_str());
     error = true;
   } else {
     if (lua_pcall(runnerState_, 0, 0, 0)) {
       opened = true;
       error = true;
     } else {
-      runnerConsole_->print("== Loaded: ");
-      runnerConsole_->println(runnerName);
-      runnerConsole_->println();
+      std::stringstream msgStream;
+      msgStream << "== Loaded: " << runnerName;
+      printHandler_->runnerPrint(msgStream.str().c_str());
+      printHandler_->runnerPrint("");
     }
   }
 
   if (error) {
     const char *luaMessage = lua_tostring(runnerState_, -1);
-    runnerConsole_->println(luaMessage);
+    printHandler_->runnerPrint(luaMessage);
   } else {
     lua_pushcfunction(runnerState_, traceback);
     int errfunc = lua_gettop(runnerState_);
@@ -308,11 +308,12 @@ void GuiGameRunner::run(const char *runnerName) {
     lua_remove(runnerState_, errfunc);
     if (pcallValue != 0) {
       const char *luaMessage = lua_tostring(runnerState_, -1);
-      runnerConsole_->println(luaMessage);
+      printHandler_->runnerPrint(luaMessage);
     } else {
-      runnerConsole_->println();
-      runnerConsole_->print("== Finished: ");
-      runnerConsole_->println(runnerName);
+      printHandler_->runnerPrint("");
+      std::stringstream msgStream;
+      msgStream << "== Finished: " << runnerName;
+      printHandler_->runnerPrint(msgStream.str().c_str());
     }
   }
 

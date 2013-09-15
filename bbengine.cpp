@@ -35,12 +35,12 @@
 #include "replaybuilder.h"
 #include "bbengine.h"
 
-extern PrintHandler *printHandler;
-
-BerryBotsEngine::BerryBotsEngine(FileManager *fileManager,
-                                 const char *replayTemplateDir) {
+BerryBotsEngine::BerryBotsEngine(PrintHandler *printHandler,
+    FileManager *fileManager, const char *replayTemplateDir) {
   stage_ = new Stage(DEFAULT_STAGE_WIDTH, DEFAULT_STAGE_HEIGHT);
-  listener_ = 0;
+  printHandler_ = printHandler;
+  fileManager_ = fileManager;
+
   gameTime_ = 0;
   numTeams_ = numInitializedTeams_ = 0;
   teamSize_ = 1;
@@ -71,7 +71,6 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager,
   stageGfx_ = 0;
   teamVision_ = 0;
   sensorHandler_ = 0;
-  fileManager_ = fileManager;
 
   timerSettings_ = new TickTimerSettings;
   timerSettings_->L = 0;
@@ -83,7 +82,6 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager,
   pthread_detach(timerThread_);
   // TODO: how to handle failure to create thread
 
-  replayBuilder_ = 0;
   replayHandler_ = 0;
   if (replayTemplateDir == 0) {
     replayTemplateDir_ = 0;
@@ -91,6 +89,7 @@ BerryBotsEngine::BerryBotsEngine(FileManager *fileManager,
     replayTemplateDir_ = new char[strlen(replayTemplateDir) + 1];
     strcpy(replayTemplateDir_, replayTemplateDir);
   }
+  replayBuilder_ = new ReplayBuilder(replayTemplateDir_);
 }
 
 BerryBotsEngine::~BerryBotsEngine() {
@@ -181,10 +180,6 @@ BerryBotsEngine::~BerryBotsEngine() {
   if (replayTemplateDir_ != 0) {
     delete replayTemplateDir_;
   }
-}
-
-void BerryBotsEngine::setListener(NewTeamStateListener *listener) {
-  listener_ = listener;
 }
 
 Stage* BerryBotsEngine::getStage() {
@@ -521,11 +516,21 @@ void BerryBotsEngine::initStage(const char *stagesBaseDir,
     throw eie;
   }
   initStageState(&stageState_, stagesDir_);
+  lua_setprinter(stageState_, this);
 
   if (luaL_loadfile(stageState_, stageFilename_)) {
     throwForLuaError(stageState_, "Cannot load stage file: %s");
   }
   callUserLuaCode(stageState_, 0, "Cannot load stage file", PCALL_STAGE);
+
+  char *stageRootName = fileManager_->stripExtension(stageName);
+  char *stageDisplayName = fileManager_->parseFilename(stageRootName);
+  stage_->setName(stageDisplayName); // TODO: let stage set name like ship
+  std::stringstream msgStream;
+  msgStream << "== Stage control program loaded: " << stageDisplayName;
+  stagePrint(msgStream.str().c_str());
+  delete stageRootName;
+  delete stageDisplayName;
 
   lua_getglobal(stageState_, "configure");
   StageBuilder *stageBuilder = pushStageBuilder(stageState_);
@@ -534,11 +539,7 @@ void BerryBotsEngine::initStage(const char *stagesBaseDir,
                   PCALL_STAGE);
 
   stage_->buildBaseWalls();
-  char *stageRootName = fileManager_->stripExtension(stageName);
-  char *stageDisplayName = fileManager_->parseFilename(stageRootName);
-  stage_->setName(stageDisplayName); // TODO: let stage set name like ship
-  delete stageRootName;
-  delete stageDisplayName;
+  stagePrint("");
   stageConfigureComplete_ = true;
 }
 
@@ -630,6 +631,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
       throw eie;
     }
     initShipState(&teamState, shipDir);
+    lua_setprinter(teamState, this);
 
     Team *team = new Team;
     team->index = x;
@@ -639,8 +641,8 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     team->gfxEnabled = false;
     team->tooManyRectangles = team->tooManyLines = false;
     team->tooManyCircles = team->tooManyTexts = false;
-    if (listener_ != 0) {
-      listener_->newTeam(team, filename);
+    if (printHandler_ != 0) {
+      printHandler_->registerTeam(team, filename);
     }
 
     int numStateShips = (stageShip ? 1 : teamSize_);
@@ -829,15 +831,19 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     shipProperties_[x] = ships_[x]->properties;
   }
 
+  for (int x = 0; x < numTeams_; x++) {
+    shipPrint(teams_[x]->state, "");
+  }
   shipInitComplete_ = true;
 }
 
 void BerryBotsEngine::initReplayBuilder(int numTeams, int numShips,
                                         Stage *stage) {
-  replayBuilder_ = new ReplayBuilder(numTeams, numShips, replayTemplateDir_);
+  replayBuilder_->initShips(numTeams, numShips);
   replayHandler_ = new ReplayEventHandler(replayBuilder_);
   stage_->addEventHandler(replayHandler_);
-  replayBuilder_->addStageSize(stage->getWidth(), stage->getHeight());
+  replayBuilder_->addStageProperties(stage->getName(), stage->getWidth(),
+                                     stage->getHeight());
   Wall **walls = stage->getWalls();
   int numWalls = stage->getWallCount();
   for (int x = 0; x < numWalls; x++) {
@@ -891,6 +897,20 @@ void BerryBotsEngine::updateTeamShipsAlive() {
     }
     team->shipsAlive = shipsAlive;
   }
+}
+
+void BerryBotsEngine::stagePrint(const char *text) {
+  if (printHandler_ != 0) {
+    printHandler_->stagePrint(text);
+  }
+  replayBuilder_->addLogEntry(0, gameTime_, text);
+}
+
+void BerryBotsEngine::shipPrint(lua_State *L, const char *text) {
+  if (printHandler_ != 0) {
+    printHandler_->shipPrint(L, text);
+  }
+  replayBuilder_->addLogEntry(this->getTeam(L), gameTime_, text);
 }
 
 void BerryBotsEngine::processTick() throw (EngineException*) {
@@ -1076,9 +1096,9 @@ ReplayBuilder* BerryBotsEngine::getReplayBuilder() {
 //       GUI or CLI displays them appropriately.
 void BerryBotsEngine::printLuaErrorToShipConsole(lua_State *L,
                                                  const char *formatString) {
-  if (printHandler != 0) {
+  if (printHandler_ != 0) {
     char *errorMessage = formatLuaError(L, formatString);
-    printHandler->shipPrint(L, errorMessage);
+    printHandler_->shipPrint(L, errorMessage);
     delete errorMessage;
   }
   for (int x = 0; x < numInitializedTeams_; x++) {

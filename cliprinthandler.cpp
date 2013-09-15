@@ -60,11 +60,11 @@ void CliPrintHandler::runnerPrint(const char *text) {
   std::cout << "Game Runner: " << text << std::endl;
 }
 
-void CliPrintHandler::registerTeam(Team *team, const char *name) {
+void CliPrintHandler::registerTeam(Team *team, const char *filename) {
   if (nextTeamIndex_ < numTeams_) {
     teams_[nextTeamIndex_] = team;
-    teamNames_[nextTeamIndex_] = new char[strlen(name) + 1];
-    strcpy(teamNames_[nextTeamIndex_], name);
+    teamNames_[nextTeamIndex_] = new char[strlen(filename) + 1];
+    strcpy(teamNames_[nextTeamIndex_], filename);
     nextTeamIndex_++;
   }
 }
@@ -76,12 +76,4 @@ void CliPrintHandler::updateTeams(Team** teams) {
     teamNames_[x] = new char[strlen(team->name) + 1];
     strcpy(teamNames_[x], team->name);
   }
-}
-
-CliStateListener::CliStateListener(CliPrintHandler* cliPrintHandler) {
-  cliPrintHandler_ = cliPrintHandler;
-}
-
-void CliStateListener::newTeam(Team *team, const char *filename) {
-  cliPrintHandler_->registerTeam(team, filename);
 }

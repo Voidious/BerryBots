@@ -182,7 +182,7 @@ void* BerryBotsRunner::runMatch(void *vargs) {
 
   FileManager *fileManager = new FileManager(schedulerSettings->zipper);
   BerryBotsEngine *engine =
-      new BerryBotsEngine(fileManager, config->getReplayTemplateDir());
+      new BerryBotsEngine(0, fileManager, config->getReplayTemplateDir());
   bool aborted = false;
   try {
     engine->initStage(config->getStagesDir(), config->getStageName(),

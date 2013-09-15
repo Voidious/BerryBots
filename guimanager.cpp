@@ -52,8 +52,6 @@
 #include "replaybuilder.h"
 #include "guimanager.h"
 
-extern PrintHandler *printHandler;
-
 GuiManager::GuiManager(GuiListener *listener) {
   listener_ = listener;
   stagesBaseDir_ = shipsBaseDir_ = runnersBaseDir_ = 0;
@@ -97,6 +95,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   loadShips();
   loadRunners();
 
+  guiPrintHandler_ = 0;
   stageConsole_ = 0;
   teamConsoles_ = 0;
   gfxManager_ = new GfxManager(true);
@@ -105,7 +104,6 @@ GuiManager::GuiManager(GuiListener *listener) {
   gfxManager_->setListener(viewListener_);
   packageReporter_ = new PackageReporter(packagingConsole_);
   fileManager_->setListener(packageReporter_);
-  printStateListener_ = 0;
   newMatchDialog_->Show();
   newMatchDialog_->SetFocus();
   consoleHandler_ = new ConsoleEventHandler(this);
@@ -173,12 +171,8 @@ GuiManager::~GuiManager() {
   delete stagePackager_;
   delete runnerLauncher_;
   delete packageReporter_;
-  if (printStateListener_ != 0) {
-    delete printStateListener_;
-  }
-  if (printHandler != 0) {
-    delete printHandler;
-    printHandler = 0;
+  if (guiPrintHandler_ != 0) {
+    delete guiPrintHandler_;
   }
   delete consoleHandler_;
 }
@@ -220,7 +214,7 @@ void GuiManager::loadStages() {
 }
 
 void GuiManager::loadStagesFromDir(const char *loadDir) {
-  BerryBotsEngine engine(fileManager_, 0);
+  BerryBotsEngine engine(0, fileManager_, 0);
   numStages_ = loadItemsFromDir(stagesBaseDir_, loadDir, ITEM_STAGE,
                                 packageStageDialog_, &engine);
 }
@@ -319,7 +313,7 @@ void GuiManager::loadShips() {
 }
 
 void GuiManager::loadShipsFromDir(const char *loadDir) {
-  BerryBotsEngine engine(fileManager_, 0);
+  BerryBotsEngine engine(0, fileManager_, 0);
   numShips_ = loadItemsFromDir(shipsBaseDir_, loadDir, ITEM_SHIP,
                                packageShipDialog_, &engine);
 }
@@ -413,7 +407,7 @@ bool GuiManager::isValidShipFile(const char *srcFilename,
 
 void GuiManager::loadRunners() {
   runnerDialog_->clearItems();
-  BerryBotsEngine engine(fileManager_, 0);
+  BerryBotsEngine engine(0, fileManager_, 0);
   numRunners_ = loadItemsFromDir(runnersBaseDir_, runnersBaseDir_, ITEM_RUNNER,
                                  runnerDialog_, &engine);
 }
@@ -582,35 +576,24 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     engine_ = 0;
   }
 
-  GuiPrintHandler *guiPrintHandler;
   if (restarting_) {
     stageConsole_->clear();
-    guiPrintHandler = (GuiPrintHandler*) printHandler;
-    guiPrintHandler->restartMode();
+    guiPrintHandler_->restartMode();
   } else {
     destroyStageConsole();
     stageConsole_ = new OutputConsole(stageName, CONSOLE_SHIP_STAGE,
                                       menuBarMaker_);
     stageConsole_->Hide();
 
-    if (printHandler != 0) {
-      delete printHandler;
-      printHandler = 0;
+    if (guiPrintHandler_ != 0) {
+      delete guiPrintHandler_;
+      guiPrintHandler_ = 0;
     }
-    if (printStateListener_ != 0) {
-      delete printStateListener_;
-      printStateListener_ = 0;
-    }
-    guiPrintHandler = new GuiPrintHandler(stageConsole_, 0, menuBarMaker_);
-    printStateListener_ = new PrintStateListener(guiPrintHandler);
-    printHandler = guiPrintHandler;
+    guiPrintHandler_ = new GuiPrintHandler(stageConsole_, 0, menuBarMaker_);
   }
 
-  engine_ = new BerryBotsEngine(fileManager_, resourcePath().c_str());
-  engine_->setListener(printStateListener_);
-
-  printHandler->stagePrint("== Stage control program loaded: ");
-  printHandler->stagePrint(stageName);
+  engine_ = new BerryBotsEngine(guiPrintHandler_, fileManager_,
+                                resourcePath().c_str());
 
   Stage *stage = engine_->getStage();
   if (restarting_) {
@@ -621,13 +604,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   try {
     engine_->initStage(stagesBaseDir_, stageName, cacheDir);
     engine_->initShips(shipsBaseDir_, teamNames, numUserTeams, cacheDir);
-    teamConsoles_ = guiPrintHandler->getTeamConsoles();
-
-    for (int x = 0; x < engine_->getNumTeams(); x++) {
-      teamConsoles_[x]->SetTitle(engine_->getTeam(x)->name);
-      printHandler->shipPrint(engine_->getTeam(x)->state, "");
-    }
-    printHandler->stagePrint("");
+    teamConsoles_ = guiPrintHandler_->getTeamConsoles();
   } catch (EngineException *e) {
 #ifdef __WXOSX__
     // Since we initialized the window early.
@@ -991,27 +968,29 @@ void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
 }
 
 void GuiManager::launchGameRunner(const char *runnerName) {
-  PrintHandler *oldPrintHandler = 0;
-  if (printHandler != 0) {
-    oldPrintHandler = printHandler;
-  }
-
-  printHandler = new GuiPrintHandler(0, runnerConsole_, menuBarMaker_);
   loadStages();
   loadShips();
   char **stageNames = newMatchDialog_->getStageNames();
   char **shipNames = newMatchDialog_->getShipNames();
-  gameRunner_ = new GuiGameRunner(runnerConsole_, stageNames, numStages_,
+  GuiPrintHandler *printHandler =
+      new GuiPrintHandler(0, runnerConsole_, menuBarMaker_);
+  gameRunner_ = new GuiGameRunner(printHandler, stageNames, numStages_,
       shipNames, numShips_, zipper_, resourcePath().c_str());
   runnerDialog_->Hide();
   nextWindow_ = 0;
   runnerRunning_ = true;
+
+  runnerConsole_->clear();
+  runnerConsole_->Show();
+  runnerConsole_->Raise();
+
   gameRunner_->run(runnerName);
   runnerRunning_ = false;
 
   GuiGameRunner *oldRunner = gameRunner_;
   gameRunner_ = 0;
   delete oldRunner;
+  delete printHandler;
   for (int x = 0; x < numStages_; x++) {
     delete stageNames[x];
   }
@@ -1020,8 +999,6 @@ void GuiManager::launchGameRunner(const char *runnerName) {
     delete shipNames[x];
   }
   delete shipNames;
-  delete printHandler;
-  printHandler = oldPrintHandler;
 
   switch (nextWindow_) {
     case NEXT_NEW_MATCH:
@@ -1145,7 +1122,7 @@ void GuiManager::showStagePreview(const char *stageName) {
 #endif
 
   GfxEventHandler *gfxHandler = new GfxEventHandler();
-  BerryBotsEngine *engine = new BerryBotsEngine(fileManager_, 0);
+  BerryBotsEngine *engine = new BerryBotsEngine(0, fileManager_, 0);
   try {
     engine->initStage(stagesBaseDir_, stageName, getCacheDir().c_str());
   } catch (EngineException *e) {
@@ -1347,7 +1324,7 @@ void GuiManager::printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip,
     std::stringstream msgStream;
     msgStream << "== " << destroyerShip->properties->name
               << " destroyed itself @ " << time;
-    printHandler->shipPrint(teamState, msgStream.str().c_str());
+    engine_->shipPrint(teamState, msgStream.str().c_str());
   } else {
     lua_State *destroyerState =
         engine_->getTeam(destroyerShip->teamIndex)->state;
@@ -1356,7 +1333,7 @@ void GuiManager::printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip,
         << ((destroyedShip->teamIndex == destroyerShip->teamIndex)
             ? "friendly" : "enemy")
         << " ship: " << destroyedShip->properties->name << " @ " << time;
-    printHandler->shipPrint(destroyerState, destroyerStream.str().c_str());
+    engine_->shipPrint(destroyerState, destroyerStream.str().c_str());
 
     std::stringstream destroyeeStream;
     lua_State *destroyeeState =
@@ -1364,7 +1341,7 @@ void GuiManager::printShipDestroyed(Ship *destroyedShip, Ship *destroyerShip,
     destroyeeStream << "== " << destroyedShip->properties->name
         << " destroyed by: " << destroyerShip->properties->name << " @ "
         << time;
-    printHandler->shipPrint(destroyeeState, destroyeeStream.str().c_str());
+    engine_->shipPrint(destroyeeState, destroyeeStream.str().c_str());
   }
 }
 
@@ -1375,12 +1352,12 @@ void GuiManager::printTooManyUserGfxRectangles(Team *team) {
   if (team == 0) {
     // TODO: display error status in stage consoles too
     if (!tooManyStageRectangles_) {
-      printHandler->stagePrint(msgStream.str().c_str());
+      engine_->stagePrint(msgStream.str().c_str());
       tooManyStageRectangles_ = true;
     }
   } else {
     if (!team->tooManyRectangles) {
-      printHandler->shipPrint(team->state, msgStream.str().c_str());
+      engine_->shipPrint(team->state, msgStream.str().c_str());
       team->errored = team->tooManyRectangles = true;
     }
   }
@@ -1392,12 +1369,12 @@ void GuiManager::printTooManyUserGfxLines(Team *team) {
 
   if (team == 0) {
     if (!tooManyStageLines_) {
-      printHandler->stagePrint(msgStream.str().c_str());
+      engine_->stagePrint(msgStream.str().c_str());
       tooManyStageLines_ = true;
     }
   } else {
     if (!team->tooManyLines) {
-      printHandler->shipPrint(team->state, msgStream.str().c_str());
+      engine_->shipPrint(team->state, msgStream.str().c_str());
       team->errored = team->tooManyLines = true;
     }
   }
@@ -1409,12 +1386,12 @@ void GuiManager::printTooManyUserGfxCircles(Team *team) {
 
   if (team == 0) {
     if (!tooManyStageCircles_) {
-      printHandler->stagePrint(msgStream.str().c_str());
+      engine_->stagePrint(msgStream.str().c_str());
       tooManyStageCircles_ = true;
     }
   } else {
     if (!team->tooManyCircles) {
-      printHandler->shipPrint(team->state, msgStream.str().c_str());
+      engine_->shipPrint(team->state, msgStream.str().c_str());
       team->errored = team->tooManyCircles = true;
     }
   }
@@ -1426,12 +1403,12 @@ void GuiManager::printTooManyUserGfxTexts(Team *team) {
 
   if (team == 0) {
     if (!tooManyStageTexts_) {
-      printHandler->stagePrint(msgStream.str().c_str());
+      engine_->stagePrint(msgStream.str().c_str());
       tooManyStageTexts_ = true;
     }
   } else {
     if (!team->tooManyTexts) {
-      printHandler->shipPrint(team->state, msgStream.str().c_str());
+      engine_->shipPrint(team->state, msgStream.str().c_str());
       team->errored = team->tooManyTexts = true;
     }
   }
@@ -1783,14 +1760,6 @@ void PackageReporter::packagingComplete(char **sourceFiles, int numFiles,
   packagingConsole_->print("Saved to: ");
   packagingConsole_->println(destinationFile);
   packagingConsole_->Raise();
-}
-
-PrintStateListener::PrintStateListener(GuiPrintHandler *guiPrintHandler) {
-  guiPrintHandler_ = guiPrintHandler;
-}
-
-void PrintStateListener::newTeam(Team *team, const char *filename) {
-  guiPrintHandler_->registerTeam(team, filename);
 }
 
 ConsoleEventHandler::ConsoleEventHandler(GuiManager *guiManager) {
