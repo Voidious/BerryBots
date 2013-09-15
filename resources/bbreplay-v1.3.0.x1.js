@@ -463,6 +463,7 @@ var lastHover = 0;
 var lastMouseOut = 0;
 var startShowing = 0;
 var showingOverlay = false;
+var paused = false;
 
 document.getElementsByTagName("body")[0].onmousemove = function() {
   var d = new Date();
@@ -470,7 +471,7 @@ document.getElementsByTagName("body")[0].onmousemove = function() {
 };
 
 document.getElementsByTagName("body")[0].onkeydown = function(e) {
-  if (e.which == 27) {
+  if (e.which == 27) { // escape
     for (var x = -1; x < numTeams; x++) {
       var console = getConsole(x);
       if (console.showing) {
@@ -481,6 +482,10 @@ document.getElementsByTagName("body")[0].onkeydown = function(e) {
     if (resultsDiv != null) {
       hideResults();
     }
+  } else if (e.which == 32) { // space bar
+    var d = new Date();
+    lastMove = d.getTime();
+    playPause();
   }
 };
 
@@ -493,320 +498,284 @@ var anim = new Kinetic.Animation(function(frame) {
   var now = d.getTime();
   if (now - lastMove < 850) {
     if (!showingOverlay) {
-      var d = new Date();
-      startShowing = d.getTime();
-      var s = '<style type="text/css">.console-tab { border: 1px solid #fff; '
-          + 'padding: 5px; margin: 4px; color: #fff} '
-          + '.console-tab:hover { color: #0f0; cursor: pointer; '
-          + 'border-color: #0f0; } .stage-tab { margin-bottom: 0.7em; }</style>'
-          + '<div class="console-tab stage-tab" onclick="showConsole(-1)">' + stageName
-          + '</div>';
-      for (var x = 0; x < numTeams; x++) {
-        var showName = false;
-        for (var y = 0; y < numShips; y++) {
-          if (ships[y].teamIndex == x && shipShowNames[y]) {
-            showName = true;
-            break;
-          }
-        }
-        if (showName) {
-          s += '<div class="console-tab" onclick="showConsole(' + teams[x].index
-              + ')">' + teams[x].name + '</div>';
-        }
-      }
-      var d = document.createElement('div');
-      d.innerHTML = s;
-      d.id = 'overlay';
-      d.style.color = '#fff';
-      d.margin = '0';
-      d.padding = '0';
-      d.style.fontFamily = 'Ubuntu, Arial, Tahoma, sans-serif';
-      d.style.fontSize = '1.12em';
-      document.getElementById('container').appendChild(d);
-
-      var left = Math.max(0, ((stage.getScaleX() * stage.getWidth()) - d.clientWidth) / 2);
-      var top = Math.max(0, ((stage.getScaleY() * stage.getHeight()) - d.clientHeight) / 2);
-      d.style.position = 'absolute';
-      d.style.left = '35px';
-      d.style.top = '35px';
-      showingOverlay = true;
+      showOverlay();
     }
   } else {
     if (showingOverlay) {
-      var d = document.getElementById('overlay');
-      document.getElementById('container').removeChild(d);
-      showingOverlay = false;
+      hideOverlay();
     }
   }
 
-  if (nextShipState < numShipStates) {
-    // Lasers.
-    while (nextLaserStart < numLaserStarts
-           && laserStarts[nextLaserStart].fireTime <= gameTime) {
-      var laserStart = laserStarts[nextLaserStart++];
-      var laser = laserProto.clone();
-      var dx = Math.cos(laserStart.heading) * LASER_SPEED;
-      var dy = Math.sin(laserStart.heading) * LASER_SPEED;
-      laser.setX(laserStart.srcX);
-      laser.setY(laserStart.srcY);
-      laser.setFill(ships[laserStart.shipIndex].laserColor);
-      laser.setRotation(TWO_PI - laserStart.heading);
-      laser.laserData = {dx: dx, dy: dy, id: laserStart.id};
-      lasers.push(laser);
-      layer.add(laser);
-    }
+  if (!paused) {
+    if (nextShipState < numShipStates) {
+      // Lasers.
+      while (nextLaserStart < numLaserStarts
+             && laserStarts[nextLaserStart].fireTime <= gameTime) {
+        var laserStart = laserStarts[nextLaserStart++];
+        var laser = laserProto.clone();
+        var dx = Math.cos(laserStart.heading) * LASER_SPEED;
+        var dy = Math.sin(laserStart.heading) * LASER_SPEED;
+        laser.setX(laserStart.srcX);
+        laser.setY(laserStart.srcY);
+        laser.setFill(ships[laserStart.shipIndex].laserColor);
+        laser.setRotation(TWO_PI - laserStart.heading);
+        laser.laserData = {dx: dx, dy: dy, id: laserStart.id};
+        lasers.push(laser);
+        layer.add(laser);
+      }
 
-    while (nextLaserEnd < numLaserEnds
-           && laserEnds[nextLaserEnd].time <= gameTime) {
-      var laserEnd = laserEnds[nextLaserEnd++];
-      // TODO: use a map instead?
+      while (nextLaserEnd < numLaserEnds
+             && laserEnds[nextLaserEnd].time <= gameTime) {
+        var laserEnd = laserEnds[nextLaserEnd++];
+        // TODO: use a map instead?
+        for (var x = 0; x < lasers.length; x++) {
+          var laser = lasers[x];
+          if (laser.laserData.id == laserEnd.id) {
+            lasers.splice(x--, 1);
+            laser.destroy();
+          }
+        }
+      }
+
       for (var x = 0; x < lasers.length; x++) {
         var laser = lasers[x];
-        if (laser.laserData.id == laserEnd.id) {
-          lasers.splice(x--, 1);
-          laser.destroy();
+        laser.setX(laser.getX() + laser.laserData.dx);
+        laser.setY(laser.getY() - laser.laserData.dy);
+      }
+
+      for (var x = 0; x < laserSparkRects.length; x++) {
+        var laserSparkRect = laserSparkRects[x];
+        if (laserSparkRect.sparkData.endTime < gameTime) {
+          laserSparkRects.splice(x--, 1);
+          laserSparkRect.destroy();
+        } else {
+          laserSparkRect.setOffset({x: laserSparkRect.getOffset().x + 5,
+                                    y: LASER_SPARK_THICKNESS / 2});
+          laserSparkRect.move(laserSparkRect.sparkData.dx,
+                              -laserSparkRect.sparkData.dy);
         }
       }
-    }
 
-    for (var x = 0; x < lasers.length; x++) {
-      var laser = lasers[x];
-      laser.setX(laser.getX() + laser.laserData.dx);
-      laser.setY(laser.getY() - laser.laserData.dy);
-    }
-
-    for (var x = 0; x < laserSparkRects.length; x++) {
-      var laserSparkRect = laserSparkRects[x];
-      if (laserSparkRect.sparkData.endTime < gameTime) {
-        laserSparkRects.splice(x--, 1);
-        laserSparkRect.destroy();
-      } else {
-        laserSparkRect.setOffset({x: laserSparkRect.getOffset().x + 5,
-                                  y: LASER_SPARK_THICKNESS / 2});
-        laserSparkRect.move(laserSparkRect.sparkData.dx,
-                            -laserSparkRect.sparkData.dy);
+      while (nextLaserSpark < numLaserSparks
+             && laserSparks[nextLaserSpark].startTime <= gameTime) {
+        var laserSpark = laserSparks[nextLaserSpark++];
+        for (var x = 0; x < 4; x++) {
+          var laserSparkRect = laserSparkProto.clone();
+          laserSparkRect.setX(laserSpark.x);
+          laserSparkRect.setY(laserSpark.y);
+          laserSparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
+          laserSparkRect.setRotation(Math.random() * TWO_PI);
+          laserSparkRect.setOffset({x: 9, y: LASER_SPARK_THICKNESS / 2});
+          laserSparkRect.sparkData = laserSpark;
+          laserSparkRects.push(laserSparkRect);
+          layer.add(laserSparkRect);
+        }
       }
-    }
 
-    while (nextLaserSpark < numLaserSparks
-           && laserSparks[nextLaserSpark].startTime <= gameTime) {
-      var laserSpark = laserSparks[nextLaserSpark++];
-      for (var x = 0; x < 4; x++) {
-        var laserSparkRect = laserSparkProto.clone();
-        laserSparkRect.setX(laserSpark.x);
-        laserSparkRect.setY(laserSpark.y);
-        laserSparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
-        laserSparkRect.setRotation(Math.random() * TWO_PI);
-        laserSparkRect.setOffset({x: 9, y: LASER_SPARK_THICKNESS / 2});
-        laserSparkRect.sparkData = laserSpark;
-        laserSparkRects.push(laserSparkRect);
-        layer.add(laserSparkRect);
+      // Torpedos.
+      while (nextTorpedoStart < numTorpedoStarts
+             && torpedoStarts[nextTorpedoStart].fireTime <= gameTime) {
+        var torpedoStart = torpedoStarts[nextTorpedoStart++];
+        var torpedo = torpedoProto.clone();
+        var dx = Math.cos(torpedoStart.heading) * TORPEDO_SPEED;
+        var dy = Math.sin(torpedoStart.heading) * TORPEDO_SPEED;
+        torpedo.setX(torpedoStart.srcX);
+        torpedo.setY(torpedoStart.srcY);
+        torpedo.torpedoData = {dx: dx, dy: dy, id: torpedoStart.id};
+        torpedos.push(torpedo);
+        layer.add(torpedo);
       }
-    }
 
-    // Torpedos.
-    while (nextTorpedoStart < numTorpedoStarts
-           && torpedoStarts[nextTorpedoStart].fireTime <= gameTime) {
-      var torpedoStart = torpedoStarts[nextTorpedoStart++];
-      var torpedo = torpedoProto.clone();
-      var dx = Math.cos(torpedoStart.heading) * TORPEDO_SPEED;
-      var dy = Math.sin(torpedoStart.heading) * TORPEDO_SPEED;
-      torpedo.setX(torpedoStart.srcX);
-      torpedo.setY(torpedoStart.srcY);
-      torpedo.torpedoData = {dx: dx, dy: dy, id: torpedoStart.id};
-      torpedos.push(torpedo);
-      layer.add(torpedo);
-    }
+      while (nextTorpedoEnd < numTorpedoEnds
+             && torpedoEnds[nextTorpedoEnd].time <= gameTime) {
+        var torpedoEnd = torpedoEnds[nextTorpedoEnd++];
+        // TODO: use a map instead?
+        for (var x = 0; x < torpedos.length; x++) {
+          var torpedo = torpedos[x];
+          if (torpedo.torpedoData.id == torpedoEnd.id) {
+            torpedos.splice(x--, 1);
+            torpedo.destroy();
+          }
+        }
+      }
 
-    while (nextTorpedoEnd < numTorpedoEnds
-           && torpedoEnds[nextTorpedoEnd].time <= gameTime) {
-      var torpedoEnd = torpedoEnds[nextTorpedoEnd++];
-      // TODO: use a map instead?
       for (var x = 0; x < torpedos.length; x++) {
         var torpedo = torpedos[x];
-        if (torpedo.torpedoData.id == torpedoEnd.id) {
-          torpedos.splice(x--, 1);
-          torpedo.destroy();
-        }
+        torpedo.setX(torpedo.getX() + torpedo.torpedoData.dx);
+        torpedo.setY(torpedo.getY() - torpedo.torpedoData.dy);
       }
-    }
 
-    for (var x = 0; x < torpedos.length; x++) {
-      var torpedo = torpedos[x];
-      torpedo.setX(torpedo.getX() + torpedo.torpedoData.dx);
-      torpedo.setY(torpedo.getY() - torpedo.torpedoData.dy);
-    }
-
-    for (var x = 0; x < torpedoBlastCircles.length; x++) {
-      var torpedoBlastCircle = torpedoBlastCircles[x];
-      if (torpedoBlastCircle.blastData.endTime < gameTime) {
-        torpedoBlastCircles.splice(x--, 1);
-        torpedoBlastCircle.destroy();
-      } else {
-        var blastTime = gameTime - torpedoBlastCircle.blastData.startTime;
-        var blastScale;
-        if (blastTime < 5) {
-          blastScale = (4 - blastTime) / 4;
+      for (var x = 0; x < torpedoBlastCircles.length; x++) {
+        var torpedoBlastCircle = torpedoBlastCircles[x];
+        if (torpedoBlastCircle.blastData.endTime < gameTime) {
+          torpedoBlastCircles.splice(x--, 1);
+          torpedoBlastCircle.destroy();
         } else {
-          blastScale = (blastTime - 3) / (TORPEDO_BLAST_TIME - 4);
+          var blastTime = gameTime - torpedoBlastCircle.blastData.startTime;
+          var blastScale;
+          if (blastTime < 5) {
+            blastScale = (4 - blastTime) / 4;
+          } else {
+            blastScale = (blastTime - 3) / (TORPEDO_BLAST_TIME - 4);
+          }
+          torpedoBlastCircle.setScale(blastScale);
         }
-        torpedoBlastCircle.setScale(blastScale);
       }
-    }
 
-    while (nextTorpedoBlast < numTorpedoBlasts
-           && torpedoBlasts[nextTorpedoBlast].startTime <= gameTime) {
-      var torpedoBlast = torpedoBlasts[nextTorpedoBlast++];
-      var torpedoBlastCircle = torpedoBlastProto.clone();
-      torpedoBlastCircle.setX(torpedoBlast.x);
-      torpedoBlastCircle.setY(torpedoBlast.y);
-      torpedoBlastCircle.blastData = torpedoBlast;
-      torpedoBlastCircles.push(torpedoBlastCircle);
-      layer.add(torpedoBlastCircle);
-    }
-
-    for (var x = 0; x < torpedoDebrisCircles.length; x++) {
-      var torpedoDebrisCircle = torpedoDebrisCircles[x];
-      if (torpedoDebrisCircle.debrisData.endTime < gameTime) {
-        torpedoDebrisCircles.splice(x--, 1);
-        torpedoDebrisCircle.destroy();
-      } else {
-        torpedoDebrisCircle.setOffset({x: torpedoDebrisCircle.getOffset().x
-                                       + torpedoDebrisCircle.debrisData.speed});
-        torpedoDebrisCircle.move(torpedoDebrisCircle.debrisData.dx,
-                                -torpedoDebrisCircle.debrisData.dy);
+      while (nextTorpedoBlast < numTorpedoBlasts
+             && torpedoBlasts[nextTorpedoBlast].startTime <= gameTime) {
+        var torpedoBlast = torpedoBlasts[nextTorpedoBlast++];
+        var torpedoBlastCircle = torpedoBlastProto.clone();
+        torpedoBlastCircle.setX(torpedoBlast.x);
+        torpedoBlastCircle.setY(torpedoBlast.y);
+        torpedoBlastCircle.blastData = torpedoBlast;
+        torpedoBlastCircles.push(torpedoBlastCircle);
+        layer.add(torpedoBlastCircle);
       }
-    }
 
-    while (nextTorpedoDebris < numTorpedoDebris
-           && torpedoDebris[nextTorpedoDebris].startTime <= gameTime) {
-      var debrisData = torpedoDebris[nextTorpedoDebris++];
-      for (var x = 0; x < debrisData.parts; x++) {
-        var torpedoDebrisCircle = torpedoDebrisProto.clone();
-        torpedoDebrisCircle.setX(debrisData.x);
-        torpedoDebrisCircle.setY(debrisData.y);
-        torpedoDebrisCircle.setFill(ships[debrisData.shipIndex].shipColor);
-        torpedoDebrisCircle.setRotation(Math.random() * TWO_PI);
-        torpedoDebrisCircle.setOffset({x: 9});
-        torpedoDebrisCircle.debrisData = debrisData;
-        torpedoDebrisCircles.push(torpedoDebrisCircle);
-        layer.add(torpedoDebrisCircle);
-      }
-    }
-
-    // Ship destroys.
-    for (var x = 0; x < shipDestroyCircles.length; x++) {
-      var shipDestroyCircle = shipDestroyCircles[x];
-      if (shipDestroyCircle.destroyData.endTime < gameTime) {
-        shipDestroyCircles.splice(x--, 1);
-        shipDestroyCircle.destroy();
-      } else {
-        var radiusFactor = 1 + Math.floor(
-            (gameTime - shipDestroyCircle.destroyData.startTime) / 2);
-        shipDestroyCircle.setRadius(radiusFactor * DESTROY_BASE_RADIUS);
-      }
-    }
-
-    while (nextShipDestroy < numShipDestroys
-           && shipDestroys[nextShipDestroy].startTime <= gameTime) {
-      var shipDestroy = shipDestroys[nextShipDestroy++];
-      var shipDestroyCircle = shipDestroyProto.clone();
-      shipDestroyCircle.setX(shipDestroy.x);
-      shipDestroyCircle.setY(shipDestroy.y);
-      shipDestroyCircle.setStroke(ships[shipDestroy.shipIndex].shipColor);
-      shipDestroyCircle.destroyData = shipDestroy;
-      shipDestroyCircles.push(shipDestroyCircle);
-      layer.add(shipDestroyCircle);
-    }
-
-    // Ships.
-    while (nextShipAdd < numShipAdds
-           && shipAdds[nextShipAdd].time <= gameTime) {
-      shipAlives[shipAdds[nextShipAdd++].index] = true;
-    }
-
-    while (nextShipRemove < numShipRemoves
-           && shipRemoves[nextShipRemove].time <= gameTime) {
-      shipAlives[shipRemoves[nextShipRemove++].index] = false;
-    }
-
-    while (nextShipShowName < numShipAddShowNames
-           && shipAddShowNames[nextShipShowName].time <= gameTime) {
-      shipShowNames[shipAddShowNames[nextShipShowName++].index] = true;
-    }
-
-    while (nextShipHideName < numShipAddHideNames
-           && shipAddHideNames[nextShipHideName].time <= gameTime) {
-      shipShowNames[shipAddHideNames[nextShipHideName++].index] = false;
-    }
-
-    for (var x = 0; x < numShips; x++) {
-      if (shipAlives[x]) {
-        var shipState = shipStates[nextShipState++];
-        ships[x].show();
-        ships[x].setX(shipState.x);
-        ships[x].setY(shipState.y);
-        var thruster = ships[x].getChildren()[0];
-        thruster.setRotation(Math.PI + (TWO_PI - shipState.thrusterAngle));
-        var forceFactor = shipState.thrusterForce;
-        if (forceFactor < 0.0001) {
-          thruster.setScale(0);
+      for (var x = 0; x < torpedoDebrisCircles.length; x++) {
+        var torpedoDebrisCircle = torpedoDebrisCircles[x];
+        if (torpedoDebrisCircle.debrisData.endTime < gameTime) {
+          torpedoDebrisCircles.splice(x--, 1);
+          torpedoDebrisCircle.destroy();
         } else {
-          thruster.setScale(
-              THRUSTER_ZERO + (forceFactor * (1 - THRUSTER_ZERO)));
+          torpedoDebrisCircle.setOffset({x: torpedoDebrisCircle.getOffset().x
+                                         + torpedoDebrisCircle.debrisData.speed});
+          torpedoDebrisCircle.move(torpedoDebrisCircle.debrisData.dx,
+                                  -torpedoDebrisCircle.debrisData.dy);
         }
-
-        ships[x].getChildren()[2].setScale(shipState.energy / 100, 1);
-        var shipDotGroup = ships[x].getChildren()[4];
-        shipDotGroup.setRotation(
-            shipDotGroup.getRotation() + (SHIP_ROTATION * shipOrbits[x]));
-        ships[x].getChildren()[1].setVisible(shipShowNames[x]);
-      } else {
-        ships[x].hide();
       }
-    }
 
-    // Stage texts.
-    for (var x = 0; x < stageTextShapes.length; x++) {
-      var stageTextShape = stageTextShapes[x];
-      if (stageTextShape.textData.endTime < gameTime) {
-        stageTextShapes.splice(x--, 1);
-        stageTextShape.destroy();
+      while (nextTorpedoDebris < numTorpedoDebris
+             && torpedoDebris[nextTorpedoDebris].startTime <= gameTime) {
+        var debrisData = torpedoDebris[nextTorpedoDebris++];
+        for (var x = 0; x < debrisData.parts; x++) {
+          var torpedoDebrisCircle = torpedoDebrisProto.clone();
+          torpedoDebrisCircle.setX(debrisData.x);
+          torpedoDebrisCircle.setY(debrisData.y);
+          torpedoDebrisCircle.setFill(ships[debrisData.shipIndex].shipColor);
+          torpedoDebrisCircle.setRotation(Math.random() * TWO_PI);
+          torpedoDebrisCircle.setOffset({x: 9});
+          torpedoDebrisCircle.debrisData = debrisData;
+          torpedoDebrisCircles.push(torpedoDebrisCircle);
+          layer.add(torpedoDebrisCircle);
+        }
       }
-    }
 
-    while (nextStageText < numStageTexts
-           && stageTexts[nextStageText].startTime <= gameTime) {
-      var stageText = stageTexts[nextStageText++];
-      var stageTextShape = new Kinetic.Text({
-        x: stageText.x,
-        y: stageText.y,
-        text: stageText.text,
-        fontSize: stageText.size,
-        fontFamily: 'Questrial, Ubuntu, Arial, Tahoma, sans-serif',
-        fill: stageText.color,
-        strokeWidth: 0
-      });
-      stageTextShape.textData = stageText;
-      stageTextShapes.push(stageTextShape);
-      layer.add(stageTextShape);
-    }
-
-    while (nextLogEntry < numLogEntries
-           && logEntries[nextLogEntry].time <= gameTime) {
-      var logEntry = logEntries[nextLogEntry++];
-      var console = getConsole(logEntry.teamIndex);
-      console.logMessages.push(logEntry.message);
-      if (console.div != null) {
-        console.outputDiv.innerHTML += "<br>" + logEntry.message;
-        scrollToBottom(console.outputDiv);
+      // Ship destroys.
+      for (var x = 0; x < shipDestroyCircles.length; x++) {
+        var shipDestroyCircle = shipDestroyCircles[x];
+        if (shipDestroyCircle.destroyData.endTime < gameTime) {
+          shipDestroyCircles.splice(x--, 1);
+          shipDestroyCircle.destroy();
+        } else {
+          var radiusFactor = 1 + Math.floor(
+              (gameTime - shipDestroyCircle.destroyData.startTime) / 2);
+          shipDestroyCircle.setRadius(radiusFactor * DESTROY_BASE_RADIUS);
+        }
       }
-    }
 
-    gameTime++;
-  } else if (!showedResults) {
-    showResults();
-    showedResults = true;
+      while (nextShipDestroy < numShipDestroys
+             && shipDestroys[nextShipDestroy].startTime <= gameTime) {
+        var shipDestroy = shipDestroys[nextShipDestroy++];
+        var shipDestroyCircle = shipDestroyProto.clone();
+        shipDestroyCircle.setX(shipDestroy.x);
+        shipDestroyCircle.setY(shipDestroy.y);
+        shipDestroyCircle.setStroke(ships[shipDestroy.shipIndex].shipColor);
+        shipDestroyCircle.destroyData = shipDestroy;
+        shipDestroyCircles.push(shipDestroyCircle);
+        layer.add(shipDestroyCircle);
+      }
+
+      // Ships.
+      while (nextShipAdd < numShipAdds
+             && shipAdds[nextShipAdd].time <= gameTime) {
+        shipAlives[shipAdds[nextShipAdd++].index] = true;
+      }
+
+      while (nextShipRemove < numShipRemoves
+             && shipRemoves[nextShipRemove].time <= gameTime) {
+        shipAlives[shipRemoves[nextShipRemove++].index] = false;
+      }
+
+      while (nextShipShowName < numShipAddShowNames
+             && shipAddShowNames[nextShipShowName].time <= gameTime) {
+        shipShowNames[shipAddShowNames[nextShipShowName++].index] = true;
+      }
+
+      while (nextShipHideName < numShipAddHideNames
+             && shipAddHideNames[nextShipHideName].time <= gameTime) {
+        shipShowNames[shipAddHideNames[nextShipHideName++].index] = false;
+      }
+
+      for (var x = 0; x < numShips; x++) {
+        if (shipAlives[x]) {
+          var shipState = shipStates[nextShipState++];
+          ships[x].show();
+          ships[x].setX(shipState.x);
+          ships[x].setY(shipState.y);
+          var thruster = ships[x].getChildren()[0];
+          thruster.setRotation(Math.PI + (TWO_PI - shipState.thrusterAngle));
+          var forceFactor = shipState.thrusterForce;
+          if (forceFactor < 0.0001) {
+            thruster.setScale(0);
+          } else {
+            thruster.setScale(
+                THRUSTER_ZERO + (forceFactor * (1 - THRUSTER_ZERO)));
+          }
+
+          ships[x].getChildren()[2].setScale(shipState.energy / 100, 1);
+          var shipDotGroup = ships[x].getChildren()[4];
+          shipDotGroup.setRotation(
+              shipDotGroup.getRotation() + (SHIP_ROTATION * shipOrbits[x]));
+          ships[x].getChildren()[1].setVisible(shipShowNames[x]);
+        } else {
+          ships[x].hide();
+        }
+      }
+
+      // Stage texts.
+      for (var x = 0; x < stageTextShapes.length; x++) {
+        var stageTextShape = stageTextShapes[x];
+        if (stageTextShape.textData.endTime < gameTime) {
+          stageTextShapes.splice(x--, 1);
+          stageTextShape.destroy();
+        }
+      }
+
+      while (nextStageText < numStageTexts
+             && stageTexts[nextStageText].startTime <= gameTime) {
+        var stageText = stageTexts[nextStageText++];
+        var stageTextShape = new Kinetic.Text({
+          x: stageText.x,
+          y: stageText.y,
+          text: stageText.text,
+          fontSize: stageText.size,
+          fontFamily: 'Questrial, Ubuntu, Arial, Tahoma, sans-serif',
+          fill: stageText.color,
+          strokeWidth: 0
+        });
+        stageTextShape.textData = stageText;
+        stageTextShapes.push(stageTextShape);
+        layer.add(stageTextShape);
+      }
+
+      while (nextLogEntry < numLogEntries
+             && logEntries[nextLogEntry].time <= gameTime) {
+        var logEntry = logEntries[nextLogEntry++];
+        var console = getConsole(logEntry.teamIndex);
+        console.logMessages.push(logEntry.message);
+        if (console.div != null) {
+          console.outputDiv.innerHTML += "<br>" + logEntry.message;
+          scrollToBottom(console.outputDiv);
+        }
+      }
+
+      gameTime++;
+    } else if (!showedResults) {
+      showResults();
+      showedResults = true;
+    }
   }
 
   var scale = Math.min(window.innerWidth / stage.getWidth(),
@@ -815,6 +784,133 @@ var anim = new Kinetic.Animation(function(frame) {
 }, layer);
 
 anim.start();
+
+function showOverlay() {
+  var d = new Date();
+  startShowing = d.getTime();
+
+  showConsoleTabs();
+  showControls();
+  showingOverlay = true;
+}
+
+function hideOverlay() {
+  var d = document.getElementById('dock');
+  document.getElementById('container').removeChild(d);
+  var f = document.getElementById('controls');
+  document.getElementById('container').removeChild(f);
+  showingOverlay = false;
+}
+
+function showConsoleTabs() {
+  var s = '<style type="text/css">.console-tab { border: 1px solid #fff; '
+      + 'padding: 5px; margin: 4px; color: #fff} '
+      + '.console-tab:hover { color: #0f0; cursor: pointer; '
+      + 'border-color: #0f0; } .stage-tab { margin-bottom: 0.7em; }</style>'
+      + '<div class="console-tab stage-tab" onclick="showConsole(-1)">' + stageName
+      + '</div>';
+  for (var x = 0; x < numTeams; x++) {
+    var showName = false;
+    for (var y = 0; y < numShips; y++) {
+      if (ships[y].teamIndex == x && shipShowNames[y]) {
+        showName = true;
+        break;
+      }
+    }
+    if (showName) {
+      s += '<div class="console-tab" onclick="showConsole(' + teams[x].index
+          + ')">' + teams[x].name + '</div>';
+    }
+  }
+
+  var d = document.createElement('div');
+  d.innerHTML = s;
+  d.id = 'dock';
+  d.style.color = '#fff';
+  d.margin = '0';
+  d.padding = '0';
+  d.style.fontFamily = 'Ubuntu, Arial, Tahoma, sans-serif';
+  d.style.fontSize = '1.12em';
+  d.style.position = 'absolute';
+  d.style.left = '35px';
+  d.style.top = '35px';
+  document.getElementById('container').appendChild(d);
+}
+
+function showControls() {
+  var s = '<style type="text/css">'
+        + '  .controls {'
+        + '    color: #fff;'
+        + '    padding: 5px;'
+        + '  }'
+        + '  .controls:hover {'
+        + '    color: #0f0;'
+        + '    cursor: pointer;'
+        + '    border-color: #fff;'
+        + '  }'
+        + '  .play {'
+        + '    display: block;'
+        + '    height: 0;'
+        + '    width: 0;'
+        + '    border-bottom: 15px solid #fff;'
+        + '    border-left: 15px solid transparent;'
+        + '    transform: scale(6,3) rotate(-45deg);'
+        + '    -ms-transform: scale(6,3) rotate(-45deg); '
+        + '    -webkit-transform: scale(6,3) rotate(-45deg);'
+        + '  }'
+        + '  .play:hover {'
+        + '    border-bottom-color: #0f0;'
+        + '  }'
+        + '  .pause-wedge {'
+        + '    background-color: #fff;'
+        + '    display: inline-block;'
+        + '    height: 70px;'
+        + '    width: 16px;'
+        + '    margin-right: 8px;'
+        + '  }'
+        + '  .pause:hover .pause-wedge {'
+        + '    background-color: #0f0;'
+        + '  }'
+        + '</style>'
+        + '<div class="controls" onclick="playPause()">'
+        + '  <div id="play" class="play"></div>'
+        + '  <div id="pause" class="pause">'
+        + '    <div class="pause-wedge"></div>'
+        + '    <div class="pause-wedge"></div>'
+        + '  </div>'
+        + '</div>';
+
+  var d = document.createElement('div');
+  d.innerHTML = s;
+  d.id = 'controls';
+  d.style.color = '#fff';
+  d.margin = '0';
+  d.padding = '0';
+  d.style.position = 'absolute';
+  document.getElementById('container').appendChild(d);
+
+  showPlayPause();
+}
+
+function showPlayPause() {
+  var center =
+      Math.max(0, (stage.getScaleX() * stage.getWidth()) / 2);
+  var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 150);
+
+  var d = document.getElementById('controls');
+  d.style.position = 'absolute';
+  if (paused) {
+    d.style.left = (center - 33) + 'px';
+    d.style.top = top + 'px';
+    document.getElementById('pause').style.visibility = 'hidden';
+    document.getElementById('play').style.visibility = 'visible';
+  } else {
+    d.style.left = (center - 20) + 'px';
+    d.style.top = (top - 42) + 'px';
+    document.getElementById('play').style.visibility = 'hidden';
+    document.getElementById('pause').style.visibility = 'visible';
+  }
+}
 
 function showResults() {
   var s = '<style type="text/css">table, td, th { border-collapse: collapse; '
@@ -961,6 +1057,12 @@ function hideResults() {
 function scrollToBottom(d) {
   d.scrollTop = d.scrollHeight;
 }
+
+function playPause() {
+  paused = !paused;
+  showPlayPause();
+}
+
 
 // Functions for parsing replay data into data model.
 
