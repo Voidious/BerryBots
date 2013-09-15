@@ -447,6 +447,8 @@ var nextTorpedoDebris = 0;
 var stageTextShapes = new Array();
 var nextStageText = 0;
 
+var showedResults = false;
+
 var anim = new Kinetic.Animation(function(frame) {
   var time = frame.time,
       timeDiff = frame.timeDiff,
@@ -706,6 +708,9 @@ var anim = new Kinetic.Animation(function(frame) {
     }
 
     gameTime++;
+  } else if (!showedResults) {
+    showResults();
+    showedResults = true;
   }
 
   var scale = Math.min(window.innerWidth / stage.getWidth(),
@@ -715,6 +720,84 @@ var anim = new Kinetic.Animation(function(frame) {
 
 anim.start();
 
+function showResults() {
+  var s = '<style type="text/css">table, td, th { border-collapse: collapse; '
+      + 'background-color: #fff; border:1px solid #000; color: #000 }'
+      + '.num { text-align: right; } .mid { text-align: center; }'
+      + '</style>';
+  
+  var numResults = results.length;
+  var hasScores = false;
+  var statKeys = new Array();
+  for (var x = 0; x < numResults; x++) {
+    var result = results[x];
+    hasScores = hasScores || (result.score != 0);
+    var stats = result.stats;
+    var numStats = stats.length;
+    for (var y = 0; y < numStats; y++) {
+      var stat = stats[y]
+      if (statKeys.indexOf(stat.key) == -1) {
+        statKeys.push(stat.key);
+      }
+    }
+  }
+
+  var numKeys = statKeys.length;
+  var numCols = 2 + (hasScores ? 1 : 0) + numKeys;
+    s += '<table id="resultsTable" cellpadding="9px">'
+    s += '<tr><td colspan="' + numCols + '" class="mid">Results</td></tr>'
+        + '<tr><td class="mid">Rank</td><td class="mid">Name</td>';
+
+  if (hasScores) {
+    s += '<td class="mid">Score</td>';
+  }
+  for (var x = 0; x < numKeys; x++) {
+    s += '<td class="mid">' + statKeys[x] + '</td>';
+  }
+  s += '</tr>';
+
+  for (var x = 0; x < numResults; x++) {
+    var result = results[x];
+    s += '<tr><td class="mid">' + result.rank + '</td><td>'
+        + teams[result.teamIndex].name + '</td>'
+        + (hasScores ? '<td class="num">' + result.score + '</td>' : '');
+    var stats = result.stats;
+    var numStats = stats.length;
+    for (var y = 0; y < numKeys; y++) {
+      var found = false;
+      for (var z = 0; z < numStats; z++) {
+        if (statKeys[y] == stats[z].key) {
+          s += '<td class="num">' + stats[z].value + '</td>';
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        s += '<td></td>';
+      }
+    }
+    s += '</tr>'
+  }
+  s += '</table>\n';
+
+  var d = document.createElement('div');
+  d.innerHTML = s;
+  d.margin = '0';
+  d.padding = '0';
+  d.style.fontFamily = 'Ubuntu, Arial, Tahoma, sans-serif';
+  d.style.fontSize = '1em';
+  document.getElementById('container').appendChild(d);
+
+  var resultsTable = document.getElementById("resultsTable");
+  var left = Math.max(0, ((stage.getScaleX() * stage.getWidth()) - resultsTable.clientWidth) / 2);
+  var top = Math.max(0, ((stage.getScaleY() * stage.getHeight()) - resultsTable.clientHeight) / 2);
+  d.style.position = "absolute";
+  d.style.left = left + "px";
+  d.style.top = top + "px";
+}
+
+
+// Functions for parsing replay data into data model.
 
 function drawRectangles(baseOffset, fillColor) {
   var numRectangles = getValue(baseOffset);
