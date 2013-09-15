@@ -455,15 +455,32 @@ stageConsole.name = stageName;
 var nextLogEntry = 0;
 
 var showedResults = false;
+var resultsDiv = null;
 
 var lastMove = 0;
 var lastHover = 0;
 var lastMouseOut = 0;
 var startShowing = 0;
 var showingOverlay = false;
+
 document.getElementsByTagName("body")[0].onmousemove = function() {
   var d = new Date();
   lastMove = d.getTime();
+};
+
+document.getElementsByTagName("body")[0].onkeydown = function(e) {
+  if (e.which == 27) {
+    for (var x = -1; x < numTeams; x++) {
+      var console = getConsole(x);
+      if (console.showing) {
+        hideConsole(x);
+      }
+    }
+
+    if (resultsDiv != null) {
+      hideResults();
+    }
+  }
 };
 
 var anim = new Kinetic.Animation(function(frame) {
@@ -473,7 +490,7 @@ var anim = new Kinetic.Animation(function(frame) {
 
   var d = new Date();
   var now = d.getTime();
-  if (now - lastMove < 950) {
+  if (now - lastMove < 850) {
     if (!showingOverlay) {
       var d = new Date();
       startShowing = d.getTime();
@@ -779,7 +796,7 @@ var anim = new Kinetic.Animation(function(frame) {
       var logEntry = logEntries[nextLogEntry++];
       var console = getConsole(logEntry.teamIndex);
       console.logMessages.push(logEntry.message);
-      if (console.showing) {
+      if (console.logDiv != null) {
         var consoleDiv = document.getElementById(console.consoleId);
         consoleDiv.innerHTML += "<br>" + logEntry.message;
         scrollToBottom(console.consoleId);
@@ -803,6 +820,9 @@ function showResults() {
   var s = '<style type="text/css">table, td, th { border-collapse: collapse; '
       + 'background-color: #fff; border: 1px solid #000; color: #000 }'
       + '.num { text-align: right; } .mid { text-align: center; }'
+      + '.results-x { font-size: 1.8em; position: absolute; left: 8px; '
+      + 'cursor: pointer; top: 0; } .results-x:hover { color: #f00; }'
+      + '.rel { position: relative; }'
       + '</style>';
   
   var numResults = results.length;
@@ -824,8 +844,10 @@ function showResults() {
   var numKeys = statKeys.length;
   var numCols = 2 + (hasScores ? 1 : 0) + numKeys;
     s += '<table id="resultsTable" cellpadding="9px">'
-    s += '<tr><td colspan="' + numCols + '" class="mid">Results</td></tr>'
-        + '<tr><td class="mid">Rank</td><td class="mid">Name</td>';
+        + '<tr><td colspan="' + numCols + '" class="mid rel">'
+        + '<div class="results-x" onclick="hideResults()">&times;</div>'
+        + 'Results</td></tr><tr><td class="mid">Rank</td>'
+        + '<td class="mid">Name</td>';
 
   if (hasScores) {
     s += '<td class="mid">Score</td>';
@@ -873,14 +895,14 @@ function showResults() {
   d.style.position = "absolute";
   d.style.left = left + "px";
   d.style.top = top + "px";
+  resultsDiv = d;
 }
 
 function showConsole(teamIndex) {
   for (var x = -1; x < numTeams; x++) {
     var console = getConsole(x);
     if (x != teamIndex && console.showing) {
-      document.getElementById('container').removeChild(console.logDiv);
-      console.showing = false;
+      hideConsole(x);
     }
   }
 
@@ -891,10 +913,14 @@ function showConsole(teamIndex) {
         + 'border: 1px solid #fff; padding: 0.5em; background-color: #000; '
         + 'font-family: Consolas, Courier, monospace; font-size: 0.8em; '
         + 'color: #fff; overflow: auto; width: 550px; height: 400px; } '
-        + '.console-title { background-color: #fff; color: #000; text-align: center; '
-        + 'font-family: Ubuntu, Arial, Tahoma, sans-serif; }</style>'
-        + '<div class="console-title">' + console.name
-        + '</div><div class="console" id="' + consoleId + '">';
+        + '.console-title { background-color: #fff; color: #000; '
+        + 'position: relative; text-align: center; padding: 5px; '
+        + 'font-family: Ubuntu, Arial, Tahoma, sans-serif; }'
+        + '.console-x { font-size: 1.5em; position: absolute; left: 6px; '
+        + 'cursor: pointer; top: 0; } .console-x:hover { color: #f00; }</style>'
+        + '<div class="console-title"><div class="console-x" '
+        + 'onclick="hideConsole(' + teamIndex + ')">&times;</div>'
+        + console.name + '</div><div class="console" id="' + consoleId + '">';
 
     // TODO: escape or strip HTML
     s += console.logMessages.join('<br>');
@@ -917,6 +943,18 @@ function showConsole(teamIndex) {
 
   console.showing = true;
   scrollToBottom(console.consoleId);
+}
+
+function hideConsole(teamIndex) {
+  var console = getConsole(teamIndex);
+  document.getElementById('container').removeChild(console.logDiv);
+  console.showing = false;
+}
+
+function hideResults() {
+  if (resultsDiv != null) {
+    document.getElementById('container').removeChild(resultsDiv);
+  }
 }
 
 function scrollToBottom(divId) {
