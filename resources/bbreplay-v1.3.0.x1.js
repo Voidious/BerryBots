@@ -448,7 +448,8 @@ var stageTextShapes = new Array();
 var nextStageText = 0;
 var stageConsole = new Object();
 stageConsole.logMessages = new Array();
-stageConsole.logDiv = null;
+stageConsole.div = null;
+stageConsole.outputDiv = null;
 stageConsole.showing = false;
 stageConsole.consoleId = 'console0';
 stageConsole.name = stageName;
@@ -796,10 +797,9 @@ var anim = new Kinetic.Animation(function(frame) {
       var logEntry = logEntries[nextLogEntry++];
       var console = getConsole(logEntry.teamIndex);
       console.logMessages.push(logEntry.message);
-      if (console.logDiv != null) {
-        var consoleDiv = document.getElementById(console.consoleId);
-        consoleDiv.innerHTML += "<br>" + logEntry.message;
-        scrollToBottom(console.consoleId);
+      if (console.div != null) {
+        console.outputDiv.innerHTML += "<br>" + logEntry.message;
+        scrollToBottom(console.outputDiv);
       }
     }
 
@@ -908,7 +908,7 @@ function showConsole(teamIndex) {
 
   var console = getConsole(teamIndex);
   var consoleId = console.consoleId;
-  if (console.logDiv == null) {
+  if (console.div == null) {
     var s = '<style type="text/css">.console { border-collapse: collapse; '
         + 'border: 1px solid #fff; padding: 0.5em; background-color: #000; '
         + 'font-family: Consolas, Courier, monospace; font-size: 0.8em; '
@@ -930,24 +930,25 @@ function showConsole(teamIndex) {
     d.margin = '0';
     d.padding = '0';
     document.getElementById('container').appendChild(d);
-    console.logDiv = d;
+    console.div = d;
+    console.outputDiv = document.getElementById(consoleId);
   } else {
-    document.getElementById('container').appendChild(console.logDiv);
+    document.getElementById('container').appendChild(console.div);
   }
 
-  var d = console.logDiv;
+  var d = console.div;
   d.style.position = 'absolute';
   d.style.left =
       Math.max(0, ((stage.getScaleX() * stage.getWidth()) - 600)) + 'px';
   d.style.top = '35px';
 
   console.showing = true;
-  scrollToBottom(console.consoleId);
+  scrollToBottom(console.outputDiv);
 }
 
 function hideConsole(teamIndex) {
   var console = getConsole(teamIndex);
-  document.getElementById('container').removeChild(console.logDiv);
+  document.getElementById('container').removeChild(console.div);
   console.showing = false;
 }
 
@@ -957,8 +958,7 @@ function hideResults() {
   }
 }
 
-function scrollToBottom(divId) {
-  var d = document.getElementById(divId);
+function scrollToBottom(d) {
   d.scrollTop = d.scrollHeight;
 }
 
@@ -993,7 +993,7 @@ function getTeamProperties(baseOffset) {
     team.index = getValue(offset);
     team.name = values[offset + 1].replace(/@;@/g, ":");
     team.logMessages = new Array();
-    team.logDiv = null;
+    team.div = null;
     team.showing = false;
     team.consoleId = 'console' + (team.index + 1);
     teams.push(team);
