@@ -304,7 +304,7 @@ shipGroup.add(shipDotGroup);
 // Parse global stage stuff and draw it once.
 
 var values = replayData.replace(/\\:/g, "@;@").split(":");
-var stageName = getValue(1);
+var stageName = values[1].replace(/@;@/g, ":");
 var stageWidth = getValue(2);
 var stageHeight = getValue(3);
 
@@ -449,10 +449,68 @@ var nextStageText = 0;
 
 var showedResults = false;
 
+var lastMove = 0;
+var lastHover = 0;
+var lastMouseOut = 0;
+var startShowing = 0;
+var showingOverlay = false;
+document.getElementsByTagName("body")[0].onmousemove = function() {
+  var d = new Date();
+  lastMove = d.getTime();
+};
+
 var anim = new Kinetic.Animation(function(frame) {
   var time = frame.time,
       timeDiff = frame.timeDiff,
       frameRate = frame.frameRate;
+
+  var d = new Date();
+  var now = d.getTime();
+  if (now - lastMove < 950) {
+    if (!showingOverlay) {
+      var d = new Date();
+      startShowing = d.getTime();
+      var s = '<style type="text/css">.console { border: 1px solid #fff; '
+          + 'padding: 5px; margin: 4px; color: #fff} '
+          + '.console:hover { color: #0f0; cursor: pointer; '
+          + 'border-color: #0f0; } .stage { margin-bottom: 0.7em; }</style>'
+          + '<div class="console stage">' + stageName + '</div>';
+      for (var x = 0; x < numTeams; x++) {
+        var showName = false;
+        for (var y = 0; y < numShips; y++) {
+          if (ships[y].teamIndex == x && shipShowNames[y]) {
+            showName = true;
+            break;
+          }
+        }
+        if (showName) {
+          s += '<div class="console">' + teams[x].name + '</div>';
+        }
+      }
+      var d = document.createElement('div');
+      d.innerHTML = s;
+      d.id = 'overlay';
+      d.style.color = '#fff';
+      d.margin = '0';
+      d.padding = '0';
+      d.style.fontFamily = 'Ubuntu, Arial, Tahoma, sans-serif';
+      d.style.fontSize = '1.12em';
+      document.getElementById('container').appendChild(d);
+
+      var left = Math.max(0, ((stage.getScaleX() * stage.getWidth()) - d.clientWidth) / 2);
+      var top = Math.max(0, ((stage.getScaleY() * stage.getHeight()) - d.clientHeight) / 2);
+      d.style.position = 'absolute';
+      d.style.left = '35px';
+      d.style.top = '35px';
+      showingOverlay = true;
+    }
+  } else {
+    if (showingOverlay) {
+      var d = document.getElementById('overlay');
+      document.getElementById('container').removeChild(d);
+      showingOverlay = false;
+    }
+  }
 
   if (nextShipState < numShipStates) {
     // Lasers.
