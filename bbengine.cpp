@@ -552,8 +552,8 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   int userTeams = numTeams;
   int numStageShips = stage_->getStageShipCount();
   numShips_ = (userTeams * teamSize_) + numStageShips;
-  initReplayBuilder(numShips_, stage_);
   numTeams_ = userTeams + numStageShips;
+  initReplayBuilder(numTeams_, numShips_, stage_);
   ships_ = new Ship*[numShips_];
   shipProperties_ = new ShipProperties*[numShips_];
   teams_ = new Team*[numTeams_];
@@ -769,10 +769,6 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
         }
       }
     }
-    for (int y = 0; y < numStateShips; y++) {
-      Ship *ship = stateShips[y];
-      replayBuilder_->addShipProperties(ship);
-    }
     if (deleteFilename) {
       delete filename;
     }
@@ -785,6 +781,13 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   // TODO: print to output console if ship or team name changes
   uniqueShipNames(ships_, numShips_);
   uniqueTeamNames(teams_, numTeams_);
+  for (int x = 0; x < numShips_; x++) {
+    replayBuilder_->addShipProperties(ships_[x]);
+  }
+  for (int x = 0; x < numTeams_; x++) {
+    replayBuilder_->addTeamProperties(teams_[x]);
+  }
+
   teamVision_ = new bool*[numTeams_];
   for (int x = 0; x < numTeams_; x++) {
     teamVision_[x] = new bool[numShips_];
@@ -829,8 +832,9 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   shipInitComplete_ = true;
 }
 
-void BerryBotsEngine::initReplayBuilder(int numShips, Stage *stage) {
-  replayBuilder_ = new ReplayBuilder(numShips, replayTemplateDir_);
+void BerryBotsEngine::initReplayBuilder(int numTeams, int numShips,
+                                        Stage *stage) {
+  replayBuilder_ = new ReplayBuilder(numTeams, numShips, replayTemplateDir_);
   replayHandler_ = new ReplayEventHandler(replayBuilder_);
   stage_->addEventHandler(replayHandler_);
   replayBuilder_->addStageSize(stage->getWidth(), stage->getHeight());

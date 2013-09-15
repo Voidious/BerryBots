@@ -162,7 +162,7 @@ class BerryBotsEngine {
                         int callStyle) throw (EngineException*);
     ReplayBuilder* getReplayBuilder();
   private:
-    void initReplayBuilder(int numShips, Stage *stage);
+    void initReplayBuilder(int numTeams, int numShips, Stage *stage);
     void processWinnerRanksScores();
     void setTeamRanksByScore();
     void initShipRound(Ship *ship);

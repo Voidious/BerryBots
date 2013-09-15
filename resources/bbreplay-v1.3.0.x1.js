@@ -66,6 +66,8 @@ setMaximumPixelRatio(1);
 //   left | bottom | width | height
 // Zone:
 //   left | bottom | width | height
+// Team properties:
+//   index | name
 // Ship properties:
 //   team index | ship color | laser color | thruster color | name
 // Ship add:
@@ -102,6 +104,7 @@ setMaximumPixelRatio(1);
 // | stage width | stage height
 // | num walls | <walls>
 // | num zones | <zones>
+// | num teams | <team properties>
 // | num ships | <ship properties>
 // | num ship adds | <ship adds>
 // | num ship removes | <ship removes>
@@ -313,7 +316,11 @@ var numWalls = drawRectangles(3, 'white');
 var zonesOffset = 4 + (numWalls * 4);
 var numZones = drawRectangles(zonesOffset, ZONE_COLOR);
 
-var shipsOffset = zonesOffset + 1 + (numZones * 4);
+var teamsOffset = zonesOffset + 1 + (numZones * 4);
+var teams = getTeamProperties(teamsOffset);
+var numTeams = teams.length;
+
+var shipsOffset = teamsOffset + 1 + (numTeams * 2);
 var ships = getShipProperties(shipsOffset);
 var numShips = ships.length;
 var shipOrbits = getShipOrbits(numShips);
@@ -707,6 +714,18 @@ function drawRectangles(baseOffset, fillColor) {
     layer.add(wallRect);
   }
   return numRectangles;
+}
+
+function getTeamProperties(baseOffset) {
+  var numTeams = getValue(baseOffset);
+  var teams = new Array();
+  for (var x = 0; x < numTeams; x++) {
+    var offset = baseOffset + 1 + (x * 2);
+    var team = {index: getValue(offset)};
+    team.name = values[offset + 1].replace(/@;@/g, ":");
+    teams.push(team);
+  }
+  return teams;
 }
 
 function getShipProperties(baseOffset) {

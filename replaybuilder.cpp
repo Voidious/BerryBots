@@ -28,9 +28,11 @@
 #include "basedir.h"
 #include "replaybuilder.h"
 
-ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
+ReplayBuilder::ReplayBuilder(int numTeams, int numShips,
+                             const char *templateDir) {
   shipsAlive_ = new bool[numShips];
   shipsShowName_ = new bool[numShips];
+  numTeams_ = numTeams;
   numShips_ = numShips;
   for (int x = 0; x < numShips; x++) {
     shipsAlive_[x] = shipsShowName_[x] = false;
@@ -38,6 +40,7 @@ ReplayBuilder::ReplayBuilder(int numShips, const char *templateDir) {
   stagePropertiesData_ = new ReplayData(1);
   wallsData_ = new ReplayData(MAX_MISC_CHUNKS);
   zonesData_ = new ReplayData(MAX_MISC_CHUNKS);
+  teamPropertiesData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipPropertiesData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipAddData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipRemoveData_ = new ReplayData(MAX_MISC_CHUNKS);
@@ -76,6 +79,7 @@ ReplayBuilder::~ReplayBuilder() {
   delete stagePropertiesData_;
   delete wallsData_;
   delete zonesData_;
+  delete teamPropertiesData_;
   delete shipPropertiesData_;
   delete shipAddData_;
   delete shipRemoveData_;
@@ -128,8 +132,20 @@ void ReplayBuilder::addZone(int left, int bottom, int width, int height) {
   zonesData_->addInt(height);
 }
 
+// Team properties format:  (variable)
+// team index | name length | name
+void ReplayBuilder::addTeamProperties(Team *team) {
+  teamPropertiesData_->addInt(team->index);
+  const char *name = team->name;
+  int nameLength = (int) strlen(name);
+  teamPropertiesData_->addInt(nameLength);
+  for (int x = 0; x < nameLength; x++) {
+    teamPropertiesData_->addInt((int) name[x]);
+  }
+}
+
 // Ship properties format:  (variable)
-// team index | ship R | G | B | laser R | G | B | thruster R | G | B | nameLength | <name>
+// team index | ship R | G | B | laser R | G | B | thruster R | G | B | name length | name
 void ReplayBuilder::addShipProperties(Ship *ship) {
   shipPropertiesData_->addInt(ship->teamIndex);
   ShipProperties *properties = ship->properties;
@@ -331,7 +347,7 @@ void ReplayBuilder::addLogEntry(Ship *ship, int time, const char *logMessage) {
 //
 // Expanded results format:
 // num results | <team results>
-//   Team result: name length | name | rank | score * 100 | num stats | stats
+//   Team result: team index | rank | score * 100 | num stats | stats
 //     Stat: key length | key | value * 100
 void ReplayBuilder::setResults(Team **rankedTeams, int numTeams) {
   if (resultsData_->getSize() > 0) {
@@ -357,13 +373,9 @@ void ReplayBuilder::setResults(Team **rankedTeams, int numTeams) {
 }
 
 // Result format:  (variable)
-// name length | name | rank | score * 100 | num stats | stats
+// team index | rank | score * 100 | num stats | stats
 void ReplayBuilder::addResult(Team *team) {
-  int nameLen = (int) strlen(team->name);
-  resultsData_->addInt(nameLen);
-  for (int x = 0; x < nameLen; x++) {
-    resultsData_->addInt((int) team->name[x]);
-  }
+  resultsData_->addInt(team->index);
 
   TeamResult *teamResult = &(team->result);
   resultsData_->addInt(teamResult->rank);
@@ -486,6 +498,7 @@ std::string ReplayBuilder::buildReplayDataString() {
   dataStream << ':' << stagePropertiesData_->toHexString(0)
              << ':' << wallsData_->toHexString(4)
              << ':' << zonesData_->toHexString(4)
+             << ':' << teamPropertiesHexString()
              << ':' << shipPropertiesHexString()
              << ':' << shipAddData_->toHexString(2)
              << ':' << shipRemoveData_->toHexString(2)
@@ -505,6 +518,24 @@ std::string ReplayBuilder::buildReplayDataString() {
              << ':' << resultsDataHexString();
 
   return dataStream.str();
+}
+
+std::string ReplayBuilder::teamPropertiesHexString() {
+  std::stringstream hexStream;
+  hexStream << std::hex << numTeams_;
+
+  int i = 0;
+  for (int x = 0; x < numTeams_; x++) {
+    appendHex(hexStream, teamPropertiesData_->getInt(i++));
+    int nameLength = teamPropertiesData_->getInt(i++);
+    std::stringstream nameStream;
+    for (int y = 0; y < nameLength; y++) {
+      nameStream << (char) teamPropertiesData_->getInt(i++);
+    }
+    hexStream << ':' << escapeColons(nameStream.str());
+  }
+
+  return hexStream.str();
 }
 
 std::string ReplayBuilder::shipPropertiesHexString() {
@@ -595,12 +626,12 @@ std::string ReplayBuilder::logDataHexString() {
 
 // Expanded results format:
 // num results | <team results>
-//   Team result: name length | name | rank | score * 100 | num stats | stats
+//   Team result: team index | rank | score * 100 | num stats | stats
 //     Stat: key length | key | value * 100
 //
 // Encoded to hex format:
 // num results : <team results>
-//   Team result: name : rank : score * 100 : num stats : stats
+//   Team result: team index : rank : score * 100 : num stats : stats
 //     Stat: key : value * 100
 std::string ReplayBuilder::resultsDataHexString() {
   std::stringstream hexStream;
@@ -609,14 +640,7 @@ std::string ReplayBuilder::resultsDataHexString() {
   hexStream << std::hex << numResults;
   
   for (int x = 0; x < numResults; x++) {
-    int nameLength = resultsData_->getInt(i++);
-    std::stringstream nameStream;
-    for (int y = 0; y < nameLength; y++) {
-      nameStream << (char) resultsData_->getInt(i++);
-    }
-    hexStream << ':' << escapeColons(nameStream.str());
-    
-    for (int y = 0; y < 2; y++) {
+    for (int y = 0; y < 3; y++) {
       appendHex(hexStream, resultsData_->getInt(i++));
     }
 

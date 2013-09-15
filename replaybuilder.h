@@ -62,10 +62,12 @@ class ReplayData {
 class ReplayBuilder {
   bool *shipsAlive_;
   bool *shipsShowName_;
+  int numTeams_;
   int numShips_;
   ReplayData *stagePropertiesData_;
   ReplayData *wallsData_;
   ReplayData *zonesData_;
+  ReplayData *teamPropertiesData_;
   ReplayData *shipPropertiesData_;
   ReplayData *shipAddData_;
   ReplayData *shipRemoveData_;
@@ -90,11 +92,12 @@ class ReplayBuilder {
   char *replayJsResourcePath_;
   
   public:
-    ReplayBuilder(int numShips, const char *templateDir);
+    ReplayBuilder(int numTeams, int numShips, const char *templateDir);
     ~ReplayBuilder();
     void addStageSize(int width, int height);
     void addWall(int left, int bottom, int width, int height);
     void addZone(int left, int bottom, int width, int height);
+    void addTeamProperties(Team *team);
     void addShipProperties(Ship *ship);
     void addShipStates(Ship **ships, int time);
     void addLaserStart(Laser *laser);
@@ -122,6 +125,7 @@ class ReplayBuilder {
     int round(double f);
     std::string buildReplayDataString();
     char* readReplayTemplate();
+    std::string teamPropertiesHexString();
     std::string shipPropertiesHexString();
     std::string textDataHexString();
     std::string logDataHexString();
