@@ -354,10 +354,10 @@ void ReplayBuilder::addLogEntry(Team *team, int time, const char *logMessage) {
 }
 
 // All results format:  (variable)
-// num results | <team results>
+// num results | <results>
 //
 // Expanded results format:
-// num results | <team results>
+// num results | <results>
 //   Team result: team index | rank | score * 100 | num stats | stats
 //     Stat: key length | key | value * 100
 void ReplayBuilder::setResults(Team **rankedTeams, int numTeams) {
@@ -427,7 +427,7 @@ int ReplayBuilder::round(double f) {
 // | num torpedo starts | <torpedo starts> | num torpedo ends | <torpedo ends>
 // | num torpedo blasts | <torpedo blasts> | num torpedo debris | <torpedo debris>
 // | num ship destroys | <ship destroys> | num texts | <texts>
-// | num log entries | <log entries> | num results | <team results>
+// | num log entries | <log entries> | num results | <results>
 void ReplayBuilder::saveReplay(const char *filename) {
   // TODO: throw exceptions for failing to save replay, don't silently fail
 
@@ -654,12 +654,12 @@ std::string ReplayBuilder::logDataHexString() {
 }
 
 // Expanded results format:
-// num results | <team results>
+// num results | <results>
 //   Team result: team index | rank | score * 100 | num stats | stats
 //     Stat: key length | key | value * 100
 //
 // Encoded to hex format:
-// num results : <team results>
+// num results : <results>
 //   Team result: team index : rank : score * 100 : num stats : stats
 //     Stat: key : value * 100
 std::string ReplayBuilder::resultsDataHexString() {

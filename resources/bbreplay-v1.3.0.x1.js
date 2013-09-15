@@ -100,6 +100,12 @@ setMaximumPixelRatio(1);
 //   ship index | time | x * 10 | y * 10
 // Text:
 //   time | text | x * 10 | y * 10 | size | text color | text opacity | duration
+// Log entry:
+//   team index | time | message
+// Result:
+//   team index | rank | score * 100 | num stats | stats
+// Stat:
+//   key | value * 100
 //
 // Complete file:
 // | replay version
@@ -122,6 +128,8 @@ setMaximumPixelRatio(1);
 // | num torpedo debris | <torpedo debris>
 // | num ship destroys | <ship destroys>
 // | num texts | <texts>
+// | num log entries | <log entries>
+// | num results | <results>
 
 var STAGE_MARGIN = 25;
 var LASER_SPEED = 25;
@@ -387,9 +395,18 @@ var shipDestroysOffset = torpedoDebrisOffset + 1 + (numTorpedoDebris * 7);
 var shipDestroys = getShipDestroys(shipDestroysOffset);
 var numShipDestroys = shipDestroys.length;
 
-var stageTextsOffset = shipDestroysOffset + 1 + ((numShipDestroys / 3) * 4);
+var stageTextsOffset =
+    shipDestroysOffset + 1 + ((numShipDestroys / DESTROY_CIRCLES) * 4);
 var stageTexts = getStageTexts(stageTextsOffset);
 var numStageTexts = stageTexts.length;
+
+var logEntriesOffset = stageTextsOffset + 1 + (numStageTexts * 8);
+var logEntries = getLogEntries(logEntriesOffset);
+var numLogEntries = logEntries.length;
+
+var resultsOffset = logEntriesOffset + 1 + (numLogEntries * 3);
+var results = getResults(resultsOffset);
+var numResults = results.length;
 
 
 // Replay the match from our data model, tick by tick.
@@ -913,6 +930,40 @@ function getStageTexts(baseOffset) {
         endTime: time + duration};
   }
   return stageTexts;
+}
+
+function getLogEntries(baseOffset) {
+  var numLogEntries = getValue(baseOffset);
+  var logEntries = new Array();
+  for (var x = 0; x < numLogEntries; x++) {
+    var offset = baseOffset + 1 + (x * 3);
+    var teamIndex = getValue(offset);
+    var time = getValue(offset + 1);
+    var message = values[offset + 2].replace(/@;@/g, ":");
+    logEntries.push({teamIndex: teamIndex, time: time, message: message});
+  }
+  return logEntries;
+}
+
+function getResults(baseOffset) {
+  var offset = baseOffset;
+  var numResults = getValue(offset++);
+  var results = new Array();
+  for (var x = 0; x < numResults; x++) {
+    var teamIndex = getValue(offset++);
+    var rank = getValue(offset++);
+    var score = getValue(offset++) / 100;
+    var numStats = getValue(offset++);
+    var stats = new Array();
+    for (var y = 0; y < numStats; y++) {
+      var key = values[offset++].replace(/@;@/g, ":");
+      var value = getValue(offset++) / 100;
+      stats.push({key: key, value: value});
+    }
+    results.push(
+        {teamIndex: teamIndex, rank: rank, score: score, stats: stats});
+  }
+  return results;
 }
 
 function getValue(offset) {
