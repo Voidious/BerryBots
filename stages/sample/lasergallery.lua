@@ -73,7 +73,6 @@ function run(stageSensors)
       admin:setWinner(userShip)
       admin:gameOver()
       print("Time: " .. world:time())
-      admin:drawText("Time: " .. world:time(), 505, 380)
       admin:setStatistic(userShip, "Time", world:time())
     else
       admin:setShipShowName(targetShip, false)

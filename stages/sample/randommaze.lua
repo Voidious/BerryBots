@@ -48,7 +48,6 @@ function run()
       admin:gameOver()
       local timeLine = "Time: " .. world:time()
       print(timeLine)
-      admin:drawText(timeLine, 330, 550, 32)
     elseif (ship:hitWall()) then
       admin:setStatistic(ship, "Time", world:time())
       admin:gameOver()

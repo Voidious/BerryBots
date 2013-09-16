@@ -37,7 +37,6 @@ function run()
       admin:gameOver()
       local timeLine = "Time: " .. world:time()
       print(timeLine)
-      admin:drawText(timeLine, 430, 650, 32)
     end
   end
 end

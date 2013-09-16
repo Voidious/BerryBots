@@ -54,16 +54,15 @@ end
 -- In 1v1 (or 2 teams), scoring is based on survival - the last team standing at
 -- the end of each round scores a point.
 -- For just 1 team, do nothing.
-function basicScoring(ships, world, admin, scoresX, scoresY, scoresSize)
+function basicScoring(ships, world, admin)
   drawRound()
 
   admin:drawText("Time: " .. world:time(), 4, -22, 16)
   local numTeams = numTeams(ships)
   if (numTeams > 2) then
-    battlestage.ffaKillsPlusDamage(
-        ships, world, admin, scoresX, scoresY, scoresSize)
+    battlestage.ffaKillsPlusDamage(ships, world, admin)
   elseif (numTeams == 2) then
-    battlestage.duelSurvival(ships, world, admin, scoresX, scoresY, scoresSize)
+    battlestage.duelSurvival(ships, world, admin)
   end
 end
 
@@ -71,35 +70,22 @@ end
 --   * 1 point per kill
 --   * 1 / <default energy> points for each point of damage done
 --   * negative score for damage/kills to self or team
-function ffaKillsPlusDamage(ships, world, admin, scoresX, scoresY, scoresSize)
+function ffaKillsPlusDamage(ships, world, admin)
   checkRoundTimeLimit(ships, world, admin)
   local teamsAlive = teamsAlive(ships)
   if (teamsAlive <= 1) then
     if (currentRound == NUM_ROUNDS) then
-      if (scoresX == nil) then scoresX = 10 end
-      if (scoresY == nil) then scoresY = 500 end
-      if (scoresSize == nil) then scoresSize = 16 end
-
       local teamScores = getTeamScores(ships, admin)
       local sortedScores = getSortedScores(teamScores)
-      admin:drawText("---------------------- Results ----------------------",
-                     scoresX, scoresY, scoresSize)
       for i, score in ipairs(sortedScores) do
         local scoreLine = score.name .. ":  " .. round(score.total, 2) .. "  ("
             .. round(score.kills, 2) .. " destroys, " .. round(score.damage, 2)
             .. " dmg)"
         print(scoreLine)
-        admin:drawText(" " .. scoreLine, scoresX,
-                       (scoresY - math.floor(i * scoresSize * 1.25)),
-                       scoresSize)
         admin:setScore(score.name, score.total)
         admin:setStatistic(score.name, "Destroys", score.kills)
         admin:setStatistic(score.name, "Damage", score.damage)
       end
-      admin:drawText("------------------------------------------------------",
-          scoresX,
-          scoresY - math.floor(((# sortedScores) + 0.3) * scoresSize * 1.25),
-          scoresSize)
       admin:setWinner(sortedScores[1].name)
       admin:gameOver()
     else
@@ -133,7 +119,7 @@ local duelScores = { }
 
 -- Each round, the last team standing scores a point. The winning team is the
 -- one that won the most rounds.
-function duelSurvival(ships, world, admin, scoresX, scoresY, scoresSize)
+function duelSurvival(ships, world, admin)
   if (not next(duelScores)) then
     for i, ship in pairs(ships) do
       duelScores[ship:teamName()] = {name = ship:teamName(), total = 0}
@@ -154,28 +140,16 @@ function duelSurvival(ships, world, admin, scoresX, scoresY, scoresSize)
     end
 
     if (currentRound == NUM_ROUNDS) then
-      if (scoresX == nil) then scoresX = 10 end
-      if (scoresY == nil) then scoresY = 500 end
-      if (scoresSize == nil) then scoresSize = 16 end
-
       local sortedScores = getSortedScores(duelScores)
       local teamScores = getTeamScores(ships, admin)
-      admin:drawText("---------------------- Results ----------------------",
-                     scoresX, scoresY, scoresSize)
       for i, score in ipairs(sortedScores) do
         local scoreLine = score.name .. ": " .. score.total .. " rounds"
         print(scoreLine)
-        admin:drawText(" " .. scoreLine, scoresX,
-                       (scoresY - math.floor(i * scoresSize * 1.25)),
-                       scoresSize)
         admin:setScore(score.name, score.total)
         admin:setStatistic(score.name, "Rounds", score.total)
         admin:setStatistic(score.name, "Destroys", teamScores[score.name].kills)
         admin:setStatistic(score.name, "Damage", teamScores[score.name].damage)
       end
-      admin:drawText("------------------------------------------------------",
-                     scoresX, scoresY - math.floor(2.3 * scoresSize * 1.25),
-                     scoresSize)
       admin:setWinner(sortedScores[1].name)
       admin:gameOver()
     else
