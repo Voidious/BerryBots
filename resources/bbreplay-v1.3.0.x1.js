@@ -137,8 +137,8 @@ var TORPEDO_SPEED = 12;
 var SHIP_ROTATION = Math.PI * 2 / 240;
 var THRUSTER_ZERO = 8.3 / 19.3;
 var TWO_PI = 2 * Math.PI;
-var ZONE_COLOR = "#644444";
-var TORPEDO_COLOR = "#ff5926";
+var ZONE_COLOR = '#644444';
+var TORPEDO_COLOR = '#ff5926';
 var LASER_SPARK_LENGTH = 8;
 var LASER_SPARK_THICKNESS = 1.5;
 var LASER_SPARK_TIME = 8;
@@ -171,7 +171,7 @@ var shipDot1 = new Kinetic.Circle({
   x: 0,
   y: -3,
   radius: 1.46,
-  fill: "#00ff00",
+  fill: '#00ff00',
   strokeWidth: 0
 });
 
@@ -179,7 +179,7 @@ var shipDot2 = new Kinetic.Circle({
   x: -2.845,
   y: 1.6425,
   radius: 1.46,
-  fill: "#00ff00",
+  fill: '#00ff00',
   strokeWidth: 0
 });
 
@@ -187,7 +187,7 @@ var shipDot3 = new Kinetic.Circle({
   x: 2.845,
   y: 1.6425,
   radius: 1.46,
-  fill: "#00ff00",
+  fill: '#00ff00',
   strokeWidth: 0
 });
 
@@ -303,10 +303,10 @@ shipGroup.add(shipDotGroup);
 
 // Parse global stage stuff and draw it once.
 
-var values = replayData.replace(/\\:/g, "@;@").split(":");
-var stageName = values[1].replace(/@;@/g, ":");
-var stageWidth = getValue(2);
-var stageHeight = getValue(3);
+var values = replayData.replace(/\\:/g, '@;@').split(':');
+var stageName = getString(1);
+var stageWidth = getNumber(2);
+var stageHeight = getNumber(3);
 
 var bgRect = new Kinetic.Rect({
   x: 0,
@@ -465,12 +465,12 @@ var startShowing = 0;
 var showingOverlay = false;
 var paused = false;
 
-document.getElementsByTagName("body")[0].onmousemove = function() {
+document.getElementsByTagName('body')[0].onmousemove = function() {
   var d = new Date();
   lastMove = d.getTime();
 };
 
-document.getElementsByTagName("body")[0].onkeydown = function(e) {
+document.getElementsByTagName('body')[0].onkeydown = function(e) {
   if (e.which == 27) { // escape
     for (var x = -1; x < numTeams; x++) {
       var console = getConsole(x);
@@ -769,7 +769,7 @@ var anim = new Kinetic.Animation(function(frame) {
         var console = getConsole(logEntry.teamIndex);
         console.logMessages.push(logEntry.message);
         if (console.div != null) {
-          console.outputDiv.innerHTML += "<br>" + logEntry.message;
+          console.outputDiv.innerHTML += '<br>' + logEntry.message;
           scrollToBottom(console.outputDiv);
         }
       }
@@ -1035,12 +1035,12 @@ function showResults() {
   d.style.fontSize = '1em';
   document.getElementById('container').appendChild(d);
 
-  var resultsTable = document.getElementById("resultsTable");
+  var resultsTable = document.getElementById('resultsTable');
   var left = Math.max(0, ((stage.getScaleX() * stage.getWidth()) - resultsTable.clientWidth) / 2);
   var top = Math.max(0, ((stage.getScaleY() * stage.getHeight()) - resultsTable.clientHeight) / 2);
-  d.style.position = "absolute";
-  d.style.left = left + "px";
-  d.style.top = top + "px";
+  d.style.position = 'absolute';
+  d.style.left = left + 'px';
+  d.style.top = top + 'px';
   resultsDiv = d;
 }
 
@@ -1117,13 +1117,13 @@ function playPause() {
 // Functions for parsing replay data into data model.
 
 function drawRectangles(baseOffset, fillColor) {
-  var numRectangles = getValue(baseOffset);
+  var numRectangles = getNumber(baseOffset);
   for (var x = 0; x < numRectangles; x++) {
     var offset = baseOffset + 1 + (x * 4);
-    var left = getValue(offset);
-    var bottom = getValue(offset + 1);
-    var width = getValue(offset + 2);
-    var height = getValue(offset + 3);
+    var left = getNumber(offset);
+    var bottom = getNumber(offset + 1);
+    var width = getNumber(offset + 2);
+    var height = getNumber(offset + 3);
     var wallRect = new Kinetic.Rect({
       x: STAGE_MARGIN + left,
       y: STAGE_MARGIN + stageHeight - height - bottom,
@@ -1137,13 +1137,13 @@ function drawRectangles(baseOffset, fillColor) {
 }
 
 function getTeamProperties(baseOffset) {
-  var numTeams = getValue(baseOffset);
+  var numTeams = getNumber(baseOffset);
   var teams = new Array();
   for (var x = 0; x < numTeams; x++) {
     var offset = baseOffset + 1 + (x * 2);
     var team = new Object();
-    team.index = getValue(offset);
-    team.name = values[offset + 1].replace(/@;@/g, ":");
+    team.index = getNumber(offset);
+    team.name = getString(offset + 1);
     team.logMessages = new Array();
     team.div = null;
     team.showing = false;
@@ -1154,16 +1154,16 @@ function getTeamProperties(baseOffset) {
 }
 
 function getShipProperties(baseOffset) {
-  var numShips = getValue(baseOffset);
+  var numShips = getNumber(baseOffset);
   var ships = new Array();
   for (var x = 0; x < numShips; x++) {
     var offset = baseOffset + 1 + (x * 5);
     var ship = shipGroup.clone();
 
-    ship.teamIndex = getValue(offset);
+    ship.teamIndex = getNumber(offset);
     ship.getChildren()[0].setFill(values[offset + 3]);
     var shipName = ship.getChildren()[1];
-    shipName.setText(values[offset + 4].replace(/@;@/g, ":"));
+    shipName.setText(getString(offset + 4));
     shipName.setOffset({x: shipName.getWidth() / 2 });
 
     ship.getChildren()[3].setStroke(values[offset + 1]);
@@ -1190,26 +1190,26 @@ function getShipOrbits(numShips) {
 }
 
 function getShipStateChanges(baseOffset) {
-  var numShipStateChanges = getValue(baseOffset);
+  var numShipStateChanges = getNumber(baseOffset);
   var shipStateChanges = new Array();
   for (var x = 0; x < numShipStateChanges; x++) {
     var offset = baseOffset + 1 + (x * 2);
-    shipStateChanges[x] = {index: getValue(offset), time: getValue(offset + 1)};
+    shipStateChanges[x] = {index: getNumber(offset), time: getNumber(offset + 1)};
   }
   return shipStateChanges;
 }
 
 function getShipStates(baseOffset) {
-  var numTicks = getValue(baseOffset);
+  var numTicks = getNumber(baseOffset);
   var shipStates = new Array();
   for (var x = 0; x < numTicks; x++) {
     var offset = baseOffset + 1 + (x * 5);
-    var shipX = STAGE_MARGIN + getValue(offset) / 10;
+    var shipX = STAGE_MARGIN + getNumber(offset) / 10;
     var shipY =
-        STAGE_MARGIN + stageHeight - (getValue(offset + 1) / 10);
-    var thrusterAngle = getValue(offset + 2) / 100;
-    var thrusterForce = getValue(offset + 3) / 100;
-    var energy = getValue(offset + 4) / 10;
+        STAGE_MARGIN + stageHeight - (getNumber(offset + 1) / 10);
+    var thrusterAngle = getNumber(offset + 2) / 100;
+    var thrusterForce = getNumber(offset + 3) / 100;
+    var energy = getNumber(offset + 4) / 10;
 
     shipStates[x] = {x: shipX, y: shipY, thrusterAngle: thrusterAngle,
                      thrusterForce: thrusterForce, energy: energy};
@@ -1218,16 +1218,16 @@ function getShipStates(baseOffset) {
 }
 
 function getProjectileStarts(baseOffset) {
-  var numProjectileStarts = getValue(baseOffset);
+  var numProjectileStarts = getNumber(baseOffset);
   var projectileStarts = new Array();
   for (var x = 0; x < numProjectileStarts; x++) {
     var offset = baseOffset + 1 + (x * 6);
-    var projectileId = getValue(offset);
-    var shipIndex = getValue(offset + 1);
-    var fireTime = getValue(offset + 2);
-    var srcX = STAGE_MARGIN + getValue(offset + 3) / 10;
-    var srcY = STAGE_MARGIN + stageHeight - (getValue(offset + 4) / 10);
-    var heading = getValue(offset + 5) / 100;
+    var projectileId = getNumber(offset);
+    var shipIndex = getNumber(offset + 1);
+    var fireTime = getNumber(offset + 2);
+    var srcX = STAGE_MARGIN + getNumber(offset + 3) / 10;
+    var srcY = STAGE_MARGIN + stageHeight - (getNumber(offset + 4) / 10);
+    var heading = getNumber(offset + 5) / 100;
 
     projectileStarts[x] = {id: projectileId, shipIndex: shipIndex,
         fireTime: fireTime, srcX: srcX, srcY: srcY, heading: heading};
@@ -1236,28 +1236,28 @@ function getProjectileStarts(baseOffset) {
 }
 
 function getProjectileEnds(baseOffset) {
-  var numProjectileEnds = getValue(baseOffset);
+  var numProjectileEnds = getNumber(baseOffset);
   var projectileEnds = new Array();
   for (var x = 0; x < numProjectileEnds; x++) {
     var offset = baseOffset + 1 + (x * 2);
-    var projectileId = getValue(offset);
-    var endTime = getValue(offset + 1);
+    var projectileId = getNumber(offset);
+    var endTime = getNumber(offset + 1);
     projectileEnds[x] = {id: projectileId, time: endTime};
   }
   return projectileEnds;
 }
 
 function getLaserSparks(baseOffset) {
-  var numLaserSparks = getValue(baseOffset);
+  var numLaserSparks = getNumber(baseOffset);
   var laserSparks = new Array();
   for (var x = 0; x < numLaserSparks; x++) {
     var offset = baseOffset + 1 + (x * 6);
-    var shipIndex = getValue(offset);
-    var time = getValue(offset + 1);
-    var sparkX = STAGE_MARGIN + getValue(offset + 2) / 10;
-    var sparkY = STAGE_MARGIN + stageHeight - (getValue(offset + 3) / 10);
-    var dx = getValue(offset + 4) / 100;
-    var dy = getValue(offset + 5) / 100;
+    var shipIndex = getNumber(offset);
+    var time = getNumber(offset + 1);
+    var sparkX = STAGE_MARGIN + getNumber(offset + 2) / 10;
+    var sparkY = STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10);
+    var dx = getNumber(offset + 4) / 100;
+    var dy = getNumber(offset + 5) / 100;
     laserSparks[x] = {shipIndex: shipIndex, startTime: time, x: sparkX,
         y: sparkY, dx: dx, dy: dy, endTime: time + LASER_SPARK_TIME};
   }
@@ -1265,13 +1265,13 @@ function getLaserSparks(baseOffset) {
 }
 
 function getTorpedoBlasts(baseOffset) {
-  var numTorpedoBlasts = getValue(baseOffset);
+  var numTorpedoBlasts = getNumber(baseOffset);
   var torpedoBlasts = new Array();
   for (var x = 0; x < numTorpedoBlasts; x++) {
     var offset = baseOffset + 1 + (x * 3);
-    var time = getValue(offset);
-    var blastX = STAGE_MARGIN + getValue(offset + 1) / 10;
-    var blastY = STAGE_MARGIN + stageHeight - (getValue(offset + 2) / 10);
+    var time = getNumber(offset);
+    var blastX = STAGE_MARGIN + getNumber(offset + 1) / 10;
+    var blastY = STAGE_MARGIN + stageHeight - (getNumber(offset + 2) / 10);
     torpedoBlasts[x] = {startTime: time, x: blastX, y: blastY,
                         endTime: time + TORPEDO_BLAST_TIME};
   }
@@ -1279,17 +1279,17 @@ function getTorpedoBlasts(baseOffset) {
 }
 
 function getTorpedoDebris(baseOffset) {
-  var numTorpedoDebris = getValue(baseOffset);
+  var numTorpedoDebris = getNumber(baseOffset);
   var torpedoDebris = new Array();
   for (var x = 0; x < numTorpedoDebris; x++) {
     var offset = baseOffset + 1 + (x * 7);
-    var shipIndex = getValue(offset);
-    var time = getValue(offset + 1);
-    var debrisX = STAGE_MARGIN + getValue(offset + 2) / 10;
-    var debrisY = STAGE_MARGIN + stageHeight - (getValue(offset + 3) / 10);
-    var dx = getValue(offset + 4) / 100;
-    var dy = getValue(offset + 5) / 100;
-    var parts = getValue(offset + 6);
+    var shipIndex = getNumber(offset);
+    var time = getNumber(offset + 1);
+    var debrisX = STAGE_MARGIN + getNumber(offset + 2) / 10;
+    var debrisY = STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10);
+    var dx = getNumber(offset + 4) / 100;
+    var dy = getNumber(offset + 5) / 100;
+    var parts = getNumber(offset + 6);
     torpedoDebris[x] = {shipIndex: shipIndex, startTime: time, x: debrisX,
         y: debrisY, dx: dx, dy: dy, parts: parts,
         speed: ((Math.random() + 1) / 2) * 2.5,
@@ -1299,14 +1299,14 @@ function getTorpedoDebris(baseOffset) {
 }
 
 function getShipDestroys(baseOffset) {
-  var numShipDestroys = getValue(baseOffset);
+  var numShipDestroys = getNumber(baseOffset);
   var shipDestroys = new Array();
   for (var x = 0; x < numShipDestroys; x++) {
     var offset = baseOffset + 1 + (x * 4);
-    var shipIndex = getValue(offset);
-    var time = getValue(offset + 1);
-    var shipX = STAGE_MARGIN + getValue(offset + 2) / 10;
-    var shipY = STAGE_MARGIN + stageHeight - (getValue(offset + 3) / 10);
+    var shipIndex = getNumber(offset);
+    var time = getNumber(offset + 1);
+    var shipX = STAGE_MARGIN + getNumber(offset + 2) / 10;
+    var shipY = STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10);
     var endTime = time + DESTROY_TIME;
     for (var y = 0; y < DESTROY_CIRCLES; y++) {
       var startTime = time + (y * DESTROY_FRAME_LENGTH);
@@ -1318,18 +1318,18 @@ function getShipDestroys(baseOffset) {
 }
 
 function getStageTexts(baseOffset) {
-  var numStageTexts = getValue(baseOffset);
+  var numStageTexts = getNumber(baseOffset);
   var stageTexts = new Array();
   for (var x = 0; x < numStageTexts; x++) {
     var offset = baseOffset + 1 + (x * 8);
-    var time = getValue(offset);
-    var text = values[offset + 1].replace(/@;@/g, ":");
-    var size = getValue(offset + 4);
-    var textX = STAGE_MARGIN + getValue(offset + 2) / 10;
-    var textY = STAGE_MARGIN + stageHeight - (getValue(offset + 3) / 10) - size;
+    var time = getNumber(offset);
+    var text = getString(offset + 1);
+    var size = getNumber(offset + 4);
+    var textX = STAGE_MARGIN + getNumber(offset + 2) / 10;
+    var textY = STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10) - size;
     var color = values[offset + 5];
-    var opacity = getValue(offset + 6);
-    var duration = getValue(offset + 7);
+    var opacity = getNumber(offset + 6);
+    var duration = getNumber(offset + 7);
     var endTime = time + duration;
     stageTexts[x] = {startTime: time, text: text, x: textX, y: textY,
         size: size, color: color, opacity: opacity,
@@ -1339,13 +1339,13 @@ function getStageTexts(baseOffset) {
 }
 
 function getLogEntries(baseOffset) {
-  var numLogEntries = getValue(baseOffset);
+  var numLogEntries = getNumber(baseOffset);
   var logEntries = new Array();
   for (var x = 0; x < numLogEntries; x++) {
     var offset = baseOffset + 1 + (x * 3);
-    var teamIndex = getValue(offset);
-    var time = getValue(offset + 1);
-    var message = values[offset + 2].replace(/@;@/g, ":");
+    var teamIndex = getNumber(offset);
+    var time = getNumber(offset + 1);
+    var message = getString(offset + 2);
     logEntries.push({teamIndex: teamIndex, time: time, message: message});
   }
   return logEntries;
@@ -1353,17 +1353,17 @@ function getLogEntries(baseOffset) {
 
 function getResults(baseOffset) {
   var offset = baseOffset;
-  var numResults = getValue(offset++);
+  var numResults = getNumber(offset++);
   var results = new Array();
   for (var x = 0; x < numResults; x++) {
-    var teamIndex = getValue(offset++);
-    var rank = getValue(offset++);
-    var score = getValue(offset++) / 100;
-    var numStats = getValue(offset++);
+    var teamIndex = getNumber(offset++);
+    var rank = getNumber(offset++);
+    var score = getNumber(offset++) / 100;
+    var numStats = getNumber(offset++);
     var stats = new Array();
     for (var y = 0; y < numStats; y++) {
-      var key = values[offset++].replace(/@;@/g, ":");
-      var value = getValue(offset++) / 100;
+      var key = getString(offset++);
+      var value = getNumber(offset++) / 100;
       stats.push({key: key, value: value});
     }
     results.push(
@@ -1376,6 +1376,10 @@ function getConsole(teamIndex) {
   return (teamIndex == -1) ? stageConsole : teams[teamIndex];
 }
 
-function getValue(offset) {
+function getNumber(offset) {
   return parseInt(values[offset], 16);
+}
+
+function getString(offset) {
+  return values[offset].replace(/@;@/g, ':');
 }
