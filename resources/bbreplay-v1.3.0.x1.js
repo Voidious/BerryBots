@@ -506,6 +506,9 @@ var anim = new Kinetic.Animation(function(frame) {
     }
   }
 
+  if (showingOverlay) {
+    adjustTimeKnob();
+  }
   if (!paused) {
     if (nextShipState < numShipStates) {
       // Lasers.
@@ -791,6 +794,7 @@ function showOverlay() {
 
   showConsoleTabs();
   showControls();
+  showTimeDisplay();
   showingOverlay = true;
 }
 
@@ -799,6 +803,8 @@ function hideOverlay() {
   document.getElementById('container').removeChild(d);
   var f = document.getElementById('controls');
   document.getElementById('container').removeChild(f);
+  var g = document.getElementById('timedisplay');
+  document.getElementById('container').removeChild(g);
   showingOverlay = false;
 }
 
@@ -910,6 +916,50 @@ function showPlayPause() {
     document.getElementById('play').style.visibility = 'hidden';
     document.getElementById('pause').style.visibility = 'visible';
   }
+}
+
+function showTimeDisplay() {
+  var stageWidth = (stage.getScaleX() * stage.getWidth());
+  var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 75);
+  var s = '<style type="text/css">'
+      + '  .timeline {'
+      + '    background-color: #333;'
+      + '    display: inline-block;'
+      + '    height: 4px;'
+      + '    width: ' + (stageWidth / 2) + 'px;'
+      + '    left: ' + (stageWidth / 4) + 'px;'
+      + '    position: absolute;'
+      + '    top: ' + top + 'px;'
+      + '  }'
+      + '  .timeknob {'
+      + '    background: #999;'
+      + '    width: 24px;'
+      + '    height: 24px;'
+      + '    border-radius: 50%;'
+      + '    position: absolute;'
+      + '  }'
+      + '</style>'
+      + '<div id="timeline" class="timeline"></div>'
+      + '<div id="timeknob" class="timeknob"></div>';
+  var d = document.createElement('div');
+  d.innerHTML = s;
+  d.id = 'timedisplay';
+  d.margin = '0';
+  d.padding = '0';
+  document.getElementById('container').appendChild(d);
+
+  adjustTimeKnob();
+}
+
+function adjustTimeKnob() {
+  var stageWidth = (stage.getScaleX() * stage.getWidth());
+  var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 75);
+
+  var knob = document.getElementById('timeknob');
+  var left =
+      (stageWidth / 4) + ((nextShipState / numShipStates) * (stageWidth / 2));
+  knob.style.left = (left - 14) + 'px';
+  knob.style.top = (top - 10) + 'px';
 }
 
 function showResults() {
