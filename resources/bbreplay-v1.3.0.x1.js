@@ -131,28 +131,29 @@ setMaximumPixelRatio(1);
 // | num log entries | <log entries>
 // | num results | <results>
 
-var STAGE_MARGIN = 25;
-var LASER_SPEED = 25;
-var TORPEDO_SPEED = 12;
-var SHIP_ROTATION = Math.PI * 2 / 240;
-var THRUSTER_ZERO = 8.3 / 19.3;
-var TWO_PI = 2 * Math.PI;
-var ZONE_COLOR = '#644444';
-var TORPEDO_COLOR = '#ff5926';
-var LASER_SPARK_LENGTH = 8;
-var LASER_SPARK_THICKNESS = 1.5;
-var LASER_SPARK_TIME = 8;
-var TORPEDO_RADIUS = 4
-var TORPEDO_BLAST_RADIUS = 100;
-var TORPEDO_BLAST_TIME = 16;
-var TORPEDO_DEBRIS_RADIUS = 1.5;
-var TORPEDO_DEBRIS_TIME = 40;
-var DESTROY_BASE_RADIUS = 6;
-var DESTROY_CIRCLES = 3;
-var DESTROY_FRAMES = 16;
-var DESTROY_FRAME_LENGTH = 2;
-var DESTROY_TIME = (DESTROY_FRAMES * DESTROY_FRAME_LENGTH);
-
+var BerryBots = {
+  STAGE_MARGIN: 25,
+  LASER_SPEED: 25,
+  TORPEDO_SPEED: 12,
+  SHIP_ROTATION: Math.PI * 2 / 240,
+  THRUSTER_ZERO: 8.3 / 19.3,
+  TWO_PI: 2 * Math.PI,
+  ZONE_COLOR: '#644444',
+  TORPEDO_COLOR: '#ff5926',
+  LASER_SPARK_LENGTH: 8,
+  LASER_SPARK_THICKNESS: 1.5,
+  LASER_SPARK_TIME: 8,
+  TORPEDO_RADIUS: 4,
+  TORPEDO_BLAST_RADIUS: 100,
+  TORPEDO_BLAST_TIME: 16,
+  TORPEDO_DEBRIS_RADIUS: 1.5,
+  TORPEDO_DEBRIS_TIME: 40,
+  DESTROY_BASE_RADIUS: 6,
+  DESTROY_CIRCLES: 3,
+  DESTROY_FRAMES: 16,
+  DESTROY_FRAME_LENGTH: 2,
+  DESTROY_TIME: 32 /* 16 * 2 */,
+};
 
 // Define some KineticJS graphics objects.
 
@@ -213,7 +214,7 @@ var shipEnergy = new Kinetic.Rect({
 var shipDestroyProto = new Kinetic.Circle({
   x: 0,
   y: 0,
-  radius: DESTROY_BASE_RADIUS,
+  radius: BerryBots.DESTROY_BASE_RADIUS,
   strokeWidth: 2
 });
 
@@ -230,42 +231,42 @@ var laserProto = new Kinetic.Rect({
 var laserSparkProto = new Kinetic.Rect({
   x: 0,
   y: 0,
-  width: LASER_SPARK_LENGTH,
-  height: LASER_SPARK_THICKNESS,
+  width: BerryBots.LASER_SPARK_LENGTH,
+  height: BerryBots.LASER_SPARK_THICKNESS,
   fill: '#00ff00',
   strokeWidth: 0,
-  offset: [0, LASER_SPARK_THICKNESS / 2]
+  offset: [0, BerryBots.LASER_SPARK_THICKNESS / 2]
 });
 
 var torpedoCircle = new Kinetic.Circle({
   x: 0,
   y: 0,
-  radius: TORPEDO_RADIUS,
-  fill: TORPEDO_COLOR,
+  radius: BerryBots.TORPEDO_RADIUS,
+  fill: BerryBots.TORPEDO_COLOR,
   strokeWidth: 0
 });
 
 var torpedoRay = new Kinetic.Rect({
   x: 0,
   y: 0,
-  width: TORPEDO_RADIUS * 4,
+  width: BerryBots.TORPEDO_RADIUS * 4,
   height: 1,
-  fill: TORPEDO_COLOR,
-  offset: [TORPEDO_RADIUS * 2, 0.5]
+  fill: BerryBots.TORPEDO_COLOR,
+  offset: [BerryBots.TORPEDO_RADIUS * 2, 0.5]
 });
 
 var torpedoBlastProto = new Kinetic.Circle({
   x: 0,
   y: 0,
-  radius: TORPEDO_BLAST_RADIUS,
-  stroke: TORPEDO_COLOR,
+  radius: BerryBots.TORPEDO_BLAST_RADIUS,
+  stroke: BerryBots.TORPEDO_COLOR,
   strokeWidth: 5
 });
 
 var torpedoDebrisProto = new Kinetic.Circle({
   x: 0,
   y: 0,
-  radius: TORPEDO_DEBRIS_RADIUS,
+  radius: BerryBots.TORPEDO_DEBRIS_RADIUS,
   strokeWidth: 0
 });
 
@@ -311,21 +312,21 @@ var stageHeight = getNumber(3);
 var bgRect = new Kinetic.Rect({
   x: 0,
   y: 0,
-  width: stageWidth + (STAGE_MARGIN * 2),
-  height: stageHeight + (STAGE_MARGIN * 2),
+  width: stageWidth + (BerryBots.STAGE_MARGIN * 2),
+  height: stageHeight + (BerryBots.STAGE_MARGIN * 2),
   fill: 'black',
 });
 layer.add(bgRect);
 
 var stage = new Kinetic.Stage({
   container: 'container',
-  width: stageWidth + (STAGE_MARGIN * 2),
-  height: stageHeight + (STAGE_MARGIN * 2)
+  width: stageWidth + (BerryBots.STAGE_MARGIN * 2),
+  height: stageHeight + (BerryBots.STAGE_MARGIN * 2)
 });
 
 var numWalls = drawRectangles(4, 'white');
 var zonesOffset = 5 + (numWalls * 4);
-var numZones = drawRectangles(zonesOffset, ZONE_COLOR);
+var numZones = drawRectangles(zonesOffset, BerryBots.ZONE_COLOR);
 
 var teamsOffset = zonesOffset + 1 + (numZones * 4);
 var teams = getTeamProperties(teamsOffset);
@@ -395,8 +396,8 @@ var shipDestroysOffset = torpedoDebrisOffset + 1 + (numTorpedoDebris * 7);
 var shipDestroys = getShipDestroys(shipDestroysOffset);
 var numShipDestroys = shipDestroys.length;
 
-var stageTextsOffset =
-    shipDestroysOffset + 1 + ((numShipDestroys / DESTROY_CIRCLES) * 4);
+var stageTextsOffset = shipDestroysOffset + 1
+    + ((numShipDestroys / BerryBots.DESTROY_CIRCLES) * 4);
 var stageTexts = getStageTexts(stageTextsOffset);
 var numStageTexts = stageTexts.length;
 
@@ -454,6 +455,7 @@ stageConsole.showing = false;
 stageConsole.consoleId = 'console0';
 stageConsole.name = stageName;
 var nextLogEntry = 0;
+var knob = null;
 
 var showedResults = false;
 var resultsDiv = null;
@@ -516,12 +518,12 @@ var anim = new Kinetic.Animation(function(frame) {
              && laserStarts[nextLaserStart].fireTime <= gameTime) {
         var laserStart = laserStarts[nextLaserStart++];
         var laser = laserProto.clone();
-        var dx = Math.cos(laserStart.heading) * LASER_SPEED;
-        var dy = Math.sin(laserStart.heading) * LASER_SPEED;
+        var dx = Math.cos(laserStart.heading) * BerryBots.LASER_SPEED;
+        var dy = Math.sin(laserStart.heading) * BerryBots.LASER_SPEED;
         laser.setX(laserStart.srcX);
         laser.setY(laserStart.srcY);
         laser.setFill(ships[laserStart.shipIndex].laserColor);
-        laser.setRotation(TWO_PI - laserStart.heading);
+        laser.setRotation(BerryBots.TWO_PI - laserStart.heading);
         laser.laserData = {dx: dx, dy: dy, id: laserStart.id};
         lasers.push(laser);
         layer.add(laser);
@@ -553,7 +555,7 @@ var anim = new Kinetic.Animation(function(frame) {
           laserSparkRect.destroy();
         } else {
           laserSparkRect.setOffset({x: laserSparkRect.getOffset().x + 5,
-                                    y: LASER_SPARK_THICKNESS / 2});
+                                    y: BerryBots.LASER_SPARK_THICKNESS / 2});
           laserSparkRect.move(laserSparkRect.sparkData.dx,
                               -laserSparkRect.sparkData.dy);
         }
@@ -567,8 +569,9 @@ var anim = new Kinetic.Animation(function(frame) {
           laserSparkRect.setX(laserSpark.x);
           laserSparkRect.setY(laserSpark.y);
           laserSparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
-          laserSparkRect.setRotation(Math.random() * TWO_PI);
-          laserSparkRect.setOffset({x: 9, y: LASER_SPARK_THICKNESS / 2});
+          laserSparkRect.setRotation(Math.random() * BerryBots.TWO_PI);
+          laserSparkRect.setOffset(
+              {x: 9, y: BerryBots.LASER_SPARK_THICKNESS / 2});
           laserSparkRect.sparkData = laserSpark;
           laserSparkRects.push(laserSparkRect);
           layer.add(laserSparkRect);
@@ -580,8 +583,8 @@ var anim = new Kinetic.Animation(function(frame) {
              && torpedoStarts[nextTorpedoStart].fireTime <= gameTime) {
         var torpedoStart = torpedoStarts[nextTorpedoStart++];
         var torpedo = torpedoProto.clone();
-        var dx = Math.cos(torpedoStart.heading) * TORPEDO_SPEED;
-        var dy = Math.sin(torpedoStart.heading) * TORPEDO_SPEED;
+        var dx = Math.cos(torpedoStart.heading) * BerryBots.TORPEDO_SPEED;
+        var dy = Math.sin(torpedoStart.heading) * BerryBots.TORPEDO_SPEED;
         torpedo.setX(torpedoStart.srcX);
         torpedo.setY(torpedoStart.srcY);
         torpedo.torpedoData = {dx: dx, dy: dy, id: torpedoStart.id};
@@ -619,7 +622,7 @@ var anim = new Kinetic.Animation(function(frame) {
           if (blastTime < 5) {
             blastScale = (4 - blastTime) / 4;
           } else {
-            blastScale = (blastTime - 3) / (TORPEDO_BLAST_TIME - 4);
+            blastScale = (blastTime - 3) / (BerryBots.TORPEDO_BLAST_TIME - 4);
           }
           torpedoBlastCircle.setScale(blastScale);
         }
@@ -657,7 +660,7 @@ var anim = new Kinetic.Animation(function(frame) {
           torpedoDebrisCircle.setX(debrisData.x);
           torpedoDebrisCircle.setY(debrisData.y);
           torpedoDebrisCircle.setFill(ships[debrisData.shipIndex].shipColor);
-          torpedoDebrisCircle.setRotation(Math.random() * TWO_PI);
+          torpedoDebrisCircle.setRotation(Math.random() * BerryBots.TWO_PI);
           torpedoDebrisCircle.setOffset({x: 9});
           torpedoDebrisCircle.debrisData = debrisData;
           torpedoDebrisCircles.push(torpedoDebrisCircle);
@@ -674,7 +677,8 @@ var anim = new Kinetic.Animation(function(frame) {
         } else {
           var radiusFactor = 1 + Math.floor(
               (gameTime - shipDestroyCircle.destroyData.startTime) / 2);
-          shipDestroyCircle.setRadius(radiusFactor * DESTROY_BASE_RADIUS);
+          shipDestroyCircle.setRadius(
+              radiusFactor * BerryBots.DESTROY_BASE_RADIUS);
         }
       }
 
@@ -718,19 +722,20 @@ var anim = new Kinetic.Animation(function(frame) {
           ships[x].setX(shipState.x);
           ships[x].setY(shipState.y);
           var thruster = ships[x].getChildren()[0];
-          thruster.setRotation(Math.PI + (TWO_PI - shipState.thrusterAngle));
+          thruster.setRotation(
+              Math.PI + (BerryBots.TWO_PI - shipState.thrusterAngle));
           var forceFactor = shipState.thrusterForce;
           if (forceFactor < 0.0001) {
             thruster.setScale(0);
           } else {
-            thruster.setScale(
-                THRUSTER_ZERO + (forceFactor * (1 - THRUSTER_ZERO)));
+            thruster.setScale(BerryBots.THRUSTER_ZERO
+                + (forceFactor * (1 - BerryBots.THRUSTER_ZERO)));
           }
 
           ships[x].getChildren()[2].setScale(shipState.energy / 100, 1);
           var shipDotGroup = ships[x].getChildren()[4];
-          shipDotGroup.setRotation(
-              shipDotGroup.getRotation() + (SHIP_ROTATION * shipOrbits[x]));
+          shipDotGroup.setRotation(shipDotGroup.getRotation()
+              + (BerryBots.SHIP_ROTATION * shipOrbits[x]));
           ships[x].getChildren()[1].setVisible(shipShowNames[x]);
         } else {
           ships[x].hide();
@@ -805,6 +810,7 @@ function hideOverlay() {
   document.getElementById('container').removeChild(f);
   var g = document.getElementById('timedisplay');
   document.getElementById('container').removeChild(g);
+  knob = null;
   showingOverlay = false;
 }
 
@@ -947,6 +953,7 @@ function showTimeDisplay() {
   d.margin = '0';
   d.padding = '0';
   document.getElementById('container').appendChild(d);
+  knob = document.getElementById('timeknob');
 
   adjustTimeKnob();
 }
@@ -955,7 +962,6 @@ function adjustTimeKnob() {
   var stageWidth = (stage.getScaleX() * stage.getWidth());
   var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 75);
 
-  var knob = document.getElementById('timeknob');
   var left =
       (stageWidth / 4) + ((nextShipState / numShipStates) * (stageWidth / 2));
   knob.style.left = (left - 14) + 'px';
@@ -1125,8 +1131,8 @@ function drawRectangles(baseOffset, fillColor) {
     var width = getNumber(offset + 2);
     var height = getNumber(offset + 3);
     var wallRect = new Kinetic.Rect({
-      x: STAGE_MARGIN + left,
-      y: STAGE_MARGIN + stageHeight - height - bottom,
+      x: BerryBots.STAGE_MARGIN + left,
+      y: BerryBots.STAGE_MARGIN + stageHeight - height - bottom,
       width: width,
       height: height,
       fill: fillColor
@@ -1204,9 +1210,9 @@ function getShipStates(baseOffset) {
   var shipStates = new Array();
   for (var x = 0; x < numTicks; x++) {
     var offset = baseOffset + 1 + (x * 5);
-    var shipX = STAGE_MARGIN + getNumber(offset) / 10;
+    var shipX = BerryBots.STAGE_MARGIN + getNumber(offset) / 10;
     var shipY =
-        STAGE_MARGIN + stageHeight - (getNumber(offset + 1) / 10);
+        BerryBots.STAGE_MARGIN + stageHeight - (getNumber(offset + 1) / 10);
     var thrusterAngle = getNumber(offset + 2) / 100;
     var thrusterForce = getNumber(offset + 3) / 100;
     var energy = getNumber(offset + 4) / 10;
@@ -1225,8 +1231,9 @@ function getProjectileStarts(baseOffset) {
     var projectileId = getNumber(offset);
     var shipIndex = getNumber(offset + 1);
     var fireTime = getNumber(offset + 2);
-    var srcX = STAGE_MARGIN + getNumber(offset + 3) / 10;
-    var srcY = STAGE_MARGIN + stageHeight - (getNumber(offset + 4) / 10);
+    var srcX = BerryBots.STAGE_MARGIN + getNumber(offset + 3) / 10;
+    var srcY =
+        BerryBots.STAGE_MARGIN + stageHeight - (getNumber(offset + 4) / 10);
     var heading = getNumber(offset + 5) / 100;
 
     projectileStarts[x] = {id: projectileId, shipIndex: shipIndex,
@@ -1254,12 +1261,13 @@ function getLaserSparks(baseOffset) {
     var offset = baseOffset + 1 + (x * 6);
     var shipIndex = getNumber(offset);
     var time = getNumber(offset + 1);
-    var sparkX = STAGE_MARGIN + getNumber(offset + 2) / 10;
-    var sparkY = STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10);
+    var sparkX = BerryBots.STAGE_MARGIN + getNumber(offset + 2) / 10;
+    var sparkY =
+        BerryBots.STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10);
     var dx = getNumber(offset + 4) / 100;
     var dy = getNumber(offset + 5) / 100;
     laserSparks[x] = {shipIndex: shipIndex, startTime: time, x: sparkX,
-        y: sparkY, dx: dx, dy: dy, endTime: time + LASER_SPARK_TIME};
+        y: sparkY, dx: dx, dy: dy, endTime: time + BerryBots.LASER_SPARK_TIME};
   }
   return laserSparks;
 }
@@ -1270,10 +1278,11 @@ function getTorpedoBlasts(baseOffset) {
   for (var x = 0; x < numTorpedoBlasts; x++) {
     var offset = baseOffset + 1 + (x * 3);
     var time = getNumber(offset);
-    var blastX = STAGE_MARGIN + getNumber(offset + 1) / 10;
-    var blastY = STAGE_MARGIN + stageHeight - (getNumber(offset + 2) / 10);
+    var blastX = BerryBots.STAGE_MARGIN + getNumber(offset + 1) / 10;
+    var blastY =
+        BerryBots.STAGE_MARGIN + stageHeight - (getNumber(offset + 2) / 10);
     torpedoBlasts[x] = {startTime: time, x: blastX, y: blastY,
-                        endTime: time + TORPEDO_BLAST_TIME};
+                        endTime: time + BerryBots.TORPEDO_BLAST_TIME};
   }
   return torpedoBlasts;
 }
@@ -1285,15 +1294,16 @@ function getTorpedoDebris(baseOffset) {
     var offset = baseOffset + 1 + (x * 7);
     var shipIndex = getNumber(offset);
     var time = getNumber(offset + 1);
-    var debrisX = STAGE_MARGIN + getNumber(offset + 2) / 10;
-    var debrisY = STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10);
+    var debrisX = BerryBots.STAGE_MARGIN + getNumber(offset + 2) / 10;
+    var debrisY =
+        BerryBots.STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10);
     var dx = getNumber(offset + 4) / 100;
     var dy = getNumber(offset + 5) / 100;
     var parts = getNumber(offset + 6);
     torpedoDebris[x] = {shipIndex: shipIndex, startTime: time, x: debrisX,
         y: debrisY, dx: dx, dy: dy, parts: parts,
         speed: ((Math.random() + 1) / 2) * 2.5,
-        endTime: time + TORPEDO_DEBRIS_TIME};
+        endTime: time + BerryBots.TORPEDO_DEBRIS_TIME};
   }
   return torpedoDebris;
 }
@@ -1305,11 +1315,12 @@ function getShipDestroys(baseOffset) {
     var offset = baseOffset + 1 + (x * 4);
     var shipIndex = getNumber(offset);
     var time = getNumber(offset + 1);
-    var shipX = STAGE_MARGIN + getNumber(offset + 2) / 10;
-    var shipY = STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10);
-    var endTime = time + DESTROY_TIME;
-    for (var y = 0; y < DESTROY_CIRCLES; y++) {
-      var startTime = time + (y * DESTROY_FRAME_LENGTH);
+    var shipX = BerryBots.STAGE_MARGIN + getNumber(offset + 2) / 10;
+    var shipY =
+        BerryBots.STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10);
+    var endTime = time + BerryBots.DESTROY_TIME;
+    for (var y = 0; y < BerryBots.DESTROY_CIRCLES; y++) {
+      var startTime = time + (y * BerryBots.DESTROY_FRAME_LENGTH);
       shipDestroys.push({shipIndex: shipIndex, startTime: startTime, x: shipX,
                          y: shipY, endTime: endTime});
     }
@@ -1325,8 +1336,9 @@ function getStageTexts(baseOffset) {
     var time = getNumber(offset);
     var text = getString(offset + 1);
     var size = getNumber(offset + 4);
-    var textX = STAGE_MARGIN + getNumber(offset + 2) / 10;
-    var textY = STAGE_MARGIN + stageHeight - (getNumber(offset + 3) / 10) - size;
+    var textX = BerryBots.STAGE_MARGIN + getNumber(offset + 2) / 10;
+    var textY = BerryBots.STAGE_MARGIN + stageHeight
+        - (getNumber(offset + 3) / 10) - size;
     var color = values[offset + 5];
     var opacity = getNumber(offset + 6);
     var duration = getNumber(offset + 7);
