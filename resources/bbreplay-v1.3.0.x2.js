@@ -813,7 +813,8 @@ var anim = new Kinetic.Animation(function(frame) {
           var console = getConsole(logEntry.teamIndex);
           console.logMessages.push(logEntry.message);
           if (console.div != null) {
-            console.outputDiv.innerHTML += '<br>' + logEntry.message;
+            console.outputDiv.innerHTML +=
+                '<br>' + escapeHtml(logEntry.message);
             scrollToBottom(console.outputDiv);
           }
         }
@@ -1166,6 +1167,11 @@ function showConsole(teamIndex) {
         + console.name + '</div><div class="console" id="' + consoleId + '">';
 
     // TODO: escape or strip HTML
+    var messages = console.logMessages;
+    var numMessages = messages.length;
+    for (var x = 0; x < numMessages; x++) {
+      messages[x] = escapeHtml(messages[x]);
+    }
     s += console.logMessages.join('<br>');
     s += '</div>';
     var d = document.createElement('div');
@@ -1518,4 +1524,12 @@ function getEndTime(numShips, shipStates, shipAdds, shipRemoves) {
     gameTime++;
   }
   return gameTime;
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
 }
