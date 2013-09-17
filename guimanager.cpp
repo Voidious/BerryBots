@@ -706,7 +706,11 @@ void GuiManager::runCurrentMatch() {
           nextDrawTime_ += tpsFactor_;
         }
         if (engine_->isGameOver() && !showedResults_) {
-          showResults(engine_->getReplayBuilder());
+          ReplayBuilder *replayBuilder = engine_->getReplayBuilder();
+          Team **teams = engine_->getRankedTeams();
+          replayBuilder->setResults(teams, engine_->getNumTeams());
+          delete teams;
+          showResults(replayBuilder);
           showedResults_ = true;
         }
       }

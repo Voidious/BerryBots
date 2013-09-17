@@ -44,6 +44,7 @@ extern "C" {
 
 class BerryBotsEngine;
 class GameRunner;
+class ReplayBuilder;
 
 // Graphic definition structs
 
@@ -317,6 +318,7 @@ typedef struct {
 
 typedef struct {
   GameRunner *gameRunner;
+  ReplayBuilder *replayBuilder;
 } MatchRunner;
 
 typedef struct {

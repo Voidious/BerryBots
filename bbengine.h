@@ -111,6 +111,7 @@ class BerryBotsEngine {
   bool hasRanks_;
   bool hasScores_;
   ReplayBuilder *replayBuilder_;
+  bool deleteReplayBuilder_;
   ReplayEventHandler *replayHandler_;
   char *replayTemplateDir_;
 

@@ -27,6 +27,7 @@
 #include <pthread.h>
 #include "bbutil.h"
 #include "zipper.h"
+#include "replaybuilder.h"
 
 class RefresherListener {
   public:
@@ -48,6 +49,7 @@ class MatchConfig {
   bool processedResult_;
   TeamResult **teamResults_;
   bool hasScores_;
+  ReplayBuilder *replayBuilder_;
   char *errorMessage_;
 
   public:
@@ -68,6 +70,8 @@ class MatchConfig {
     void setTeamResults(TeamResult **teamResults);
     void setHasScores(bool hasScores);
     bool hasScores();
+    void setReplayBuilder(ReplayBuilder *replayBuilder);
+    ReplayBuilder* getReplayBuilder();
     bool isStarted();
     void started();
     bool isFinished();
@@ -85,12 +89,13 @@ class MatchResult {
   char *winner_;
   TeamResult **teamResults_;
   bool hasScores_;
+  ReplayBuilder *replayBuilder_;
   char *errorMessage_;
 
   public:
     MatchResult(const char *stageName, char **teamNames, int numTeams,
                 const char *winner, TeamResult **teamResults, bool hasScores,
-                const char *errorMessage);
+                ReplayBuilder *replayBuilder, const char *errorMessage);
     ~MatchResult();
     const char* getStageName();
     char** getTeamNames();
@@ -98,6 +103,7 @@ class MatchResult {
     const char* getWinner();
     TeamResult** getTeamResults();
     bool hasScores();
+    ReplayBuilder* getReplayBuilder();
     bool errored();
     const char *getErrorMessage();
 };

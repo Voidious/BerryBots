@@ -92,6 +92,7 @@ BerryBotsEngine::BerryBotsEngine(PrintHandler *printHandler,
     strcpy(replayTemplateDir_, replayTemplateDir);
   }
   replayBuilder_ = new ReplayBuilder(replayTemplateDir_);
+  deleteReplayBuilder_ = true;
 }
 
 BerryBotsEngine::~BerryBotsEngine() {
@@ -173,7 +174,7 @@ BerryBotsEngine::~BerryBotsEngine() {
   if (sensorHandler_ != 0) {
     delete sensorHandler_;
   }
-  if (replayBuilder_ != 0) {
+  if (deleteReplayBuilder_) {
     delete replayBuilder_;
   }
   if (replayHandler_ != 0) {
@@ -1099,6 +1100,7 @@ void BerryBotsEngine::copyShips(
 }
 
 ReplayBuilder* BerryBotsEngine::getReplayBuilder() {
+  deleteReplayBuilder_ = false;
   return replayBuilder_;
 }
 

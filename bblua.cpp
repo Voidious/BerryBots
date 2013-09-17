@@ -27,10 +27,11 @@
 #include "stage.h"
 #include "sensorhandler.h"
 #include "bbengine.h"
-#include "bblua.h"
+#include "replaybuilder.h"
 #include "printhandler.h"
 #include "gamerunner.h"
 #include "bbrunner.h"
+#include "bblua.h"
 
 // TODO: Consider moving some stuff between stage and engine.
 // TODO: Consider adding stage pointer to StageBuilder and Admin, for speed.
@@ -2039,6 +2040,7 @@ MatchRunner* pushGameRunner(lua_State *L, GameRunner *gameRunner) {
   int runnerRef = luaL_ref(L, LUA_REGISTRYINDEX); // to keep it from GC
   lua_rawgeti(L, LUA_REGISTRYINDEX, runnerRef);
   luaRunner->gameRunner = gameRunner;
+  luaRunner->replayBuilder = 0;
   return luaRunner;
 }
 
@@ -2080,6 +2082,11 @@ int GameRunner_empty(lua_State *L) {
 int GameRunner_nextResult(lua_State *L) {
   MatchRunner *runner = checkGameRunner(L, 1);
   MatchResult *result = runner->gameRunner->nextResult();
+  if (runner->replayBuilder != 0) {
+    delete runner->replayBuilder;
+    // TODO: how does last one get deleted?
+  }
+  runner->replayBuilder = result->getReplayBuilder();
   if (result == 0) {
     lua_pushnil(L);
   } else {
@@ -2136,11 +2143,27 @@ int GameRunner_nextResult(lua_State *L) {
   return 1;
 }
 
+int GameRunner_saveReplay(lua_State *L) {
+  MatchRunner *runner = checkGameRunner(L, 1);
+  if (runner->replayBuilder == 0) {
+    lua_pushnil(L);
+  } else {
+    std::stringstream filenameStream;
+    filenameStream << "dummy" << rand() << ".html";
+    runner->replayBuilder->saveReplay(filenameStream.str().c_str());
+    delete runner->replayBuilder;
+    runner->replayBuilder = 0;
+    lua_pushstring(L, filenameStream.str().c_str());
+  }
+  return 1;
+}
+
 const luaL_Reg GameRunner_methods[] = {
   {"setThreadCount",  GameRunner_setThreadCount},
   {"queueMatch",      GameRunner_queueMatch},
   {"empty",           GameRunner_empty},
   {"nextResult",      GameRunner_nextResult},
+  {"saveReplay",      GameRunner_saveReplay},
   {0, 0}
 };
 

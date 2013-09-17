@@ -26,6 +26,7 @@
 #include "filemanager.h"
 #include "zipper.h"
 #include "bbengine.h"
+#include "replaybuilder.h"
 #include "bbrunner.h"
 
 BerryBotsRunner::BerryBotsRunner(int threadCount, Zipper *zipper,
@@ -89,7 +90,8 @@ MatchResult* BerryBotsRunner::nextResult() {
           MatchResult *nextResult = new MatchResult(config->getStageName(),
               config->getTeamNames(), config->getNumTeams(),
               config->getWinnerFilename(), config->getTeamResults(),
-              config->hasScores(), config->getErrorMessage());
+              config->hasScores(), config->getReplayBuilder(),
+              config->getErrorMessage());
           config->processedResult();
           return nextResult;
         }
@@ -210,8 +212,14 @@ void* BerryBotsRunner::runMatch(void *vargs) {
       config->setWinnerFilename(winner);
     }
     config->setTeamResults(engine->getTeamResults());
+
+    // TODO: move this into a function in the engine
+    Team **rankedTeams = engine->getRankedTeams();
+    engine->getReplayBuilder()->setResults(rankedTeams, engine->getNumTeams());
+    delete rankedTeams;
   }
   config->setHasScores(engine->hasScores());
+  config->setReplayBuilder(engine->getReplayBuilder());
   config->finished();
   delete engine;
   delete fileManager;
@@ -249,6 +257,7 @@ MatchConfig::MatchConfig(const char *stageName, char **teamNames,
   started_ = finished_ = processedResult_ = hasScores_ = false;
   teamResults_ = 0;
   errorMessage_ = 0;
+  replayBuilder_ = 0;
 }
 
 MatchConfig::~MatchConfig() {
@@ -335,6 +344,14 @@ bool MatchConfig::hasScores() {
   return hasScores_;
 }
 
+void MatchConfig::setReplayBuilder(ReplayBuilder *replayBuilder) {
+  replayBuilder_ = replayBuilder;
+}
+
+ReplayBuilder* MatchConfig::getReplayBuilder() {
+  return replayBuilder_;
+}
+
 bool MatchConfig::isStarted() {
   return started_;
 }
@@ -373,7 +390,7 @@ void MatchConfig::setErrorMessage(const char *errorMessage) {
 
 MatchResult::MatchResult(const char *stageName, char **teamNames, int numTeams,
     const char *winner, TeamResult **teamResults, bool hasScores,
-    const char *errorMessage) {
+    ReplayBuilder *replayBuilder, const char *errorMessage) {
   stageName_ = new char[strlen(stageName) + 1];
   strcpy(stageName_, stageName);
   teamNames_ = new char*[numTeams];
@@ -390,6 +407,7 @@ MatchResult::MatchResult(const char *stageName, char **teamNames, int numTeams,
   }
   teamResults_ = teamResults;
   hasScores_ = hasScores;
+  replayBuilder_ = replayBuilder;
   if (errorMessage == 0) {
     errorMessage_ = 0;
   } else {
@@ -434,6 +452,10 @@ TeamResult** MatchResult::getTeamResults() {
 
 bool MatchResult::hasScores() {
   return hasScores_;
+}
+
+ReplayBuilder* MatchResult::getReplayBuilder() {
+  return replayBuilder_;
 }
 
 bool MatchResult::errored() {
