@@ -31,7 +31,7 @@
 ReplayBuilder::ReplayBuilder(const char *templateDir) {
   numTeams_ = 0;
   numShips_ = 0;
-  shipsAlive_ = shipsShowName_ = 0;
+  shipsAlive_ = shipsShowName_ = shipsShowEnergy_ = 0;
   stagePropertiesData_ = new ReplayData(1);
   wallsData_ = new ReplayData(MAX_MISC_CHUNKS);
   zonesData_ = new ReplayData(MAX_MISC_CHUNKS);
@@ -41,6 +41,8 @@ ReplayBuilder::ReplayBuilder(const char *templateDir) {
   shipRemoveData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipShowNameData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipHideNameData_ = new ReplayData(MAX_MISC_CHUNKS);
+  shipShowEnergyData_ = new ReplayData(MAX_MISC_CHUNKS);
+  shipHideEnergyData_ = new ReplayData(MAX_MISC_CHUNKS);
   shipTickData_ = new ReplayData(MAX_SHIP_TICK_CHUNKS);
   laserStartData_ = new ReplayData(MAX_LASER_CHUNKS);
   laserEndData_ = new ReplayData(MAX_LASER_CHUNKS);
@@ -69,8 +71,15 @@ ReplayBuilder::ReplayBuilder(const char *templateDir) {
 }
 
 ReplayBuilder::~ReplayBuilder() {
-  delete shipsAlive_;
-  delete shipsShowName_;
+  if (shipsAlive_ != 0) {
+    delete shipsAlive_;
+  }
+  if (shipsShowName_ != 0) {
+    delete shipsShowName_;
+  }
+  if (shipsShowEnergy_ != 0) {
+    delete shipsShowEnergy_;
+  }
   delete stagePropertiesData_;
   delete wallsData_;
   delete zonesData_;
@@ -80,6 +89,8 @@ ReplayBuilder::~ReplayBuilder() {
   delete shipRemoveData_;
   delete shipShowNameData_;
   delete shipHideNameData_;
+  delete shipShowEnergyData_;
+  delete shipHideEnergyData_;
   delete shipTickData_;
   delete laserStartData_;
   delete laserEndData_;
@@ -107,8 +118,9 @@ void ReplayBuilder::initShips(int numTeams, int numShips) {
   numShips_ = numShips;
   shipsAlive_ = new bool[numShips];
   shipsShowName_ = new bool[numShips];
+  shipsShowEnergy_ = new bool[numShips];
   for (int x = 0; x < numShips; x++) {
-    shipsAlive_[x] = shipsShowName_[x] = false;
+    shipsAlive_[x] = shipsShowName_[x] = shipsShowEnergy_[x] = false;
   }
 }
 
@@ -205,6 +217,20 @@ void ReplayBuilder::addShipHideName(int shipIndex, int time) {
   shipHideNameData_->addInt(time);
 }
 
+// Ship show energy format:  (2)
+// ship index | time
+void ReplayBuilder::addShipShowEnergy(int shipIndex, int time) {
+  shipShowEnergyData_->addInt(shipIndex);
+  shipShowEnergyData_->addInt(time);
+}
+
+// Ship hide energy format:  (2)
+// ship index | time
+void ReplayBuilder::addShipHideEnergy(int shipIndex, int time) {
+  shipHideEnergyData_->addInt(shipIndex);
+  shipHideEnergyData_->addInt(time);
+}
+
 // Ship tick format:  (5)
 // x * 10 | y * 10 | thruster angle * 100 | force * 100 | energy * 10
 void ReplayBuilder::addShipStates(Ship **ships, int time) {
@@ -225,6 +251,14 @@ void ReplayBuilder::addShipStates(Ship **ships, int time) {
         addShipHideName(ship->index, time);
       }
       shipsShowName_[x] = ship->showName;
+    }
+    if (shipsShowEnergy_[x] != ship->energyEnabled) {
+      if (ship->energyEnabled) {
+        addShipShowEnergy(ship->index, time);
+      } else {
+        addShipHideEnergy(ship->index, time);
+      }
+      shipsShowEnergy_[x] = ship->energyEnabled;
     }
   }
 
@@ -419,15 +453,27 @@ int ReplayBuilder::round(double f) {
 // Format of saved replay file:
 // | replay version
 // | stage name length | stage name | stage width | stage height
-// | num walls | <walls> | num zones | <zones>
-// | num ships | <ship properties> | num ship adds | <ship adds>
-// | num ship removes | <ship removes> | num ship ticks | <ship ticks>
-// | num laser starts | <laser starts> | num laser ends | <laser ends>
+// | num walls | <walls>
+// | num zones | <zones>
+// | num ships | <ship properties>
+// | num ship adds | <ship adds>
+// | num ship removes | <ship removes>
+// | num ship show names | <show names>
+// | num ship hide names | <hide names>
+// | num ship show energys | <show energys>
+// | num ship hide energys | <hide energys>
+// | num ship ticks | <ship ticks>
+// | num laser starts | <laser starts>
+// | num laser ends | <laser ends>
 // | num laser sparks | <laser sparks>
-// | num torpedo starts | <torpedo starts> | num torpedo ends | <torpedo ends>
-// | num torpedo blasts | <torpedo blasts> | num torpedo debris | <torpedo debris>
-// | num ship destroys | <ship destroys> | num texts | <texts>
-// | num log entries | <log entries> | num results | <results>
+// | num torpedo starts | <torpedo starts>
+// | num torpedo ends | <torpedo ends>
+// | num torpedo blasts | <torpedo blasts>
+// | num torpedo debris | <torpedo debris>
+// | num ship destroys | <ship destroys>
+// | num texts | <texts>
+// | num log entries | <log entries>
+// | num results | <results>
 void ReplayBuilder::saveReplay(const char *filename) {
   // TODO: throw exceptions for failing to save replay, don't silently fail
 
@@ -516,6 +562,8 @@ std::string ReplayBuilder::buildReplayDataString() {
              << ':' << shipRemoveData_->toHexString(2)
              << ':' << shipShowNameData_->toHexString(2)
              << ':' << shipHideNameData_->toHexString(2)
+             << ':' << shipShowEnergyData_->toHexString(2)
+             << ':' << shipHideEnergyData_->toHexString(2)
              << ':' << shipTickData_->toHexString(5)
              << ':' << laserStartData_->toHexString(6)
              << ':' << laserEndData_->toHexString(2)

@@ -282,7 +282,7 @@ torpedoProto.add(torpedoRay2);
 
 var shipName = new Kinetic.Text({
   x: 0,
-  y: 24,
+  y: 16,
   text: '',
   fontSize: 14,
   fontFamily: 'Ubuntu, Arial, Tahoma, sans-serif',
@@ -359,8 +359,18 @@ var shipAddHideNamesOffset =
 var shipAddHideNames = getShipStateChanges(shipAddHideNamesOffset);
 var numShipAddHideNames = shipAddHideNames.length;
 
-var shipStatesOffset =
+var shipAddShowEnergysOffset =
     shipAddHideNamesOffset + 1 + (numShipAddHideNames * 2);
+var shipAddShowEnergys = getShipStateChanges(shipAddShowEnergysOffset);
+var numShipAddShowEnergys = shipAddShowEnergys.length;
+
+var shipAddHideEnergysOffset =
+    shipAddShowEnergysOffset + 1 + (numShipAddShowEnergys * 2);
+var shipAddHideEnergys = getShipStateChanges(shipAddHideEnergysOffset);
+var numShipAddHideEnergys = shipAddHideEnergys.length;
+
+var shipStatesOffset =
+    shipAddHideEnergysOffset + 1 + (numShipAddHideEnergys * 2);
 var shipStates = getShipStates(shipStatesOffset);
 var numShipStates = shipStates.length;
 
@@ -422,6 +432,11 @@ for (var x = 0; x < numShips; x++) {
   shipShowNames[x] = false;
 }
 
+var shipShowEnergys = new Array();
+for (var x = 0; x < numShips; x++) {
+  shipShowEnergys[x] = false;
+}
+
 var gameTime = 0;
 var skipTime = -1;
 var nextShipState = 0;
@@ -429,6 +444,8 @@ var nextShipAdd = 0;
 var nextShipRemove = 0;
 var nextShipShowName = 0;
 var nextShipHideName = 0;
+var nextShipShowEnergy = 0;
+var nextShipHideEnergy = 0;
 var shipDestroyCircles = new Array();
 var nextShipDestroy = 0;
 
@@ -722,6 +739,20 @@ var anim = new Kinetic.Animation(function(frame) {
           shipShowNames[shipAddHideNames[nextShipHideName++].index] = false;
         }
 
+        while (nextShipShowEnergy < numShipAddShowEnergys
+               && shipAddShowEnergys[nextShipShowEnergy].time <= gameTime) {
+          var shipIndex = shipAddShowEnergys[nextShipShowEnergy++].index;
+          shipShowEnergys[shipIndex] = true;
+          ships[shipIndex].getChildren()[1].setPosition(0, 24);
+        }
+
+        while (nextShipHideEnergy < numShipAddHideEnergys
+               && shipAddHideEnergys[nextShipHideEnergy].time <= gameTime) {
+          var shipIndex = shipAddHideEnergys[nextShipHideEnergy++].index;
+          shipShowEnergys[shipIndex] = false;
+          ships[shipIndex].getChildren()[1].setPosition(0, 16);
+        }
+
         for (var x = 0; x < numShips; x++) {
           if (shipAlives[x]) {
             var shipState = shipStates[nextShipState++];
@@ -744,6 +775,7 @@ var anim = new Kinetic.Animation(function(frame) {
             shipDotGroup.setRotation(shipDotGroup.getRotation()
                 + (BerryBots.SHIP_ROTATION * shipOrbits[x]));
             ships[x].getChildren()[1].setVisible(shipShowNames[x]);
+            ships[x].getChildren()[2].setVisible(shipShowEnergys[x]);
           } else {
             ships[x].hide();
           }

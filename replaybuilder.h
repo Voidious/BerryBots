@@ -29,7 +29,7 @@
 #define REPLAY_VERSION           1
 #define REPLAY_TEMPLATE          "resources/replay_template.html"
 #define KINETIC_JS               "resources/kinetic-v4.6.0.min.js"
-#define BBREPLAY_JS              "resources/bbreplay-v1.3.0.x1.js"
+#define BBREPLAY_JS              "resources/bbreplay-v1.3.0.x2.js"
 #define REPLAY_DATA_PLACEHOLDER  "{$replayData}"
 
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
@@ -62,6 +62,7 @@ class ReplayData {
 class ReplayBuilder {
   bool *shipsAlive_;
   bool *shipsShowName_;
+  bool *shipsShowEnergy_;
   int numTeams_;
   int numShips_;
   ReplayData *stagePropertiesData_;
@@ -73,6 +74,8 @@ class ReplayBuilder {
   ReplayData *shipRemoveData_;
   ReplayData *shipShowNameData_;
   ReplayData *shipHideNameData_;
+  ReplayData *shipShowEnergyData_;
+  ReplayData *shipHideEnergyData_;
   ReplayData *shipTickData_;
   ReplayData *laserStartData_;
   ReplayData *laserEndData_;
@@ -121,6 +124,8 @@ class ReplayBuilder {
     void removeShip(int shipIndex, int time);
     void addShipShowName(int shipIndex, int time);
     void addShipHideName(int shipIndex, int time);
+    void addShipShowEnergy(int shipIndex, int time);
+    void addShipHideEnergy(int shipIndex, int time);
     void addResult(Team *team);
     void addStat(ScoreStat *stat);
     int round(double f);
