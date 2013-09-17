@@ -137,7 +137,7 @@ class ReplayBuilder {
     std::string textDataHexString();
     std::string logDataHexString();
     std::string resultsDataHexString();
-    std::string escapeColons(std::string s);
+    std::string escapeString(std::string s);
     void appendHex(std::stringstream &hexStream, int i);
 };
 

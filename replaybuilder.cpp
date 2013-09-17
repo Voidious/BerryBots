@@ -589,7 +589,7 @@ std::string ReplayBuilder::stagePropertiesHexString() {
   for (int y = 0; y < nameLength; y++) {
     nameStream << (char) stagePropertiesData_->getInt(i++);
   }
-  hexStream << escapeColons(nameStream.str());
+  hexStream << escapeString(nameStream.str());
 
   for (int x = 0; x < 2; x++) {
     appendHex(hexStream, stagePropertiesData_->getInt(i++));
@@ -610,7 +610,7 @@ std::string ReplayBuilder::teamPropertiesHexString() {
     for (int y = 0; y < nameLength; y++) {
       nameStream << (char) teamPropertiesData_->getInt(i++);
     }
-    hexStream << ':' << escapeColons(nameStream.str());
+    hexStream << ':' << escapeString(nameStream.str());
   }
 
   return hexStream.str();
@@ -637,7 +637,7 @@ std::string ReplayBuilder::shipPropertiesHexString() {
     for (int y = 0; y < nameLength; y++) {
       nameStream << (char) shipPropertiesData_->getInt(i++);
     }
-    hexStream << ':' << escapeColons(nameStream.str());
+    hexStream << ':' << escapeString(nameStream.str());
   }
   delete rgbString;
 
@@ -659,7 +659,7 @@ std::string ReplayBuilder::textDataHexString() {
     for (int y = 0; y < textLength; y++) {
       textStream << (char) textData_->getInt(i++);
     }
-    hexStream << ':' << escapeColons(textStream.str());
+    hexStream << ':' << escapeString(textStream.str());
 
     for (int y = 0; y < 3; y++) {
       appendHex(hexStream, textData_->getInt(i++));
@@ -695,7 +695,7 @@ std::string ReplayBuilder::logDataHexString() {
     for (int y = 0; y < messageLen; y++) {
       msgStream << (char) logData_->getInt(i++);
     }
-    hexStream << ':' << escapeColons(msgStream.str());
+    hexStream << ':' << escapeString(msgStream.str());
   }
   
   return hexStream.str();
@@ -729,7 +729,7 @@ std::string ReplayBuilder::resultsDataHexString() {
       for (int y = 0; y < keyLength; y++) {
         keyStream << (char) resultsData_->getInt(i++);
       }
-      hexStream << ':' << escapeColons(keyStream.str());
+      hexStream << ':' << escapeString(keyStream.str());
       appendHex(hexStream, resultsData_->getInt(i++));
     }
   }
@@ -737,13 +737,20 @@ std::string ReplayBuilder::resultsDataHexString() {
   return hexStream.str();
 }
 
-std::string ReplayBuilder::escapeColons(std::string s) {
+std::string ReplayBuilder::escapeString(std::string s) {
   size_t pos = 0;
   size_t i;
   while ((i = s.find(':', pos)) != std::string::npos) {
     s.replace(i, 0, "\\\\");
     pos = i + 3;
   }
+
+  pos = 0;
+  while ((i = s.find('\'', pos)) != std::string::npos) {
+    s.replace(i, 0, "\\");
+    pos = i + 2;
+  }
+
   return s;
 }
 
