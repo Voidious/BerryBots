@@ -512,6 +512,7 @@ document.getElementsByTagName('body')[0].onkeydown = function(e) {
     if (resultsDiv != null) {
       hideResults();
     }
+    timeDragging = false;
   } else if (e.which == 32) { // space bar
     overlayPing();
     playPause();
@@ -1029,12 +1030,14 @@ function showTimeDisplay() {
 function adjustTimeKnob() {
   knob.style.top = '6px';
   var stageWidth = (stage.getScaleX() * stage.getWidth());
+  var timerWidth = stageWidth / 2;
   if (timeDragging) {
     var left = stageWidth / 4;
     // Visual feedback you can't rewind (for now).
-    var minX = (gameTime / endTime) * (stageWidth / 2);
-    knob.style.left = (Math.max(minX, (mouseX - left )) + 8) + 'px';
-  } else {
+    var minX = (gameTime / endTime) * timerWidth;
+    knob.style.left =
+        (Math.max(minX, Math.min(timerWidth, (mouseX - left))) + 8) + 'px';
+  } else if (gameTime >= skipTime) {
     var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 75);
 
     var left = (gameTime / endTime) * (stageWidth / 2) + 8;
@@ -1044,6 +1047,8 @@ function adjustTimeKnob() {
 
 function timeMouseDown(e) {
   timeDragging = true;
+  mouseX = e.pageX;
+  adjustTimeKnob();
 }
 
 function timeMouseUp(e) {
