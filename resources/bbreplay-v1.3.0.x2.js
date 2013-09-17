@@ -497,6 +497,7 @@ document.getElementsByTagName('body')[0].onmousemove = function(e) {
   overlayPing();
   if (timeDragging) {
     mouseX = e.pageX;
+    clearSelection();
   }
 };
 
@@ -1108,7 +1109,8 @@ function showResults() {
 
   for (var x = 0; x < numResults; x++) {
     var result = results[x];
-    s += '<tr><td class="mid">' + result.rank + '</td><td>'
+    var rank = (result.rank == 0 ? '-' : result.rank);
+    s += '<tr><td class="mid">' + rank + '</td><td>'
         + teams[result.teamIndex].name + '</td>'
         + (hasScores ? '<td class="num">' + result.score + '</td>' : '');
     var stats = result.stats;
@@ -1537,4 +1539,14 @@ function escapeHtml(s) {
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;")
           .replace(/'/g, "&#039;");
+}
+
+// Thanks ankur singh:
+// http://stackoverflow.com/questions/6562727/is-there-a-function-to-deselect-all-text-using-javascript
+function clearSelection() {
+  if (document.selection) {
+    document.selection.empty();
+  } else if (window.getSelection) {
+    window.getSelection().removeAllRanges();
+  }
 }
