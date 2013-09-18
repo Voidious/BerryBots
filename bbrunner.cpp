@@ -125,6 +125,17 @@ void BerryBotsRunner::setListener(RefresherListener *listener) {
   listener_ = listener;
 }
 
+void BerryBotsRunner::deleteReplayBuilder(ReplayBuilder *replayBuilder) {
+  // TODO: is this too slow? a map would be nice.
+  for (int x = 0; x < schedulerSettings_->numMatches; x++) {
+    MatchConfig *config = schedulerSettings_->matches[x];
+    if (config->getReplayBuilder() == replayBuilder) {
+      config->deleteReplayBuilder();
+      break;
+    }
+  }
+}
+
 void *BerryBotsRunner::scheduler(void *vargs) {
   SchedulerSettings *settings = (SchedulerSettings *) vargs;
   srand(settings->randomSeed);
@@ -289,6 +300,9 @@ MatchConfig::~MatchConfig() {
   if (errorMessage_ != 0) {
     delete errorMessage_;
   }
+  if (replayBuilder_ != 0) {
+    delete replayBuilder_;
+  }
 }
 
 const char* MatchConfig::getStagesDir() {
@@ -350,6 +364,11 @@ void MatchConfig::setReplayBuilder(ReplayBuilder *replayBuilder) {
 
 ReplayBuilder* MatchConfig::getReplayBuilder() {
   return replayBuilder_;
+}
+
+void MatchConfig::deleteReplayBuilder() {
+  delete replayBuilder_;
+  replayBuilder_ = 0;
 }
 
 bool MatchConfig::isStarted() {

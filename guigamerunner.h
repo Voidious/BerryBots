@@ -25,6 +25,7 @@
 #include "bbrunner.h"
 #include "zipper.h"
 #include "printhandler.h"
+#include "replaybuilder.h"
 #include "gamerunner.h"
 
 #define MAX_FORM_ELEMENTS  20
@@ -68,6 +69,7 @@ class GuiGameRunner : public GameRunner {
     virtual bool started();
     virtual bool empty();
     virtual MatchResult* nextResult();
+    virtual void deleteReplayBuilder(ReplayBuilder *replayBuilder);
     virtual void run(const char *runnerName);
     void quit();
   private:

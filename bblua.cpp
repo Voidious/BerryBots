@@ -2083,8 +2083,7 @@ int GameRunner_nextResult(lua_State *L) {
   MatchRunner *runner = checkGameRunner(L, 1);
   MatchResult *result = runner->gameRunner->nextResult();
   if (runner->replayBuilder != 0) {
-    delete runner->replayBuilder;
-    // TODO: how does last one get deleted?
+    runner->gameRunner->deleteReplayBuilder(runner->replayBuilder);
   }
   runner->replayBuilder = result->getReplayBuilder();
   if (result == 0) {
@@ -2151,8 +2150,6 @@ int GameRunner_saveReplay(lua_State *L) {
     std::stringstream filenameStream;
     filenameStream << "dummy" << rand() << ".html";
     runner->replayBuilder->saveReplay(filenameStream.str().c_str());
-    delete runner->replayBuilder;
-    runner->replayBuilder = 0;
     lua_pushstring(L, filenameStream.str().c_str());
   }
   return 1;

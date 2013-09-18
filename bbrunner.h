@@ -72,6 +72,7 @@ class MatchConfig {
     bool hasScores();
     void setReplayBuilder(ReplayBuilder *replayBuilder);
     ReplayBuilder* getReplayBuilder();
+    void deleteReplayBuilder();
     bool isStarted();
     void started();
     bool isFinished();
@@ -142,6 +143,7 @@ class BerryBotsRunner {
     bool allResultsProcessed();
     void quit();
     void setListener(RefresherListener *listener);
+    void deleteReplayBuilder(ReplayBuilder *replayBuilder);
     static void* scheduler(void *vargs);
     static void* runMatch(void *vargs);
 };

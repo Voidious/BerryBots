@@ -21,6 +21,7 @@
 #ifndef GAME_RUNNER_H
 #define GAME_RUNNER_H
 
+#include "replaybuilder.h"
 #include "bbrunner.h"
 
 #define RUNNER_UNDEFINED        -1
@@ -49,6 +50,7 @@ class GameRunner {
     virtual bool started() = 0;
     virtual bool empty() = 0;
     virtual MatchResult* nextResult() = 0;
+    virtual void deleteReplayBuilder(ReplayBuilder *replayBuilder) = 0;
     virtual void run(const char *runnerName) = 0;
     virtual ~GameRunner() {};
 };

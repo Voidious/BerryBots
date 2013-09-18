@@ -263,6 +263,10 @@ static int traceback(lua_State *L) {
   return 1;
 }
 
+void GuiGameRunner::deleteReplayBuilder(ReplayBuilder *replayBuilder) {
+  bbRunner_->deleteReplayBuilder(replayBuilder);
+}
+
 void GuiGameRunner::run(const char *runnerName) {
   if (runnerName_ != 0) {
     delete runnerName_;
