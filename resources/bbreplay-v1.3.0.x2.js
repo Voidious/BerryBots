@@ -478,7 +478,7 @@ var knob = null;
 var showedResults = false;
 var resultsDiv = null;
 
-var lastMove = 0;
+var hideOverlayTime = 0;
 var lastHover = 0;
 var lastMouseOut = 0;
 var startShowing = 0;
@@ -488,20 +488,27 @@ var timeDragging = false;
 var endTime = getEndTime(numShips, shipStates, shipAdds, shipRemoves);
 var mouseX = 0;
 
-function overlayPing() {
+function desktopPing() {
   var d = new Date();
-  lastMove = d.getTime();
+  hideOverlayTime = Math.max(hideOverlayTime, d.getTime() + 850);
 }
 
-document.getElementsByTagName('body')[0].onmousemove = function(e) {
-  overlayPing();
+function touchPing() {
+  var d = new Date();
+  hideOverlayTime = Math.max(hideOverlayTime, d.getTime() + 2000);
+}
+
+// TODO: add these from onload
+
+document.body.onmousemove = function(e) {
+  desktopPing();
   if (timeDragging) {
     mouseX = e.pageX;
     clearSelection();
   }
 };
 
-document.getElementsByTagName('body')[0].onkeydown = function(e) {
+document.body.onkeydown = function(e) {
   if (e.which == 27) { // escape
     for (var x = -1; x < numTeams; x++) {
       var console = getConsole(x);
@@ -515,15 +522,23 @@ document.getElementsByTagName('body')[0].onkeydown = function(e) {
     }
     timeDragging = false;
   } else if (e.which == 32) { // space bar
-    overlayPing();
+    desktopPing();
     playPause();
   }
 };
 
+document.body.addEventListener('touchstart', function(e) {
+  if (timeDragging) {
+    mouseX = e.changedTouches[0].pageX;
+  }
+  touchPing();
+  adjustTimeKnob();
+});
+
 var anim = new Kinetic.Animation(function(frame) {
   var d = new Date();
   var now = d.getTime();
-  if (now - lastMove < 850) {
+  if (now  < hideOverlayTime) {
     if (!showingOverlay) {
       showOverlay();
     }
@@ -824,7 +839,7 @@ var anim = new Kinetic.Animation(function(frame) {
         gameTime++;
       } while (gameTime < skipTime);
       if (skipTime != -1) {
-        overlayPing();
+        desktopPing();
       }
       skipTime = -1;
     } else if (!showedResults) {
@@ -1016,14 +1031,34 @@ function showTimeDisplay() {
   d.padding = '0';
   document.getElementById('container').appendChild(d);
   knob = document.getElementById('timeknob');
-  document.getElementById('timetarget').onmousedown = function(e) {
-    overlayPing();
+  var timeTarget = document.getElementById('timetarget');
+  timeTarget.onmousedown = function(e) {
+    desktopPing();
     timeMouseDown(e);
   };
-  document.getElementById('timetarget').onmouseup = function(e) {
-    overlayPing();
+  timeTarget.onmouseup = function(e) {
+    desktopPing();
     timeMouseUp(e);
   };
+  timeTarget.addEventListener('touchstart', function(e) {
+    touchPing();
+    timeDragging = true;
+    mouseX = e.changedTouches[0].pageX;
+    adjustTimeKnob();
+    e.preventDefault();
+  });
+  timeTarget.addEventListener('touchmove', function(e) {
+    touchPing();
+    if (timeDragging) {
+      mouseX = e.changedTouches[0].pageX;
+      clearSelection();
+    }
+    e.preventDefault();
+  });
+  timeTarget.addEventListener('touchend', function(e) {
+    dragEnd(e.changedTouches[0].pageX);
+    e.preventDefault();
+  });
 
   adjustTimeKnob();
 }
@@ -1053,12 +1088,15 @@ function timeMouseDown(e) {
 }
 
 function timeMouseUp(e) {
+  dragEnd(e.pageX);
+}
+
+function dragEnd(x) {
   timeDragging = false;
-  var clickX = e.pageX;
   var stageWidth = (stage.getScaleX() * stage.getWidth());
   var left = stageWidth / 4;
   var width = stageWidth / 2;
-  var skipFraction = (clickX - left) / width;
+  var skipFraction = (x - left) / width;
   skipTime =
       Math.max(0, Math.min(Math.round(skipFraction * endTime), endTime));
   if (skipTime > gameTime && paused) {
