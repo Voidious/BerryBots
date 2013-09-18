@@ -61,6 +61,7 @@ class BerryBotsApp : public wxApp {
     void onBrowseStages(wxCommandEvent &event);
     void onBrowseShips(wxCommandEvent &event);
     void onBrowseRunners(wxCommandEvent &event);
+    void onBrowseReplays(wxCommandEvent &event);
     void onBrowseApidocs(wxCommandEvent &event);
 };
 
@@ -156,6 +157,8 @@ bool BerryBotsApp::OnInit() {
           wxCommandEventHandler(BerryBotsApp::onBrowseStages));
   Connect(BROWSE_RUNNERS_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::onBrowseRunners));
+  Connect(BROWSE_REPLAYS_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
+          wxCommandEventHandler(BerryBotsApp::onBrowseReplays));
   Connect(BROWSE_API_DOCS_MENU_ID, wxEVT_COMMAND_MENU_SELECTED,
           wxCommandEventHandler(BerryBotsApp::onBrowseApidocs));
   
@@ -221,6 +224,10 @@ void BerryBotsApp::onBrowseShips(wxCommandEvent &event) {
 
 void BerryBotsApp::onBrowseRunners(wxCommandEvent &event) {
   systemExecutor_->browseDirectory(getRunnersDir().c_str());
+}
+
+void BerryBotsApp::onBrowseReplays(wxCommandEvent &event) {
+  systemExecutor_->browseDirectory(getReplaysDir().c_str());
 }
 
 void BerryBotsApp::onBrowseApidocs(wxCommandEvent &event) {

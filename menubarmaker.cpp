@@ -53,7 +53,9 @@ wxMenuBar* MenuBarMaker::getNewMenuBar() {
                      "S&tages Directory\tShift+Ctrl+T", 0);
   browseMenu->Insert(2, BROWSE_RUNNERS_MENU_ID,
                      "&Runners Directory\tShift+Ctrl+R", 0);
-  browseMenu->Insert(3, BROWSE_API_DOCS_MENU_ID,
+  browseMenu->Insert(3, BROWSE_REPLAYS_MENU_ID,
+                     "Repla&ys\tShift+Ctrl+Y", 0);
+  browseMenu->Insert(4, BROWSE_API_DOCS_MENU_ID,
                      "&API Docs\tShift+Ctrl+A", 0);
 #else
   browseMenu->Insert(0, BROWSE_SHIPS_MENU_ID,
@@ -62,7 +64,9 @@ wxMenuBar* MenuBarMaker::getNewMenuBar() {
                      "S&tages Directory\tShift+Alt+T", 0);
   browseMenu->Insert(2, BROWSE_RUNNERS_MENU_ID,
                      "&Runners Directory\tShift+Alt+R", 0);
-  browseMenu->Insert(3, BROWSE_API_DOCS_MENU_ID,
+  browseMenu->Insert(3, BROWSE_REPLAYS_MENU_ID,
+                     "Repla&ys\tShift+Alt+Y", 0);
+  browseMenu->Insert(4, BROWSE_API_DOCS_MENU_ID,
                      "&API Docs\tShift+Alt+A", 0);
 #endif
   wxMenuBar *menuBar = new wxMenuBar();
