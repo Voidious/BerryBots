@@ -53,6 +53,12 @@ function nextResult()
 -- <code>{"sample/chaser.lua", "sample/randombot.lua"}</code>.
 function queueMatch(stage, ships)
 
+--- Saves the replay from the previous result. Replays are HTML5 and should be
+-- viewable in most modern browsers.
+-- @return The filename of the replay in the BerryBots replays directory, or
+--     <code>nil</code> if no replay was saved.
+function saveReplay()
+
 --- Sets the number of threads.
 -- This is the maximum number of BerryBots matches that will be run in parallel.
 -- This should probably be less than or equal to the number of CPU cores on your
