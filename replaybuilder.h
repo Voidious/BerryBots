@@ -65,6 +65,7 @@ class ReplayBuilder {
   bool *shipsShowEnergy_;
   int numTeams_;
   int numShips_;
+  char *stageName_;
   ReplayData *stagePropertiesData_;
   ReplayData *wallsData_;
   ReplayData *zonesData_;
@@ -118,6 +119,7 @@ class ReplayBuilder {
                   RgbaColor textColor, int duration);
     void addLogEntry(Team *team, int time, const char *logMessage);
     void setResults(Team **rankedTeams, int numTeams);
+    const char* getStageName();
     void saveReplay(const char *filename);
   private:
     void addShip(int shipIndex, int time);

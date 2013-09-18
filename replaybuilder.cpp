@@ -68,6 +68,7 @@ ReplayBuilder::ReplayBuilder(const char *templateDir) {
     kineticResourcePath_ = fileManager.getFilePath(templateDir, KINETIC_JS);
     replayJsResourcePath_ = fileManager.getFilePath(templateDir, BBREPLAY_JS);
   }
+  stageName_ = 0;
 }
 
 ReplayBuilder::~ReplayBuilder() {
@@ -111,6 +112,9 @@ ReplayBuilder::~ReplayBuilder() {
   if (replayJsResourcePath_ != 0) {
     delete replayJsResourcePath_;
   }
+  if (stageName_ != 0) {
+    delete stageName_;
+  }
 }
 
 void ReplayBuilder::initShips(int numTeams, int numShips) {
@@ -129,6 +133,8 @@ void ReplayBuilder::initShips(int numTeams, int numShips) {
 void ReplayBuilder::addStageProperties(const char *name, int width,
                                        int height) {
   int nameLength = (int) strlen(name);
+  stageName_ = new char[nameLength + 1];
+  strcpy(stageName_, name);
   stagePropertiesData_->addInt(nameLength);
   for (int x = 0; x < nameLength; x++) {
     stagePropertiesData_->addInt((int) name[x]);
@@ -448,6 +454,10 @@ void ReplayBuilder::addStat(ScoreStat *stat) {
 
 int ReplayBuilder::round(double f) {
   return floor(f + .5);
+}
+
+const char* ReplayBuilder::getStageName() {
+  return stageName_;
 }
 
 // Format of saved replay file:

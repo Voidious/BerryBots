@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <sstream>
+#include <stdio.h>
+#include <time.h>
 #include "basedir.h"
 #include "filemanager.h"
 #include "stage.h"
@@ -2142,15 +2144,47 @@ int GameRunner_nextResult(lua_State *L) {
   return 1;
 }
 
+char* newFilename(const char *stageName) {
+  std::string filename;
+  filename.append((stageName == 0) ? "unknown" : stageName);
+  filename.append("-");
+
+  time_t t;
+  struct tm *timeinfo;
+  char timestamp[80];
+  time(&t);
+  timeinfo = localtime(&t);
+  strftime(timestamp, 80, "%Y.%m.%d-%H.%M.%S", timeinfo);
+  filename.append(timestamp);
+  filename.append(".html");
+  
+  char *newFilename = new char[filename.length() + 1];
+  strcpy(newFilename, filename.c_str());
+  
+  return newFilename;
+}
+
 int GameRunner_saveReplay(lua_State *L) {
   MatchRunner *runner = checkGameRunner(L, 1);
   if (runner->replayBuilder == 0) {
     lua_pushnil(L);
   } else {
-    std::stringstream filenameStream;
-    filenameStream << "dummy" << rand() << ".html";
-    runner->replayBuilder->saveReplay(filenameStream.str().c_str());
-    lua_pushstring(L, filenameStream.str().c_str());
+    FileManager *fileManager = new FileManager();
+    char *absFilename = 0;
+    do {
+      if (absFilename != 0) {
+        delete absFilename;
+      }
+      const char *filename = newFilename(runner->replayBuilder->getStageName());
+      absFilename = fileManager->getFilePath(getReplaysDir().c_str(), filename);
+    } while (fileManager->fileExists(absFilename));
+
+    if (absFilename != 0) {
+      runner->replayBuilder->saveReplay(absFilename);
+      lua_pushstring(L, absFilename);
+      delete absFilename;
+    }
+    delete fileManager;
   }
   return 1;
 }
