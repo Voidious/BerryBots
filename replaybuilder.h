@@ -29,7 +29,7 @@
 #define REPLAY_VERSION           1
 #define REPLAY_TEMPLATE          "resources/replay_template.html"
 #define KINETIC_JS               "resources/kinetic-v4.6.0.min.js"
-#define BBREPLAY_JS              "resources/bbreplay-v1.3.0.x2.js"
+#define BBREPLAY_JS              "resources/bbreplay-v1.3.0.x3.js"
 #define REPLAY_DATA_PLACEHOLDER  "{$replayData}"
 
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
