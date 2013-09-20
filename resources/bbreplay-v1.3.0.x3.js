@@ -627,10 +627,16 @@ BerryBots.initGfx = function() {
   BerryBots.shipProto = BerryBots.getShipProto();
   BerryBots.shipDestroyProto = BerryBots.getShipDestroyProto();
   BerryBots.laserProto = BerryBots.getLaserProto();
+  BerryBots.laserPool = [];
   BerryBots.laserSparkProto = BerryBots.getLaserSparkProto();
+  BerryBots.laserSparkPool = [];
   BerryBots.torpedoBlastProto = BerryBots.getTorpedoBlastProto();
+  BerryBots.torpedoBlastPool = [];
   BerryBots.torpedoProto = BerryBots.getTorpedoProto();
+  BerryBots.torpedoPool = [];
   BerryBots.torpedoDebrisProto = BerryBots.getTorpedoDebrisProto();
+  BerryBots.torpedoDebrisPool = [];
+  BerryBots.textPool = [];
 };
 
 BerryBots.addBodyListeners = function() {
@@ -1291,6 +1297,111 @@ BerryBots.escapeHtml = function(s) {
           .replace(/'/g, "&#039;");
 };
 
+BerryBots.makeLaser = function() {
+  var lasers = BerryBots.laserPool;
+  var len = lasers.length;
+  if (len > 0) {
+    var laser = lasers[len - 1];
+    lasers.splice(len - 1, 1);
+    return laser;
+  } else {
+    return BerryBots.laserProto.clone();
+  }
+};
+
+BerryBots.endLaser = function(laser) {
+  laser.remove();
+  BerryBots.laserPool.push(laser);
+};
+
+BerryBots.makeLaserSpark = function() {
+  var laserSparks = BerryBots.laserSparkPool;
+  var len = laserSparks.length;
+  if (len > 0) {
+    var spark = laserSparks[len - 1];
+    laserSparks.splice(len - 1, 1);
+    return spark;
+  } else {
+    return BerryBots.laserSparkProto.clone();
+  }
+};
+
+BerryBots.endLaserSpark = function(laserSpark) {
+  laserSpark.remove();
+  BerryBots.laserSparkPool.push(laserSpark);
+};
+
+BerryBots.makeTorpedo = function() {
+  var torpedos = BerryBots.torpedoPool;
+  var len = torpedos.length;
+  if (len > 0) {
+    var torpedo = torpedos[len - 1];
+    torpedos.splice(len - 1, 1);
+    return torpedo;
+  } else {
+    return BerryBots.torpedoProto.clone();
+  }
+};
+
+BerryBots.endTorpedo = function(torpedo) {
+  torpedo.remove();
+  BerryBots.torpedoPool.push(torpedo);
+};
+
+BerryBots.makeTorpedoBlast = function() {
+  var torpedoBlasts = BerryBots.torpedoBlastPool;
+  var len = torpedoBlasts.length;
+  if (len > 0) {
+    var blast = torpedoBlasts[len - 1];
+    torpedoBlasts.splice(len - 1, 1);
+    return blast;
+  } else {
+    return BerryBots.torpedoBlastProto.clone();
+  }
+};
+
+BerryBots.endTorpedoBlast = function(torpedoBlast) {
+  torpedoBlast.remove();
+  BerryBots.torpedoBlastPool.push(torpedoBlast);
+};
+
+BerryBots.makeTorpedoDebris = function() {
+  var torpedoDebrises = BerryBots.torpedoDebrisPool;
+  var len = torpedoDebrises.length;
+  if (len > 0) {
+    var debris = torpedoDebrises[len - 1];
+    torpedoDebrises.splice(len - 1, 1);
+    return debris;
+  } else {
+    return BerryBots.torpedoDebrisProto.clone();
+  }
+};
+
+BerryBots.endTorpedoDebris = function(torpedoDebris) {
+  torpedoDebris.remove();
+  BerryBots.torpedoDebrisPool.push(torpedoDebris);
+};
+
+BerryBots.makeText = function() {
+  var texts = BerryBots.textPool;
+  var len = texts.length;
+  if (len > 0) {
+    var text = texts[len - 1];
+    texts.splice(len - 1, 1);
+    return text;
+  } else {
+    return new Kinetic.Text({
+      fontFamily: 'Questrial, Ubuntu, Arial, Tahoma, sans-serif',
+      strokeWidth: 0
+    });
+  }
+};
+
+BerryBots.endText = function(text) {
+  text.remove();
+  BerryBots.textPool.push(text);
+};
+
 // Replay the match from our data model, tick by tick.
 BerryBots.replay = function() {
   var ships = BerryBots.ships;
@@ -1388,7 +1499,7 @@ BerryBots.replay = function() {
           while (nextLaserStart < numLaserStarts
                  && laserStarts[nextLaserStart].fireTime <= gameTime) {
             var laserStart = laserStarts[nextLaserStart++];
-            var laser = BerryBots.laserProto.clone();
+            var laser = BerryBots.makeLaser();
             var dx = Math.cos(laserStart.heading) * BerryBots.LASER_SPEED;
             var dy = Math.sin(laserStart.heading) * BerryBots.LASER_SPEED;
             laser.setX(laserStart.srcX);
@@ -1410,7 +1521,7 @@ BerryBots.replay = function() {
               var laser = lasers[x];
               if (laser.laserData.id == laserEnd.id) {
                 lasers.splice(x--, 1);
-                laser.destroy();
+                BerryBots.endLaser(laser);
               }
             }
           }
@@ -1425,7 +1536,7 @@ BerryBots.replay = function() {
             var laserSparkRect = laserSparkRects[x];
             if (laserSparkRect.sparkData.endTime < gameTime) {
               laserSparkRects.splice(x--, 1);
-              laserSparkRect.destroy();
+              BerryBots.endLaserSpark(laserSparkRect);
             } else {
               laserSparkRect.setOffset(
                   {x: laserSparkRect.getOffset().x + 5,
@@ -1441,7 +1552,7 @@ BerryBots.replay = function() {
                  && laserSparks[nextLaserSpark].startTime <= gameTime) {
             var laserSpark = laserSparks[nextLaserSpark++];
             for (var x = 0; x < 4; x++) {
-              var laserSparkRect = BerryBots.laserSparkProto.clone();
+              var laserSparkRect = BerryBots.makeLaserSpark();
               laserSparkRect.setX(laserSpark.x);
               laserSparkRect.setY(laserSpark.y);
               laserSparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
@@ -1460,7 +1571,7 @@ BerryBots.replay = function() {
           while (nextTorpedoStart < numTorpedoStarts
                  && torpedoStarts[nextTorpedoStart].fireTime <= gameTime) {
             var torpedoStart = torpedoStarts[nextTorpedoStart++];
-            var torpedo = BerryBots.torpedoProto.clone();
+            var torpedo = BerryBots.makeTorpedo();
             var dx = Math.cos(torpedoStart.heading) * BerryBots.TORPEDO_SPEED;
             var dy = Math.sin(torpedoStart.heading) * BerryBots.TORPEDO_SPEED;
             torpedo.setX(torpedoStart.srcX);
@@ -1480,7 +1591,7 @@ BerryBots.replay = function() {
               var torpedo = torpedos[x];
               if (torpedo.torpedoData.id == torpedoEnd.id) {
                 torpedos.splice(x--, 1);
-                torpedo.destroy();
+                BerryBots.endTorpedo(torpedo);
               }
             }
           }
@@ -1495,7 +1606,7 @@ BerryBots.replay = function() {
             var torpedoBlastCircle = torpedoBlastCircles[x];
             if (torpedoBlastCircle.blastData.endTime < gameTime) {
               torpedoBlastCircles.splice(x--, 1);
-              torpedoBlastCircle.destroy();
+              BerryBots.endTorpedoBlast(torpedoBlastCircle);
             } else {
               var blastTime = gameTime - torpedoBlastCircle.blastData.startTime;
               var blastScale;
@@ -1514,7 +1625,7 @@ BerryBots.replay = function() {
           while (nextTorpedoBlast < numTorpedoBlasts
                  && torpedoBlasts[nextTorpedoBlast].startTime <= gameTime) {
             var torpedoBlast = torpedoBlasts[nextTorpedoBlast++];
-            var torpedoBlastCircle = BerryBots.torpedoBlastProto.clone();
+            var torpedoBlastCircle = BerryBots.makeTorpedoBlast();
             torpedoBlastCircle.setX(torpedoBlast.x);
             torpedoBlastCircle.setY(torpedoBlast.y);
             torpedoBlastCircle.blastData = torpedoBlast;
@@ -1526,7 +1637,7 @@ BerryBots.replay = function() {
             var torpedoDebrisCircle = torpedoDebrisCircles[x];
             if (torpedoDebrisCircle.debrisData.endTime < gameTime) {
               torpedoDebrisCircles.splice(x--, 1);
-              torpedoDebrisCircle.destroy();
+              BerryBots.endTorpedoDebris(torpedoDebrisCircle);
             } else {
               torpedoDebrisCircle.setOffset(
                   {x: torpedoDebrisCircle.getOffset().x
@@ -1542,7 +1653,7 @@ BerryBots.replay = function() {
                  && torpedoDebris[nextTorpedoDebris].startTime <= gameTime) {
             var debrisData = torpedoDebris[nextTorpedoDebris++];
             for (var x = 0; x < debrisData.parts; x++) {
-              var torpedoDebrisCircle = BerryBots.torpedoDebrisProto.clone();
+              var torpedoDebrisCircle = BerryBots.makeTorpedoDebris();
               torpedoDebrisCircle.setX(debrisData.x);
               torpedoDebrisCircle.setY(debrisData.y);
               torpedoDebrisCircle.setFill(
@@ -1631,12 +1742,13 @@ BerryBots.replay = function() {
           }
 
           for (var x = 0; x < numShips; x++) {
+            var ship = ships[x];
             if (shipAlives[x]) {
               var shipState = BerryBots.shipStates[nextShipState++];
-              ships[x].show();
-              ships[x].setX(shipState.x);
-              ships[x].setY(shipState.y);
-              var thruster = ships[x].getChildren()[0];
+              ship.show();
+              ship.setX(shipState.x);
+              ship.setY(shipState.y);
+              var thruster = ship.getChildren()[0];
               thruster.setRotation(
                   Math.PI + (BerryBots.TWO_PI - shipState.thrusterAngle));
               var forceFactor = shipState.thrusterForce;
@@ -1647,14 +1759,15 @@ BerryBots.replay = function() {
                     + (forceFactor * (1 - BerryBots.THRUSTER_ZERO)));
               }
 
-              ships[x].getChildren()[2].setScale(shipState.energy / 100, 1);
-              var shipDotGroup = ships[x].getChildren()[4];
+              var energy = ship.getChildren()[2];
+              energy.setScale(shipState.energy / 100, 1);
+              var shipDotGroup = ship.getChildren()[4];
               shipDotGroup.setRotation(shipDotGroup.getRotation()
                   + (BerryBots.SHIP_ROTATION * BerryBots.shipOrbits[x]));
-              ships[x].getChildren()[1].setVisible(shipShowNames[x]);
-              ships[x].getChildren()[2].setVisible(shipShowEnergys[x]);
+              ship.getChildren()[1].setVisible(shipShowNames[x]);
+              energy.setVisible(shipShowEnergys[x]);
             } else {
-              ships[x].hide();
+              ship.hide();
             }
           }
 
@@ -1663,7 +1776,7 @@ BerryBots.replay = function() {
             var stageTextShape = stageTextShapes[x];
             if (stageTextShape.textData.endTime < gameTime) {
               stageTextShapes.splice(x--, 1);
-              stageTextShape.destroy();
+              BerryBots.endText(stageTextShape);
             }
           }
 
@@ -1672,15 +1785,12 @@ BerryBots.replay = function() {
           while (nextStageText < numStageTexts
                  && stageTexts[nextStageText].startTime <= gameTime) {
             var stageText = stageTexts[nextStageText++];
-            var stageTextShape = new Kinetic.Text({
-              x: stageText.x,
-              y: stageText.y,
-              text: stageText.text,
-              fontSize: stageText.size,
-              fontFamily: 'Questrial, Ubuntu, Arial, Tahoma, sans-serif',
-              fill: stageText.color,
-              strokeWidth: 0
-            });
+            var stageTextShape = BerryBots.makeText();
+            stageTextShape.setPosition(stageText.x, stageText.y);
+            stageTextShape.setText(stageText.text);
+            stageTextShape.setFontSize(stageText.size);
+            stageTextShape.setFill(stageText.color);
+
             stageTextShape.textData = stageText;
             stageTextShapes.push(stageTextShape);
             BerryBots.layer.add(stageTextShape);
