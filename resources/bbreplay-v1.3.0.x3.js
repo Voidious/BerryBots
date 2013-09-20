@@ -421,7 +421,7 @@ BerryBots.drawBackground = function(width, height) {
     height: height + (BerryBots.STAGE_MARGIN * 2),
     fill: 'black',
   });
-  BerryBots.layer.add(bgRect);
+  BerryBots.stageLayer.add(bgRect);
 };
 
 BerryBots.getStage = function(width, height) {
@@ -448,14 +448,14 @@ BerryBots.drawRectangles = function(baseOffset, fillColor) {
     var bottom = BerryBots.getNumber(offset + 1);
     var width = BerryBots.getNumber(offset + 2);
     var height = BerryBots.getNumber(offset + 3);
-    var wallRect = new Kinetic.Rect({
+    var rect = new Kinetic.Rect({
       x: BerryBots.STAGE_MARGIN + left,
       y: BerryBots.STAGE_MARGIN + BerryBots.stageHeight - height - bottom,
       width: width,
       height: height,
       fill: fillColor
     });
-    BerryBots.layer.add(wallRect);
+    BerryBots.stageLayer.add(rect);
   }
   return numRectangles;
 };
@@ -515,7 +515,7 @@ BerryBots.getShipProperties = function(baseOffset) {
     ship.laserColor = BerryBots.getString(offset + 2);
 
     ships.push(ship);
-    BerryBots.layer.add(ship);
+    BerryBots.mainLayer.add(ship);
   }
   return ships;
 };
@@ -538,7 +538,8 @@ BerryBots.parseGlobalReplayData = function() {
   BerryBots.drawBackground(BerryBots.stageWidth, BerryBots.stageHeight);
   var offset = BerryBots.drawWallsAndZones();
   offset = BerryBots.parseTeamsAndShips(offset);
-  BerryBots.stage.add(BerryBots.layer);
+  BerryBots.stage.add(BerryBots.stageLayer);
+  BerryBots.stage.add(BerryBots.mainLayer);
   return offset;
 };
 
@@ -623,7 +624,9 @@ BerryBots.parseReplayData = function() {
 
 // Initialize KineticJS graphics.
 BerryBots.initGfx = function() {
-  BerryBots.layer = new Kinetic.Layer();
+  BerryBots.mainLayer = new Kinetic.Layer();
+  BerryBots.stageLayer = new Kinetic.Layer();
+  BerryBots.layers = [BerryBots.stageLayer, BerryBots.mainLayer];
   BerryBots.shipProto = BerryBots.getShipProto();
   BerryBots.shipDestroyProto = BerryBots.getShipDestroyProto();
   BerryBots.laserProto = BerryBots.getLaserProto();
@@ -1508,7 +1511,7 @@ BerryBots.replay = function() {
             laser.setRotation(BerryBots.TWO_PI - laserStart.heading);
             laser.laserData = {dx: dx, dy: dy, id: laserStart.id};
             lasers.push(laser);
-            BerryBots.layer.add(laser);
+            BerryBots.mainLayer.add(laser);
           }
 
           var laserEnds = BerryBots.laserEnds;
@@ -1561,7 +1564,7 @@ BerryBots.replay = function() {
                   {x: 9, y: BerryBots.LASER_SPARK_THICKNESS / 2});
               laserSparkRect.sparkData = laserSpark;
               laserSparkRects.push(laserSparkRect);
-              BerryBots.layer.add(laserSparkRect);
+              BerryBots.mainLayer.add(laserSparkRect);
             }
           }
 
@@ -1578,7 +1581,7 @@ BerryBots.replay = function() {
             torpedo.setY(torpedoStart.srcY);
             torpedo.torpedoData = {dx: dx, dy: dy, id: torpedoStart.id};
             torpedos.push(torpedo);
-            BerryBots.layer.add(torpedo);
+            BerryBots.mainLayer.add(torpedo);
           }
 
           var torpedoEnds = BerryBots.torpedoEnds;
@@ -1630,7 +1633,7 @@ BerryBots.replay = function() {
             torpedoBlastCircle.setY(torpedoBlast.y);
             torpedoBlastCircle.blastData = torpedoBlast;
             torpedoBlastCircles.push(torpedoBlastCircle);
-            BerryBots.layer.add(torpedoBlastCircle);
+            BerryBots.mainLayer.add(torpedoBlastCircle);
           }
 
           for (var x = 0; x < torpedoDebrisCircles.length; x++) {
@@ -1662,7 +1665,7 @@ BerryBots.replay = function() {
               torpedoDebrisCircle.setOffset({x: 9});
               torpedoDebrisCircle.debrisData = debrisData;
               torpedoDebrisCircles.push(torpedoDebrisCircle);
-              BerryBots.layer.add(torpedoDebrisCircle);
+              BerryBots.mainLayer.add(torpedoDebrisCircle);
             }
           }
 
@@ -1691,7 +1694,7 @@ BerryBots.replay = function() {
             shipDestroyCircle.setStroke(ships[shipDestroy.shipIndex].shipColor);
             shipDestroyCircle.destroyData = shipDestroy;
             shipDestroyCircles.push(shipDestroyCircle);
-            BerryBots.layer.add(shipDestroyCircle);
+            BerryBots.mainLayer.add(shipDestroyCircle);
           }
 
           // Ships.
@@ -1793,7 +1796,7 @@ BerryBots.replay = function() {
 
             stageTextShape.textData = stageText;
             stageTextShapes.push(stageTextShape);
-            BerryBots.layer.add(stageTextShape);
+            BerryBots.mainLayer.add(stageTextShape);
           }
 
           var logEntries = BerryBots.logEntries;
@@ -1827,7 +1830,7 @@ BerryBots.replay = function() {
     var scale = Math.min(window.innerWidth / stage.getWidth(),
                          window.innerHeight / stage.getHeight());
     stage.setScale(Math.min(1, scale, scale));
-  }, BerryBots.layer);
+  }, BerryBots.layers);
 
   anim.start();
 };
