@@ -57,18 +57,13 @@ ReplayBuilder::ReplayBuilder(const char *templateDir) {
   logData_ = new ReplayData(MAX_TEXT_CHUNKS);
   numLogEntries_ = 0;
   resultsData_ = new ReplayData(MAX_MISC_CHUNKS);
-
-  if (templateDir == 0) {
-    templatePath_ = 0;
-    kineticResourcePath_ = 0;
-    replayJsResourcePath_ = 0;
-  } else {
-    FileManager fileManager;
-    templatePath_ = fileManager.getFilePath(templateDir, REPLAY_TEMPLATE);
-    kineticResourcePath_ = fileManager.getFilePath(templateDir, KINETIC_JS);
-    replayJsResourcePath_ = fileManager.getFilePath(templateDir, BBREPLAY_JS);
-  }
   stageName_ = 0;
+  if (templateDir == 0) {
+    templateDir_ = 0;
+  } else {
+    templateDir_ = new char[strlen(templateDir) + 1];
+    strcpy(templateDir_, templateDir);
+  }
 }
 
 ReplayBuilder::~ReplayBuilder() {
@@ -103,17 +98,11 @@ ReplayBuilder::~ReplayBuilder() {
   delete shipDestroyData_;
   delete textData_;
   delete resultsData_;
-  if (templatePath_ != 0) {
-    delete templatePath_;
-  }
-  if (kineticResourcePath_ != 0) {
-    delete kineticResourcePath_;
-  }
-  if (replayJsResourcePath_ != 0) {
-    delete replayJsResourcePath_;
-  }
   if (stageName_ != 0) {
     delete stageName_;
+  }
+  if (templateDir_ != 0) {
+   delete templateDir_;
   }
 }
 
@@ -132,13 +121,9 @@ void ReplayBuilder::initShips(int numTeams, int numShips) {
 // name length | name | width | height
 void ReplayBuilder::addStageProperties(const char *name, int width,
                                        int height) {
-  int nameLength = (int) strlen(name);
-  stageName_ = new char[nameLength + 1];
+  stageName_ = new char[strlen(name) + 1];
   strcpy(stageName_, name);
-  stagePropertiesData_->addInt(nameLength);
-  for (int x = 0; x < nameLength; x++) {
-    stagePropertiesData_->addInt((int) name[x]);
-  }
+  stagePropertiesData_->addString(name);
   stagePropertiesData_->addInt(width);
   stagePropertiesData_->addInt(height);
 }
@@ -165,12 +150,7 @@ void ReplayBuilder::addZone(int left, int bottom, int width, int height) {
 // team index | name length | name
 void ReplayBuilder::addTeamProperties(Team *team) {
   teamPropertiesData_->addInt(team->index);
-  const char *name = team->name;
-  int nameLength = (int) strlen(name);
-  teamPropertiesData_->addInt(nameLength);
-  for (int x = 0; x < nameLength; x++) {
-    teamPropertiesData_->addInt((int) name[x]);
-  }
+  teamPropertiesData_->addString(team->name);
 }
 
 // Ship properties format:  (variable)
@@ -187,12 +167,7 @@ void ReplayBuilder::addShipProperties(Ship *ship) {
   shipPropertiesData_->addInt(properties->thrusterR);
   shipPropertiesData_->addInt(properties->thrusterG);
   shipPropertiesData_->addInt(properties->thrusterB);
-  const char *name = ship->properties->name;
-  int nameLength = (int) strlen(name);
-  shipPropertiesData_->addInt(nameLength);
-  for (int x = 0; x < nameLength; x++) {
-    shipPropertiesData_->addInt((int) name[x]);
-  }
+  shipPropertiesData_->addString(ship->properties->name);
 }
 
 // Ship add format:  (2)
@@ -364,11 +339,7 @@ void ReplayBuilder::addShipDestroy(Ship *ship, int time) {
 void ReplayBuilder::addText(int time, const char *text, double x, double y,
                             int size, RgbaColor textColor, int duration) {
   textData_->addInt(time);
-  int textLength = (int) strlen(text);
-  textData_->addInt(textLength);
-  for (int z = 0; z < textLength; z++) {
-    textData_->addInt((int) text[z]);
-  }
+  textData_->addString(text);
   textData_->addInt(round(x * 10));
   textData_->addInt(round(y * 10));
   textData_->addInt(size);
@@ -385,11 +356,7 @@ void ReplayBuilder::addText(int time, const char *text, double x, double y,
 void ReplayBuilder::addLogEntry(Team *team, int time, const char *logMessage) {
   logData_->addInt((team == 0) ? -1 : team->index);
   logData_->addInt(time);
-  int messageLen = (int) strlen(logMessage);
-  logData_->addInt(messageLen);
-  for (int x = 0; x < messageLen; x++) {
-    logData_->addInt((int) logMessage[x]);
-  }
+  logData_->addString(logMessage);
   numLogEntries_++;
 }
 
@@ -443,12 +410,7 @@ void ReplayBuilder::addResult(Team *team) {
 // Stat format:  (variable)
 // key length | key | value * 100
 void ReplayBuilder::addStat(ScoreStat *stat) {
-  int keyLength = (int) strlen(stat->key);
-  char *key = stat->key;
-  resultsData_->addInt(keyLength);
-  for (int x = 0; x < keyLength; x++) {
-    resultsData_->addInt((int) key[x]);
-  }
+  resultsData_->addString(stat->key);
   resultsData_->addInt(round(stat->value * 100));
 }
 
@@ -488,57 +450,20 @@ void ReplayBuilder::saveReplay(const char *filename) {
   // TODO: throw exceptions for failing to save replay, don't silently fail
 
   FileManager fileManager;
-  char *replayTemplate;
-  try {
-    replayTemplate = fileManager.readFile(templatePath_);
-  } catch (FileNotFoundException *e) {
-    delete e;
-    replayTemplate = 0;
-  }
-
-  char *kineticJsFilename = fileManager.parseFilename(KINETIC_JS);
-  char *kineticPath =
-      fileManager.getFilePath(getReplaysDir().c_str(), kineticJsFilename);
-  delete kineticJsFilename;
-
-  if (!fileManager.fileExists(kineticPath)) {
-    char *kineticJs;
+  char *replayTemplate = 0;
+  char *templatePath = getResourcePath(REPLAY_TEMPLATE);
+  if (templatePath != 0) {
     try {
-      kineticJs = fileManager.readFile(kineticResourcePath_);
+      replayTemplate = fileManager.readFile(templatePath);
     } catch (FileNotFoundException *e) {
       delete e;
-      kineticJs = 0;
     }
-    
-    fileManager.writeFile(kineticPath, kineticJs);
-    if (kineticJs != 0) {
-      delete kineticJs;
-    }
+    delete templatePath;
   }
-  delete kineticPath;
-
-  char *replayJsFilename = fileManager.parseFilename(BBREPLAY_JS);
-  char *replayJsPath =
-      fileManager.getFilePath(getReplaysDir().c_str(), replayJsFilename);
-  delete replayJsFilename;
-  
-  if (!fileManager.fileExists(replayJsPath)) {
-    char *replayJs;
-    try {
-      replayJs = fileManager.readFile(replayJsResourcePath_);
-    } catch (FileNotFoundException *e) {
-      delete e;
-      replayJs = 0;
-    }
-    
-    fileManager.writeFile(replayJsPath, replayJs);
-    if (replayJs != 0) {
-      delete replayJs;
-    }
-  }
-  delete replayJsPath;
 
   if (replayTemplate != 0) {
+    copyReplayResource(KINETIC_JS);
+    copyReplayResource(BBREPLAY_JS);
     std::string replayHtml;
     const char *phStart = strstr(replayTemplate, REPLAY_DATA_PLACEHOLDER);
     if (phStart == NULL) {
@@ -559,15 +484,42 @@ void ReplayBuilder::saveReplay(const char *filename) {
   }
 }
 
+void ReplayBuilder::copyReplayResource(const char *resource) {
+  FileManager fileManager;
+  char *filename = fileManager.parseFilename(resource);
+  char *targetPath =
+      fileManager.getFilePath(getReplaysDir().c_str(), filename);
+  delete filename;
+
+  if (!fileManager.fileExists(targetPath)) {
+    char *resourcePath = getResourcePath(resource);
+    if (resourcePath != 0) {
+      char *s = 0;
+      try {
+        s = fileManager.readFile(resourcePath);
+      } catch (FileNotFoundException *e) {
+        delete e;
+      }
+      
+      if (s != 0) {
+        fileManager.writeFile(targetPath, s);
+        delete s;
+      }
+      delete resourcePath;
+    }
+  }
+  delete targetPath;
+}
+
 std::string ReplayBuilder::buildReplayDataString() {
   std::stringstream dataStream;
 
   dataStream << std::hex << REPLAY_VERSION;
-  dataStream << ':' << stagePropertiesHexString()
+  dataStream << ':' << stagePropertiesDataString()
              << ':' << wallsData_->toHexString(4)
              << ':' << zonesData_->toHexString(4)
-             << ':' << teamPropertiesHexString()
-             << ':' << shipPropertiesHexString()
+             << ':' << teamPropertiesDataString()
+             << ':' << shipPropertiesDataString()
              << ':' << shipAddData_->toHexString(2)
              << ':' << shipRemoveData_->toHexString(2)
              << ':' << shipShowNameData_->toHexString(2)
@@ -583,132 +535,103 @@ std::string ReplayBuilder::buildReplayDataString() {
              << ':' << torpedoBlastData_->toHexString(3)
              << ':' << torpedoDebrisData_->toHexString(7)
              << ':' << shipDestroyData_->toHexString(4)
-             << ':' << textDataHexString()
-             << ':' << logDataHexString()
-             << ':' << resultsDataHexString();
+             << ':' << textDataString()
+             << ':' << logDataString()
+             << ':' << resultsDataString();
 
   return dataStream.str();
 }
 
-std::string ReplayBuilder::stagePropertiesHexString() {
-  std::stringstream hexStream;
+std::string ReplayBuilder::stagePropertiesDataString() {
+  std::stringstream out;
   int i = 0;
 
-  int nameLength = stagePropertiesData_->getInt(i++);
-  std::stringstream nameStream;
-  for (int y = 0; y < nameLength; y++) {
-    nameStream << (char) stagePropertiesData_->getInt(i++);
-  }
-  hexStream << escapeString(nameStream.str());
-
+  appendString(out, stagePropertiesData_, i);
   for (int x = 0; x < 2; x++) {
-    appendHex(hexStream, stagePropertiesData_->getInt(i++));
+    appendInt(out, stagePropertiesData_->getInt(i++));
   }
   
-  return hexStream.str();
+  return out.str();
 }
 
-std::string ReplayBuilder::teamPropertiesHexString() {
-  std::stringstream hexStream;
-  hexStream << std::hex << numTeams_;
+std::string ReplayBuilder::teamPropertiesDataString() {
+  std::stringstream out;
+  out << std::hex << numTeams_;
 
   int i = 0;
   for (int x = 0; x < numTeams_; x++) {
-    appendHex(hexStream, teamPropertiesData_->getInt(i++));
-    int nameLength = teamPropertiesData_->getInt(i++);
-    std::stringstream nameStream;
-    for (int y = 0; y < nameLength; y++) {
-      nameStream << (char) teamPropertiesData_->getInt(i++);
-    }
-    hexStream << ':' << escapeString(nameStream.str());
+    appendInt(out, teamPropertiesData_->getInt(i++));
+    appendColonString(out, teamPropertiesData_, i);
   }
 
-  return hexStream.str();
+  return out.str();
 }
 
-std::string ReplayBuilder::shipPropertiesHexString() {
-  std::stringstream hexStream;
-  hexStream << std::hex << numShips_;
+std::string ReplayBuilder::shipPropertiesDataString() {
+  std::stringstream out;
+  out << std::hex << numShips_;
 
   int i = 0;
   char *rgbString = new char[8]; // "#RRGGBB\0"
   for (int x = 0; x < numShips_; x++) {
-    appendHex(hexStream, shipPropertiesData_->getInt(i++));
+    appendInt(out, shipPropertiesData_->getInt(i++));
     for (int y = 0; y < 3; y++) {
       int r = shipPropertiesData_->getInt(i++);
       int g = shipPropertiesData_->getInt(i++);
       int b = shipPropertiesData_->getInt(i++);
       sprintf(rgbString, "#%02x%02x%02x", r, g, b);
-      hexStream << ':' << rgbString;
+      out << ':' << rgbString;
     }
 
-    int nameLength = shipPropertiesData_->getInt(i++);
-    std::stringstream nameStream;
-    for (int y = 0; y < nameLength; y++) {
-      nameStream << (char) shipPropertiesData_->getInt(i++);
-    }
-    hexStream << ':' << escapeString(nameStream.str());
+    appendColonString(out, shipPropertiesData_, i);
   }
   delete rgbString;
 
-  return hexStream.str();
+  return out.str();
 }
 
-std::string ReplayBuilder::textDataHexString() {
-  std::stringstream hexStream;
-  hexStream << std::hex << numTexts_;
+std::string ReplayBuilder::textDataString() {
+  std::stringstream out;
+  out << std::hex << numTexts_;
 
   int i = 0;
   char *rgbString = new char[8]; // "#RRGGBB\0"
   for (int x = 0; x < numTexts_; x++) {
-    int time = textData_->getInt(i++);
-    appendHex(hexStream, time);
-
-    int textLength = textData_->getInt(i++);
-    std::stringstream textStream;
-    for (int y = 0; y < textLength; y++) {
-      textStream << (char) textData_->getInt(i++);
-    }
-    hexStream << ':' << escapeString(textStream.str());
-
+    appendInt(out, textData_->getInt(i++));
+    appendColonString(out, textData_, i);
     for (int y = 0; y < 3; y++) {
-      appendHex(hexStream, textData_->getInt(i++));
+      appendInt(out, textData_->getInt(i++));
     }
 
     int r = textData_->getInt(i++);
     int g = textData_->getInt(i++);
     int b = textData_->getInt(i++);
     sprintf(rgbString, "#%02x%02x%02x", r, g, b);
-    hexStream << ':' << rgbString;
+    out << ':' << rgbString;
 
     for (int y = 0; y < 2; y++) {
-      appendHex(hexStream, textData_->getInt(i++));
+      appendInt(out, textData_->getInt(i++));
     }
   }
   delete rgbString;
 
-  return hexStream.str();
+  return out.str();
 }
 
-std::string ReplayBuilder::logDataHexString() {
-  std::stringstream hexStream;
-  hexStream << std::hex << numLogEntries_;
+std::string ReplayBuilder::logDataString() {
+  std::stringstream out;
+  out << std::hex << numLogEntries_;
   
   int i = 0;
   for (int x = 0; x < numLogEntries_; x++) {
     for (int y = 0; y < 2; y++) {
-      appendHex(hexStream, logData_->getInt(i++));
+      appendInt(out, logData_->getInt(i++));
     }
 
-    int messageLen = logData_->getInt(i++);
-    std::stringstream msgStream;
-    for (int y = 0; y < messageLen; y++) {
-      msgStream << (char) logData_->getInt(i++);
-    }
-    hexStream << ':' << escapeString(msgStream.str());
+    appendColonString(out, logData_, i);
   }
   
-  return hexStream.str();
+  return out.str();
 }
 
 // Expanded results format:
@@ -720,31 +643,26 @@ std::string ReplayBuilder::logDataHexString() {
 // num results : <results>
 //   Team result: team index : rank : score * 100 : num stats : stats
 //     Stat: key : value * 100
-std::string ReplayBuilder::resultsDataHexString() {
-  std::stringstream hexStream;
+std::string ReplayBuilder::resultsDataString() {
+  std::stringstream out;
   int i = 0;
   int numResults = resultsData_->getInt(i++);
-  hexStream << std::hex << numResults;
+  out << std::hex << numResults;
   
   for (int x = 0; x < numResults; x++) {
     for (int y = 0; y < 3; y++) {
-      appendHex(hexStream, resultsData_->getInt(i++));
+      appendInt(out, resultsData_->getInt(i++));
     }
 
     int numStats = resultsData_->getInt(i++);
-    appendHex(hexStream, numStats);
+    appendInt(out, numStats);
     for (int y = 0; y < numStats; y++) {
-      int keyLength = resultsData_->getInt(i++);
-      std::stringstream keyStream;
-      for (int y = 0; y < keyLength; y++) {
-        keyStream << (char) resultsData_->getInt(i++);
-      }
-      hexStream << ':' << escapeString(keyStream.str());
-      appendHex(hexStream, resultsData_->getInt(i++));
+      appendColonString(out, resultsData_, i);
+      appendInt(out, resultsData_->getInt(i++));
     }
   }
   
-  return hexStream.str();
+  return out.str();
 }
 
 std::string ReplayBuilder::escapeString(std::string s) {
@@ -764,14 +682,38 @@ std::string ReplayBuilder::escapeString(std::string s) {
   return s;
 }
 
-void ReplayBuilder::appendHex(std::stringstream &hexStream, int i) {
-  hexStream << ':';
+void ReplayBuilder::appendInt(std::stringstream &out, int i) {
+  out << ':';
   int sign = 1;
   if (i < 0) {
-    hexStream << '-';
+    out << '-';
     sign = -1;
   }
-  hexStream << std::hex << (sign * i);
+  out << std::hex << (sign * i);
+}
+
+void ReplayBuilder::appendColonString(std::stringstream &out, ReplayData *data,
+                                int &i) {
+  out << ':';
+  appendString(out, data, i);
+}
+
+void ReplayBuilder::appendString(std::stringstream &out, ReplayData *data,
+                                int &i) {
+  int len = data->getInt(i++);
+  std::stringstream stringStream;
+  for (int x = 0; x < len; x++) {
+    stringStream << (char) data->getInt(i++);
+  }
+  out << escapeString(stringStream.str());
+}
+
+char* ReplayBuilder::getResourcePath(const char *resourcePath) {
+  if (templateDir_ == 0) {
+    return 0;
+  }
+  FileManager fileManager;
+  return fileManager.getFilePath(templateDir_, resourcePath);
 }
 
 ReplayData::ReplayData(int maxChunks) {
@@ -802,6 +744,14 @@ void ReplayData::addInt(int x) {
   chunk->data[chunk->size++] = x;
 }
 
+void ReplayData::addString(const char *s) {
+  int len = (int) strlen(s);
+  addInt(len);
+  for (int x = 0; x < len; x++) {
+    addInt((int) s[x]);
+  }
+}
+
 int ReplayData::getSize() {
   return ((numChunks_ - 1) * CHUNK_SIZE) + chunks_[numChunks_ - 1]->size;
 }
@@ -819,27 +769,27 @@ void ReplayData::writeChunks(FILE *f) {
 }
 
 std::string ReplayData::toHexString(int blockSize) {
-  std::stringstream hexStream;
+  std::stringstream out;
   if (blockSize > 0) {
     int numElements = getSize() / blockSize;
-    hexStream << ':';
-    hexStream << std::hex << numElements;
+    out << ':';
+    out << std::hex << numElements;
   }
   for (int x = 0; x < numChunks_; x++) {
     int chunkSize = chunks_[x]->size;
     ReplayChunk *chunk = chunks_[x];
     for (int y = 0; y < chunkSize; y++) {
-      hexStream << ':';
+      out << ':';
       int d = chunk->data[y];
       int sign = 1;
       if (d < 0) {
-        hexStream << '-';
+        out << '-';
         sign = -1;
       }
-      hexStream << std::hex << (sign * d);
+      out << std::hex << (sign * d);
     }
   }
-  return hexStream.str().substr(1);
+  return out.str().substr(1);
 }
 
 ReplayEventHandler::ReplayEventHandler(ReplayBuilder *replayBuilder) {

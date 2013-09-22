@@ -53,6 +53,7 @@ class ReplayData {
     ReplayData(int maxChunks);
     ~ReplayData();
     void addInt(int x);
+    void addString(const char *s);
     int getSize();
     int getInt(int index);
     void writeChunks(FILE *f);
@@ -91,9 +92,7 @@ class ReplayBuilder {
   ReplayData *resultsData_;
   int numTexts_;
   int numLogEntries_;
-  char *templatePath_;
-  char *kineticResourcePath_;
-  char *replayJsResourcePath_;
+  char *templateDir_;
   
   public:
     ReplayBuilder(const char *templateDir);
@@ -131,16 +130,22 @@ class ReplayBuilder {
     void addResult(Team *team);
     void addStat(ScoreStat *stat);
     int round(double f);
+    void copyReplayResource(const char *resource);
     std::string buildReplayDataString();
     char* readReplayTemplate();
-    std::string stagePropertiesHexString();
-    std::string teamPropertiesHexString();
-    std::string shipPropertiesHexString();
-    std::string textDataHexString();
-    std::string logDataHexString();
-    std::string resultsDataHexString();
+    std::string stagePropertiesDataString();
+    std::string teamPropertiesDataString();
+    std::string shipPropertiesDataString();
+    std::string textDataString();
+    std::string logDataString();
+    std::string resultsDataString();
     std::string escapeString(std::string s);
-    void appendHex(std::stringstream &hexStream, int i);
+    void appendInt(std::stringstream &hexStream, int i);
+    void appendColonString(std::stringstream &hexStream, ReplayData *data,
+                          int &i);
+    void appendString(std::stringstream &hexStream, ReplayData *data, int &i);
+
+    char* getResourcePath(const char *resourcePath);
 };
 
 class ReplayEventHandler : public EventHandler {
