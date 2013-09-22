@@ -413,22 +413,22 @@ BerryBots.getTorpedoDebrisProto = function() {
   });
 };
 
-BerryBots.drawBackground = function(width, height) {
+BerryBots.drawBackground = function() {
   var bgRect = new Kinetic.Rect({
     x: 0,
     y: 0,
-    width: width + (BerryBots.STAGE_MARGIN * 2),
-    height: height + (BerryBots.STAGE_MARGIN * 2),
+    width: BerryBots.canvasWidth,
+    height: BerryBots.canvasHeight,
     fill: 'black',
   });
   BerryBots.stageLayer.add(bgRect);
 };
 
-BerryBots.getStage = function(width, height) {
+BerryBots.getStage = function() {
   return new Kinetic.Stage({
     container: 'container',
-    width: width + (BerryBots.STAGE_MARGIN * 2),
-    height: height + (BerryBots.STAGE_MARGIN * 2)
+    width: BerryBots.canvasWidth,
+    height: BerryBots.canvasHeight
   });
 };
 
@@ -436,8 +436,18 @@ BerryBots.getStageProperties = function() {
   BerryBots.stageName = BerryBots.getString(1);
   BerryBots.stageWidth = BerryBots.getNumber(2);
   BerryBots.stageHeight = BerryBots.getNumber(3);
-  BerryBots.stage =
-      BerryBots.getStage(BerryBots.stageWidth, BerryBots.stageHeight);
+  var displayWidth = BerryBots.stageWidth + (BerryBots.STAGE_MARGIN * 2);
+  var displayHeight = BerryBots.stageHeight + (BerryBots.STAGE_MARGIN * 2);
+  BerryBots.canvasScale = Math.min(1,
+      Math.min(window.innerWidth / displayWidth,
+               window.innerHeight / displayHeight));
+  BerryBots.canvasWidth = displayWidth * BerryBots.canvasScale;
+  BerryBots.canvasHeight = displayHeight * BerryBots.canvasScale;
+  BerryBots.stage = BerryBots.getStage();
+};
+
+BerryBots.scale = function(x) {
+  return BerryBots.canvasScale * x;
 };
 
 BerryBots.drawRectangles = function(baseOffset, fillColor) {
@@ -449,10 +459,11 @@ BerryBots.drawRectangles = function(baseOffset, fillColor) {
     var width = BerryBots.getNumber(offset + 2);
     var height = BerryBots.getNumber(offset + 3);
     var rect = new Kinetic.Rect({
-      x: BerryBots.STAGE_MARGIN + left,
-      y: BerryBots.STAGE_MARGIN + BerryBots.stageHeight - height - bottom,
-      width: width,
-      height: height,
+      x: BerryBots.scale(BerryBots.STAGE_MARGIN + left),
+      y: BerryBots.scale(BerryBots.STAGE_MARGIN + BerryBots.stageHeight - height
+                         - bottom),
+      width: BerryBots.scale(width),
+      height: BerryBots.scale(height),
       fill: fillColor
     });
     BerryBots.stageLayer.add(rect);
@@ -530,12 +541,13 @@ BerryBots.parseTeamsAndShips = function(teamsOffset) {
   return shipsOffset + 1 + (numShips * 5);
 };
 
-// Parses the core / global replay data and draws it. This includes the stage
-// itself, walls, zones, teams, and ships.
-BerryBots.parseGlobalReplayData = function() {
+BerryBots.parseStageReplayData = function() {
   BerryBots.values = BerryBots.replayData.replace(/\\:/g, '@;@').split(':');
   BerryBots.getStageProperties();
-  BerryBots.drawBackground(BerryBots.stageWidth, BerryBots.stageHeight);
+};
+
+BerryBots.parseGlobalReplayData = function() {
+  BerryBots.drawBackground();
   var offset = BerryBots.drawWallsAndZones();
   offset = BerryBots.parseTeamsAndShips(offset);
   BerryBots.stage.add(BerryBots.stageLayer);
@@ -618,6 +630,8 @@ BerryBots.parseDynamicReplayData = function(shipAddsOffset) {
 };
 
 BerryBots.parseReplayData = function() {
+  BerryBots.parseStageReplayData();
+  BerryBots.initGfx();
   var offset = BerryBots.parseGlobalReplayData();
   BerryBots.parseDynamicReplayData(offset);
 };
@@ -627,17 +641,26 @@ BerryBots.initGfx = function() {
   BerryBots.mainLayer = new Kinetic.Layer();
   BerryBots.stageLayer = new Kinetic.Layer();
   BerryBots.layers = [BerryBots.stageLayer, BerryBots.mainLayer];
+
+  var scale = BerryBots.canvasScale;
   BerryBots.shipProto = BerryBots.getShipProto();
+  BerryBots.shipProto.setScale(scale, scale);
   BerryBots.shipDestroyProto = BerryBots.getShipDestroyProto();
+  BerryBots.shipDestroyProto.setScale(scale, scale);
   BerryBots.laserProto = BerryBots.getLaserProto();
+  BerryBots.laserProto.setScale(scale, scale);
   BerryBots.laserPool = [];
   BerryBots.laserSparkProto = BerryBots.getLaserSparkProto();
+  BerryBots.laserSparkProto.setScale(scale, scale);
   BerryBots.laserSparkPool = [];
   BerryBots.torpedoBlastProto = BerryBots.getTorpedoBlastProto();
+  BerryBots.torpedoBlastProto.setScale(scale, scale);
   BerryBots.torpedoBlastPool = [];
   BerryBots.torpedoProto = BerryBots.getTorpedoProto();
+  BerryBots.torpedoProto.setScale(scale, scale);
   BerryBots.torpedoPool = [];
   BerryBots.torpedoDebrisProto = BerryBots.getTorpedoDebrisProto();
+  BerryBots.torpedoDebrisProto.setScale(scale, scale);
   BerryBots.torpedoDebrisPool = [];
   BerryBots.textPool = [];
 };
@@ -1077,9 +1100,10 @@ BerryBots.getShipStates = function(baseOffset) {
   var shipStates = new Array();
   for (var x = 0; x < numTicks; x++) {
     var offset = baseOffset + 1 + (x * 5);
-    var shipX = BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset) / 10;
-    var shipY = BerryBots.STAGE_MARGIN
-        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 1) / 10);
+    var shipX = BerryBots.scale(
+        BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset) / 10);
+    var shipY = BerryBots.scale(BerryBots.STAGE_MARGIN
+        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 1) / 10));
     var thrusterAngle = BerryBots.getNumber(offset + 2) / 100;
     var thrusterForce = BerryBots.getNumber(offset + 3) / 100;
     var energy = BerryBots.getNumber(offset + 4) / 10;
@@ -1098,9 +1122,10 @@ BerryBots.getProjectileStarts = function(baseOffset) {
     var projectileId = BerryBots.getNumber(offset);
     var shipIndex = BerryBots.getNumber(offset + 1);
     var fireTime = BerryBots.getNumber(offset + 2);
-    var srcX = BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 3) / 10;
-    var srcY = BerryBots.STAGE_MARGIN
-        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 4) / 10);
+    var srcX = BerryBots.scale(
+        BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 3) / 10);
+    var srcY = BerryBots.scale(BerryBots.STAGE_MARGIN
+        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 4) / 10));
     var heading = BerryBots.getNumber(offset + 5) / 100;
 
     projectileStarts[x] = {id: projectileId, shipIndex: shipIndex,
@@ -1128,11 +1153,12 @@ BerryBots.getLaserSparks = function(baseOffset) {
     var offset = baseOffset + 1 + (x * 6);
     var shipIndex = BerryBots.getNumber(offset);
     var time = BerryBots.getNumber(offset + 1);
-    var sparkX = BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 2) / 10;
-    var sparkY = BerryBots.STAGE_MARGIN
-        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 3) / 10);
-    var dx = BerryBots.getNumber(offset + 4) / 100;
-    var dy = BerryBots.getNumber(offset + 5) / 100;
+    var sparkX = BerryBots.scale(
+        BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 2) / 10);
+    var sparkY = BerryBots.scale(BerryBots.STAGE_MARGIN
+        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 3) / 10));
+    var dx = BerryBots.scale(BerryBots.getNumber(offset + 4) / 100);
+    var dy = BerryBots.scale(BerryBots.getNumber(offset + 5) / 100);
     laserSparks[x] = {shipIndex: shipIndex, startTime: time, x: sparkX,
         y: sparkY, dx: dx, dy: dy, endTime: time + BerryBots.LASER_SPARK_TIME};
   }
@@ -1145,9 +1171,10 @@ BerryBots.getTorpedoBlasts = function(baseOffset) {
   for (var x = 0; x < numTorpedoBlasts; x++) {
     var offset = baseOffset + 1 + (x * 3);
     var time = BerryBots.getNumber(offset);
-    var blastX = BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 1) / 10;
-    var blastY = BerryBots.STAGE_MARGIN
-        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 2) / 10);
+    var blastX = BerryBots.scale(
+        BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 1) / 10);
+    var blastY = BerryBots.scale(BerryBots.STAGE_MARGIN
+        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 2) / 10));
     torpedoBlasts[x] = {startTime: time, x: blastX, y: blastY,
                         endTime: time + BerryBots.TORPEDO_BLAST_TIME};
   }
@@ -1161,11 +1188,12 @@ BerryBots.getTorpedoDebris = function(baseOffset) {
     var offset = baseOffset + 1 + (x * 7);
     var shipIndex = BerryBots.getNumber(offset);
     var time = BerryBots.getNumber(offset + 1);
-    var debrisX = BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 2) / 10;
-    var debrisY = BerryBots.STAGE_MARGIN
-        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 3) / 10);
-    var dx = BerryBots.getNumber(offset + 4) / 100;
-    var dy = BerryBots.getNumber(offset + 5) / 100;
+    var debrisX = BerryBots.scale(
+        BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 2) / 10);
+    var debrisY = BerryBots.scale(BerryBots.STAGE_MARGIN
+        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 3) / 10));
+    var dx = BerryBots.scale(BerryBots.getNumber(offset + 4) / 100);
+    var dy = BerryBots.scale(BerryBots.getNumber(offset + 5) / 100);
     var parts = BerryBots.getNumber(offset + 6);
     torpedoDebris[x] = {shipIndex: shipIndex, startTime: time, x: debrisX,
         y: debrisY, dx: dx, dy: dy, parts: parts,
@@ -1182,9 +1210,10 @@ BerryBots.getShipDestroys = function(baseOffset) {
     var offset = baseOffset + 1 + (x * 4);
     var shipIndex = BerryBots.getNumber(offset);
     var time = BerryBots.getNumber(offset + 1);
-    var shipX = BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 2) / 10;
-    var shipY = BerryBots.STAGE_MARGIN
-        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 3) / 10);
+    var shipX = BerryBots.scale(
+        BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 2) / 10);
+    var shipY = BerryBots.scale(BerryBots.STAGE_MARGIN
+        + BerryBots.stageHeight - (BerryBots.getNumber(offset + 3) / 10));
     var endTime = time + BerryBots.DESTROY_TIME;
     for (var y = 0; y < BerryBots.DESTROY_CIRCLES; y++) {
       var startTime = time + (y * BerryBots.DESTROY_FRAME_LENGTH);
@@ -1202,10 +1231,11 @@ BerryBots.getStageTexts = function(baseOffset) {
     var offset = baseOffset + 1 + (x * 8);
     var time = BerryBots.getNumber(offset);
     var text = BerryBots.getString(offset + 1);
-    var size = BerryBots.getNumber(offset + 4);
-    var textX = BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 2) / 10;
-    var textY = BerryBots.STAGE_MARGIN + BerryBots.stageHeight
-        - (BerryBots.getNumber(offset + 3) / 10) - size;
+    var size = BerryBots.scale(BerryBots.getNumber(offset + 4));
+    var textX = BerryBots.scale(
+        BerryBots.STAGE_MARGIN + BerryBots.getNumber(offset + 2) / 10);
+    var textY = BerryBots.scale(BerryBots.STAGE_MARGIN + BerryBots.stageHeight
+        - (BerryBots.getNumber(offset + 3) / 10) - size);
     var color = BerryBots.getString(offset + 5);
     var opacity = BerryBots.getNumber(offset + 6);
     var duration = BerryBots.getNumber(offset + 7);
@@ -1619,7 +1649,7 @@ BerryBots.replay = function() {
                 blastScale =
                     (blastTime - 3) / (BerryBots.TORPEDO_BLAST_TIME - 4);
               }
-              torpedoBlastCircle.setScale(blastScale);
+              torpedoBlastCircle.setScale(BerryBots.scale(blastScale));
             }
           }
 
@@ -1758,12 +1788,12 @@ BerryBots.replay = function() {
               if (forceFactor < 0.0001) {
                 thruster.setScale(0);
               } else {
-                thruster.setScale(BerryBots.THRUSTER_ZERO
-                    + (forceFactor * (1 - BerryBots.THRUSTER_ZERO)));
+                thruster.setScale(BerryBots.scale(BerryBots.THRUSTER_ZERO
+                    + (forceFactor * (1 - BerryBots.THRUSTER_ZERO))));
               }
 
               var energy = ship.getChildren()[2];
-              energy.setScale(shipState.energy / 100, 1);
+              energy.setScale(BerryBots.scale(shipState.energy / 100, 1));
               var shipDotGroup = ship.getChildren()[4];
               shipDotGroup.setRotation(shipDotGroup.getRotation()
                   + (BerryBots.SHIP_ROTATION * BerryBots.shipOrbits[x]));
@@ -1827,16 +1857,15 @@ BerryBots.replay = function() {
     }
 
     var stage = BerryBots.stage;
-    var scale = Math.min(window.innerWidth / stage.getWidth(),
-                         window.innerHeight / stage.getHeight());
-    stage.setScale(Math.min(1, scale, scale));
+    var scale = Math.min(1, Math.min(window.innerWidth / stage.getWidth(),
+                         window.innerHeight / stage.getHeight()));
+    stage.setScale(scale, scale);
   }, BerryBots.layers);
 
   anim.start();
 };
 
 
-BerryBots.initGfx();
 BerryBots.parseReplayData();
 BerryBots.addBodyListeners();
 BerryBots.replay();
