@@ -2155,13 +2155,13 @@ std::string getTimestamp() {
 }
 
 char* newFilename(const char *stageName, const char *timestamp) {
-  std::string filename;
-  filename.append((stageName == 0) ? "unknown" : stageName);
-  filename.append("-");
+  std::stringstream nameStream;
+  nameStream << ((stageName == 0) ? "unknown" : stageName) << "-" << timestamp
+             << "-";
+  nameStream << std::hex << (rand() % 4096);
+  nameStream << ".html";
 
-  filename.append(timestamp);
-  filename.append(".html");
-  
+  std::string filename = nameStream.str();
   char *newFilename = new char[filename.length() + 1];
   strcpy(newFilename, filename.c_str());
   
