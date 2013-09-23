@@ -26,11 +26,12 @@
 #include "bbutil.h"
 #include "eventhandler.h"
 
-#define REPLAY_VERSION           1
-#define REPLAY_TEMPLATE          "resources/replay_template.html"
-#define KINETIC_JS               "resources/kinetic-v4.6.0.min.js"
-#define BBREPLAY_JS              "resources/bbreplay-v1.3.0.x3.js"
-#define REPLAY_DATA_PLACEHOLDER  "{$replayData}"
+#define REPLAY_VERSION            1
+#define REPLAY_TEMPLATE           "resources/replay_template.html"
+#define KINETIC_JS                "resources/kinetic-v4.6.0.min.js"
+#define BBREPLAY_JS               "resources/bbreplay-v1.3.0.x3.js"
+#define REPLAY_TITLE_PLACEHOLDER  "{$replayTitle}"
+#define REPLAY_DATA_PLACEHOLDER   "{$replayData}"
 
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
 #define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
@@ -64,8 +65,10 @@ class ReplayBuilder {
   bool *shipsAlive_;
   bool *shipsShowName_;
   bool *shipsShowEnergy_;
+  char **teamNames_;
   int numTeams_;
   int numShips_;
+  int numTeamsAdded_;
   char *stageName_;
   ReplayData *stagePropertiesData_;
   ReplayData *wallsData_;

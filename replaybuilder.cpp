@@ -29,9 +29,10 @@
 #include "replaybuilder.h"
 
 ReplayBuilder::ReplayBuilder(const char *templateDir) {
-  numTeams_ = 0;
+  numTeams_ = numTeamsAdded_ = 0;
   numShips_ = 0;
   shipsAlive_ = shipsShowName_ = shipsShowEnergy_ = 0;
+  teamNames_ = 0;
   stagePropertiesData_ = new ReplayData(1);
   wallsData_ = new ReplayData(MAX_MISC_CHUNKS);
   zonesData_ = new ReplayData(MAX_MISC_CHUNKS);
@@ -76,6 +77,14 @@ ReplayBuilder::~ReplayBuilder() {
   if (shipsShowEnergy_ != 0) {
     delete shipsShowEnergy_;
   }
+  if (teamNames_ != 0) {
+    for (int x = 0; x < numTeams_; x++) {
+      if (teamNames_[x] != 0) {
+        delete teamNames_[x];
+      }
+    }
+    delete teamNames_;
+  }
   delete stagePropertiesData_;
   delete wallsData_;
   delete zonesData_;
@@ -115,6 +124,10 @@ void ReplayBuilder::initShips(int numTeams, int numShips) {
   for (int x = 0; x < numShips; x++) {
     shipsAlive_[x] = shipsShowName_[x] = shipsShowEnergy_[x] = false;
   }
+  teamNames_ = new char*[numTeams];
+  for (int x = 0; x < numTeams; x++) {
+    teamNames_[x] = 0;
+  }
 }
 
 // Stage properties format:  (variable)
@@ -151,6 +164,9 @@ void ReplayBuilder::addZone(int left, int bottom, int width, int height) {
 void ReplayBuilder::addTeamProperties(Team *team) {
   teamPropertiesData_->addInt(team->index);
   teamPropertiesData_->addString(team->name);
+  int z = numTeamsAdded_++;
+  teamNames_[z] = new char[strlen(team->name) + 1];
+  strcpy(teamNames_[z], team->name);
 }
 
 // Ship properties format:  (variable)
@@ -464,15 +480,36 @@ void ReplayBuilder::saveReplay(const char *filename) {
   if (replayTemplate != 0) {
     copyReplayResource(KINETIC_JS);
     copyReplayResource(BBREPLAY_JS);
+
     std::string replayHtml;
-    const char *phStart = strstr(replayTemplate, REPLAY_DATA_PLACEHOLDER);
-    if (phStart == NULL) {
+    const char *phTitleStart = strstr(replayTemplate, REPLAY_TITLE_PLACEHOLDER);
+    if (phTitleStart == NULL) {
+      return;
+    }
+    replayHtml.append(replayTemplate, (phTitleStart - replayTemplate));
+    std::stringstream titleStream;
+    titleStream << (stageName_ == 0 ? "Unknown" : stageName_);
+    titleStream << ": ";
+    for (int x = 0; x < numTeams_; x++) {
+      char *teamName = teamNames_[x];
+      if (teamName != 0) {
+        if (x != 0) {
+          titleStream << " vs ";
+        }
+        titleStream << teamName;
+      }
+    }
+    replayHtml.append(titleStream.str());
+    
+    const char *phTitleEnd = &(phTitleStart[strlen(REPLAY_TITLE_PLACEHOLDER)]);
+    const char *phDataStart = strstr(phTitleEnd, REPLAY_DATA_PLACEHOLDER);
+    if (phDataStart == NULL) {
       return;
     }
 
-    replayHtml.append(replayTemplate, (phStart - replayTemplate));
+    replayHtml.append(phTitleEnd, (phDataStart - phTitleEnd));
     replayHtml.append(buildReplayDataString());
-    const char *phEnd = &(phStart[strlen(REPLAY_DATA_PLACEHOLDER)]);
+    const char *phEnd = &(phDataStart[strlen(REPLAY_DATA_PLACEHOLDER)]);
     replayHtml.append(phEnd);
 
     char *filePath = fileManager.getFilePath(getReplaysDir().c_str(), filename);
