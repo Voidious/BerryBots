@@ -37,6 +37,7 @@ class ResultsDialog : public wxFrame {
   wxBoxSizer *panelSizer_;
   char *stageName_;
   char *replayFilename_;
+  char *timestamp_;
   bool savedReplay_;
   ReplayBuilder *replayBuilder_;
   FileManager *fileManager_;

@@ -35,6 +35,7 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
 
   stageName_ = new char[strlen(stageName) + 1];
   replayFilename_ = 0;
+  timestamp_ = 0;
   savedReplay_ = false;
   strcpy(stageName_, stageName);
   replayBuilder_ = replayBuilder;
@@ -179,6 +180,9 @@ ResultsDialog::~ResultsDialog() {
   if (replayFilename_ != 0) {
     delete replayFilename_;
   }
+  if (timestamp_ != 0) {
+    delete timestamp_;
+  }
   delete replayBuilder_; // inherited from the engine
 }
 
@@ -197,6 +201,11 @@ void ResultsDialog::onViewReplay(wxCommandEvent &event) {
 void ResultsDialog::saveReplay() {
   if (!savedReplay_) {
     replayFilename_ = generateFilename();
+    wxDateTime dateTime;
+    dateTime.SetToCurrent();
+    if (timestamp_ != 0) {
+      replayBuilder_->setTimestamp(timestamp_);
+    }
     replayBuilder_->saveReplay(replayFilename_);
     displayFilename(replayFilename_);
     savedReplay_ = true;
@@ -227,14 +236,21 @@ char* ResultsDialog::generateFilename() {
 char* ResultsDialog::newFilename() {
   std::string filename(stageName_);
   filename.append("-");
+
   wxDateTime dateTime;
   dateTime.SetToCurrent();
-  filename.append(dateTime.Format("%Y.%m.%d-%H.%M.%S"));
+  std::string timestamp(dateTime.Format("%Y.%m.%d-%H.%M.%S"));
+  filename.append(timestamp);
   filename.append(".html");
+
+  if (timestamp_ != 0) {
+    delete timestamp_;
+  }
+  timestamp_ = new char[timestamp.length() + 1];
+  strcpy(timestamp_, timestamp.c_str());
 
   char *newFilename = new char[filename.length() + 1];
   strcpy(newFilename, filename.c_str());
-
   return newFilename;
 }
 

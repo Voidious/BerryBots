@@ -59,6 +59,7 @@ ReplayBuilder::ReplayBuilder(const char *templateDir) {
   numLogEntries_ = 0;
   resultsData_ = new ReplayData(MAX_MISC_CHUNKS);
   stageName_ = 0;
+  timestamp_ = 0;
   if (templateDir == 0) {
     templateDir_ = 0;
   } else {
@@ -107,6 +108,9 @@ ReplayBuilder::~ReplayBuilder() {
   delete shipDestroyData_;
   delete textData_;
   delete resultsData_;
+  if (timestamp_ != 0) {
+    delete timestamp_;
+  }
   if (stageName_ != 0) {
     delete stageName_;
   }
@@ -438,6 +442,19 @@ const char* ReplayBuilder::getStageName() {
   return stageName_;
 }
 
+void ReplayBuilder::setTimestamp(const char *timestamp) {
+  if (timestamp_ != 0) {
+    delete timestamp_;
+  }
+  
+  if (timestamp == 0) {
+    timestamp_ = 0;
+  } else {
+    timestamp_ = new char[strlen(timestamp) + 1];
+    strcpy(timestamp_, timestamp);
+  }
+}
+
 // Format of saved replay file:
 // | replay version
 // | stage name length | stage name | stage width | stage height
@@ -500,6 +517,10 @@ void ReplayBuilder::saveReplay(const char *filename) {
       }
     }
     replayHtml.append(titleStream.str());
+    if (timestamp_ != 0) {
+      replayHtml.append(" @ ");
+      replayHtml.append(timestamp_);
+    }
     
     const char *phTitleEnd = &(phTitleStart[strlen(REPLAY_TITLE_PLACEHOLDER)]);
     const char *phDataStart = strstr(phTitleEnd, REPLAY_DATA_PLACEHOLDER);

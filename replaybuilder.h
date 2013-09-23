@@ -95,6 +95,7 @@ class ReplayBuilder {
   ReplayData *resultsData_;
   int numTexts_;
   int numLogEntries_;
+  char *timestamp_;
   char *templateDir_;
   
   public:
@@ -122,6 +123,7 @@ class ReplayBuilder {
     void addLogEntry(Team *team, int time, const char *logMessage);
     void setResults(Team **rankedTeams, int numTeams);
     const char* getStageName();
+    void setTimestamp(const char *timestamp);
     void saveReplay(const char *filename);
   private:
     void addShip(int shipIndex, int time);
