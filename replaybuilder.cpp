@@ -513,7 +513,7 @@ void ReplayBuilder::saveReplay(const char *filename) {
         if (x != 0) {
           titleStream << " vs ";
         }
-        titleStream << teamName;
+        titleStream << escapeHtml(teamName);
       }
     }
     replayHtml.append(titleStream.str());
@@ -724,20 +724,28 @@ std::string ReplayBuilder::resultsDataString() {
 }
 
 std::string ReplayBuilder::escapeString(std::string s) {
+  findReplace(s, ':', "\\\\:");
+  findReplace(s, '\'', "\\'");
+  return s;
+}
+
+std::string ReplayBuilder::escapeHtml(std::string s) {
+  findReplace(s, '&', "&amp;");
+  findReplace(s, '<', "&lt;");
+  findReplace(s, '>', "&gt;");
+  findReplace(s, '"', "&quot;");
+  findReplace(s, '\'', "&#039;");
+  return s;
+}
+
+void ReplayBuilder::findReplace(std::string &s, char find, const char *replace) {
   size_t pos = 0;
   size_t i;
-  while ((i = s.find(':', pos)) != std::string::npos) {
-    s.replace(i, 0, "\\\\");
-    pos = i + 3;
+  size_t len = strlen(replace);
+  while ((i = s.find(find, pos)) != std::string::npos) {
+    s.replace(i, 1, replace);
+    pos = i + len;
   }
-
-  pos = 0;
-  while ((i = s.find('\'', pos)) != std::string::npos) {
-    s.replace(i, 0, "\\");
-    pos = i + 2;
-  }
-
-  return s;
 }
 
 void ReplayBuilder::appendInt(std::stringstream &out, int i) {

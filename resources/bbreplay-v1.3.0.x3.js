@@ -855,7 +855,8 @@ BerryBots.showConsoleTabs = function() {
     }
     if (showName) {
       s += '<div class="console-tab" onclick="BerryBots.showConsole('
-          + teams[x].index + ')">' + teams[x].name + '</div>';
+          + teams[x].index + ')">' + BerryBots.escapeHtml(teams[x].name)
+          + '</div>';
     }
   }
 

@@ -145,6 +145,8 @@ class ReplayBuilder {
     std::string logDataString();
     std::string resultsDataString();
     std::string escapeString(std::string s);
+    std::string escapeHtml(std::string s);
+    void findReplace(std::string &s, char find, const char *replace);
     void appendInt(std::stringstream &hexStream, int i);
     void appendColonString(std::stringstream &hexStream, ReplayData *data,
                           int &i);
