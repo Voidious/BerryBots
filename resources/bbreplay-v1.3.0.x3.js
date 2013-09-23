@@ -136,6 +136,7 @@ BerryBots = {
   LASER_SPEED: 25,
   TORPEDO_SPEED: 12,
   SHIP_ROTATION: Math.PI * 2 / 240,
+  SPINNER_ROTATION: Math.PI / 8,
   THRUSTER_ZERO: 8.3 / 19.3,
   TWO_PI: 2 * Math.PI,
   ZONE_COLOR: '#644444',
@@ -640,6 +641,7 @@ BerryBots.parseReplayData = function() {
 BerryBots.initGfx = function() {
   BerryBots.mainLayer = new Kinetic.Layer();
   BerryBots.stageLayer = new Kinetic.Layer();
+  BerryBots.spinnerLaser = null;
   BerryBots.layers = [BerryBots.stageLayer, BerryBots.mainLayer];
 
   var scale = BerryBots.canvasScale;
@@ -689,6 +691,7 @@ BerryBots.addBodyListeners = function() {
           BerryBots.hideResults();
         }
         BerryBots.timeDragging = false;
+        BerryBots.skipTime = -1;
       } else if (e.which == 32) { // space bar
         BerryBots.desktopPing();
         BerryBots.playPause();
@@ -794,6 +797,7 @@ BerryBots.hideResults = function() {
 
 BerryBots.playPause = function() {
   BerryBots.paused = !(BerryBots.paused);
+  BerryBots.skipTime = -1;
   BerryBots.showPlayPause();
 };
 
@@ -961,7 +965,7 @@ BerryBots.adjustTimeKnob = function() {
     var minX = (BerryBots.gameTime / BerryBots.endTime) * timerWidth;
     knobStyle.left = (Math.max(minX,
         Math.min(timerWidth, (BerryBots.mouseX - left))) + 8) + 'px';
-  } else if (BerryBots.gameTime >= BerryBots.skipTime) {
+  } else {
     var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 75);
 
     var left = (BerryBots.gameTime / BerryBots.endTime) * (stageWidth / 2) + 8;
@@ -1846,11 +1850,37 @@ BerryBots.replay = function() {
           }
 
           BerryBots.gameTime++;
-        } while (BerryBots.gameTime < BerryBots.skipTime);
+          if (BerryBots.gameTime < BerryBots.skipTime) {
+            if (BerryBots.spinnerLaser == null) {
+              var laser = BerryBots.spinnerLaser = BerryBots.makeLaser();
+              laser.setX(BerryBots.canvasWidth / 2);
+              laser.setY(BerryBots.canvasHeight / 2);
+              laser.setFill('#f00');
+              laser.setScale(8);
+              laser.setOffsetX(12.5);
+              BerryBots.stageLayer.add(laser);
+              BerryBots.mainLayer.setOpacity(0.4);
+            } else if (BerryBots.gameTime % 80 == 0) {
+              var laser = BerryBots.spinnerLaser;
+              laser.setRotation(
+                  laser.getRotation() + BerryBots.SPINNER_ROTATION);
+              break;
+            }
+          } else {
+            break;
+          }
+        } while (true);
         if (BerryBots.skipTime != -1) {
           BerryBots.desktopPing();
         }
-        BerryBots.skipTime = -1;
+        if (BerryBots.gameTime >= BerryBots.skipTime) {
+          BerryBots.skipTime = -1;
+          if (BerryBots.spinnerLaser != null) {
+            BerryBots.spinnerLaser.destroy();
+            BerryBots.spinnerLaser = null;
+            BerryBots.mainLayer.setOpacity(1);
+          }
+        }
       } else if (!BerryBots.showedResults) {
         BerryBots.showResults();
         BerryBots.showedResults = true;
