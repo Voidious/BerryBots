@@ -190,21 +190,22 @@ BerryBots.style.controls =
     + '    display: block;'
     + '    height: 0;'
     + '    width: 0;'
-    + '    border-bottom: 15px solid #fff;'
-    + '    border-left: 15px solid transparent;'
-    + '    transform: scale(6,3) rotate(-45deg);'
-    + '    -ms-transform: scale(6,3) rotate(-45deg); '
-    + '    -webkit-transform: scale(6,3) rotate(-45deg);'
+    + '    border-left: 80px solid #fff;'
+    + '    border-bottom: 80px solid transparent;'
+    + '    border-top: 80px solid transparent;'
+    + '    transform: scale(2,1);'
+    + '    -ms-transform: scale(2,1);'
+    + '    -webkit-transform: scale(2,1);'
     + '  }'
     + '  .play:hover {'
-    + '    border-bottom-color: #0f0;'
+    + '    border-left-color: #0f0;'
     + '  }'
     + '  .pause-wedge {'
     + '    background-color: #fff;'
     + '    display: inline-block;'
-    + '    height: 70px;'
-    + '    width: 16px;'
-    + '    margin-right: 8px;'
+    + '    height: 165px;'
+    + '    width: 40px;'
+    + '    margin: 0 20px;'
     + '  }'
     + '  .pause:hover .pause-wedge {'
     + '    background-color: #0f0;'
@@ -223,13 +224,13 @@ BerryBots.style.timeDisplay = function(timerWidth, timerLeft, top) {
         + '  }'
         + '  .timeknob {'
         + '    background: #999;'
-        + '    width: 24px;'
-        + '    height: 24px;'
+        + '    width: 36px;'
+        + '    height: 36px;'
         + '    border-radius: 50%;'
         + '    position: relative;'
         + '  }'
         + '  .timetarget {'
-        + '    height: 44px;'
+        + '    height: 60px;'
         + '    width: ' + (timerWidth + 40) + 'px;'
         + '    left: ' + (timerLeft - 40) + 'px;'
         + '    position: absolute;'
@@ -748,15 +749,17 @@ BerryBots.showConsole = function(teamIndex) {
   var console = BerryBots.getConsole(teamIndex);
   var consoleId = console.consoleId;
   if (console.div == null) {
-    var s = '<style type="text/css">.console { border-collapse: collapse; '
-        + 'border: 1px solid #fff; padding: 0.5em; background-color: #000; '
-        + 'font-family: Consolas, Courier, monospace; font-size: 0.8em; '
-        + 'color: #fff; overflow: auto; width: 550px; height: 400px; } '
-        + '.console-title { background-color: #fff; color: #000; '
-        + 'position: relative; text-align: center; padding: 5px; '
+    var s = '<style type="text/css">.console { border-collapse: collapse;'
+        + 'border: 1px solid #fff; padding: 0.5em; background-color: #000;'
+        + 'font-family: Consolas, Courier, monospace; font-size: 1.2em;'
+        + 'color: #fff; overflow: auto; width: '
+        + Math.min(window.innerWidth, 725) + 'px; height: 480px; }'
+        + '.console-title { font-size: 2em; background-color: #fff; '
+        + 'color: #000; position: relative; text-align: center; padding: 5px;'
         + 'font-family: Ubuntu, Arial, Tahoma, sans-serif; }'
-        + '.console-x { font-size: 1.5em; position: absolute; left: 6px; '
-        + 'cursor: pointer; top: 0; } .console-x:hover { color: #f00; }</style>'
+        + '.console-x { font-size: 2.5em; position: absolute; left: 0;'
+        + 'cursor: pointer; top: -28px; } .console-x:hover { color: #f00; }'
+        + '</style>'
         + '<div class="console-title"><div class="console-x" '
         + 'onclick="BerryBots.hideConsole(' + teamIndex + ')">&times;</div>'
         + console.name + '</div><div class="console" id="' + consoleId + '">';
@@ -782,15 +785,15 @@ BerryBots.showConsole = function(teamIndex) {
   var d = console.div;
   d.style.position = 'absolute';
   d.style.left = Math.max(0, ((BerryBots.stage.getScaleX()
-      * BerryBots.stage.getWidth()) - 600)) + 'px';
+      * BerryBots.stage.getWidth()) - 775)) + 'px';
   d.style.top = '35px';
 
   console.showing = true;
-  BerryBots.scrollToBottom(console.outputDiv);
-};
-
-BerryBots.hideResults = function() {
-  if (BerryBots.resultsDiv != null) {
+    BerryBots.scrollToBottom(console.outputDiv);
+  };
+  
+  BerryBots.hideResults = function() {
+    if (BerryBots.resultsDiv != null) {
     document.getElementById('container').removeChild(BerryBots.resultsDiv);
   }
 };
@@ -805,18 +808,18 @@ BerryBots.showPlayPause = function() {
   var stage = BerryBots.stage;
   var center =
       Math.max(0, (stage.getScaleX() * stage.getWidth()) / 2);
-  var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 150);
+  var top = (stage.getScaleY() * stage.getHeight());
 
   var d = document.getElementById('controls');
   d.style.position = 'absolute';
   if (BerryBots.paused) {
-    d.style.left = (center - 33) + 'px';
-    d.style.top = top + 'px';
+    d.style.left = Math.max(0, center - 30) + 'px';
+    d.style.top = Math.max(0, top - 325) + 'px';
     document.getElementById('pause').style.visibility = 'hidden';
     document.getElementById('play').style.visibility = 'visible';
   } else {
-    d.style.left = (center - 20) + 'px';
-    d.style.top = (top - 42) + 'px';
+    d.style.left = Math.max(0, center - 87) + 'px';
+    d.style.top = (top - 490) + 'px';
     document.getElementById('play').style.visibility = 'hidden';
     document.getElementById('pause').style.visibility = 'visible';
   }
@@ -871,7 +874,7 @@ BerryBots.showConsoleTabs = function() {
   d.margin = '0';
   d.padding = '0';
   d.style.fontFamily = 'Ubuntu, Arial, Tahoma, sans-serif';
-  d.style.fontSize = '1.12em';
+  d.style.fontSize = '1.55em';
   d.style.position = 'absolute';
   d.style.left = '35px';
   d.style.top = '35px';
@@ -954,7 +957,7 @@ BerryBots.showTimeDisplay = function() {
 
 BerryBots.adjustTimeKnob = function() {
   var knobStyle = BerryBots.knob.style;
-  knobStyle.top = '6px';
+  knobStyle.top = '1px';
 
   var stage = BerryBots.stage;
   var stageWidth = (stage.getScaleX() * stage.getWidth());
@@ -964,11 +967,9 @@ BerryBots.adjustTimeKnob = function() {
     // Visual feedback you can't rewind (for now).
     var minX = (BerryBots.gameTime / BerryBots.endTime) * timerWidth;
     knobStyle.left = (Math.max(minX,
-        Math.min(timerWidth, (BerryBots.mouseX - left))) + 8) + 'px';
+        Math.min(timerWidth, (BerryBots.mouseX - left)))) + 'px';
   } else {
-    var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 75);
-
-    var left = (BerryBots.gameTime / BerryBots.endTime) * (stageWidth / 2) + 8;
+    var left = (BerryBots.gameTime / BerryBots.endTime) * (stageWidth / 2);
     knobStyle.left = left + 'px';
   }
 };
@@ -1000,10 +1001,11 @@ BerryBots.dragEnd = function(x) {
 
 BerryBots.showResults = function() {
   var s = '<style type="text/css">table, td, th { border-collapse: collapse; '
-      + 'background-color: #fff; border: 1px solid #000; color: #000 }'
+      + 'background-color: #fff; border: 1px solid #000; color: #000;'
+      + 'font-size: 1.25em; }'
       + '.num { text-align: right; } .mid { text-align: center; }'
-      + '.results-x { font-size: 1.8em; position: absolute; left: 8px; '
-      + 'cursor: pointer; top: 0; } .results-x:hover { color: #f00; }'
+      + '.results-x { font-size: 2.5em; position: absolute; left: 8px; '
+      + 'cursor: pointer; top: -18px; } .results-x:hover { color: #f00; }'
       + '.rel { position: relative; }'
       + '</style>';
   
@@ -1854,7 +1856,7 @@ BerryBots.replay = function() {
             if (BerryBots.spinnerLaser == null) {
               var laser = BerryBots.spinnerLaser = BerryBots.makeLaser();
               laser.setX(BerryBots.canvasWidth / 2);
-              laser.setY(BerryBots.canvasHeight / 2);
+              laser.setY(BerryBots.canvasHeight - 500);
               laser.setFill('#f00');
               laser.setScale(8);
               laser.setOffsetX(12.5);
