@@ -18,46 +18,7 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-// This is a KineticJS hack from Elliot Chong's gist to force a maximum pixel
-// ratio. Otherwise it runs horribly slow on high resolution devices.
-// https://gist.github.com/ElliotChong/6107722
-
-setMaximumPixelRatio = function(p_maximumRatio) {
-  var backingStoreRatio, canvas, className, context, devicePixelRatio,
-      pixelRatio, _i, _len, _ref, _results;
-
-  if (p_maximumRatio == null) {
-    p_maximumRatio = 1;
-  }
-  canvas = document.createElement('canvas');
-  context = canvas.getContext('2d');
-  devicePixelRatio = window.devicePixelRatio || 1;
-  backingStoreRatio = context.webkitBackingStorePixelRatio
-      || context.mozBackingStorePixelRatio || context.msBackingStorePixelRatio
-      || context.oBackingStorePixelRatio || context.backingStorePixelRatio || 1;
-  pixelRatio = devicePixelRatio / backingStoreRatio;
-  _ref = ["HitCanvas", "SceneCanvas", "Canvas"];
-  _results = [];
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    className = _ref[_i];
-    _results.push(Kinetic[className].prototype.init = (function(p_method) {
-      return function(p_config) {
-        if (p_config == null) {
-          p_config = {};
-        }
-        if (p_config.pixelRatio != null) {
-          pixelRatio = p_config.pixelRatio;
-        }
-        p_config.pixelRatio =
-            pixelRatio > p_maximumRatio ? p_maximumRatio : pixelRatio;
-        return p_method.call(this, p_config);
-      };
-    })(Kinetic[className].prototype.init));
-  }
-  return _results;
-};
-
-setMaximumPixelRatio(1);
+Kinetic.pixelRatio = 1;
 
 
 // Replay format:
