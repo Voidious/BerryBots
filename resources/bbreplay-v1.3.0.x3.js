@@ -754,11 +754,11 @@ BerryBots.showConsole = function(teamIndex) {
         + 'font-family: Consolas, Courier, monospace; font-size: 1.2em;'
         + 'color: #fff; overflow: auto; width: '
         + Math.min(window.innerWidth, 725) + 'px; height: 480px; }'
-        + '.console-title { font-size: 2em; background-color: #fff; '
+        + '.console-title { font-size: 1.55em; background-color: #fff; '
         + 'color: #000; position: relative; text-align: center; padding: 5px;'
         + 'font-family: Ubuntu, Arial, Tahoma, sans-serif; }'
-        + '.console-x { font-size: 2.5em; position: absolute; left: 0;'
-        + 'cursor: pointer; top: -28px; } .console-x:hover { color: #f00; }'
+        + '.console-x { font-size: 2.25em; position: absolute; left: 4px;'
+        + 'cursor: pointer; top: -17px; } .console-x:hover { color: #f00; }'
         + '</style>'
         + '<div class="console-title"><div class="console-x" '
         + 'onclick="BerryBots.hideConsole(' + teamIndex + ')">&times;</div>'
@@ -914,7 +914,7 @@ BerryBots.showControls = function() {
 BerryBots.showTimeDisplay = function() {
   var stage = BerryBots.stage;
   var stageWidth = (stage.getScaleX() * stage.getWidth());
-  var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 85);
+  var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 112);
   var timerWidth = (stageWidth / 2);
   var timerLeft = (stageWidth / 4);
   var s = BerryBots.style.timeDisplay(timerWidth, timerLeft, top)
