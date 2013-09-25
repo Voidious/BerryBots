@@ -794,8 +794,9 @@ BerryBots.showConsole = function(teamIndex) {
   };
   
   BerryBots.hideResults = function() {
-    if (BerryBots.resultsDiv != null) {
+  if (BerryBots.resultsDiv != null) {
     document.getElementById('container').removeChild(BerryBots.resultsDiv);
+    BerryBots.resultsDiv = null;
   }
 };
 
@@ -1012,15 +1013,19 @@ BerryBots.dragEnd = function(x) {
 };
 
 BerryBots.showResults = function() {
+  if (BerryBots.resultsDiv != null) {
+    hideResults();
+  }
   BerryBots.showPlayPause();
 
-  var s = '<style type="text/css">table, td, th { border-collapse: collapse; '
-      + 'background-color: #fff; border: 1px solid #000; color: #000;'
+  var s = '<style type="text/css">table, td, th { border-collapse: collapse;'
+      + 'background-color: #fff; border: 1px solid #555; color: #000;'
       + 'font-size: 1.25em; }'
       + '.num { text-align: right; } .mid { text-align: center; }'
-      + '.results-x { font-size: 2.5em; position: absolute; left: 6px; '
-      + 'cursor: pointer; top: -18px; } .results-x:hover { color: #f00; }'
-      + '.rel { position: relative; }'
+      + '.results-x { font-size: 2.5em; position: absolute; left: 10px;'
+      + 'cursor: pointer; top: -11px; } .results-x:hover { color: #f00; }'
+      + '.resultsDialog { border: 6px solid #555; border-radius: 6px;'
+      + 'margin: 0; padding: 0; display: inline-block; }'
       + '</style>';
   
   var numResults = BerryBots.results.length;
@@ -1042,10 +1047,12 @@ BerryBots.showResults = function() {
 
   var numKeys = statKeys.length;
   var numCols = 2 + (hasScores ? 1 : 0) + numKeys;
-    s += '<table id="resultsTable" cellpadding="9px">'
-        + '<tr><td colspan="' + numCols + '" class="mid rel">'
+    s += '<div id="resultsDialog" class="resultsDialog">'
+        + '<table cellpadding="9px" id="resultsTable">'
+        + '<tr><td colspan="' + numCols + '" class="mid">'
         + '<div class="results-x" onclick="BerryBots.hideResults()">&times;'
-        + '</div>Results</td></tr><tr><td class="mid">Rank</td>'
+        + '</div>Results</td></tr>'
+        + '<tr><td class="mid">Rank</td>'
         + '<td class="mid">Name</td>';
 
   if (hasScores) {
@@ -1080,7 +1087,7 @@ BerryBots.showResults = function() {
     }
     s += '</tr>'
   }
-  s += '</table>\n';
+  s += '</table></div>\n';
 
   var d = document.createElement('div');
   d.innerHTML = s;
@@ -1090,13 +1097,13 @@ BerryBots.showResults = function() {
   d.style.fontSize = '1em';
   document.getElementById('container').appendChild(d);
 
-  var resultsTable = document.getElementById('resultsTable');
+  var resultsDialog = document.getElementById('resultsDialog');
   var stage = BerryBots.stage;
   var left = Math.max(0,
-      ((stage.getScaleX() * stage.getWidth()) - resultsTable.clientWidth) / 2);
+      ((stage.getScaleX() * stage.getWidth()) - resultsDialog.offsetWidth) / 2);
   var top = Math.max(0,
       ((stage.getScaleY() * stage.getHeight())
-          - resultsTable.clientHeight) / 2);
+          - resultsDialog.offsetHeight) / 2);
   d.style.position = 'absolute';
   d.style.left = left + 'px';
   d.style.top = top + 'px';
