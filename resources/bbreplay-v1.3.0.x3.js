@@ -805,23 +805,31 @@ BerryBots.playPause = function() {
 };
 
 BerryBots.showPlayPause = function() {
-  var stage = BerryBots.stage;
-  var center =
-      Math.max(0, (stage.getScaleX() * stage.getWidth()) / 2);
-  var top = (stage.getScaleY() * stage.getHeight());
+  var playStyle = document.getElementById('play').style;
+  var pauseStyle = document.getElementById('pause').style;
 
-  var d = document.getElementById('controls');
-  d.style.position = 'absolute';
-  if (BerryBots.paused) {
-    d.style.left = Math.max(0, center - 30) + 'px';
-    d.style.top = Math.max(0, top - 325) + 'px';
-    document.getElementById('pause').style.visibility = 'hidden';
-    document.getElementById('play').style.visibility = 'visible';
+  if (BerryBots.gameTime >= BerryBots.endTime) {
+    playStyle.visibility = 'hidden';
+    pauseStyle.visibility = 'hidden';
   } else {
-    d.style.left = Math.max(0, center - 87) + 'px';
-    d.style.top = (top - 490) + 'px';
-    document.getElementById('play').style.visibility = 'hidden';
-    document.getElementById('pause').style.visibility = 'visible';
+    var stage = BerryBots.stage;
+    var center =
+        Math.max(0, (stage.getScaleX() * stage.getWidth()) / 2);
+    var top = (stage.getScaleY() * stage.getHeight());
+  
+    var d = document.getElementById('controls');
+    d.style.position = 'absolute';
+    if (BerryBots.paused) {
+      d.style.left = Math.max(0, center - 30) + 'px';
+      d.style.top = Math.max(0, top - 325) + 'px';
+      pauseStyle.visibility = 'hidden';
+      playStyle.visibility = 'visible';
+    } else {
+      d.style.left = Math.max(0, center - 87) + 'px';
+      d.style.top = (top - 490) + 'px';
+      playStyle.visibility = 'hidden';
+      pauseStyle.visibility = 'visible';
+    }
   }
 };
 
@@ -1000,6 +1008,8 @@ BerryBots.dragEnd = function(x) {
 };
 
 BerryBots.showResults = function() {
+  BerryBots.showPlayPause();
+
   var s = '<style type="text/css">table, td, th { border-collapse: collapse; '
       + 'background-color: #fff; border: 1px solid #000; color: #000;'
       + 'font-size: 1.25em; }'
