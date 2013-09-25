@@ -172,7 +172,8 @@ BerryBots.style.consoleTabs =
     + '    cursor: pointer;'
     + '    border-color: #0f0;'
     + '    }'
-    + '  .stage-tab { margin-bottom: 0.7em;}'
+    + '  .stage-tab { margin-bottom: 0.9em; }'
+    + '  .results-tab { margin-top: 0.9em; }'
     + '</style>';
 
 BerryBots.style.controls =
@@ -875,6 +876,9 @@ BerryBots.showConsoleTabs = function() {
     }
   }
 
+  s += '<div class="console-tab results-tab" onclick="BerryBots.showResults()">'
+      + 'Results</div>';
+
   var d = document.createElement('div');
   d.innerHTML = s;
   d.id = 'dock';
@@ -1014,7 +1018,7 @@ BerryBots.showResults = function() {
       + 'background-color: #fff; border: 1px solid #000; color: #000;'
       + 'font-size: 1.25em; }'
       + '.num { text-align: right; } .mid { text-align: center; }'
-      + '.results-x { font-size: 2.5em; position: absolute; left: 8px; '
+      + '.results-x { font-size: 2.5em; position: absolute; left: 6px; '
       + 'cursor: pointer; top: -18px; } .results-x:hover { color: #f00; }'
       + '.rel { position: relative; }'
       + '</style>';
