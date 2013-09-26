@@ -97,7 +97,7 @@ BerryBots = {
   LASER_SPEED: 25,
   TORPEDO_SPEED: 12,
   SHIP_ROTATION: Math.PI * 2 / 240,
-  SPINNER_ROTATION: Math.PI / 8,
+  SPINNER_ROTATION: Math.PI / 16,
   THRUSTER_ZERO: 8.3 / 19.3,
   TWO_PI: 2 * Math.PI,
   ZONE_COLOR: '#644444',
@@ -604,7 +604,7 @@ BerryBots.parseReplayData = function() {
 BerryBots.initGfx = function() {
   BerryBots.mainLayer = new Kinetic.Layer();
   BerryBots.stageLayer = new Kinetic.Layer();
-  BerryBots.spinnerLaser = null;
+  BerryBots.spinnerShip = null;
   BerryBots.layers = [BerryBots.stageLayer, BerryBots.mainLayer];
 
   var scale = BerryBots.canvasScale;
@@ -1840,19 +1840,26 @@ BerryBots.replay = function() {
 
           BerryBots.gameTime++;
           if (BerryBots.gameTime < BerryBots.skipTime) {
-            if (BerryBots.spinnerLaser == null) {
-              var laser = BerryBots.spinnerLaser = BerryBots.makeLaser();
-              laser.setX(BerryBots.canvasWidth / 2);
-              laser.setY(BerryBots.canvasHeight - 500);
-              laser.setFill('#f00');
-              laser.setScale(8);
-              laser.setOffsetX(12.5);
-              BerryBots.stageLayer.add(laser);
+            if (BerryBots.spinnerShip == null) {
+              var ship = BerryBots.spinnerShip = BerryBots.shipProto.clone();
+              var shipParts = ship.getChildren();
+              shipParts[0].setScale(0);
+              shipParts[1].setScale(0);
+              shipParts[2].setScale(0);
+              shipParts[3].setStroke('#f00');
+              var dots = shipParts[4].getChildren();
+              dots[0].setFill('#f00');
+              dots[1].setFill('#f00');
+              dots[2].setFill('#f00');
+              ship.setX(BerryBots.scale(93));
+              ship.setY(BerryBots.canvasHeight - BerryBots.scale(93));
+              ship.setScale(BerryBots.scale(3));
+              BerryBots.stageLayer.add(ship);
               BerryBots.mainLayer.setOpacity(0.4);
             } else if (BerryBots.gameTime % 80 == 0) {
-              var laser = BerryBots.spinnerLaser;
-              laser.setRotation(
-                  laser.getRotation() + BerryBots.SPINNER_ROTATION);
+              var ship = BerryBots.spinnerShip;
+              var dots = ship.getChildren()[4];
+              dots.setRotation(dots.getRotation() + BerryBots.SPINNER_ROTATION);
               break;
             }
           } else {
@@ -1864,9 +1871,9 @@ BerryBots.replay = function() {
         }
         if (BerryBots.gameTime >= BerryBots.skipTime) {
           BerryBots.skipTime = -1;
-          if (BerryBots.spinnerLaser != null) {
-            BerryBots.spinnerLaser.destroy();
-            BerryBots.spinnerLaser = null;
+          if (BerryBots.spinnerShip != null) {
+            BerryBots.spinnerShip.destroy();
+            BerryBots.spinnerShip = null;
             BerryBots.mainLayer.setOpacity(1);
           }
         }
