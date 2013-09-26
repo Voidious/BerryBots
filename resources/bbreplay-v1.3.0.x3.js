@@ -18,8 +18,6 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-Kinetic.pixelRatio = 1;
-
 
 // Replay format:
 //
@@ -91,6 +89,8 @@ Kinetic.pixelRatio = 1;
 // | num texts | <texts>
 // | num log entries | <log entries>
 // | num results | <results>
+
+Kinetic.pixelRatio = 1;
 
 BerryBots = {
   STAGE_MARGIN: 25,
@@ -768,9 +768,14 @@ BerryBots.playPause = function() {
 };
 
 BerryBots.showPlayPause = function() {
-  var playStyle = document.getElementById('play').style;
-  var pauseStyle = document.getElementById('pause').style;
+  var playElement = document.getElementById('play');
+  var pauseElement = document.getElementById('pause');
+  if (playElement == null || pauseElement == null) {
+    return;
+  }
 
+  var playStyle = playElement.style;
+  var pauseStyle = pauseElement.style;
   if (BerryBots.gameTime >= BerryBots.endTime) {
     playStyle.visibility = 'hidden';
     pauseStyle.visibility = 'hidden';
