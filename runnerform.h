@@ -27,6 +27,7 @@
 #define TEXT_HEIGHT         1
 #define OK_CANCEL_HEIGHT    2
 #define MAX_COLUMN_HEIGHT  10
+#define CHECKBOX_HEIGHT     1
 
 class RunnerFormElement;
 
@@ -66,6 +67,7 @@ class RunnerForm : public wxFrame {
         char **stageNames, int numStages, char **shipNames, int numShips,
         wxSizer *colSizer);
     wxControl* addTextElement(const char *name, wxSizer *colSizer);
+    wxControl* addCheckboxElement(const char *name, wxSizer *colSizer);
     void addOkCancelElement(wxSizer *colSizer);
     wxStaticText* getNameLabel(const char *name);
     int getHeight(int type);

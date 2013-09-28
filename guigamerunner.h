@@ -56,13 +56,16 @@ class GuiGameRunner : public GameRunner {
     virtual void addSingleShipSelect(const char *name);
     virtual void addMultiShipSelect(const char *name);
     virtual void addIntegerText(const char *name);
+    virtual void addCheckbox(const char *name);
     virtual void setDefault(const char *name, const char *value);
     virtual void setDefault(const char *name, int value);
+    virtual void setDefault(const char *name, bool value);
     virtual bool ok(const char *message);
     virtual int getElementType(const char *name);
     virtual char** getStringValues(const char *name);
     virtual int getNumStringValues(const char *name);
     virtual int getIntegerValue(const char *name);
+    virtual bool getBooleanValue(const char *name);
     virtual void setThreadCount(int threadCount);
     virtual void queueMatch(const char *stageName, char **teamNames,
                             int numTeams);

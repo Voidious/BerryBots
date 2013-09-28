@@ -16,28 +16,35 @@
 -- </code>
 module "RunnerForm"
 
---- Adds a text control to the form which can only accept integer values.
+--- Adds a checkbox to the form.
+-- It produces a boolean value.
+-- @param name The name of the field. This is displayed on the form and used to
+--     fetch the result after the form is submitted.
+function addCheckbox(name)
+
+--- Adds a text control to the form.
+-- It produces an integer value.
 -- @param name The name of the field. This is displayed on the form and used to
 --     fetch the result after the form is submitted.
 function addIntegerText(name)
 
 --- Adds a multi-ship select control to the form.
 -- This is used to specify any number of ships, similar to when selecting ships
--- for a new match.
+-- for a new match. It produces a table of strings.
 -- @param name The name of the field. This is displayed on the form and used to
 --     fetch the result after the form is submitted.
 function addMultiShipSelect(name)
 
 --- Adds a ship select control to the form.
 -- This is used to specify a single ship, similar to when selecting ships for a
--- new match.
+-- new match. It produces a string value.
 -- @param name The name of the field. This is displayed on the form and used to
 --     fetch the result after the form is submitted.
 function addSingleShipSelect(name)
 
 --- Adds a stage select control to the form.
 -- This is used to specify a single stage, similar to when selecting a stage for
--- a new match.
+-- a new match. It produces a string value.
 -- @param name The name of the field. This is displayed on the form and used to
 --     fetch the result after the form is submitted.
 function addStageSelect(name)

@@ -118,16 +118,21 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
   }
   colHeight += elementHeight;
 
-  if (type == TYPE_OK_CANCEL) {
-    addOkCancelElement(colSizer);
-    return 0;
-  } else {
-    if (type == TYPE_INTEGER_TEXT) {
-      return addTextElement(name, colSizer);
-    } else {
+  switch (type) {
+    case TYPE_STAGE_SELECT:
+    case TYPE_SINGLE_SHIP_SELECT:
+    case TYPE_MULTI_SHIP_SELECT:
       return addSelectElement(name, type, stageNames, numStages, shipNames,
                               numShips, colSizer);
-    }
+    case TYPE_INTEGER_TEXT:
+      return addTextElement(name, colSizer);
+    case TYPE_CHECKBOX:
+      return addCheckboxElement(name, colSizer);
+    case TYPE_OK_CANCEL:
+      addOkCancelElement(colSizer);
+      return 0;
+    default:
+      return 0;
   }
 }
 
@@ -135,7 +140,6 @@ wxControl* RunnerForm::addSelectElement(const char *name, int type,
     char **stageNames, int numStages, char **shipNames, int numShips,
     wxSizer *colSizer) {
   wxListBox *itemSelect;
-  wxStaticText *nameLabel = getNameLabel(name);
   if (type == TYPE_MULTI_SHIP_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
     long style = wxLB_SORT;
     if (type == TYPE_MULTI_SHIP_SELECT) {
@@ -156,7 +160,7 @@ wxControl* RunnerForm::addSelectElement(const char *name, int type,
     itemSelect->SetFirstItem(0);
   }
   wxBoxSizer *selectSizer = new wxBoxSizer(wxVERTICAL);
-  selectSizer->Add(nameLabel);
+  selectSizer->Add(getNameLabel(name));
   selectSizer->AddSpacer(3);
   selectSizer->Add(itemSelect);
   colSizer->Add(selectSizer);
@@ -166,19 +170,29 @@ wxControl* RunnerForm::addSelectElement(const char *name, int type,
 }
 
 wxControl* RunnerForm::addTextElement(const char *name, wxSizer *colSizer) {
-  wxStaticText *nameLabel = getNameLabel(name);
-
   wxIntegerValidator<int> validator;
   wxTextCtrl *elementText = new wxTextCtrl(mainPanel_, wxID_ANY, "",
       wxDefaultPosition, wxSize(70, 23), 0, validator);
   wxBoxSizer *textSizer = new wxBoxSizer(wxHORIZONTAL);
-  textSizer->Add(nameLabel, 0, wxALIGN_CENTER);
+  textSizer->Add(getNameLabel(name), 0, wxALIGN_CENTER);
   textSizer->AddSpacer(5);
   textSizer->Add(elementText, 0, wxALIGN_CENTER);
   colSizer->Add(textSizer);
   Connect(elementText->GetId(), wxEVT_UPDATE_UI,
           wxUpdateUIEventHandler(RunnerForm::onFormChange));
   return elementText;
+}
+
+wxControl* RunnerForm::addCheckboxElement(const char *name, wxSizer *colSizer) {
+  wxCheckBox *checkbox = new wxCheckBox(mainPanel_, wxID_ANY, "");
+  wxBoxSizer *textSizer = new wxBoxSizer(wxHORIZONTAL);
+  textSizer->Add(getNameLabel(name), 0, wxALIGN_CENTER);
+  textSizer->AddSpacer(5);
+  textSizer->Add(checkbox, 0, wxALIGN_CENTER);
+  colSizer->Add(textSizer);
+  Connect(checkbox->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(RunnerForm::onFormChange));
+  return checkbox;
 }
 
 void RunnerForm::addOkCancelElement(wxSizer *colSizer) {
@@ -212,16 +226,20 @@ int RunnerForm::getHeight(int type) {
       return SELECT_HEIGHT;
     case TYPE_INTEGER_TEXT:
       return TEXT_HEIGHT;
+    case TYPE_CHECKBOX:
+      return CHECKBOX_HEIGHT;
     default:
       return 0;
   }
 }
 
 void RunnerForm::setFormValues(wxControl *control,
-                                 RunnerFormElement *element) {
+                              RunnerFormElement *element) {
   if (element->getType() == TYPE_INTEGER_TEXT) {
     ((wxTextCtrl *) control)->SetValue(
         wxString::Format(wxT("%i"), element->getIntegerValue()));
+  } else if (element->getType() == TYPE_CHECKBOX) {
+    ((wxCheckBox *) control)->SetValue(element->getBooleanValue());
   } else {
     wxListBox *listBox = (wxListBox *) control;
     int numStringValues = element->getNumStringValues();

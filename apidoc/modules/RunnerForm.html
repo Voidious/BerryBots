@@ -124,8 +124,13 @@
 <table class="function_list">
 
 	<tr>
+	<td class="name" nowrap><a href="#addCheckbox">addCheckbox</a>&nbsp;(name)</td>
+	<td class="summary">Adds a checkbox to the form.</td>
+	</tr>
+
+	<tr>
 	<td class="name" nowrap><a href="#addIntegerText">addIntegerText</a>&nbsp;(name)</td>
-	<td class="summary">Adds a text control to the form which can only accept integer values.</td>
+	<td class="summary">Adds a text control to the form.</td>
 	</tr>
 
 	<tr>
@@ -175,10 +180,37 @@
 
 
 
+<dt><a name="addCheckbox"></a><strong>addCheckbox</strong>&nbsp;(name)</dt>
+<br/>
+<dd>
+Adds a checkbox to the form. It produces a boolean value.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the field. This is displayed on the form and used to fetch the result after the form is submitted.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
 <dt><a name="addIntegerText"></a><strong>addIntegerText</strong>&nbsp;(name)</dt>
 <br/>
 <dd>
-Adds a text control to the form which can only accept integer values.
+Adds a text control to the form. It produces an integer value.
 
 
 <h3>Parameters</h3>
@@ -205,7 +237,7 @@ Adds a text control to the form which can only accept integer values.
 <dt><a name="addMultiShipSelect"></a><strong>addMultiShipSelect</strong>&nbsp;(name)</dt>
 <br/>
 <dd>
-Adds a multi-ship select control to the form. This is used to specify any number of ships, similar to when selecting ships for a new match.
+Adds a multi-ship select control to the form. This is used to specify any number of ships, similar to when selecting ships for a new match. It produces a table of strings.
 
 
 <h3>Parameters</h3>
@@ -232,7 +264,7 @@ Adds a multi-ship select control to the form. This is used to specify any number
 <dt><a name="addSingleShipSelect"></a><strong>addSingleShipSelect</strong>&nbsp;(name)</dt>
 <br/>
 <dd>
-Adds a ship select control to the form. This is used to specify a single ship, similar to when selecting ships for a new match.
+Adds a ship select control to the form. This is used to specify a single ship, similar to when selecting ships for a new match. It produces a string value.
 
 
 <h3>Parameters</h3>
@@ -259,7 +291,7 @@ Adds a ship select control to the form. This is used to specify a single ship, s
 <dt><a name="addStageSelect"></a><strong>addStageSelect</strong>&nbsp;(name)</dt>
 <br/>
 <dd>
-Adds a stage select control to the form. This is used to specify a single stage, similar to when selecting a stage for a new match.
+Adds a stage select control to the form. This is used to specify a single stage, similar to when selecting a stage for a new match. It produces a string value.
 
 
 <h3>Parameters</h3>

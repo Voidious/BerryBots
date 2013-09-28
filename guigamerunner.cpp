@@ -90,6 +90,10 @@ void GuiGameRunner::addIntegerText(const char *name) {
   addFormElement(name, TYPE_INTEGER_TEXT, 0);
 }
 
+void GuiGameRunner::addCheckbox(const char *name) {
+  addFormElement(name, TYPE_CHECKBOX, 0);
+}
+
 // TODO: Document limit and gracefully handle adding too many form elements.
 void GuiGameRunner::addFormElement(const char *name, int type,
                                    int maxStringValues) {
@@ -119,6 +123,14 @@ void GuiGameRunner::setDefault(const char *name, int value) {
   }
 }
 
+void GuiGameRunner::setDefault(const char *name, bool value) {
+  // TODO: Error handling if the key doesn't exist or is the wrong type.
+  RunnerFormElement *element = getFormElement(name);
+  if (element->getType() == TYPE_CHECKBOX) {
+    element->setBooleanValue(value);
+  }
+}
+
 bool GuiGameRunner::ok(const char *message) {
   RunnerForm *form = new RunnerForm(runnerName_, formElements_,
       numFormElements_, stageNames_, numStages_, teamNames_, numTeams_,
@@ -142,6 +154,8 @@ bool GuiGameRunner::ok(const char *message) {
           value = 0;
         }
         element->setIntegerValue((int) value);
+      } else if (element->getType() == TYPE_CHECKBOX) {
+        element->setBooleanValue(((wxCheckBox *) control)->GetValue());
       } else {
         wxListBox *listBox = ((wxListBox *) element->getControl());
         wxArrayInt selectedItems;
@@ -193,6 +207,15 @@ int GuiGameRunner::getIntegerValue(const char *name) {
     return 0;
   } else {
     return element->getIntegerValue();
+  }
+}
+
+bool GuiGameRunner::getBooleanValue(const char *name) {
+  RunnerFormElement *element = getFormElement(name);
+  if (element == 0) {
+    return 0;
+  } else {
+    return element->getBooleanValue();
   }
 }
 

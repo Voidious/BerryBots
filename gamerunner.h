@@ -29,7 +29,8 @@
 #define TYPE_SINGLE_SHIP_SELECT  2
 #define TYPE_MULTI_SHIP_SELECT   3
 #define TYPE_INTEGER_TEXT        4
-#define TYPE_OK_CANCEL           5
+#define TYPE_CHECKBOX            5
+#define TYPE_OK_CANCEL           6
 
 class GameRunner {
   public:
@@ -37,13 +38,16 @@ class GameRunner {
     virtual void addSingleShipSelect(const char *name) = 0;
     virtual void addMultiShipSelect(const char *name) = 0;
     virtual void addIntegerText(const char *name) = 0;
+    virtual void addCheckbox(const char *name) = 0;
     virtual void setDefault(const char *name, const char *value) = 0;
     virtual void setDefault(const char *name, int value) = 0;
+    virtual void setDefault(const char *name, bool value) = 0;
     virtual bool ok(const char *message) = 0;
     virtual int getElementType(const char *name) = 0;
     virtual char** getStringValues(const char *name) = 0;
     virtual int getNumStringValues(const char *name) = 0;
     virtual int getIntegerValue(const char *name) = 0;
+    virtual bool getBooleanValue(const char *name) = 0;
     virtual void setThreadCount(int threadCount) = 0;
     virtual void queueMatch(const char *stageName, char **teamNames,
                             int numTeams) = 0;

@@ -1950,12 +1950,20 @@ int RunnerForm_addIntegerText(lua_State *L) {
   return 1;
 }
 
+int RunnerForm_addCheckbox(lua_State *L) {
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
+  const char *name = luaL_checkstring(L, 2);
+  form->gameRunner->addCheckbox(name);
+  return 1;
+}
+
 int RunnerForm_default(lua_State *L) {
   LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
   if (lua_isnumber(L, 3)) {
-    int value = (int) luaL_checknumber(L, 3);
-    form->gameRunner->setDefault(name, value);
+    form->gameRunner->setDefault(name, (int) luaL_checknumber(L, 3));
+  } else if (lua_isboolean(L, 3)) {
+    form->gameRunner->setDefault(name, (bool) lua_toboolean(L, 3));
   } else if (lua_isstring(L, 3) || lua_istable(L, 3)) {
     int numStrings;
     char** strings;
@@ -1998,6 +2006,8 @@ int RunnerForm_get(lua_State *L) {
     }
   } else if (type == TYPE_INTEGER_TEXT) {
     lua_pushnumber(L, gameRunner->getIntegerValue(name));
+  } else if (type == TYPE_CHECKBOX) {
+    lua_pushboolean(L, gameRunner->getBooleanValue(name));
   } else if (type == TYPE_STAGE_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
     char **stringValues = gameRunner->getStringValues(name);
     int numStringValues = gameRunner->getNumStringValues(name);
@@ -2017,6 +2027,7 @@ const luaL_Reg RunnerForm_methods[] = {
   {"addSingleShipSelect",  RunnerForm_addSingleShipSelect},
   {"addMultiShipSelect",   RunnerForm_addMultiShipSelect},
   {"addIntegerText",       RunnerForm_addIntegerText},
+  {"addCheckbox",          RunnerForm_addCheckbox},
   {"default",              RunnerForm_default},
   {"ok",                   RunnerForm_ok},
   {"get",                  RunnerForm_get},
