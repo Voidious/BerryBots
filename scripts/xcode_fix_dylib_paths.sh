@@ -22,17 +22,17 @@ for TARGET in ${SFML_LIBNAMES} ; do
   if [ -e ${TARGET}.dylib ]; then
     rm ${TARGET}.dylib
   fi
-  ln -s ${TARGET}.2.0.dylib ${TARGET}.2.dylib
-  ln -s ${TARGET}.2.0.dylib ${TARGET}.dylib
-  LIBFILE=${LIBPATH}/${TARGET}.2.0.dylib
-  NEWTARGETID=${EXEC_SHARED_LIBPATH}/${TARGET}.2.0.dylib
+  ln -s ${TARGET}.2.1.dylib ${TARGET}.2.dylib
+  ln -s ${TARGET}.2.1.dylib ${TARGET}.dylib
+  LIBFILE=${LIBPATH}/${TARGET}.2.1.dylib
+  NEWTARGETID=${EXEC_SHARED_LIBPATH}/${TARGET}.2.1.dylib
   install_name_tool -id ${NEWTARGETID} ${LIBFILE}
   for TARGET2 in ${SFML_LIBNAMES} ; do
-    LIBFILE2=${LIBPATH}/${TARGET2}.2.0.dylib
-    install_name_tool -change ${EXEC_FRAMEWORK_PATH}/${TARGET}.2.0.dylib ${NEWTARGETID} ${LIBFILE2}
+    LIBFILE2=${LIBPATH}/${TARGET2}.2.1.dylib
+    install_name_tool -change ${EXEC_FRAMEWORK_PATH}/${TARGET}.2.1.dylib ${NEWTARGETID} ${LIBFILE2}
     install_name_tool -change ${EXEC_FRAMEWORK_PATH}/${TARGET}.2.dylib ${NEWTARGETID} ${LIBFILE2}
     install_name_tool -change ${EXEC_FRAMEWORK_PATH}/${TARGET}.dylib ${NEWTARGETID} ${LIBFILE2}
-    install_name_tool -change ${EXEC_FRAMEWORK_PATH}/${TARGET}.2.0.dylib ${NEWTARGETID} ${EXECFILE}
+    install_name_tool -change ${EXEC_FRAMEWORK_PATH}/${TARGET}.2.1.dylib ${NEWTARGETID} ${EXECFILE}
     install_name_tool -change ${EXEC_FRAMEWORK_PATH}/${TARGET}.2.dylib ${NEWTARGETID} ${EXECFILE}
     install_name_tool -change ${EXEC_FRAMEWORK_PATH}/${TARGET}.dylib ${NEWTARGETID} ${EXECFILE}
   done
@@ -40,21 +40,21 @@ done
 
 for TARGET in ${WX_LIBNAMES} ; do
   cd ${LIBPATH}
-  if [ -e ${TARGET}.4.dylib ]; then
-    rm ${TARGET}.4.dylib
+  if [ -e ${TARGET}.5.dylib ]; then
+    rm ${TARGET}.5.dylib
   fi
   if [ -e ${TARGET}.dylib ]; then
     rm ${TARGET}.dylib
   fi
-  ln -s ${TARGET}.4.0.0.dylib ${TARGET}.4.dylib
-  ln -s ${TARGET}.4.0.0.dylib ${TARGET}.dylib
-  LIBFILE=${LIBPATH}/${TARGET}.4.0.0.dylib
+  ln -s ${TARGET}.5.0.0.dylib ${TARGET}.5.dylib
+  ln -s ${TARGET}.5.0.0.dylib ${TARGET}.dylib
+  LIBFILE=${LIBPATH}/${TARGET}.5.0.0.dylib
   TARGETID=`otool -DX ${LIBFILE}`
-  NEWTARGETID=${EXEC_SHARED_LIBPATH}/${TARGET}.4.0.0.dylib
+  NEWTARGETID=${EXEC_SHARED_LIBPATH}/${TARGET}.5.0.0.dylib
   install_name_tool -id ${NEWTARGETID} ${LIBFILE}
   install_name_tool -change ${TARGETID} ${NEWTARGETID} ${EXECFILE}
   for TARGET2 in ${WX_LIBNAMES} ; do
-    LIBFILE2=${LIBPATH}/${TARGET2}.4.0.0.dylib
+    LIBFILE2=${LIBPATH}/${TARGET2}.5.0.0.dylib
     install_name_tool -change ${TARGETID} ${NEWTARGETID} ${LIBFILE2}
   done
 done

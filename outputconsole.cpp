@@ -75,7 +75,8 @@ OutputConsole::OutputConsole(const char *title, int style,
 #endif
 
   fontSize_ = defaultFontSize_;
-  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
+  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL,
+                          wxFONTWEIGHT_NORMAL));
   SetSizerAndFit(outerSizer_);
 
   menusInitialized_ = false;
@@ -190,17 +191,23 @@ void OutputConsole::abort() {
 // TODO: delta based on current text size, eg 36 => 42, not 38
 void OutputConsole::increaseTextSize() {
   fontSize_ += 2;
-  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
+  wxFont font = output_->GetFont();
+  font.SetPointSize(fontSize_);
+  output_->SetFont(font);
 }
 
 void OutputConsole::decreaseTextSize() {
   fontSize_ = std::max(4, fontSize_ -2);
-  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
+  wxFont font = output_->GetFont();
+  font.SetPointSize(fontSize_);
+  output_->SetFont(font);
 }
 
 void OutputConsole::defaultTextSize() {
   fontSize_ = defaultFontSize_;
-  output_->SetFont(wxFont(fontSize_, wxFONTFAMILY_TELETYPE));
+  wxFont font = output_->GetFont();
+  font.SetPointSize(fontSize_);
+  output_->SetFont(font);
 }
 
 void OutputConsole::setCloseOnSpace() {

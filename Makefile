@@ -4,8 +4,8 @@ CC = g++
 
 # Paths to external dependencies built from source for compiling BerryBots GUI
 # on Mac / Linux / Windows.
-SFML_PATH = /home/user/LaurentGomila-SFML-e750453
-WXWIDGETS_PATH = /home/user/wxWidgets-2.9.4
+SFML_PATH = /home/user/SFML-1.2
+WXWIDGETS_PATH = /home/user/wxWidgets-2.9.5
 LIBARCHIVE_PATH = /home/user/libarchive-3.1.2
 
 # Modify this if you built SFML somewhere else.

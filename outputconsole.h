@@ -22,6 +22,7 @@
 #define OUTPUT_CONSOLE_H
 
 #include <wx/wx.h>
+#include <wx/font.h>
 #include "menubarmaker.h"
 
 #define CONSOLE_PLAIN       1
