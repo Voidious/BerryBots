@@ -1851,9 +1851,9 @@ BerryBots.replay = function() {
               dots[0].setFill('#f00');
               dots[1].setFill('#f00');
               dots[2].setFill('#f00');
-              ship.setX(BerryBots.scale(93));
-              ship.setY(BerryBots.canvasHeight - BerryBots.scale(93));
-              ship.setScale(BerryBots.scale(3));
+              ship.setX(93);
+              ship.setY(BerryBots.canvasHeight - 93);
+              ship.setScale(3);
               BerryBots.stageLayer.add(ship);
               BerryBots.mainLayer.setOpacity(0.4);
             } else if (BerryBots.gameTime % 80 == 0) {
