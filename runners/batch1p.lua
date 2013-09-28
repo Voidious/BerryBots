@@ -16,6 +16,7 @@ function run(runner, form, files, network)
   form:addSingleShipSelect("Challenger")
   form:addIntegerText("Seasons")
   form:addIntegerText("Threads")
+  form:addCheckbox("Save replays")
   defaultSettings(form, files)
 
   if (form:ok()) then
@@ -23,7 +24,8 @@ function run(runner, form, files, network)
     challenger = form:get("Challenger")
     numSeasons = form:get("Seasons")
     local threadCount = form:get("Threads")
-    saveSettings(files, stage, challenger, numSeasons, threadCount)
+    local saveReplays = form:get("Save replays")
+    saveSettings(files, stage, challenger, numSeasons, threadCount, saveReplays)
 
     print("Seasons: " .. numSeasons)
     print("Challenger: " .. challenger)
@@ -36,7 +38,7 @@ function run(runner, form, files, network)
     end
 
     while (not runner:empty()) do
-      processNextResult(runner)
+      processNextResult(runner, saveReplays)
     end
 
     print()
@@ -57,11 +59,14 @@ function defaultSettings(form, files)
     t, t, challenger = string.find(settingsFile, "Challenger=([^\n]*)\n")
     t, t, seasons = string.find(settingsFile, "Seasons=([^\n]*)\n")
     t, t, threads = string.find(settingsFile, "Threads=([^\n]*)\n")
+    t, t, saveReplays = string.find(settingsFile, "Replays=([^\n]*)\n")
+    saveReplays = (saveReplays == "true")
 
     if (stage ~= nil) then form:default("Stage", stage) end
     if (challenger ~= nil) then form:default("Challenger", challenger) end
     if (seasons ~= nil) then form:default("Seasons", seasons) end
     if (threads ~= nil) then form:default("Threads", threads) end
+    if (saveReplays ~= nil) then form:default("Save replays", saveReplays) end
   else
     form:default("Stage", "sample/lasergallery.lua")
     form:default("Seasons", 100) 
@@ -69,15 +74,17 @@ function defaultSettings(form, files)
   end
 end
 
-function saveSettings(files, stage, challenger, numSeasons, threadCount)
+function saveSettings(files, stage, challenger, numSeasons, threadCount,
+                      saveReplays)
   local settings = "Stage=" .. stage .. "\n"
       .. "Challenger=" .. challenger .. "\n"
       .. "Seasons=" .. numSeasons .. "\n"
       .. "Threads=" .. threadCount .. "\n"
+      .. "Replays=" .. tostring(saveReplays) .. "\n"
   files:write(SETTINGS_FILE, settings)
 end
 
-function processNextResult(runner)
+function processNextResult(runner, saveReplay)
   local result = runner:nextResult()
   print("---------------------------------------------------------------------")
   if (result.errored) then
@@ -99,6 +106,12 @@ function processNextResult(runner)
       for key, value in pairs(team.stats) do
         print("        " .. key .. ": " .. round(value, 2))
         saveScore(key, value)
+      end
+    end
+    if (saveReplay) then
+      local replayName = runner:saveReplay()
+      if (replayName ~= nil) then
+        print("    Replay saved to: " .. replayName)
       end
     end
   end

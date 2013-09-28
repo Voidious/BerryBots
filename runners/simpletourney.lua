@@ -12,12 +12,14 @@ function run(runner, form, files, network)
   form:addMultiShipSelect("Ships")
   form:addIntegerText("Best of...")
   form:addIntegerText("Threads")
+  form:addCheckbox("Save replays")
   defaultSettings(form, files)
 
   local stage = nil
   local ships = nil
   local matches = nil
   local threadCount = nil
+  local saveReplays = false
 
   local ok = false
   local done = false
@@ -29,6 +31,7 @@ function run(runner, form, files, network)
       ships = form:get("Ships")
       matches = form:get("Best of...")
       threadCount = form:get("Threads")
+      saveReplays = form:get("Save replays")
       if (# ships >= 2) then
         done = true
       else
@@ -43,7 +46,7 @@ function run(runner, form, files, network)
     return
   end
 
-  saveSettings(files, stage, ships, matches, threadCount)
+  saveSettings(files, stage, ships, matches, threadCount, saveReplays)
 
   -- TODO: Add option for pool play to determine seeds instead of random seeds.
 
@@ -100,6 +103,8 @@ function run(runner, form, files, network)
       end
     end
 
+    if (saveReplays) then print() end
+
     -- Process individual match results
     local numShips = math.min(slots, (# shipData))
     for y = 1, numShips do
@@ -107,6 +112,9 @@ function run(runner, form, files, network)
     end
     while (not runner:empty()) do
       local result = runner:nextResult()
+      if (saveReplays) then
+        printSavedReplay(result, runner:saveReplay())
+      end
       for y = 1, numShips do
         local shipDatum = shipData[y]
         if (result.winner == shipDatum.name) then
@@ -129,6 +137,9 @@ function run(runner, form, files, network)
                 .. lowerSeed.name .. "...")
           runner:queueMatch(stage, {higherSeed.name, lowerSeed.name})
           local result = runner:nextResult()
+          if (saveReplays) then
+            printSavedReplay(result, runner:saveReplay())
+          end
           if (result.winner == higherSeed.name) then
             higherSeed.wins = higherSeed.wins + 1
           elseif (result.winner == lowerSeed.name) then
@@ -159,10 +170,13 @@ function defaultSettings(form, files)
     t, t, stage = string.find(settingsFile, "Stage=([^\n]*)\n")
     t, t, matches = string.find(settingsFile, "Matches=([^\n]*)\n")
     t, t, threads = string.find(settingsFile, "Threads=([^\n]*)\n")
+    t, t, saveReplays = string.find(settingsFile, "Replays=([^\n]*)\n")
+    saveReplays = (saveReplays == "true")
 
     if (stage ~= nil) then form:default("Stage", stage) end
     if (matches ~= nil) then form:default("Best of...", matches) end
     if (threads ~= nil) then form:default("Threads", threads) end
+    if (saveReplays ~= nil) then form:default("Save replays", saveReplays) end
     for ship in string.gmatch(settingsFile, "Ship=([^\n]*)\n") do
       form:default("Ships", ship)
     end
@@ -173,13 +187,14 @@ function defaultSettings(form, files)
   end
 end
 
-function saveSettings(files, stage, ships, matches, threadCount)
+function saveSettings(files, stage, ships, matches, threadCount, saveReplays)
   local settings = "Stage=" .. stage .. "\n"
   for i, ship in ipairs(ships) do
     settings = settings .. "Ship=" .. ship .. "\n"
   end
   settings = settings .. "Matches=" .. matches .. "\n"
       .. "Threads=" .. threadCount .. "\n"
+      .. "Replays=" .. tostring(saveReplays) .. "\n"
   files:write(SETTINGS_FILE, settings)
 end
 
@@ -198,4 +213,19 @@ function shipSorter(ship1, ship2)
     return true
   end
   return false
+end
+
+function printSavedReplay(result, replayName)
+  local teamString = nil
+  for i, team in ipairs(result.teams) do
+    if (teamString == nil) then
+      teamString = team.name
+    else
+      teamString = teamString .. " vs " .. team.name
+    end      
+  end
+  print("    " .. teamString)
+  print("    " .. result.winner .. " wins!")
+  print("    Replay saved to: " .. replayName)
+  print()
 end

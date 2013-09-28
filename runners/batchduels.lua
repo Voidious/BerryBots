@@ -18,6 +18,7 @@ function run(runner, form, files, network)
   form:addMultiShipSelect("Reference Ships")
   form:addIntegerText("Seasons")
   form:addIntegerText("Threads")
+  form:addCheckbox("Save replays")
   defaultSettings(form, files)
 
   if (form:ok()) then
@@ -26,7 +27,9 @@ function run(runner, form, files, network)
     local referenceShips = form:get("Reference Ships")
     local seasons = form:get("Seasons")
     local threadCount = form:get("Threads")
-    saveSettings(files, stage, challenger, referenceShips, seasons, threadCount)
+    local saveReplays = form:get("Save replays")
+    saveSettings(files, stage, challenger, referenceShips, seasons, threadCount,
+                 saveReplays)
 
     print("Seasons: " .. seasons)
     print("Challenger: " .. challenger)
@@ -44,10 +47,10 @@ function run(runner, form, files, network)
     end
 
     while (not runner:empty()) do
-      processNextResult(runner)
+      processNextResult(runner, saveReplays)
     end
 
-    print()
+    if (not saveReplays) then print() end
     print("---------------------------------------------------------------------")
     print("Overall results")
     print("---------------------------------------------------------------------")
@@ -71,14 +74,17 @@ function defaultSettings(form, files)
     t, t, challenger = string.find(settingsFile, "Challenger=([^\n]*)\n")
     t, t, seasons = string.find(settingsFile, "Seasons=([^\n]*)\n")
     t, t, threads = string.find(settingsFile, "Threads=([^\n]*)\n")
+    t, t, saveReplays = string.find(settingsFile, "Replays=([^\n]*)\n")
+    saveReplays = (saveReplays == "true")
 
     if (stage ~= nil) then form:default("Stage", stage) end
     if (challenger ~= nil) then form:default("Challenger", challenger) end
-    if (seasons ~= nil) then form:default("Seasons", seasons) end
-    if (threads ~= nil) then form:default("Threads", threads) end
     for ship in string.gmatch(settingsFile, "referenceShip=([^\n]*)\n") do
       form:default("Reference Ships", ship)
     end
+    if (seasons ~= nil) then form:default("Seasons", seasons) end
+    if (threads ~= nil) then form:default("Threads", threads) end
+    if (saveReplays ~= nil) then form:default("Save replays", saveReplays) end
   else
     form:default("Stage", "sample/battle1.lua")
     form:default("Seasons", 10) 
@@ -87,7 +93,7 @@ function defaultSettings(form, files)
 end
 
 function saveSettings(files, stage, challenger, referenceShips, numSeasons,
-                      threadCount)
+                      threadCount, saveReplays)
   local settings = "Stage=" .. stage .. "\n"
       .. "Challenger=" .. challenger .. "\n"
   for i, ship in ipairs(referenceShips) do
@@ -95,10 +101,11 @@ function saveSettings(files, stage, challenger, referenceShips, numSeasons,
   end
   settings = settings .. "Seasons=" .. numSeasons .. "\n"
       .. "Threads=" .. threadCount .. "\n"
+      .. "Replays=" .. tostring(saveReplays) .. "\n"
   files:write(SETTINGS_FILE, settings)
 end
 
-function processNextResult(runner)
+function processNextResult(runner, saveReplay)
   local result = runner:nextResult()
   local teams = result.teams
   print("---------------------------------------------------------------------")
@@ -140,6 +147,14 @@ function processNextResult(runner)
           end
         end
         numResults = numResults + 1
+      end
+    end
+    if (saveReplay) then
+      local replayName = runner:saveReplay()
+      if (replayName ~= nil) then
+        print("--------")
+        print("Replay saved to: " .. replayName)
+        print()
       end
     end
   end
