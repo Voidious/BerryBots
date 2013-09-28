@@ -1064,7 +1064,7 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
       teamButtons_[x]->setTop(getShipDockTop(dockIndex++));
       if (team->shipsAlive > 0 && teamEnergyTotal > 0) {
         dockEnergyShape_.setPosition(10, teamButtons_[x]->getTop() + 20);
-        dockEnergyShape_.setScale(teamEnergy / teamEnergyTotal, 1);
+        dockEnergyShape_.setScale(std::max(0., teamEnergy) / teamEnergyTotal, 1);
         window->draw(dockEnergyShape_);
       }
       dockTeamsScrollBottom_ = std::max(dockTeamsScrollBottom_,

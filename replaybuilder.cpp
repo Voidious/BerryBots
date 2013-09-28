@@ -271,7 +271,7 @@ void ReplayBuilder::addShipStates(Ship **ships, int time) {
       shipTickData_->addInt(
           round(normalAbsoluteAngle(ship->thrusterAngle) * 100));
       shipTickData_->addInt(round(limit(0, ship->thrusterForce, 1) * 100));
-      shipTickData_->addInt(round(std::max(0.0, ship->energy) * 10));
+      shipTickData_->addInt(round(std::max(0., ship->energy) * 10));
     }
   }
 }
