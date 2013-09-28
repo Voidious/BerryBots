@@ -107,8 +107,7 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
   if (colHeight > 0) {
     colSizer->AddSpacer(8);
   }
-  int elementHeight = (type == TYPE_INTEGER_TEXT ? TEXT_HEIGHT
-       : (type == TYPE_OK_CANCEL ? OK_CANCEL_HEIGHT : SELECT_HEIGHT));
+  int elementHeight = getHeight(type);
   if (colHeight + elementHeight > MAX_COLUMN_HEIGHT) {
     if (numCols++ > 0) {
       topSizer->AddSpacer(8);
@@ -120,68 +119,101 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
   colHeight += elementHeight;
 
   if (type == TYPE_OK_CANCEL) {
-    wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
-    buttonSizer->AddStretchSpacer(1);
-    buttonSizer->Add(cancelButton_);
-    buttonSizer->AddSpacer(5);
-    buttonSizer->Add(okButton_);
-    buttonSizer->AddStretchSpacer(1);
-    colSizer->AddSpacer(10);
-    colSizer->Add(buttonSizer, 0, wxEXPAND | wxALIGN_CENTER);
-    if (message_ != 0) {
-      wxStaticText *msgText = new wxStaticText(mainPanel_, wxID_ANY, message_);
-      msgText->Wrap(265);
-      colSizer->AddSpacer(15);
-      colSizer->Add(msgText);
-    }
+    addOkCancelElement(colSizer);
     return 0;
   } else {
-    std::string nameString(name);
-    nameString.append(":");
-    wxStaticText *nameLabel =
-        new wxStaticText(mainPanel_, wxID_ANY, nameString);
     if (type == TYPE_INTEGER_TEXT) {
-      wxIntegerValidator<int> validator;
-      wxTextCtrl *elementText = new wxTextCtrl(mainPanel_, wxID_ANY, "",
-          wxDefaultPosition, wxSize(70, 23), 0, validator);
-      wxBoxSizer *textSizer = new wxBoxSizer(wxHORIZONTAL);
-      textSizer->Add(nameLabel, 0, wxALIGN_CENTER);
-      textSizer->AddSpacer(5);
-      textSizer->Add(elementText, 0, wxALIGN_CENTER);
-      colSizer->Add(textSizer);
-      Connect(elementText->GetId(), wxEVT_UPDATE_UI,
-              wxUpdateUIEventHandler(RunnerForm::onFormChange));
-      return elementText;
+      return addTextElement(name, colSizer);
     } else {
-      wxListBox *itemSelect;
-      if (type == TYPE_MULTI_SHIP_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
-        long style = wxLB_SORT;
-        if (type == TYPE_MULTI_SHIP_SELECT) {
-          style |= wxLB_EXTENDED;
-        }
-        itemSelect = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
-                                   wxSize(275, 225), 0, NULL, style);
-        for (int x = 0; x < numShips; x++) {
-          itemSelect->Append(wxString(shipNames[x]));
-        }
-        itemSelect->SetFirstItem(0);
-      } else { /* (type == TYPE_STAGE_SELECT) */
-        itemSelect = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
-                                   wxSize(275, 225), 0, NULL, wxLB_SORT);
-        for (int x = 0; x < numStages; x++) {
-          itemSelect->Append(wxString(stageNames[x]));
-        }
-        itemSelect->SetFirstItem(0);
-      }
-      wxBoxSizer *selectSizer = new wxBoxSizer(wxVERTICAL);
-      selectSizer->Add(nameLabel);
-      selectSizer->AddSpacer(3);
-      selectSizer->Add(itemSelect);
-      colSizer->Add(selectSizer);
-      Connect(itemSelect->GetId(), wxEVT_UPDATE_UI,
-              wxUpdateUIEventHandler(RunnerForm::onFormChange));
-      return itemSelect;
+      return addSelectElement(name, type, stageNames, numStages, shipNames,
+                              numShips, colSizer);
     }
+  }
+}
+
+wxControl* RunnerForm::addSelectElement(const char *name, int type,
+    char **stageNames, int numStages, char **shipNames, int numShips,
+    wxSizer *colSizer) {
+  wxListBox *itemSelect;
+  wxStaticText *nameLabel = getNameLabel(name);
+  if (type == TYPE_MULTI_SHIP_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
+    long style = wxLB_SORT;
+    if (type == TYPE_MULTI_SHIP_SELECT) {
+      style |= wxLB_EXTENDED;
+    }
+    itemSelect = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
+                               wxSize(275, 225), 0, NULL, style);
+    for (int x = 0; x < numShips; x++) {
+      itemSelect->Append(wxString(shipNames[x]));
+    }
+    itemSelect->SetFirstItem(0);
+  } else { /* (type == TYPE_STAGE_SELECT) */
+    itemSelect = new wxListBox(mainPanel_, wxID_ANY, wxDefaultPosition,
+                               wxSize(275, 225), 0, NULL, wxLB_SORT);
+    for (int x = 0; x < numStages; x++) {
+      itemSelect->Append(wxString(stageNames[x]));
+    }
+    itemSelect->SetFirstItem(0);
+  }
+  wxBoxSizer *selectSizer = new wxBoxSizer(wxVERTICAL);
+  selectSizer->Add(nameLabel);
+  selectSizer->AddSpacer(3);
+  selectSizer->Add(itemSelect);
+  colSizer->Add(selectSizer);
+  Connect(itemSelect->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(RunnerForm::onFormChange));
+  return itemSelect;
+}
+
+wxControl* RunnerForm::addTextElement(const char *name, wxSizer *colSizer) {
+  wxStaticText *nameLabel = getNameLabel(name);
+
+  wxIntegerValidator<int> validator;
+  wxTextCtrl *elementText = new wxTextCtrl(mainPanel_, wxID_ANY, "",
+      wxDefaultPosition, wxSize(70, 23), 0, validator);
+  wxBoxSizer *textSizer = new wxBoxSizer(wxHORIZONTAL);
+  textSizer->Add(nameLabel, 0, wxALIGN_CENTER);
+  textSizer->AddSpacer(5);
+  textSizer->Add(elementText, 0, wxALIGN_CENTER);
+  colSizer->Add(textSizer);
+  Connect(elementText->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(RunnerForm::onFormChange));
+  return elementText;
+}
+
+void RunnerForm::addOkCancelElement(wxSizer *colSizer) {
+  wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+  buttonSizer->AddStretchSpacer(1);
+  buttonSizer->Add(cancelButton_);
+  buttonSizer->AddSpacer(5);
+  buttonSizer->Add(okButton_);
+  buttonSizer->AddStretchSpacer(1);
+  colSizer->AddSpacer(10);
+  colSizer->Add(buttonSizer, 0, wxEXPAND | wxALIGN_CENTER);
+  if (message_ != 0) {
+    wxStaticText *msgText = new wxStaticText(mainPanel_, wxID_ANY, message_);
+    msgText->Wrap(265);
+    colSizer->AddSpacer(15);
+    colSizer->Add(msgText);
+  }
+}
+
+wxStaticText* RunnerForm::getNameLabel(const char *name) {
+  std::string nameString(name);
+  nameString.append(":");
+  return new wxStaticText(mainPanel_, wxID_ANY, nameString);
+}
+
+int RunnerForm::getHeight(int type) {
+  switch (type) {
+    case TYPE_STAGE_SELECT:
+    case TYPE_SINGLE_SHIP_SELECT:
+    case TYPE_MULTI_SHIP_SELECT:
+      return SELECT_HEIGHT;
+    case TYPE_INTEGER_TEXT:
+      return TEXT_HEIGHT;
+    default:
+      return 0;
   }
 }
 
@@ -290,6 +322,7 @@ RunnerFormElement::RunnerFormElement(const char *name, int type,
   maxStringValues_ = maxStringValues;
   stringValues_ = new char*[maxStringValues_];
   intValue_ = 0;
+  booleanValue_ = false;
   control_ = 0;
 }
 
@@ -331,6 +364,14 @@ void RunnerFormElement::setIntegerValue(int value) {
 
 int RunnerFormElement::getIntegerValue() {
   return intValue_;
+}
+
+void RunnerFormElement::setBooleanValue(bool value) {
+  booleanValue_ = value;
+}
+
+int RunnerFormElement::getBooleanValue() {
+  return booleanValue_;
 }
 
 void RunnerFormElement::clearValues() {

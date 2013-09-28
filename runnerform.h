@@ -21,34 +21,14 @@
 #ifndef RUNNER_FORM_H
 #define RUNNER_FORM_H
 
-#define SELECT_HEIGHT      4
-#define TEXT_HEIGHT        1
-#define OK_CANCEL_HEIGHT   2
+#include <wx/wx.h>
+
+#define SELECT_HEIGHT       4
+#define TEXT_HEIGHT         1
+#define OK_CANCEL_HEIGHT    2
 #define MAX_COLUMN_HEIGHT  10
 
-class RunnerFormElement {
-  char *name_;
-  int type_;
-  char** stringValues_;
-  int numStringValues_;
-  int maxStringValues_;
-  int intValue_;
-  wxControl *control_;
-
-  public:
-    RunnerFormElement(const char *name, int type, int maxStringValues);
-    ~RunnerFormElement();
-    const char *getName();
-    int getType();
-    void addStringValue(const char *value);
-    char** getStringValues();
-    int getNumStringValues();
-    void setIntegerValue(int value);
-    int getIntegerValue();
-    void clearValues();
-    void setControl(wxControl *control);
-    wxControl* getControl();
-};
+class RunnerFormElement;
 
 class RunnerForm : public wxFrame {
   RunnerFormElement **formElements_;
@@ -82,7 +62,41 @@ class RunnerForm : public wxFrame {
     wxControl* addFormElement(int &colHeight, int &numCols,
         wxBoxSizer *topSizer, wxBoxSizer *&colSizer, const char *name, int type,
         char **stageNames, int numStages, char **shipNames, int numShips);
+    wxControl* addSelectElement(const char *name, int type,
+        char **stageNames, int numStages, char **shipNames, int numShips,
+        wxSizer *colSizer);
+    wxControl* addTextElement(const char *name, wxSizer *colSizer);
+    void addOkCancelElement(wxSizer *colSizer);
+    wxStaticText* getNameLabel(const char *name);
+    int getHeight(int type);
     void setFormValues(wxControl *control, RunnerFormElement *element);
+};
+
+class RunnerFormElement {
+  char *name_;
+  int type_;
+  char** stringValues_;
+  int numStringValues_;
+  int maxStringValues_;
+  int intValue_;
+  bool booleanValue_;
+  wxControl *control_;
+
+  public:
+    RunnerFormElement(const char *name, int type, int maxStringValues);
+    ~RunnerFormElement();
+    const char *getName();
+    int getType();
+    void addStringValue(const char *value);
+    char** getStringValues();
+    int getNumStringValues();
+    void setIntegerValue(int value);
+    int getIntegerValue();
+    void setBooleanValue(bool value);
+    int getBooleanValue();
+    void clearValues();
+    void setControl(wxControl *control);
+    wxControl* getControl();
 };
 
 class RunnerFormEventFilter : public wxEventFilter {
