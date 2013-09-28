@@ -6,10 +6,9 @@
 SETTINGS_FILE = "settings/batchduels.properties"
 
 scoreKeys = { }
-totalScores = { }
+totalScores = { scoreValues = { }, count = 0}
 shipKeys = { } 
 scoresByShip = { }
-numResults = 0
 challenger = nil
 
 function run(runner, form, files, network)
@@ -146,7 +145,7 @@ function processNextResult(runner, saveReplay)
             saveShipScore(referenceShip, key, value)
           end
         end
-        numResults = numResults + 1
+        incrementScoreCount(referenceShip)
       end
     end
     if (saveReplay) then
@@ -162,16 +161,18 @@ end
 
 function printScores(scores)
   for i, key in ipairs(scoreKeys) do
-    print("    " .. key .. ": " .. round(scores[key] / numResults, 2))
+    print("    " .. key .. ": "
+        .. round(scores.scoreValues[key] / scores.count, 2))
   end
 end
 
 function saveShipScore(ship, key, value)
   if (scoresByShip[ship] == nil) then
-    scoresByShip[ship] = { }
+    scoresByShip[ship] = { scoreValues = { }, count = 0 }
   end
   saveShipKey(ship)
   saveScoreKey(key)
+
   saveScore(scoresByShip[ship], key, value)
   saveTotalScore(key, value)
 end
@@ -181,10 +182,11 @@ function saveTotalScore(key, value)
 end
 
 function saveScore(scores, key, value)
-  if (scores[key] == nil) then
-    scores[key] = value
+  local scoreValues = scores.scoreValues
+  if (scoreValues[key] == nil) then
+    scoreValues[key] = value
   else
-    scores[key] = scores[key] + value
+    scoreValues[key] = scoreValues[key] + value
   end
 end
 
@@ -203,6 +205,12 @@ function saveKey(keys, newKey)
     end
   end
   table.insert(keys, newKey)
+end
+
+function incrementScoreCount(ship)
+  local scores = scoresByShip[ship]
+  scores.count = scores.count + 1
+  totalScores.count = totalScores.count + 1
 end
 
 function getSortedTeams(teams)
