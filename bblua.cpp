@@ -2097,11 +2097,12 @@ int GameRunner_nextResult(lua_State *L) {
   MatchResult *result = runner->gameRunner->nextResult();
   if (runner->replayBuilder != 0) {
     runner->gameRunner->deleteReplayBuilder(runner->replayBuilder);
+    runner->replayBuilder = 0;
   }
-  runner->replayBuilder = result->getReplayBuilder();
   if (result == 0) {
     lua_pushnil(L);
   } else {
+    runner->replayBuilder = result->getReplayBuilder();
     bool hasScores = result->hasScores();
     lua_newtable(L);
     setField(L, "stage", result->getStageName());
