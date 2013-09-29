@@ -839,6 +839,24 @@ void FileManager::writeFile(const char *filename, const char *contents) {
   fclose(f);
 }
 
+void FileManager::recursiveDelete(const char *fileToDelete) {
+  if (isDirectory(fileToDelete)) {
+    platformstl::readdir_sequence dir(fileToDelete,
+                                      platformstl::readdir_sequence::files
+                                      | platformstl::readdir_sequence::directories);
+    platformstl::readdir_sequence::const_iterator first = dir.begin();
+    platformstl::readdir_sequence::const_iterator last = dir.end();
+    while (first != last) {
+      platformstl::readdir_sequence::const_iterator file = first++;
+      char *filename = (char *) *file;
+      char *filePath = getFilePath(fileToDelete, filename);
+      recursiveDelete(filePath);
+      delete filePath;
+    }
+  }
+  remove(fileToDelete);
+}
+
 bool FileManager::isDirectory(const char *filePath) {
   DIR *dir = opendir(filePath);
   if (dir == 0) {
@@ -955,24 +973,6 @@ void FileManager::deleteFromCache(const char *cacheDir, const char *filename) {
   char *cacheFilePath = getFilePath(cacheDir, filename);
   recursiveDelete(cacheFilePath);
   delete cacheFilePath;
-}
-
-void FileManager::recursiveDelete(const char *fileToDelete) {
-  if (isDirectory(fileToDelete)) {
-    platformstl::readdir_sequence dir(fileToDelete,
-        platformstl::readdir_sequence::files
-            | platformstl::readdir_sequence::directories);
-    platformstl::readdir_sequence::const_iterator first = dir.begin();
-    platformstl::readdir_sequence::const_iterator last = dir.end();
-    while (first != last) {
-      platformstl::readdir_sequence::const_iterator file = first++;
-      char *filename = (char *) *file;
-      char *filePath = getFilePath(fileToDelete, filename);
-      recursiveDelete(filePath);
-      delete filePath;
-    }
-  }
-  remove(fileToDelete);
 }
 
 void FileManager::throwForLuaError(lua_State *L, const char *formatString)

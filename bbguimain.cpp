@@ -77,6 +77,7 @@ class AppGuiListener : public GuiListener {
 wxIMPLEMENT_APP(BerryBotsApp);
 
 bool BerryBotsApp::OnInit() {
+  fileManager_->recursiveDelete(getTmpDir().c_str());
 
 #ifdef __WXGTK__
   // Needed to load dock icons for wxWidgets dialogs.
