@@ -92,7 +92,8 @@ GuiManager::GuiManager(GuiListener *listener) {
   guiPrintHandler_ = 0;
   stageConsole_ = 0;
   teamConsoles_ = 0;
-  stagePreview_ = 0;
+  stagePreview_ = new StagePreview(stagesBaseDir_, menuBarMaker_);
+  stagePreview_->setListener(new PreviewFocusListener(this));
   gfxManager_ = new GfxManager(true);
   viewListener_ = new ViewListener(this);
   gfxManager_->setListener(viewListener_);
@@ -135,9 +136,7 @@ GuiManager::~GuiManager() {
   packagingConsole_->Destroy();
   errorConsole_->Destroy();
   runnerConsole_->Destroy();
-  if (stagePreview_ != 0) {
-    stagePreview_->Destroy();
-  }
+  stagePreview_->Destroy();
   delete runnerConsoleListener_;
   delete menuBarMaker_;
   delete stagesBaseDir_;
@@ -1055,23 +1054,18 @@ void GuiManager::showStagePreview(const char *stageName) {
   closeStagePreview();
   
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
-  stagePreview_ = new StagePreview(stagesBaseDir_, stageName,
-      newMatchPosition.x + 25, newMatchPosition.y + 25, menuBarMaker_);
-  stagePreview_->setListener(new PreviewFocusListener(this));
+  stagePreview_->showPreview(stageName,
+                             newMatchPosition.x + 25, newMatchPosition.y + 25);
   stagePreview_->Show();
   stagePreview_->Raise();
 }
 
 void GuiManager::closeStagePreview() {
-  if (stagePreview_ != 0) {
-    StagePreview *stagePreview = stagePreview_;
-    stagePreview_ = 0;
-    stagePreview->Destroy();
-    newMatchDialog_->Show();
-    newMatchDialog_->Raise();
-    newMatchDialog_->focusStageSelect();
-    previewing_ = false;
-  }
+  stagePreview_->Hide();
+  newMatchDialog_->Show();
+  newMatchDialog_->Raise();
+  newMatchDialog_->focusStageSelect();
+  previewing_ = false;
 }
 
 void GuiManager::destroyStageConsole() {

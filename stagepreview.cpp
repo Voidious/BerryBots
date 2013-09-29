@@ -32,16 +32,16 @@
 #include "bbengine.h"
 #include "stagepreview.h"
 
-StagePreview::StagePreview(
-    const char *stagesBaseDir, const char *stageName, int x, int y,
-    MenuBarMaker *menuBarMaker)
-    : wxFrame(NULL, wxID_ANY,
-              "Preview", wxPoint(x, y), wxDefaultSize,
+StagePreview::StagePreview(const char *stagesBaseDir,
+                           MenuBarMaker *menuBarMaker)
+    : wxFrame(NULL, wxID_ANY, "Preview", wxDefaultPosition, wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   menuBarMaker_ = menuBarMaker;
   menusInitialized_ = false;
   fileManager_ = new FileManager();
   listener_ = 0;
+  stagesBaseDir_ = new char[strlen(stagesBaseDir) + 1];
+  strcpy(stagesBaseDir_, stagesBaseDir);
 
 #ifdef __WINDOWS__
   SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
@@ -56,51 +56,22 @@ StagePreview::StagePreview(
 #endif
 
   mainPanel_ = new wxPanel(this);
-  wxWebView *webView = wxWebView::New(mainPanel_, wxID_ANY);
+  webView_ = wxWebView::New(mainPanel_, wxID_ANY);
+  webView_->EnableContextMenu(false);
 
-  BerryBotsEngine *engine =
-      new BerryBotsEngine(0, fileManager_, resourcePath().c_str());
-  std::string previewUrl;
-  try {
-    previewUrl = savePreviewReplay(engine, stagesBaseDir, stageName);
-  } catch (EngineException *e) {
-    wxMessageDialog errorMessage(NULL, e->what(), "Preview failure",
-                                 wxOK | wxICON_EXCLAMATION);
-    errorMessage.ShowModal();
-    delete engine;
-    delete e;
-    return;
-  }
-  webView->EnableContextMenu(false);
-  webView->LoadURL(previewUrl);
-
-  Stage *stage = engine->getStage();
-  double stageWidth = stage->getWidth() + (STAGE_MARGIN * 2);
-  double stageHeight = stage->getHeight() + (STAGE_MARGIN * 2);
-  double previewScale = std::min(1.0,
-      std::min(((double) MAX_PREVIEW_WIDTH) / stageWidth,
-               ((double) MAX_PREVIEW_HEIGHT) / stageHeight));
-  webView->SetSizeHints(previewScale * stageWidth, previewScale * stageHeight);
-  delete engine;
-
-  mainSizer_ = new wxBoxSizer(wxVERTICAL);
-  mainSizer_->Add(mainPanel_, 0, wxEXPAND);
+  wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
+  mainSizer->Add(mainPanel_, 0, wxEXPAND);
 
   wxBoxSizer *topSizer = new wxBoxSizer(wxVERTICAL);
-  topSizer->Add(webView, 0, wxEXPAND);
+  topSizer->Add(webView_, 0, wxEXPAND);
   topSizer->AddSpacer(8);
-  char *description = fileManager_->getStageDescription(
-      stagesBaseDir, stageName, getCacheDir().c_str());
-  wxSizer *descSizer = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
-  wxStaticText *descCtrl = new wxStaticText(mainPanel_, wxID_ANY, description);
-  descSizer->Add(descCtrl);
-  delete description;
-  topSizer->Add(descSizer, 0, wxEXPAND);
+  descSizer_ = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
+  topSizer->Add(descSizer_, 0, wxEXPAND);
   
   wxBoxSizer *borderSizer = new wxBoxSizer(wxVERTICAL);
   borderSizer->Add(topSizer, 0, wxALL | wxEXPAND, 12);
   mainPanel_->SetSizerAndFit(borderSizer);
-  SetSizerAndFit(mainSizer_);
+  SetSizerAndFit(mainSizer);
 
   Connect(this->GetId(), wxEVT_ACTIVATE,
           wxActivateEventHandler(StagePreview::onActivate));
@@ -118,6 +89,7 @@ StagePreview::~StagePreview() {
   }
   delete eventFilter_;
   delete fileManager_;
+  delete stagesBaseDir_;
 }
 
 void StagePreview::onActivate(wxActivateEvent &event) {
@@ -132,7 +104,7 @@ void StagePreview::onClose(wxCommandEvent &event) {
   if (listener_ != 0) {
     listener_->onClose();
   }
-  Destroy();
+  Hide();
 }
 
 void StagePreview::setListener(StagePreviewListener *listener) {
@@ -140,6 +112,43 @@ void StagePreview::setListener(StagePreviewListener *listener) {
     delete listener_;
   }
   listener_ = listener;
+}
+
+void StagePreview::showPreview(const char *stageName, int x, int y) {
+  SetPosition(wxPoint(x, y));
+  BerryBotsEngine *engine =
+      new BerryBotsEngine(0, fileManager_, resourcePath().c_str());
+  std::string previewUrl;
+  try {
+    previewUrl = savePreviewReplay(engine, stagesBaseDir_, stageName);
+  } catch (EngineException *e) {
+    wxMessageDialog errorMessage(NULL, e->what(), "Preview failure",
+                                 wxOK | wxICON_EXCLAMATION);
+    errorMessage.ShowModal();
+    delete engine;
+    delete e;
+    return;
+  }
+  webView_->LoadURL(previewUrl);
+
+  Stage *stage = engine->getStage();
+  double stageWidth = stage->getWidth() + (STAGE_MARGIN * 2);
+  double stageHeight = stage->getHeight() + (STAGE_MARGIN * 2);
+  double previewScale = std::min(1.0,
+      std::min(((double) MAX_PREVIEW_WIDTH) / stageWidth,
+               ((double) MAX_PREVIEW_HEIGHT) / stageHeight));
+  webView_->SetSizeHints(previewScale * stageWidth, previewScale * stageHeight);
+  delete engine;
+
+  char *description = fileManager_->getStageDescription(
+      stagesBaseDir_, stageName, getCacheDir().c_str());
+  wxStaticText *descCtrl = new wxStaticText(mainPanel_, wxID_ANY, description);
+  descSizer_->Clear(true);
+  descSizer_->Add(descCtrl);
+  delete description;
+
+  mainPanel_->GetSizer()->SetSizeHints(mainPanel_);
+  Fit();
 }
 
 std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
