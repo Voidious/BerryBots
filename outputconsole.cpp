@@ -59,6 +59,7 @@ OutputConsole::OutputConsole(const char *title, int style,
     outerSizer_->Add(bottomPanel, 0, wxEXPAND);
   }
   listener_ = 0;
+  menusInitialized_ = false;
 
 #ifdef __WINDOWS__
   SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
@@ -79,8 +80,6 @@ OutputConsole::OutputConsole(const char *title, int style,
                           wxFONTWEIGHT_NORMAL));
   SetSizerAndFit(outerSizer_);
 
-  menusInitialized_ = false;
-  closeOnSpace_ = false;
 
   Connect(this->GetId(), wxEVT_ACTIVATE,
           wxActivateEventHandler(OutputConsole::onActivate));
@@ -162,12 +161,6 @@ void OutputConsole::onClose(wxCommandEvent &event) {
   }
 }
 
-void OutputConsole::onSpace() {
-  if (closeOnSpace_) {
-    Close();
-  }
-}
-
 void OutputConsole::onCheck(wxCommandEvent &event) {
   if (listener_ != 0 && gfxCheckBox_ != 0) {
     listener_->onCheck(gfxCheckBox_->IsChecked());
@@ -208,10 +201,6 @@ void OutputConsole::defaultTextSize() {
   wxFont font = output_->GetFont();
   font.SetPointSize(fontSize_);
   output_->SetFont(font);
-}
-
-void OutputConsole::setCloseOnSpace() {
-  closeOnSpace_ = true;
 }
 
 int OutputConsole::getStyle() {
@@ -264,8 +253,6 @@ int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
       outputConsole_->decreaseTextSize();
     } else if (keyEvent->GetUnicodeKey() == '0' && keyEvent->ControlDown()) {
       outputConsole_->defaultTextSize();
-    } else if (keyEvent->GetUnicodeKey() == ' ') {
-      outputConsole_->onSpace();
     } else if (outputConsole_->getStyle() == CONSOLE_RUNNER
                && keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
       outputConsole_->abort();

@@ -60,21 +60,17 @@ class GuiManager {
   PackageStageDialog *packageStageDialog_;
   RunnerDialog *runnerDialog_;
   sf::RenderWindow *window_;
-  sf::RenderWindow *previewWindow_;
   GuiPrintHandler *guiPrintHandler_;
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
   OutputConsole *packagingConsole_;
   OutputConsole *errorConsole_;
   OutputConsole *runnerConsole_;
-  OutputConsole *previewConsole_;
   StagePreview *stagePreview_;
-  ConsoleListener *previewConsoleListener_;
   ConsoleListener *runnerConsoleListener_;
   ResultsDialog *resultsDialog_;
   MenuBarMaker *menuBarMaker_;
   GfxManager *gfxManager_;
-  GfxManager *previewGfxManager_;
   GfxViewListener *viewListener_;
   sf::Image windowIcon_;
   Zipper *zipper_;
@@ -107,7 +103,6 @@ class GuiManager {
   bool quitting_;
   bool showedResults_;
   bool previewing_;
-  bool closingPreview_;
   bool runnerRunning_;
   int nextWindow_;
   double tpsFactor_;
@@ -132,8 +127,6 @@ class GuiManager {
     void runNewMatch(const char *stageName, char **teamNames, int numTeams);
     void processMainWindowEvents(sf::RenderWindow *window,
         GfxManager *gfxManager, int viewWidth, int viewHeight);
-    void processPreviewWindowEvents(sf::RenderWindow *window,
-        GfxManager *gfxManager, int viewWidth, int viewHeight);
     void launchGameRunner(const char *runnerName);
     void abortGameRunner();
     void showNewMatchDialog();
@@ -143,9 +136,7 @@ class GuiManager {
     void showStageConsole();
     void showTeamConsole(int teamIndex);
     void showErrorConsole();
-    void showStagePreview(const char *stageName);
     void showHtmlStagePreview(const char *stageName);
-    void closeStagePreview();
     void closeHtmlStagePreview();
     void hideNewMatchDialog();
     void hidePackageShipDialog();
@@ -170,8 +161,6 @@ class GuiManager {
     char* getTmpDirCopy();
   private:
     sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
-    sf::RenderWindow* initPreviewWindow(unsigned int width,
-                                        unsigned int height);
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
     void drawFrame(sf::RenderWindow *window);
@@ -284,18 +273,6 @@ class StageConsoleListener : public ConsoleListener {
     virtual void onCheck(bool checked);
     virtual void onAbort() {};
     virtual ~StageConsoleListener() {};
-};
-
-class PreviewConsoleListener : public ConsoleListener {
-  GuiManager *guiManager_;
-
-  public:
-    PreviewConsoleListener(GuiManager *guiManager);
-    virtual void onActive() {};
-    virtual void onClose();
-    virtual void onCheck(bool checked) {};
-    virtual void onAbort() {};
-    virtual ~PreviewConsoleListener() {};
 };
 
 class PreviewFocusListener : public StagePreviewListener {

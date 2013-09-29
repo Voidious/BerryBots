@@ -74,10 +74,10 @@ public:
 class RunnerEventFilter : public wxEventFilter {
   RunnerDialog *runnerDialog_;
   
-public:
-  RunnerEventFilter(RunnerDialog *dialog);
-  ~RunnerEventFilter();
-  virtual int FilterEvent(wxEvent& event);
+  public:
+    RunnerEventFilter(RunnerDialog *dialog);
+    ~RunnerEventFilter();
+    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif

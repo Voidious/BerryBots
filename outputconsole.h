@@ -48,7 +48,6 @@ class OutputConsole : public wxFrame {
   wxEventFilter *eventFilter_;
   int defaultFontSize_;
   int fontSize_;
-  bool closeOnSpace_;
   int style_;
   ConsoleListener *listener_;
 
@@ -62,7 +61,6 @@ class OutputConsole : public wxFrame {
     void println();
     void clear();
     void onClose(wxCommandEvent &event);
-    void onSpace();
     void onCheck(wxCommandEvent &event);
     bool isChecked();
     void onAbort(wxCommandEvent &event);
@@ -70,7 +68,6 @@ class OutputConsole : public wxFrame {
     void increaseTextSize();
     void decreaseTextSize();
     void defaultTextSize();
-    void setCloseOnSpace();
     int getStyle();
     void setMnemonicLabels(bool modifierDown);
 

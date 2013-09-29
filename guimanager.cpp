@@ -43,7 +43,6 @@
 #include "packagestage.h"
 #include "runnerdialog.h"
 #include "outputconsole.h"
-#include "stagepreview.h"
 #include "resultsdialog.h"
 #include "printhandler.h"
 #include "guiprinthandler.h"
@@ -61,7 +60,6 @@ GuiManager::GuiManager(GuiListener *listener) {
   reloadBaseDirs();
 
   window_ = 0;
-  previewWindow_ = 0;
   zipper_ = new GuiZipper();
   fileManager_ = new FileManager(zipper_);
   gameRunner_ = 0;
@@ -72,11 +70,6 @@ GuiManager::GuiManager(GuiListener *listener) {
                                     menuBarMaker_);
   runnerConsole_ = new OutputConsole("Game Runner Console", CONSOLE_RUNNER,
                                      menuBarMaker_);
-  previewConsole_ = new OutputConsole("Description", CONSOLE_PLAIN,
-                                      menuBarMaker_);
-  previewConsole_->setCloseOnSpace();
-  previewConsoleListener_ = new PreviewConsoleListener(this);
-  previewConsole_->setListener(previewConsoleListener_);
   runnerConsoleListener_ = new RunnerConsoleListener(this);
   runnerConsole_->setListener(runnerConsoleListener_);
   packagingConsole_->SetPosition(wxPoint(150, 100));
@@ -101,7 +94,6 @@ GuiManager::GuiManager(GuiListener *listener) {
   teamConsoles_ = 0;
   stagePreview_ = 0;
   gfxManager_ = new GfxManager(true);
-  previewGfxManager_ = new GfxManager(false);
   viewListener_ = new ViewListener(this);
   gfxManager_->setListener(viewListener_);
   packageReporter_ = new PackageReporter(packagingConsole_);
@@ -119,7 +111,6 @@ GuiManager::GuiManager(GuiListener *listener) {
   quitting_ = false;
   showedResults_ = false;
   previewing_ = false;
-  closingPreview_ = false;
   runnerRunning_ = false;
   nextWindow_ = 0;
   tpsFactor_ = 1;
@@ -144,11 +135,9 @@ GuiManager::~GuiManager() {
   packagingConsole_->Destroy();
   errorConsole_->Destroy();
   runnerConsole_->Destroy();
-  previewConsole_->Destroy();
   if (stagePreview_ != 0) {
     stagePreview_->Destroy();
   }
-  delete previewConsoleListener_;
   delete runnerConsoleListener_;
   delete menuBarMaker_;
   delete stagesBaseDir_;
@@ -159,9 +148,6 @@ GuiManager::~GuiManager() {
   }
   if (window_ != 0) {
     delete window_;
-  }
-  if (previewWindow_ != 0) {
-    delete previewWindow_;
   }
   if (gfxHandler_ != 0) {
     delete gfxHandler_;
@@ -505,27 +491,6 @@ sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
 #endif
 
   return window_;
-}
-
-sf::RenderWindow* GuiManager::initPreviewWindow(unsigned int width,
-                                                unsigned int height) {
-  if (previewWindow_ != 0) {
-    sf::RenderWindow *oldWindow = previewWindow_;
-    previewWindow_ = 0;
-    delete oldWindow;
-  }
-
-  previewWindow_ = new sf::RenderWindow(sf::VideoMode(width, height), "Preview",
-      sf::Style::Default,
-      sf::ContextSettings(0, 0, (isAaDisabled() ? 0 : 16), 2, 0));
-
-#ifdef __WINDOWS__
-  previewWindow_->setIcon(32, 32, windowIcon_.getPixelsPtr());
-#elif defined(__WXGTK__)
-  previewWindow_->setIcon(128, 128, windowIcon_.getPixelsPtr());
-#endif
-
-  return previewWindow_;
 }
 
 sf::RenderWindow* GuiManager::getMainWindow() {
@@ -943,34 +908,6 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
 #endif
 }
 
-void GuiManager::processPreviewWindowEvents(sf::RenderWindow *window,
-    GfxManager *gfxManager, int viewWidth, int viewHeight) {
-  sf::Event event;
-  bool resized = false;
-  while (window->pollEvent(event)) {
-    if (event.type == sf::Event::Closed
-        || (event.type == sf::Event::KeyPressed
-            && (event.key.code == sf::Keyboard::Escape
-                || event.key.code == sf::Keyboard::Space
-                || (event.key.code == sf::Keyboard::W
-                    && (event.key.control || event.key.system))))) {
-      window->close();
-      newMatchDialog_->focusStageSelect();
-    }
-    if (event.type == sf::Event::Resized && !resized) {
-      resized = true;
-      gfxManager->onResize(window, viewWidth, viewHeight);
-    }
-  }
-
-  // On Linux/GTK and Windows, the wxWidgets windows don't get events while
-  // this thread has control unless we manually wxYield each frame. Seems to be
-  // unnecessary on Mac/Cocoa.
-#ifndef __WXOSX__
-  wxYield();
-#endif
-}
-
 void GuiManager::launchGameRunner(const char *runnerName) {
   loadStages();
   loadShips();
@@ -1109,141 +1046,12 @@ void GuiManager::showErrorConsole() {
   errorConsole_->Raise();
 }
 
-void GuiManager::showStagePreview(const char *stageName) {
+void GuiManager::showHtmlStagePreview(const char *stageName) {
   if (previewing_) {
     // Don't allow showStagePreview to execute recursively.
     return;
   }
   previewing_ = true;
-  closingPreview_ = false;
-
-#ifdef __WXOSX__
-  // On Mac OS X, we need to initialize before the wxWidgets stuff below or we
-  // hit some unexplainable crashes when we delete an SFML window. I don't know
-  // why, I've merely devised a work-around. Judging from some SFML forum
-  // threads, it sounds likely to be an issue with nightmare-ish video drivers.
-  initPreviewWindow(600, 600);
-#endif
-
-  BerryBotsEngine *engine = new BerryBotsEngine(0, fileManager_, 0);
-  try {
-    engine->initStage(stagesBaseDir_, stageName, getCacheDir().c_str());
-  } catch (EngineException *e) {
-    delete engine;
-    errorConsole_->println(e->what());
-    wxMessageDialog errorMessage(NULL, e->what(), "Preview failure",
-                                 wxOK | wxICON_EXCLAMATION);
-    errorMessage.ShowModal();
-    delete e;
-    return;
-  }
-
-  Stage *stage = engine->getStage();
-  unsigned int viewWidth = stage->getWidth() + (2 * STAGE_MARGIN);
-  unsigned int viewHeight = stage->getHeight() + (2 * STAGE_MARGIN);
-  unsigned int screenWidth = 600;
-  unsigned int screenHeight = 600;
-  double windowScale =
-      std::min(1.0, std::min(((double) screenWidth) / viewWidth,
-                             ((double) screenHeight) / viewHeight));
-  unsigned int targetWidth = round(windowScale * viewWidth);
-  unsigned int targetHeight = round(windowScale * viewHeight);
-  wxPoint newMatchPosition = newMatchDialog_->GetPosition();
-
-  char *description = fileManager_->getStageDescription(
-      stagesBaseDir_, stageName, getCacheDir().c_str());
-  if (!isWhitespace(description)) {
-    std::string descTitle("Description: ");
-    descTitle.append(stageName);
-    previewConsole_->SetTitle(descTitle);
-    previewConsole_->clear();
-    previewConsole_->print(description);
-#ifdef __WINDOWS__
-    int spacer = 20;
-#else
-    int spacer = 5;
-#endif
-    previewConsole_->SetPosition(
-        wxPoint(newMatchPosition.x + targetWidth + 25 + spacer,
-                newMatchPosition.y + 25));
-    previewConsole_->Show();
-    previewConsole_->Raise();
-  }
-
-  std::string previewTitle("Preview: ");
-  previewTitle.append(stageName);
-#ifdef __WXOSX__
-  previewWindow_->setSize(sf::Vector2u(targetWidth, targetHeight));
-  sf::Vector2i pos = previewWindow_->getPosition();
-  int x = limit(0, pos.x, (int) round(screenWidth - targetWidth));
-  int y = limit(0, pos.y, (int) round(screenHeight - targetHeight));
-  previewWindow_->setPosition(sf::Vector2i(x, y));
-#else
-  initPreviewWindow(targetWidth, targetHeight);
-#endif
-
-#ifdef __WINDOWS__
-  previewWindow_->setIcon(32, 32, windowIcon_.getPixelsPtr());
-#elif defined(__WXGTK__)
-  previewWindow_->setIcon(128, 128, windowIcon_.getPixelsPtr());
-#endif
-
-  previewWindow_->setPosition(sf::Vector2i(newMatchPosition.x + 25,
-                                           newMatchPosition.y + 25));
-  Team **teams = new Team*[1];
-  teams[0] = new Team;
-  strcpy(teams[0]->name, "PreviewTeam");
-  teams[0]->numRectangles = 0;
-  teams[0]->numLines = 0;
-  teams[0]->numCircles = 0;
-  teams[0]->numTexts = 0;
-  Ship **ships = new Ship*[1];
-  Ship *ship = new Ship;
-  ShipProperties *properties = new ShipProperties;
-  properties->shipR = properties->shipG = properties->shipB = 255;
-  properties->laserR = properties->laserB = 0;
-  properties->laserG = 255;
-  properties->thrusterR = 255;
-  properties->thrusterG = properties->thrusterB = 0;
-  strcpy(properties->name, "PreviewShip");
-  ship->properties = properties;
-  ship->thrusterAngle = ship->thrusterForce = 0;
-  Point2D *start = stage->getStart();
-  ship->x = start->getX();
-  ship->y = start->getY();
-  ship->alive = true;
-  ship->showName = ship->energyEnabled = false;
-  ships[0] = ship;
-  stage->setTeamsAndShips(teams, 1, ships, 1);
-
-  previewGfxManager_->initBbGfx(previewWindow_, viewHeight, stage, teams, 1,
-                                ships, 1, resourcePath());
-  previewGfxManager_->initViews(previewWindow_, viewWidth, viewHeight);
-
-  GfxEventHandler *gfxHandler = new GfxEventHandler();
-  while (!quitting_ && !closingPreview_ && previewWindow_->isOpen()) {
-    processPreviewWindowEvents(previewWindow_, previewGfxManager_, viewWidth,
-                               viewHeight);
-    previewWindow_->clear();
-    previewGfxManager_->drawGame(previewWindow_, stage, ships, 1, 0, gfxHandler,
-                                 false, false, 0);
-    previewWindow_->display();
-  }
-
-  previewWindow_->close();
-  previewGfxManager_->destroyBbGfx();
-  delete gfxHandler;
-  delete engine;
-  delete properties;
-  delete teams[0];
-  delete teams;
-
-  newMatchDialog_->Show();
-  newMatchDialog_->Raise();
-  previewing_ = false;
-}
-
-void GuiManager::showHtmlStagePreview(const char *stageName) {
   closeHtmlStagePreview();
   
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
@@ -1254,11 +1062,6 @@ void GuiManager::showHtmlStagePreview(const char *stageName) {
   stagePreview_->Raise();
 }
 
-void GuiManager::closeStagePreview() {
-  closingPreview_ = true;
-  previewConsole_->Hide();
-}
-
 void GuiManager::closeHtmlStagePreview() {
   if (stagePreview_ != 0) {
     StagePreview *stagePreview = stagePreview_;
@@ -1267,6 +1070,7 @@ void GuiManager::closeHtmlStagePreview() {
     newMatchDialog_->Show();
     newMatchDialog_->Raise();
     newMatchDialog_->focusStageSelect();
+    previewing_ = false;
   }
 }
 
@@ -1696,14 +1500,6 @@ StageConsoleListener::StageConsoleListener(Stage *stage) {
 
 void StageConsoleListener::onCheck(bool checked) {
   stage_->setGfxEnabled(checked);
-}
-
-PreviewConsoleListener::PreviewConsoleListener(GuiManager *guiManager) {
-  guiManager_ = guiManager;
-}
-
-void PreviewConsoleListener::onClose() {
-  guiManager_->closeStagePreview();
 }
 
 PreviewFocusListener::PreviewFocusListener(GuiManager *guiManager) {
