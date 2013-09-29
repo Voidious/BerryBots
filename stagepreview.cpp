@@ -77,7 +77,9 @@ StagePreview::StagePreview(const char *stagesBaseDir,
           wxActivateEventHandler(StagePreview::onActivate));
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(StagePreview::onClose));
-
+  Connect(webView_->GetId(), wxEVT_WEBVIEW_LOADED,
+          wxWebViewEventHandler(StagePreview::onLoaded));
+          
   eventFilter_ = new PreviewEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
 }
@@ -107,6 +109,11 @@ void StagePreview::onClose(wxCommandEvent &event) {
   Hide();
 }
 
+void StagePreview::onLoaded(wxWebViewEvent &event) {
+  Show();
+  Raise();
+}
+
 void StagePreview::onUp() {
   if (listener_ != 0) {
     listener_->onUp();
@@ -127,6 +134,7 @@ void StagePreview::setListener(StagePreviewListener *listener) {
 }
 
 void StagePreview::showPreview(const char *stageName, int x, int y) {
+  Hide();
   SetPosition(wxPoint(x, y));
   BerryBotsEngine *engine =
       new BerryBotsEngine(0, fileManager_, resourcePath().c_str());

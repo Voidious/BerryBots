@@ -1056,8 +1056,6 @@ void GuiManager::showStagePreview(const char *stageName) {
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
   stagePreview_->showPreview(stageName,
                              newMatchPosition.x + 25, newMatchPosition.y + 25);
-  stagePreview_->Show();
-  stagePreview_->Raise();
 }
 
 void GuiManager::closeStagePreview() {

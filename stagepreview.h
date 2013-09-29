@@ -47,6 +47,7 @@ class StagePreview : public wxFrame {
     ~StagePreview();
     void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);
+    void onLoaded(wxWebViewEvent &event);
     void onUp();
     void onDown();
     void setListener(StagePreviewListener *listener);
