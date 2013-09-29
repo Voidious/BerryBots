@@ -59,6 +59,7 @@ StagePreview::StagePreview(const char *stagesBaseDir,
   mainPanel_ = new wxPanel(this);
   webView_ = wxWebView::New(mainPanel_, wxID_ANY);
   webView_->EnableContextMenu(false);
+  webView_->EnableHistory(false);
 
   wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
   mainSizer->Add(mainPanel_, 0, wxEXPAND);
