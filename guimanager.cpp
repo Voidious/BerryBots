@@ -93,7 +93,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   stageConsole_ = 0;
   teamConsoles_ = 0;
   stagePreview_ = new StagePreview(stagesBaseDir_, menuBarMaker_);
-  stagePreview_->setListener(new PreviewFocusListener(this));
+  stagePreview_->setListener(new PreviewInputListener(this));
   gfxManager_ = new GfxManager(true);
   viewListener_ = new ViewListener(this);
   gfxManager_->setListener(viewListener_);
@@ -1068,6 +1068,14 @@ void GuiManager::closeStagePreview() {
   previewing_ = false;
 }
 
+void GuiManager::previewNextStage() {
+  newMatchDialog_->previewNextStage();
+}
+
+void GuiManager::previewPreviousStage() {
+  newMatchDialog_->previewPreviousStage();
+}
+
 void GuiManager::destroyStageConsole() {
   if (stageConsole_ != 0) {
     stageConsole_->Hide();
@@ -1496,12 +1504,20 @@ void StageConsoleListener::onCheck(bool checked) {
   stage_->setGfxEnabled(checked);
 }
 
-PreviewFocusListener::PreviewFocusListener(GuiManager *guiManager) {
+PreviewInputListener::PreviewInputListener(GuiManager *guiManager) {
   guiManager_ = guiManager;
 }
 
-void PreviewFocusListener::onClose() {
+void PreviewInputListener::onClose() {
   guiManager_->closeStagePreview();
+}
+
+void PreviewInputListener::onUp() {
+  guiManager_->previewPreviousStage();
+}
+
+void PreviewInputListener::onDown() {
+  guiManager_->previewNextStage();
 }
 
 RunnerConsoleListener::RunnerConsoleListener(GuiManager *guiManager) {

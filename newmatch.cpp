@@ -468,7 +468,7 @@ void NewMatchDialog::previewSelectedStage() {
   stageSelect_->GetSelections(selectedStageIndex);
   if (selectedStageIndex.Count() > 0) {
     wxString selectedStage =
-    stageSelect_->GetString(*(selectedStageIndex.begin()));
+        stageSelect_->GetString(*(selectedStageIndex.begin()));
     char *stage = new char[selectedStage.length() + 1];
 #ifdef __WINDOWS__
     strcpy(stage, selectedStage.c_str());
@@ -477,6 +477,30 @@ void NewMatchDialog::previewSelectedStage() {
 #endif
     listener_->previewStage(stage);
     delete stage;
+  }
+}
+
+void NewMatchDialog::previewNextStage() {
+  wxArrayInt selectedStageIndex;
+  stageSelect_->GetSelections(selectedStageIndex);
+  if (selectedStageIndex.Count() > 0) {
+    int i = *(selectedStageIndex.begin());
+    if (i < stageSelect_->GetCount() - 1) {
+      stageSelect_->Select(i + 1);
+      previewSelectedStage();
+    }
+  }
+}
+
+void NewMatchDialog::previewPreviousStage() {
+  wxArrayInt selectedStageIndex;
+  stageSelect_->GetSelections(selectedStageIndex);
+  if (selectedStageIndex.Count() > 0) {
+    int i = *(selectedStageIndex.begin());
+    if (i > 0) {
+      stageSelect_->Select(i - 1);
+      previewSelectedStage();
+    }
   }
 }
 

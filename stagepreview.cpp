@@ -107,6 +107,18 @@ void StagePreview::onClose(wxCommandEvent &event) {
   Hide();
 }
 
+void StagePreview::onUp() {
+  if (listener_ != 0) {
+    listener_->onUp();
+  }
+}
+
+void StagePreview::onDown() {
+  if (listener_ != 0) {
+    listener_->onDown();
+  }
+}
+
 void StagePreview::setListener(StagePreviewListener *listener) {
   if (listener_ != 0) {
     delete listener_;
@@ -228,6 +240,10 @@ int PreviewEventFilter::FilterEvent(wxEvent& event) {
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       stagePreview_->Close();
       return Event_Processed;
+    } else if (keyCode == WXK_UP) {
+      stagePreview_->onUp();
+    } else if (keyCode == WXK_DOWN) {
+      stagePreview_->onDown();
     }
   }
 

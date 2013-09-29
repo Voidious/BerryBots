@@ -138,6 +138,8 @@ class GuiManager {
     void showErrorConsole();
     void showStagePreview(const char *stageName);
     void closeStagePreview();
+    void previewNextStage();
+    void previewPreviousStage();
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
@@ -275,12 +277,14 @@ class StageConsoleListener : public ConsoleListener {
     virtual ~StageConsoleListener() {};
 };
 
-class PreviewFocusListener : public StagePreviewListener {
+class PreviewInputListener : public StagePreviewListener {
   GuiManager *guiManager_;
 
   public:
-    PreviewFocusListener(GuiManager *guiManager);
+    PreviewInputListener(GuiManager *guiManager);
     virtual void onClose();
+    virtual void onUp();
+    virtual void onDown();
 };
 
 class RunnerConsoleListener : public ConsoleListener {

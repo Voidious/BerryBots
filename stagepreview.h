@@ -47,6 +47,8 @@ class StagePreview : public wxFrame {
     ~StagePreview();
     void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);
+    void onUp();
+    void onDown();
     void setListener(StagePreviewListener *listener);
     void showPreview(const char *stageName, int x, int y);
   private:
@@ -58,6 +60,8 @@ class StagePreview : public wxFrame {
 class StagePreviewListener {
   public:
     virtual void onClose() = 0;
+    virtual void onUp() = 0;
+    virtual void onDown() = 0;
     virtual ~StagePreviewListener() {};
 };
 

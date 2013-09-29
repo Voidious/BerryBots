@@ -101,6 +101,8 @@ class NewMatchDialog : public wxFrame {
     void onUpdateUi(wxUpdateUIEvent &event);
     void onSetBaseDirs();
     void previewSelectedStage();
+    void previewNextStage();
+    void previewPreviousStage();
     bool stageSelectHasFocus();
     bool shipsSelectHasFocus();
     bool loadedShipsSelectHasFocus();
