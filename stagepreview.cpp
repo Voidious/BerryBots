@@ -42,6 +42,7 @@ StagePreview::StagePreview(const char *stagesBaseDir,
   listener_ = 0;
   stagesBaseDir_ = new char[strlen(stagesBaseDir) + 1];
   strcpy(stagesBaseDir_, stagesBaseDir);
+  stageName_ = 0;
 
 #ifdef __WINDOWS__
   SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
@@ -92,6 +93,9 @@ StagePreview::~StagePreview() {
   delete eventFilter_;
   delete fileManager_;
   delete stagesBaseDir_;
+  if (stageName_ != 0) {
+    delete stageName_;
+  }
 }
 
 void StagePreview::onActivate(wxActivateEvent &event) {
@@ -110,6 +114,9 @@ void StagePreview::onClose(wxCommandEvent &event) {
 }
 
 void StagePreview::onLoaded(wxWebViewEvent &event) {
+  if (listener_ != 0 && stageName_ != 0) {
+    listener_->onLoaded(stageName_);
+  }
   Show();
   Raise();
 }
@@ -135,6 +142,12 @@ void StagePreview::setListener(StagePreviewListener *listener) {
 
 void StagePreview::showPreview(const char *stageName, int x, int y) {
   Hide();
+  if (stageName_ != 0) {
+    delete stageName_;
+  }
+  stageName_ = new char[strlen(stageName) + 1];
+  strcpy(stageName_, stageName);
+
   SetPosition(wxPoint(x, y));
   BerryBotsEngine *engine =
       new BerryBotsEngine(0, fileManager_, resourcePath().c_str());

@@ -39,6 +39,7 @@ class StagePreview : public wxFrame {
   bool menusInitialized_;
   FileManager *fileManager_;
   char *stagesBaseDir_;
+  char *stageName_;
   StagePreviewListener *listener_;
   wxEventFilter *eventFilter_;
 
@@ -63,6 +64,7 @@ class StagePreviewListener {
     virtual void onClose() = 0;
     virtual void onUp() = 0;
     virtual void onDown() = 0;
+    virtual void onLoaded(const char *stageName) = 0;
     virtual ~StagePreviewListener() {};
 };
 

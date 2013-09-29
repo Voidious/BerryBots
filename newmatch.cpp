@@ -467,16 +467,7 @@ void NewMatchDialog::previewSelectedStage() {
   wxArrayInt selectedStageIndex;
   stageSelect_->GetSelections(selectedStageIndex);
   if (selectedStageIndex.Count() > 0) {
-    wxString selectedStage =
-        stageSelect_->GetString(*(selectedStageIndex.begin()));
-    char *stage = new char[selectedStage.length() + 1];
-#ifdef __WINDOWS__
-    strcpy(stage, selectedStage.c_str());
-#else
-    strcpy(stage, selectedStage.fn_str());
-#endif
-    listener_->previewStage(stage);
-    delete stage;
+    previewStage(*(selectedStageIndex.begin()));
   }
 }
 
@@ -486,8 +477,7 @@ void NewMatchDialog::previewNextStage() {
   if (selectedStageIndex.Count() > 0) {
     int i = *(selectedStageIndex.begin());
     if (i < stageSelect_->GetCount() - 1) {
-      stageSelect_->Select(i + 1);
-      previewSelectedStage();
+      previewStage(i + 1);
     }
   }
 }
@@ -498,10 +488,21 @@ void NewMatchDialog::previewPreviousStage() {
   if (selectedStageIndex.Count() > 0) {
     int i = *(selectedStageIndex.begin());
     if (i > 0) {
-      stageSelect_->Select(i - 1);
-      previewSelectedStage();
+      previewStage(i - 1);
     }
   }
+}
+
+void NewMatchDialog::previewStage(int i) {
+  wxString stageName = stageSelect_->GetString(i);
+  char *stage = new char[stageName.length() + 1];
+#ifdef __WINDOWS__
+  strcpy(stage, stageName.c_str());
+#else
+  strcpy(stage, stageName.fn_str());
+#endif
+  listener_->previewStage(stage);
+  delete stage;
 }
 
 bool NewMatchDialog::stageSelectHasFocus() {
@@ -571,6 +572,18 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
 
 void NewMatchDialog::focusStageSelect() {
   stageSelect_->SetFocus();
+}
+
+void NewMatchDialog::selectStage(const char *name) {
+  int numStrings = stageSelect_->GetCount();
+  for (int x = 0; x < numStrings; x++) {
+    wxString itemName = stageSelect_->GetString(x);
+    if (strcmp(itemName.c_str(), name) == 0) {
+      stageSelect_->Select(x);
+      stageSelect_->SetFirstItem(x);
+      break;
+    }
+  }
 }
 
 char** NewMatchDialog::getStageNames() {

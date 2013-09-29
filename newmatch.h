@@ -103,6 +103,7 @@ class NewMatchDialog : public wxFrame {
     void previewSelectedStage();
     void previewNextStage();
     void previewPreviousStage();
+    void previewStage(int i);
     bool stageSelectHasFocus();
     bool shipsSelectHasFocus();
     bool loadedShipsSelectHasFocus();
@@ -111,6 +112,7 @@ class NewMatchDialog : public wxFrame {
     void validateButtonSelectedListBox(wxButton *button, wxListBox *listBox);
     void setMnemonicLabels(bool modifierDown);
     void focusStageSelect();
+    void selectStage(const char *stageName);
     char** getStageNames();
     char** getShipNames();
   private:

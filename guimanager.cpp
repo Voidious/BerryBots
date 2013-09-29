@@ -1074,6 +1074,10 @@ void GuiManager::previewPreviousStage() {
   newMatchDialog_->previewPreviousStage();
 }
 
+void GuiManager::selectStage(const char *stageName) {
+  newMatchDialog_->selectStage(stageName);
+}
+
 void GuiManager::destroyStageConsole() {
   if (stageConsole_ != 0) {
     stageConsole_->Hide();
@@ -1516,6 +1520,10 @@ void PreviewInputListener::onUp() {
 
 void PreviewInputListener::onDown() {
   guiManager_->previewNextStage();
+}
+
+void PreviewInputListener::onLoaded(const char *stageName) {
+  guiManager_->selectStage(stageName);
 }
 
 RunnerConsoleListener::RunnerConsoleListener(GuiManager *guiManager) {

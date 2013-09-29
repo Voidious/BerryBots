@@ -140,6 +140,7 @@ class GuiManager {
     void closeStagePreview();
     void previewNextStage();
     void previewPreviousStage();
+    void selectStage(const char *stageName);
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
@@ -285,6 +286,7 @@ class PreviewInputListener : public StagePreviewListener {
     virtual void onClose();
     virtual void onUp();
     virtual void onDown();
+    virtual void onLoaded(const char *stageName);
 };
 
 class RunnerConsoleListener : public ConsoleListener {
