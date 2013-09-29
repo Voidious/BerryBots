@@ -31,6 +31,7 @@
 #include "packagestage.h"
 #include "runnerdialog.h"
 #include "outputconsole.h"
+#include "stagepreview.h"
 #include "menubarmaker.h"
 #include "guiprinthandler.h"
 #include "resultsdialog.h"
@@ -67,6 +68,7 @@ class GuiManager {
   OutputConsole *errorConsole_;
   OutputConsole *runnerConsole_;
   OutputConsole *previewConsole_;
+  StagePreview *stagePreview_;
   ConsoleListener *previewConsoleListener_;
   ConsoleListener *runnerConsoleListener_;
   ResultsDialog *resultsDialog_;
@@ -144,6 +146,7 @@ class GuiManager {
     void showStagePreview(const char *stageName);
     void showHtmlStagePreview(const char *stageName);
     void closeStagePreview();
+    void closeHtmlStagePreview();
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();
@@ -293,6 +296,14 @@ class PreviewConsoleListener : public ConsoleListener {
     virtual void onCheck(bool checked) {};
     virtual void onAbort() {};
     virtual ~PreviewConsoleListener() {};
+};
+
+class PreviewFocusListener : public StagePreviewListener {
+  GuiManager *guiManager_;
+
+  public:
+    PreviewFocusListener(GuiManager *guiManager);
+    virtual void onClose();
 };
 
 class RunnerConsoleListener : public ConsoleListener {

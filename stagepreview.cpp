@@ -41,6 +41,7 @@ StagePreview::StagePreview(
   menuBarMaker_ = menuBarMaker;
   menusInitialized_ = false;
   fileManager_ = new FileManager();
+  listener_ = 0;
 
 #ifdef __WINDOWS__
   SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
@@ -80,6 +81,7 @@ StagePreview::StagePreview(
       std::min(((double) MAX_PREVIEW_WIDTH) / stageWidth,
                ((double) MAX_PREVIEW_HEIGHT) / stageHeight));
   webView->SetSizeHints(previewScale * stageWidth, previewScale * stageHeight);
+  delete engine;
 
   mainSizer_ = new wxBoxSizer(wxVERTICAL);
   mainSizer_->Add(mainPanel_, 0, wxEXPAND);
@@ -102,9 +104,19 @@ StagePreview::StagePreview(
 
   Connect(this->GetId(), wxEVT_ACTIVATE,
           wxActivateEventHandler(StagePreview::onActivate));
+  Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
+          wxCommandEventHandler(StagePreview::onClose));
+
+  eventFilter_ = new PreviewEventFilter(this);
+  this->GetEventHandler()->AddFilter(eventFilter_);
 }
 
 StagePreview::~StagePreview() {
+  this->GetEventHandler()->RemoveFilter(eventFilter_);
+  if (listener_ != 0) {
+    delete listener_;
+  }
+  delete eventFilter_;
   delete fileManager_;
 }
 
@@ -114,6 +126,20 @@ void StagePreview::onActivate(wxActivateEvent &event) {
     menusInitialized_ = true;
     Fit();
   }
+}
+
+void StagePreview::onClose(wxCommandEvent &event) {
+  if (listener_ != 0) {
+    listener_->onClose();
+  }
+  Destroy();
+}
+
+void StagePreview::setListener(StagePreviewListener *listener) {
+  if (listener_ != 0) {
+    delete listener_;
+  }
+  listener_ = listener;
 }
 
 std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
@@ -155,6 +181,7 @@ std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
   delete properties;
   delete previewShip;
   delete previewTeam;
+  delete start;
 
   std::stringstream filenameStream;
   filenameStream << (rand() % 10000000) << ".html";
@@ -170,4 +197,30 @@ std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
   delete previewReplay;
 
   return previewUrl;
+}
+
+PreviewEventFilter::PreviewEventFilter(StagePreview *stagePreview) {
+  stagePreview_ = stagePreview;
+}
+
+int PreviewEventFilter::FilterEvent(wxEvent& event) {
+  bool modifierDown = false;
+  wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+#if defined(__WXOSX__)
+  modifierDown = keyEvent->ControlDown();
+#elif defined(__WINDOWS__)
+  modifierDown = keyEvent->AltDown();
+#endif
+
+  const wxEventType type = event.GetEventType();
+  if (type == wxEVT_KEY_DOWN && stagePreview_->IsActive()) {
+    int keyCode = keyEvent->GetKeyCode();
+    if (keyCode == WXK_ESCAPE || keyCode == WXK_SPACE
+        || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
+      stagePreview_->Close();
+      return Event_Processed;
+    }
+  }
+
+  return Event_Skip;
 }

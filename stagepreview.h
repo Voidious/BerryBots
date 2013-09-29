@@ -28,6 +28,8 @@
 #define MAX_PREVIEW_WIDTH   500
 #define MAX_PREVIEW_HEIGHT  400
 
+class StagePreviewListener;
+
 class StagePreview : public wxFrame {
   wxPanel *mainPanel_;
   wxBoxSizer *mainSizer_;
@@ -35,16 +37,34 @@ class StagePreview : public wxFrame {
   MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
   FileManager *fileManager_;
+  StagePreviewListener *listener_;
+  wxEventFilter *eventFilter_;
 
   public:
     StagePreview(const char *stagesBaseDir, const char *stageName,
                  int x, int y, MenuBarMaker *menuBarMaker);
     ~StagePreview();
     void onActivate(wxActivateEvent &event);
+    void onClose(wxCommandEvent &event);
+    void setListener(StagePreviewListener *listener);
   private:
     std::string savePreviewReplay(BerryBotsEngine *engine,
         const char *stagesBaseDir, const char *stageName)
         throw (EngineException *);
+};
+
+class StagePreviewListener {
+  public:
+    virtual void onClose() = 0;
+    virtual ~StagePreviewListener() {};
+};
+
+class PreviewEventFilter : public wxEventFilter {
+  StagePreview *stagePreview_;
+  
+  public:
+    PreviewEventFilter(StagePreview *stagePreview_);
+    virtual int FilterEvent(wxEvent& event);
 };
 
 #endif

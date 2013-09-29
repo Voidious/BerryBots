@@ -43,6 +43,7 @@
 #include "packagestage.h"
 #include "runnerdialog.h"
 #include "outputconsole.h"
+#include "stagepreview.h"
 #include "resultsdialog.h"
 #include "printhandler.h"
 #include "guiprinthandler.h"
@@ -98,6 +99,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   guiPrintHandler_ = 0;
   stageConsole_ = 0;
   teamConsoles_ = 0;
+  stagePreview_ = 0;
   gfxManager_ = new GfxManager(true);
   previewGfxManager_ = new GfxManager(false);
   viewListener_ = new ViewListener(this);
@@ -143,6 +145,9 @@ GuiManager::~GuiManager() {
   errorConsole_->Destroy();
   runnerConsole_->Destroy();
   previewConsole_->Destroy();
+  if (stagePreview_ != 0) {
+    stagePreview_->Destroy();
+  }
   delete previewConsoleListener_;
   delete runnerConsoleListener_;
   delete menuBarMaker_;
@@ -1239,16 +1244,30 @@ void GuiManager::showStagePreview(const char *stageName) {
 }
 
 void GuiManager::showHtmlStagePreview(const char *stageName) {
+  closeHtmlStagePreview();
+  
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
-  StagePreview *stagePreview = new StagePreview(stagesBaseDir_, stageName,
+  stagePreview_ = new StagePreview(stagesBaseDir_, stageName,
       newMatchPosition.x + 25, newMatchPosition.y + 25, menuBarMaker_);
-  stagePreview->Show();
-  stagePreview->Raise();
+  stagePreview_->setListener(new PreviewFocusListener(this));
+  stagePreview_->Show();
+  stagePreview_->Raise();
 }
 
 void GuiManager::closeStagePreview() {
   closingPreview_ = true;
   previewConsole_->Hide();
+}
+
+void GuiManager::closeHtmlStagePreview() {
+  if (stagePreview_ != 0) {
+    StagePreview *stagePreview = stagePreview_;
+    stagePreview_ = 0;
+    stagePreview->Destroy();
+    newMatchDialog_->Show();
+    newMatchDialog_->Raise();
+    newMatchDialog_->focusStageSelect();
+  }
 }
 
 void GuiManager::destroyStageConsole() {
@@ -1459,7 +1478,7 @@ void MatchStarter::onEscape() {
 }
 
 void MatchStarter::onActive() {
-  guiManager_->closeStagePreview();
+  guiManager_->closeHtmlStagePreview();
 }
 
 void MatchStarter::onUpdateUi() {
@@ -1685,6 +1704,14 @@ PreviewConsoleListener::PreviewConsoleListener(GuiManager *guiManager) {
 
 void PreviewConsoleListener::onClose() {
   guiManager_->closeStagePreview();
+}
+
+PreviewFocusListener::PreviewFocusListener(GuiManager *guiManager) {
+  guiManager_ = guiManager;
+}
+
+void PreviewFocusListener::onClose() {
+  guiManager_->closeHtmlStagePreview();
 }
 
 RunnerConsoleListener::RunnerConsoleListener(GuiManager *guiManager) {
