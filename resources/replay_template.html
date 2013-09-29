@@ -9,18 +9,20 @@
     </style>
   </head>
   <title>BerryBots replay - {$replayTitle}</title>
-  <link href='http://fonts.googleapis.com/css?family=Questrial:regular' rel='stylesheet' type='text/css'>
-  <link href='http://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Questrial:regular' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
   <body>
     <div id="container"></div>
     <style type="text/css">
       body {
+          background-color: #000;
           overflow:hidden;
       }
     </style>
     <script>
       var BerryBots = {};
       BerryBots.replayData = '{$replayData}';
+      {$extraJavascript}
     </script>
     <script src="kinetic-v4.7.1.min.js"></script>
     <script src="bbreplay-v1.3.0.x3.js"></script>

@@ -59,6 +59,7 @@ ReplayBuilder::ReplayBuilder(const char *templateDir) {
   numLogEntries_ = 0;
   resultsData_ = new ReplayData(MAX_MISC_CHUNKS);
   stageName_ = 0;
+  extraJavascript_ = 0;
   timestamp_ = 0;
   if (templateDir == 0) {
     templateDir_ = 0;
@@ -110,6 +111,9 @@ ReplayBuilder::~ReplayBuilder() {
   delete resultsData_;
   if (timestamp_ != 0) {
     delete timestamp_;
+  }
+  if (extraJavascript_ != 0) {
+    delete extraJavascript_;
   }
   if (stageName_ != 0) {
     delete stageName_;
@@ -455,6 +459,14 @@ void ReplayBuilder::setTimestamp(const char *timestamp) {
   }
 }
 
+void ReplayBuilder::setExtraJavascript(const char *extraJavascript) {
+  if (extraJavascript_ != 0) {
+    delete extraJavascript_;
+  }
+  extraJavascript_ = new char[strlen(extraJavascript) + 1];
+  strcpy(extraJavascript_, extraJavascript);
+}
+
 void ReplayBuilder::saveReplay(const char *filename) {
   saveReplay(getReplaysDir().c_str(), filename);
 }
@@ -502,40 +514,26 @@ void ReplayBuilder::saveReplay(const char *dir, const char *filename) {
     copyReplayResource(KINETIC_JS, dir);
     copyReplayResource(BBREPLAY_JS, dir);
 
-    std::string replayHtml;
-    const char *phTitleStart = strstr(replayTemplate, REPLAY_TITLE_PLACEHOLDER);
-    if (phTitleStart == NULL) {
-      return;
-    }
-    replayHtml.append(replayTemplate, (phTitleStart - replayTemplate));
-    std::stringstream titleStream;
-    titleStream << (stageName_ == 0 ? "Unknown" : stageName_);
-    titleStream << ": ";
-    for (int x = 0; x < numTeams_; x++) {
-      char *teamName = teamNames_[x];
-      if (teamName != 0) {
-        if (x != 0) {
-          titleStream << " vs ";
-        }
-        titleStream << escapeHtml(teamName);
-      }
-    }
-    replayHtml.append(titleStream.str());
-    if (timestamp_ != 0) {
-      replayHtml.append(" @ ");
-      replayHtml.append(timestamp_);
-    }
-    
-    const char *phTitleEnd = &(phTitleStart[strlen(REPLAY_TITLE_PLACEHOLDER)]);
-    const char *phDataStart = strstr(phTitleEnd, REPLAY_DATA_PLACEHOLDER);
-    if (phDataStart == NULL) {
-      return;
+    std::string replayHtml(replayTemplate);
+    std::string title = htmlTitle();
+    size_t i;
+    size_t len = strlen(REPLAY_TITLE_PLACEHOLDER);
+    i = replayHtml.find(REPLAY_TITLE_PLACEHOLDER, 0);
+    if (i != std::string::npos) {
+      replayHtml.replace(i, len, htmlTitle());
     }
 
-    replayHtml.append(phTitleEnd, (phDataStart - phTitleEnd));
-    replayHtml.append(buildReplayDataString());
-    const char *phEnd = &(phDataStart[strlen(REPLAY_DATA_PLACEHOLDER)]);
-    replayHtml.append(phEnd);
+    len = strlen(REPLAY_DATA_PLACEHOLDER);
+    i = replayHtml.find(REPLAY_DATA_PLACEHOLDER, 0);
+    if (i != std::string::npos) {
+      replayHtml.replace(i, len, buildReplayDataString());
+    }
+
+    len = strlen(EXTRA_JS_PLACEHOLDER);
+    i = replayHtml.find(EXTRA_JS_PLACEHOLDER, 0);
+    if (i != std::string::npos) {
+      replayHtml.replace(i, len, extraJavascript_ == 0 ? "" : extraJavascript_);
+    }
 
     char *filePath = fileManager.getFilePath(dir, filename);
     char *absFilename = fileManager.getAbsFilePath(filePath);
@@ -725,6 +723,26 @@ std::string ReplayBuilder::resultsDataString() {
   }
   
   return out.str();
+}
+
+std::string ReplayBuilder::htmlTitle() {
+  std::stringstream titleStream;
+  titleStream << (stageName_ == 0 ? "Unknown" : stageName_);
+  titleStream << ": ";
+  for (int x = 0; x < numTeams_; x++) {
+    char *teamName = teamNames_[x];
+    if (teamName != 0) {
+      if (x != 0) {
+        titleStream << " vs ";
+      }
+      titleStream << escapeHtml(teamName);
+    }
+  }
+  if (timestamp_ != 0) {
+    titleStream << " @ ";
+    titleStream << timestamp_;
+  }
+  return titleStream.str();
 }
 
 std::string ReplayBuilder::escapeString(std::string s) {

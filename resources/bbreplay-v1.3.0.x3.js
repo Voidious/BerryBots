@@ -92,7 +92,7 @@
 
 Kinetic.pixelRatio = 1;
 
-BerryBots = {
+var BerryBots = {
   STAGE_MARGIN: 25,
   LASER_SPEED: 25,
   TORPEDO_SPEED: 12,
@@ -115,7 +115,8 @@ BerryBots = {
   DESTROY_FRAMES: 16,
   DESTROY_FRAME_LENGTH: 2,
   DESTROY_TIME: 32 /* 16 * 2 */,
-  replayData: BerryBots.replayData
+  replayData: BerryBots.replayData,
+  interactive: BerryBots.interactive
 };
 
 BerryBots.style = {};
@@ -602,6 +603,9 @@ BerryBots.parseReplayData = function() {
 
 // Initialize KineticJS graphics.
 BerryBots.initGfx = function() {
+  if (BerryBots.interactive == null) {
+    BerryBots.interactive = true;
+  }
   BerryBots.mainLayer = new Kinetic.Layer();
   BerryBots.stageLayer = new Kinetic.Layer();
   BerryBots.spinnerShip = null;
@@ -802,10 +806,12 @@ BerryBots.showPlayPause = function() {
 };
 
 BerryBots.showOverlay = function() {
-  BerryBots.showConsoleTabs();
-  BerryBots.showControls();
-  BerryBots.showTimeDisplay();
-  BerryBots.showingOverlay = true;
+  if (BerryBots.interactive) {
+    BerryBots.showConsoleTabs();
+    BerryBots.showControls();
+    BerryBots.showTimeDisplay();
+    BerryBots.showingOverlay = true;
+  }
 };
 
 BerryBots.hideOverlay = function() {
@@ -979,6 +985,9 @@ BerryBots.dragEnd = function(x) {
 };
 
 BerryBots.showResults = function() {
+  if (BerryBots.results.length == 0) {
+    return;
+  }
   if (BerryBots.resultsDiv != null) {
     hideResults();
   }

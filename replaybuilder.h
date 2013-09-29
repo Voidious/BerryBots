@@ -32,6 +32,7 @@
 #define BBREPLAY_JS               "resources/bbreplay-v1.3.0.x3.js"
 #define REPLAY_TITLE_PLACEHOLDER  "{$replayTitle}"
 #define REPLAY_DATA_PLACEHOLDER   "{$replayData}"
+#define EXTRA_JS_PLACEHOLDER      "{$extraJavascript}"
 
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
 #define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
@@ -70,6 +71,7 @@ class ReplayBuilder {
   int numShips_;
   int numTeamsAdded_;
   char *stageName_;
+  char *extraJavascript_;
   ReplayData *stagePropertiesData_;
   ReplayData *wallsData_;
   ReplayData *zonesData_;
@@ -124,6 +126,7 @@ class ReplayBuilder {
     void setResults(Team **rankedTeams, int numTeams);
     const char* getStageName();
     void setTimestamp(const char *timestamp);
+    void setExtraJavascript(const char *extraJavascript);
     void saveReplay(const char *filename);
     void saveReplay(const char *dir, const char *filename);
   private:
@@ -145,6 +148,7 @@ class ReplayBuilder {
     std::string textDataString();
     std::string logDataString();
     std::string resultsDataString();
+    std::string htmlTitle();
     std::string escapeString(std::string s);
     std::string escapeHtml(std::string s);
     void findReplace(std::string &s, char find, const char *replace);

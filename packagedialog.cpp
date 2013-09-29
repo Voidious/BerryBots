@@ -109,12 +109,12 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
           wxUpdateUIEventHandler(PackageDialog::onSelectItem));
   Connect(versionText_->GetId(), wxEVT_UPDATE_UI,
           wxUpdateUIEventHandler(PackageDialog::onUpdateVersion));
-#ifdef __WINDOWS
-      // On Windows XP, not redrawing the game while interrupted (dialog shown)
-      // creates visual artifacts, so manually redraw it on update UI in Windows.
-      // The same kills the framerate in Linux/GTK. Either way works on Mac/Cocoa.
-      Connect(this->GetId(), wxEVT_UPDATE_UI,
-              wxUpdateUIEventHandler(PackageDialog::onUpdateUi));
+#ifdef __WINDOWS__
+  // On Windows XP, not redrawing the game while interrupted (dialog shown)
+  // creates visual artifacts, so manually redraw it on update UI in Windows.
+  // The same kills the framerate in Linux/GTK. Either way works on Mac/Cocoa.
+  Connect(this->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(PackageDialog::onUpdateUi));
 #endif
 
   eventFilter_ = new PackageEventFilter(this);

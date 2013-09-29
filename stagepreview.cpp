@@ -99,6 +99,9 @@ StagePreview::StagePreview(
   borderSizer->Add(topSizer, 0, wxALL | wxEXPAND, 12);
   mainPanel_->SetSizerAndFit(borderSizer);
   SetSizerAndFit(mainSizer_);
+
+  Connect(this->GetId(), wxEVT_ACTIVATE,
+          wxActivateEventHandler(StagePreview::onActivate));
 }
 
 StagePreview::~StagePreview() {
@@ -155,6 +158,7 @@ std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
 
   std::stringstream filenameStream;
   filenameStream << (rand() % 10000000) << ".html";
+  previewReplay->setExtraJavascript("BerryBots.interactive = false;");
   previewReplay->saveReplay(getTmpDir().c_str(),
                             filenameStream.str().c_str());
 
