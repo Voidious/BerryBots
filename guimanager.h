@@ -136,8 +136,8 @@ class GuiManager {
     void showStageConsole();
     void showTeamConsole(int teamIndex);
     void showErrorConsole();
-    void showHtmlStagePreview(const char *stageName);
-    void closeHtmlStagePreview();
+    void showStagePreview(const char *stageName);
+    void closeStagePreview();
     void hideNewMatchDialog();
     void hidePackageShipDialog();
     void hidePackageStageDialog();

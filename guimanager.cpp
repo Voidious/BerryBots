@@ -1046,13 +1046,13 @@ void GuiManager::showErrorConsole() {
   errorConsole_->Raise();
 }
 
-void GuiManager::showHtmlStagePreview(const char *stageName) {
+void GuiManager::showStagePreview(const char *stageName) {
   if (previewing_) {
     // Don't allow showStagePreview to execute recursively.
     return;
   }
   previewing_ = true;
-  closeHtmlStagePreview();
+  closeStagePreview();
   
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
   stagePreview_ = new StagePreview(stagesBaseDir_, stageName,
@@ -1062,7 +1062,7 @@ void GuiManager::showHtmlStagePreview(const char *stageName) {
   stagePreview_->Raise();
 }
 
-void GuiManager::closeHtmlStagePreview() {
+void GuiManager::closeStagePreview() {
   if (stagePreview_ != 0) {
     StagePreview *stagePreview = stagePreview_;
     stagePreview_ = 0;
@@ -1265,7 +1265,7 @@ void MatchStarter::startMatch(const char *stageName, char **teamNames,
 }
 
 void MatchStarter::previewStage(const char *stageName) {
-  guiManager_->showHtmlStagePreview(stageName);
+  guiManager_->showStagePreview(stageName);
 }
 
 void MatchStarter::refreshFiles() {
@@ -1282,7 +1282,7 @@ void MatchStarter::onEscape() {
 }
 
 void MatchStarter::onActive() {
-  guiManager_->closeHtmlStagePreview();
+  guiManager_->closeStagePreview();
 }
 
 void MatchStarter::onUpdateUi() {
@@ -1507,7 +1507,7 @@ PreviewFocusListener::PreviewFocusListener(GuiManager *guiManager) {
 }
 
 void PreviewFocusListener::onClose() {
-  guiManager_->closeHtmlStagePreview();
+  guiManager_->closeStagePreview();
 }
 
 RunnerConsoleListener::RunnerConsoleListener(GuiManager *guiManager) {
