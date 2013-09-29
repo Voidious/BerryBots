@@ -545,6 +545,25 @@ void BerryBotsEngine::initStage(const char *stagesBaseDir,
   stage_->buildBaseWalls();
   stagePrint("");
   stageConfigureComplete_ = true;
+
+  replayBuilder_->addStageProperties(stage_->getName(), stage_->getWidth(),
+                                     stage_->getHeight());
+  Wall **walls = stage_->getWalls();
+  int numWalls = stage_->getWallCount();
+  for (int x = 0; x < numWalls; x++) {
+    Wall *wall = walls[x];
+    replayBuilder_->addWall(wall->getLeft(), wall->getBottom(),
+                            wall->getWidth(), wall->getHeight());
+  }
+  Zone **zones = stage_->getZones();
+  int numZones = stage_->getZoneCount();
+  for (int x = 0; x < numZones; x++) {
+    Zone *zone = zones[x];
+    replayBuilder_->addZone(zone->getLeft(), zone->getBottom(),
+                            zone->getWidth(), zone->getHeight());
+  }
+  replayHandler_ = new ReplayEventHandler(replayBuilder_);
+  stage_->addEventHandler(replayHandler_);
 }
 
 // Loads the teams in the files specified in teamNames from the root directory
@@ -558,7 +577,8 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
   int numStageShips = stage_->getStageShipCount();
   numShips_ = (userTeams * teamSize_) + numStageShips;
   numTeams_ = userTeams + numStageShips;
-  initReplayBuilder(numTeams_, numShips_, stage_);
+  replayBuilder_->initShips(numTeams_, numShips_);
+
   ships_ = new Ship*[numShips_];
   shipProperties_ = new ShipProperties*[numShips_];
   teams_ = new Team*[numTeams_];
@@ -847,29 +867,6 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
     shipPrint(teams_[x]->state, "");
   }
   shipInitComplete_ = true;
-}
-
-void BerryBotsEngine::initReplayBuilder(int numTeams, int numShips,
-                                        Stage *stage) {
-  replayBuilder_->initShips(numTeams, numShips);
-  replayHandler_ = new ReplayEventHandler(replayBuilder_);
-  stage_->addEventHandler(replayHandler_);
-  replayBuilder_->addStageProperties(stage->getName(), stage->getWidth(),
-                                     stage->getHeight());
-  Wall **walls = stage->getWalls();
-  int numWalls = stage->getWallCount();
-  for (int x = 0; x < numWalls; x++) {
-    Wall *wall = walls[x];
-    replayBuilder_->addWall(wall->getLeft(), wall->getBottom(),
-                            wall->getWidth(), wall->getHeight());
-  }
-  Zone **zones = stage->getZones();
-  int numZones = stage->getZoneCount();
-  for (int x = 0; x < numZones; x++) {
-    Zone *zone = zones[x];
-    replayBuilder_->addZone(zone->getLeft(), zone->getBottom(),
-                            zone->getWidth(), zone->getHeight());
-  }
 }
 
 void BerryBotsEngine::initShipRound(Ship *ship) {

@@ -125,6 +125,7 @@ class ReplayBuilder {
     const char* getStageName();
     void setTimestamp(const char *timestamp);
     void saveReplay(const char *filename);
+    void saveReplay(const char *dir, const char *filename);
   private:
     void addShip(int shipIndex, int time);
     void removeShip(int shipIndex, int time);
@@ -135,7 +136,7 @@ class ReplayBuilder {
     void addResult(Team *team);
     void addStat(ScoreStat *stat);
     int round(double f);
-    void copyReplayResource(const char *resource);
+    void copyReplayResource(const char *resource, const char *targetDir);
     std::string buildReplayDataString();
     char* readReplayTemplate();
     std::string stagePropertiesDataString();

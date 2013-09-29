@@ -36,6 +36,7 @@
 
 #define DEFAULT_STAGE_WIDTH   800
 #define DEFAULT_STAGE_HEIGHT  600
+#define STAGE_MARGIN          25
 #define SHIP_RADIUS           8
 #define SHIP_SIZE             SHIP_RADIUS * 2
 #define LASER_SPEED           25

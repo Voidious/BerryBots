@@ -36,7 +36,6 @@
 #define SHIP_OUTLINE_THICKNESS    1.7
 #define WINDOW_SIZE_STEP          .1
 
-#define STAGE_MARGIN              25
 #define DOCK_SIZE                 159
 #define SHIP_DOT_POSITION         DRAW_SHIP_RADIUS * .45
 #define SHIP_DOT_RADIUS           DRAW_SHIP_RADIUS * .2

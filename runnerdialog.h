@@ -25,13 +25,13 @@
 #include "menubarmaker.h"
 
 class RunnerDialogListener {
-public:
-  virtual void launch(const char *name) = 0;
-  virtual void refreshFiles() = 0;
-  virtual void onClose() = 0;
-  virtual void onEscape() = 0;
-  virtual void onUpdateUi() = 0;
-  virtual ~RunnerDialogListener() {};
+  public:
+    virtual void launch(const char *name) = 0;
+    virtual void refreshFiles() = 0;
+    virtual void onClose() = 0;
+    virtual void onEscape() = 0;
+    virtual void onUpdateUi() = 0;
+    virtual ~RunnerDialogListener() {};
 };
 
 class RunnerDialog : public wxFrame {

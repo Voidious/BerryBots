@@ -27,7 +27,6 @@
 #include <wx/dataview.h>
 #include <platformstl/filesystem/readdir_sequence.hpp>
 #include "ResourcePath.hpp"
-
 #include "bbutil.h"
 #include "bblua.h"
 #include "stage.h"
@@ -38,6 +37,7 @@
 #include "gamerunner.h"
 #include "guigamerunner.h"
 #include "newmatch.h"
+#include "stagepreview.h"
 #include "packagedialog.h"
 #include "packageship.h"
 #include "packagestage.h"
@@ -1120,12 +1120,10 @@ void GuiManager::showStagePreview(const char *stageName) {
   initPreviewWindow(600, 600);
 #endif
 
-  GfxEventHandler *gfxHandler = new GfxEventHandler();
   BerryBotsEngine *engine = new BerryBotsEngine(0, fileManager_, 0);
   try {
     engine->initStage(stagesBaseDir_, stageName, getCacheDir().c_str());
   } catch (EngineException *e) {
-    delete gfxHandler;
     delete engine;
     errorConsole_->println(e->what());
     wxMessageDialog errorMessage(NULL, e->what(), "Preview failure",
@@ -1217,6 +1215,7 @@ void GuiManager::showStagePreview(const char *stageName) {
                                 ships, 1, resourcePath());
   previewGfxManager_->initViews(previewWindow_, viewWidth, viewHeight);
 
+  GfxEventHandler *gfxHandler = new GfxEventHandler();
   while (!quitting_ && !closingPreview_ && previewWindow_->isOpen()) {
     processPreviewWindowEvents(previewWindow_, previewGfxManager_, viewWidth,
                                viewHeight);
@@ -1237,6 +1236,14 @@ void GuiManager::showStagePreview(const char *stageName) {
   newMatchDialog_->Show();
   newMatchDialog_->Raise();
   previewing_ = false;
+}
+
+void GuiManager::showHtmlStagePreview(const char *stageName) {
+  wxPoint newMatchPosition = newMatchDialog_->GetPosition();
+  StagePreview *stagePreview = new StagePreview(stagesBaseDir_, stageName,
+      newMatchPosition.x + 25, newMatchPosition.y + 25, menuBarMaker_);
+  stagePreview->Show();
+  stagePreview->Raise();
 }
 
 void GuiManager::closeStagePreview() {
@@ -1435,7 +1442,7 @@ void MatchStarter::startMatch(const char *stageName, char **teamNames,
 }
 
 void MatchStarter::previewStage(const char *stageName) {
-  guiManager_->showStagePreview(stageName);
+  guiManager_->showHtmlStagePreview(stageName);
 }
 
 void MatchStarter::refreshFiles() {

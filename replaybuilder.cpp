@@ -455,6 +455,10 @@ void ReplayBuilder::setTimestamp(const char *timestamp) {
   }
 }
 
+void ReplayBuilder::saveReplay(const char *filename) {
+  saveReplay(getReplaysDir().c_str(), filename);
+}
+
 // Format of saved replay file:
 // | replay version
 // | stage name length | stage name | stage width | stage height
@@ -479,7 +483,7 @@ void ReplayBuilder::setTimestamp(const char *timestamp) {
 // | num texts | <texts>
 // | num log entries | <log entries>
 // | num results | <results>
-void ReplayBuilder::saveReplay(const char *filename) {
+void ReplayBuilder::saveReplay(const char *dir, const char *filename) {
   // TODO: throw exceptions for failing to save replay, don't silently fail
 
   FileManager fileManager;
@@ -495,8 +499,8 @@ void ReplayBuilder::saveReplay(const char *filename) {
   }
 
   if (replayTemplate != 0) {
-    copyReplayResource(KINETIC_JS);
-    copyReplayResource(BBREPLAY_JS);
+    copyReplayResource(KINETIC_JS, dir);
+    copyReplayResource(BBREPLAY_JS, dir);
 
     std::string replayHtml;
     const char *phTitleStart = strstr(replayTemplate, REPLAY_TITLE_PLACEHOLDER);
@@ -533,7 +537,7 @@ void ReplayBuilder::saveReplay(const char *filename) {
     const char *phEnd = &(phDataStart[strlen(REPLAY_DATA_PLACEHOLDER)]);
     replayHtml.append(phEnd);
 
-    char *filePath = fileManager.getFilePath(getReplaysDir().c_str(), filename);
+    char *filePath = fileManager.getFilePath(dir, filename);
     char *absFilename = fileManager.getAbsFilePath(filePath);
     delete filePath;
     fileManager.writeFile(absFilename, replayHtml.c_str());
@@ -542,11 +546,11 @@ void ReplayBuilder::saveReplay(const char *filename) {
   }
 }
 
-void ReplayBuilder::copyReplayResource(const char *resource) {
+void ReplayBuilder::copyReplayResource(const char *resource,
+                                       const char *targetDir) {
   FileManager fileManager;
   char *filename = fileManager.parseFilename(resource);
-  char *targetPath =
-      fileManager.getFilePath(getReplaysDir().c_str(), filename);
+  char *targetPath = fileManager.getFilePath(targetDir, filename);
   delete filename;
 
   if (!fileManager.fileExists(targetPath)) {

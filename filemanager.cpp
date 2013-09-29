@@ -382,6 +382,14 @@ char* FileManager::getStageDescription(const char *stagesBaseDir,
       }
     }
   }
+
+  char c;
+  size_t pos;
+  while ((c = description.at(pos = (description.length() - 1))) == ' '
+         || c == '\n' || c == '\r' || c == '\t') {
+    description.replace(pos, 1, "");
+  }
+
   delete fileLine;
   delete stagePath;
   fclose(stageFile);
