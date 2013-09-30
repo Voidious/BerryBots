@@ -183,6 +183,7 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
 
   mainPanel_->GetSizer()->SetSizeHints(mainPanel_);
   Fit();
+  mainPanel_->SetFocus();
 }
 
 std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
@@ -197,6 +198,7 @@ std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
 
   Team *previewTeam = new Team;
   strcpy(previewTeam->name, " ");
+  previewTeam->index = 0;
   previewReplay->addTeamProperties(previewTeam);
 
   Ship *previewShip = new Ship;
@@ -208,6 +210,7 @@ std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
   properties->thrusterG = properties->thrusterB = 0;
   strcpy(properties->name, " ");
   previewShip->properties = properties;
+  previewShip->index = previewShip->teamIndex = 0;
   previewReplay->addShipProperties(previewShip);
 
   previewShip->thrusterAngle = previewShip->thrusterForce = 0;
@@ -232,7 +235,7 @@ std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
   previewReplay->saveReplay(getTmpDir().c_str(),
                             filenameStream.str().c_str());
 
-  std::string previewUrl;
+  std::string previewUrl("file://");
   char *previewPath = fileManager_->getFilePath(getTmpDir().c_str(),
                                                 filenameStream.str().c_str());
   previewUrl.append(previewPath);
@@ -264,8 +267,10 @@ int PreviewEventFilter::FilterEvent(wxEvent& event) {
       return Event_Processed;
     } else if (keyCode == WXK_UP) {
       stagePreview_->onUp();
+      return Event_Processed;
     } else if (keyCode == WXK_DOWN) {
       stagePreview_->onDown();
+      return Event_Processed;
     }
   }
 

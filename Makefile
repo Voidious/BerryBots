@@ -30,6 +30,7 @@ SOURCES += packagedialog.cpp packageship.cpp packagestage.cpp dockitem.cpp
 SOURCES += dockshape.cpp docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp
 SOURCES += menubarmaker.cpp guigamerunner.cpp runnerdialog.cpp runnerform.cpp
 SOURCES += bbrunner.cpp resultsdialog.cpp replaybuilder.cpp sysexec.cpp
+SOURCES += stagepreview.cpp
 ##############################################################################
 
 
