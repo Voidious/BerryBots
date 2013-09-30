@@ -547,7 +547,11 @@ void ReplayBuilder::saveReplay(const char *dir, const char *filename) {
 void ReplayBuilder::copyReplayResource(const char *resource,
                                        const char *targetDir) {
   FileManager fileManager;
-  char *filename = fileManager.parseFilename(resource);
+  char *localResource = new char[strlen(resource) + 1];
+  strcpy(localResource, resource);
+  fileManager.fixSlashes(localResource);
+  char *filename = fileManager.parseFilename(localResource);
+  delete localResource;
   char *targetPath = fileManager.getFilePath(targetDir, filename);
   delete filename;
 
@@ -706,7 +710,8 @@ std::string ReplayBuilder::logDataString() {
 std::string ReplayBuilder::resultsDataString() {
   std::stringstream out;
   int i = 0;
-  int numResults = resultsData_->getInt(i++);
+  int numResults =
+      (resultsData_->getSize() > 0) ? resultsData_->getInt(i++) : 0;
   out << std::hex << numResults;
   
   for (int x = 0; x < numResults; x++) {

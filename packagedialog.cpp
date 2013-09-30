@@ -180,7 +180,7 @@ void PackageDialog::packageSelectedItem() {
     strcpy(version, versionString.c_str());
 #else
     strcpy(version, versionString.fn_str());
- #endif
+#endif
 
     listener_->package(name, version, false);
     delete name;

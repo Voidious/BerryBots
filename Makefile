@@ -4,7 +4,7 @@ CC = g++
 
 # Paths to external dependencies built from source for compiling BerryBots GUI
 # on Mac / Linux / Windows.
-SFML_PATH = /home/user/SFML-1.2
+SFML_PATH = /home/user/SFML-2.1
 WXWIDGETS_PATH = /home/user/wxWidgets-2.9.5
 LIBARCHIVE_PATH = /home/user/libarchive-3.1.2
 
@@ -126,10 +126,10 @@ WIN_CFLAGS += -Wno-ctor-dtor-privacy -pipe -fmessage-length=0
 WIN_LDFLAGS =  -L${WIN_SFML_BUILD_PATH}\lib -lpthread
 WIN_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
 WIN_LDFLAGS += -mwindows -mthreads -L${WXWIDGETS_PATH}\lib\gcc_lib
-WIN_LDFLAGS += -lwxmsw29u_html -lwxmsw29u_adv -lwxmsw29u_core -lwxbase29u_xml
-WIN_LDFLAGS += -lwxbase29u_net -lwxbase29u -lwxtiff -lwxjpeg -lwxpng -lwxzlib
-WIN_LDFLAGS += -lwxregexu -lwxexpat -lkernel32 -luser32 -lgdi32 -lcomdlg32
-WIN_LDFLAGS += -lwxregexu -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32
+WIN_LDFLAGS += -lwxmsw29u_webview -lwxmsw29u_html -lwxmsw29u_adv -lwxmsw29u_core
+WIN_LDFLAGS += -lwxbase29u_xml -lwxbase29u_net -lwxbase29u -lwxtiff -lwxjpeg
+WIN_LDFLAGS += -lwxpng -lwxzlib -lwxregexu -lwxexpat -lkernel32 -luser32 -lgdi32
+WIN_LDFLAGS += -lcomdlg32 -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32
 WIN_LDFLAGS += -loleaut32 -luuid -lrpcrt4 -ladvapi32 -lwsock32
 
 WINCLI_CFLAGS =  -I.\luajit\src -I.\stlsoft-1.9.116\include -I${LIBARCHIVE_PATH}
