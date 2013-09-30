@@ -111,7 +111,6 @@ GuiManager::GuiManager(GuiListener *listener) {
   restarting_ = false;
   quitting_ = false;
   showedResults_ = false;
-  previewing_ = false;
   runnerRunning_ = false;
   nextWindow_ = 0;
   tpsFactor_ = 1;
@@ -1046,13 +1045,6 @@ void GuiManager::showErrorConsole() {
 }
 
 void GuiManager::showStagePreview(const char *stageName) {
-  if (previewing_) {
-    // Don't allow showStagePreview to execute recursively.
-    return;
-  }
-  previewing_ = true;
-  closeStagePreview();
-  
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
   stagePreview_->showPreview(stageName,
                              newMatchPosition.x + 25, newMatchPosition.y + 25);
@@ -1063,7 +1055,6 @@ void GuiManager::closeStagePreview() {
   newMatchDialog_->Show();
   newMatchDialog_->Raise();
   newMatchDialog_->focusStageSelect();
-  previewing_ = false;
 }
 
 void GuiManager::previewNextStage() {

@@ -118,8 +118,13 @@ void StagePreview::onLoaded(wxWebViewEvent &event) {
   if (listener_ != 0 && stageName_ != 0) {
     listener_->onLoaded(stageName_);
   }
+
+#ifdef __WXOSX__
+  // On Mac/Cocoa, we hide the window while loading the preview and show it in
+  // response to the loaded event.
   Show();
   Raise();
+#endif
 }
 
 void StagePreview::onUp() {
@@ -142,7 +147,12 @@ void StagePreview::setListener(StagePreviewListener *listener) {
 }
 
 void StagePreview::showPreview(const char *stageName, int x, int y) {
+#ifdef __WXOSX__
+  // On Mac/Cocoa, we hide the window while loading the preview and show it in
+  // response to the loaded event.
   Hide();
+#endif
+
   if (stageName_ != 0) {
     delete stageName_;
   }
@@ -181,9 +191,14 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
   descSizer_->Add(descCtrl);
   delete description;
 
-  mainPanel_->GetSizer()->SetSizeHints(mainPanel_);
-  Fit();
+  mainPanel_->SetSizerAndFit(mainPanel_->GetSizer());
+  SetSizerAndFit(GetSizer());
+
   mainPanel_->SetFocus();
+
+#ifndef __WXOSX__
+  Show();
+#endif
 }
 
 std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
@@ -265,12 +280,16 @@ int PreviewEventFilter::FilterEvent(wxEvent& event) {
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       stagePreview_->Close();
       return Event_Processed;
+#ifdef __WXOSX__
+    // So far this only works smoothly on Mac. I'd rather disable it on other
+    // platforms until it's up to par.
     } else if (keyCode == WXK_UP) {
       stagePreview_->onUp();
       return Event_Processed;
     } else if (keyCode == WXK_DOWN) {
       stagePreview_->onDown();
       return Event_Processed;
+#endif
     }
   }
 

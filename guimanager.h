@@ -102,7 +102,6 @@ class GuiManager {
   bool restarting_;
   bool quitting_;
   bool showedResults_;
-  bool previewing_;
   bool runnerRunning_;
   int nextWindow_;
   double tpsFactor_;
