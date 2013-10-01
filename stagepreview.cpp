@@ -80,8 +80,10 @@ StagePreview::StagePreview(const char *stagesBaseDir,
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(StagePreview::onClose));
   Connect(webView_->GetId(), wxEVT_WEBVIEW_LOADED,
-          wxWebViewEventHandler(StagePreview::onLoaded));
-          
+          wxWebViewEventHandler(StagePreview::onWebViewLoaded));
+  Connect(webView_->GetId(), wxEVT_WEBVIEW_ERROR,
+          wxWebViewEventHandler(StagePreview::onWebViewError));
+
   eventFilter_ = new PreviewEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
 }
@@ -114,10 +116,29 @@ void StagePreview::onClose(wxCommandEvent &event) {
   Hide();
 }
 
-void StagePreview::onLoaded(wxWebViewEvent &event) {
+void StagePreview::onWebViewLoaded(wxWebViewEvent &event) {
   if (listener_ != 0 && stageName_ != 0) {
     listener_->onLoaded(stageName_);
   }
+
+#ifdef __WXOSX__
+  // On Mac/Cocoa, we hide the window while loading the preview and show it in
+  // response to the loaded event.
+  Show();
+  Raise();
+#endif
+}
+
+void StagePreview::onWebViewError(wxWebViewEvent &event) {
+  if (listener_ != 0 && stageName_ != 0) {
+    listener_->onLoaded(stageName_);
+  }
+
+  wxMessageDialog errorMessage(NULL, wxString::Format(wxT(
+      "Error loading stage preview graphics from URL: %s\n\n%s (%i)"),
+          event.GetURL(), event.GetString(), event.GetInt()),
+          "Preview failure", wxOK | wxICON_EXCLAMATION);
+  errorMessage.ShowModal();
 
 #ifdef __WXOSX__
   // On Mac/Cocoa, we hide the window while loading the preview and show it in
