@@ -70,22 +70,18 @@ StagePreview::StagePreview(const char *stagesBaseDir,
 
   wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
   mainSizer->Add(mainPanel_, 0, wxEXPAND);
+  wxBoxSizer *topSizer = new wxBoxSizer(wxVERTICAL);
+
+#ifndef __WINDOWS__
+  topSizer->Add(webView_, 0, wxEXPAND);
+  topSizer->AddSpacer(8);
+#endif
 
   wxBoxSizer *rowSizer = new wxBoxSizer(wxHORIZONTAL);
-  rowSizer->Add(infoSizer_);
-  rowSizer->AddSpacer(8);
-#ifdef __WINDOWS__
-  rowSizer->Add(descSizer_, 0, wxEXPAND);
-#else
-  rowSizer->Add(webView_, 0, wxEXPAND);
-#endif
-
-  wxBoxSizer *topSizer = new wxBoxSizer(wxVERTICAL);
+  rowSizer->Add(infoSizer_, 0, wxEXPAND);
+  rowSizer->AddSpacer(4);
+  rowSizer->Add(descSizer_, 1, wxEXPAND);
   topSizer->Add(rowSizer, 0, wxEXPAND);
-#ifndef __WINDOWS__
-  topSizer->AddSpacer(8);
-  topSizer->Add(descSizer_, 0, wxEXPAND);
-#endif
 
   wxBoxSizer *borderSizer = new wxBoxSizer(wxVERTICAL);
   borderSizer->Add(topSizer, 0, wxALL | wxEXPAND, 12);
@@ -272,6 +268,11 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
 
   char *description = fileManager_->getStageDescription(
       stagesBaseDir_, stageName, getCacheDir().c_str());
+  if (description == 0) {
+    std::string descstr("<No description>");
+    description = new char[descstr.length() + 1];
+    strcpy(description, descstr.c_str());
+  }
   wxStaticText *descCtrl = new wxStaticText(mainPanel_, wxID_ANY, description);
   descSizer_->Clear(true);
   descSizer_->Add(descCtrl);

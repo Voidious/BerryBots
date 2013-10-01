@@ -383,16 +383,20 @@ char* FileManager::getStageDescription(const char *stagesBaseDir,
     }
   }
 
+  delete fileLine;
+  delete stagePath;
+  fclose(stageFile);
+
+  if (description.length() == 0) {
+    return 0;
+  }
+
   char c;
   size_t pos;
   while ((c = description.at(pos = (description.length() - 1))) == ' '
          || c == '\n' || c == '\r' || c == '\t') {
     description.replace(pos, 1, "");
   }
-
-  delete fileLine;
-  delete stagePath;
-  fclose(stageFile);
 
   char *descCopy = new char[description.length() + 1];
   strcpy(descCopy, description.c_str());

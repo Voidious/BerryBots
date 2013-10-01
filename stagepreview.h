@@ -26,8 +26,8 @@
 #include "menubarmaker.h"
 #include "bbengine.h"
 
-#define MAX_PREVIEW_WIDTH   400
-#define MAX_PREVIEW_HEIGHT  400
+#define MAX_PREVIEW_WIDTH   650
+#define MAX_PREVIEW_HEIGHT  500
 
 class StagePreviewListener;
 
