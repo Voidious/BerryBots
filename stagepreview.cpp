@@ -57,25 +57,36 @@ StagePreview::StagePreview(const char *stagesBaseDir,
 #endif
 
   mainPanel_ = new wxPanel(this);
+  infoSizer_ = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
+  descSizer_ = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
+
+#ifndef __WINDOWS__
+  // On Windows, wxWebView is powered by IE and balks at showing Javascript
+  // because it's "active content". For now just show info/description.
   webView_ = wxWebView::New(mainPanel_, wxID_ANY);
   webView_->EnableContextMenu(false);
   webView_->EnableHistory(false);
+#endif
 
   wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
   mainSizer->Add(mainPanel_, 0, wxEXPAND);
 
   wxBoxSizer *rowSizer = new wxBoxSizer(wxHORIZONTAL);
-  infoSizer_ = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
   rowSizer->Add(infoSizer_);
   rowSizer->AddSpacer(8);
+#ifdef __WINDOWS__
+  rowSizer->Add(descSizer_, 0, wxEXPAND);
+#else
   rowSizer->Add(webView_, 0, wxEXPAND);
+#endif
 
   wxBoxSizer *topSizer = new wxBoxSizer(wxVERTICAL);
   topSizer->Add(rowSizer, 0, wxEXPAND);
+#ifndef __WINDOWS__
   topSizer->AddSpacer(8);
-  descSizer_ = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
   topSizer->Add(descSizer_, 0, wxEXPAND);
-  
+#endif
+
   wxBoxSizer *borderSizer = new wxBoxSizer(wxVERTICAL);
   borderSizer->Add(topSizer, 0, wxALL | wxEXPAND, 12);
   mainPanel_->SetSizerAndFit(borderSizer);
@@ -85,10 +96,12 @@ StagePreview::StagePreview(const char *stagesBaseDir,
           wxActivateEventHandler(StagePreview::onActivate));
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(StagePreview::onClose));
+#ifndef __WINDOWS__
   Connect(webView_->GetId(), wxEVT_WEBVIEW_LOADED,
           wxWebViewEventHandler(StagePreview::onWebViewLoaded));
   Connect(webView_->GetId(), wxEVT_WEBVIEW_ERROR,
           wxWebViewEventHandler(StagePreview::onWebViewError));
+#endif
 
   eventFilter_ = new PreviewEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
@@ -108,11 +121,15 @@ StagePreview::~StagePreview() {
 }
 
 void StagePreview::onActivate(wxActivateEvent &event) {
+#ifndef __WINDOWS__
   if (!menusInitialized_) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
     Fit();
   }
+#endif
+  mainPanel_->SetSizerAndFit(mainPanel_->GetSizer());
+  SetSizerAndFit(GetSizer());
 }
 
 void StagePreview::onClose(wxCommandEvent &event) {
@@ -189,9 +206,10 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
   SetPosition(wxPoint(x, y));
   BerryBotsEngine *engine =
       new BerryBotsEngine(0, fileManager_, resourcePath().c_str());
-  std::string previewUrl;
+  Stage *stage = engine->getStage();
+
   try {
-    previewUrl = savePreviewReplay(engine, stagesBaseDir_, stageName);
+    engine->initStage(stagesBaseDir_, stageName, getCacheDir().c_str());
   } catch (EngineException *e) {
     wxMessageDialog errorMessage(NULL, e->what(), "Preview failure",
                                  wxOK | wxICON_EXCLAMATION);
@@ -200,9 +218,9 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
     delete e;
     return;
   }
-  webView_->LoadURL(previewUrl);
+  SetTitle(wxString::Format(wxT("%s"), stage->getName()));
 
-  Stage *stage = engine->getStage();
+#ifndef __WINDOWS__
   double stageWidth = stage->getWidth() + (STAGE_MARGIN * 2);
   double stageHeight = stage->getHeight() + (STAGE_MARGIN * 2);
   double previewScale = std::min(1.0,
@@ -210,7 +228,16 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
                ((double) MAX_PREVIEW_HEIGHT) / stageHeight));
   webView_->SetSizeHints(previewScale * stageWidth, previewScale * stageHeight);
 
-  wxSizer *infoGrid = new wxFlexGridSizer(2, 0, 4);
+  std::string previewUrl = savePreviewReplay(engine);
+  webView_->LoadURL(previewUrl);
+#endif
+
+#ifdef __WXOSX__
+  int padding = 4;
+#else
+  int padding = 8;
+#endif
+  wxSizer *infoGrid = new wxFlexGridSizer(2, 0, padding);
   addInfo(infoGrid, "Name:", stage->getName());
   addInfo(infoGrid, "Size:",
       wxString::Format(wxT("%i x %i"), stage->getWidth(), stage->getHeight()));
@@ -254,7 +281,6 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
   SetSizerAndFit(GetSizer());
 
   mainPanel_->SetFocus();
-
   delete engine;
 
 #ifndef __WXOSX__
@@ -278,13 +304,8 @@ void StagePreview::addInfo(wxSizer *sizer, const char *name, int i) {
   }
 }
 
-std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
-    const char *stagesBaseDir, const char *stageName)
-    throw (EngineException *) {
-  engine->initStage(stagesBaseDir, stageName, getCacheDir().c_str());
-
+std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine) {
   Stage *stage = engine->getStage();
-  SetTitle(wxString::Format(wxT("Preview: %s"), stage->getName()));
   ReplayBuilder *previewReplay = engine->getReplayBuilder();
   previewReplay->initShips(1, 1);
 

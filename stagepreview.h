@@ -58,9 +58,7 @@ class StagePreview : public wxFrame {
   private:
     void addInfo(wxSizer *sizer, const char *name, const char *value);
     void addInfo(wxSizer *sizer, const char *name, int i);
-    std::string savePreviewReplay(BerryBotsEngine *engine,
-        const char *stagesBaseDir, const char *stageName)
-        throw (EngineException *);
+    std::string savePreviewReplay(BerryBotsEngine *engine);
 };
 
 class StagePreviewListener {
