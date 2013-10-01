@@ -26,13 +26,14 @@
 #include "menubarmaker.h"
 #include "bbengine.h"
 
-#define MAX_PREVIEW_WIDTH   550
-#define MAX_PREVIEW_HEIGHT  550
+#define MAX_PREVIEW_WIDTH   400
+#define MAX_PREVIEW_HEIGHT  400
 
 class StagePreviewListener;
 
 class StagePreview : public wxFrame {
   wxPanel *mainPanel_;
+  wxSizer *infoSizer_;
   wxSizer *descSizer_;
   wxWebView *webView_;
   MenuBarMaker *menuBarMaker_;
@@ -55,6 +56,8 @@ class StagePreview : public wxFrame {
     void setListener(StagePreviewListener *listener);
     void showPreview(const char *stageName, int x, int y);
   private:
+    void addInfo(wxSizer *sizer, const char *name, const char *value);
+    void addInfo(wxSizer *sizer, const char *name, int i);
     std::string savePreviewReplay(BerryBotsEngine *engine,
         const char *stagesBaseDir, const char *stageName)
         throw (EngineException *);

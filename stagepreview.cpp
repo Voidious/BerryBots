@@ -64,8 +64,14 @@ StagePreview::StagePreview(const char *stagesBaseDir,
   wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
   mainSizer->Add(mainPanel_, 0, wxEXPAND);
 
+  wxBoxSizer *rowSizer = new wxBoxSizer(wxHORIZONTAL);
+  infoSizer_ = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
+  rowSizer->Add(infoSizer_);
+  rowSizer->AddSpacer(8);
+  rowSizer->Add(webView_, 0, wxEXPAND);
+
   wxBoxSizer *topSizer = new wxBoxSizer(wxVERTICAL);
-  topSizer->Add(webView_, 0, wxEXPAND);
+  topSizer->Add(rowSizer, 0, wxEXPAND);
   topSizer->AddSpacer(8);
   descSizer_ = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
   topSizer->Add(descSizer_, 0, wxEXPAND);
@@ -203,7 +209,39 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
       std::min(((double) MAX_PREVIEW_WIDTH) / stageWidth,
                ((double) MAX_PREVIEW_HEIGHT) / stageHeight));
   webView_->SetSizeHints(previewScale * stageWidth, previewScale * stageHeight);
-  delete engine;
+
+  wxSizer *infoGrid = new wxFlexGridSizer(2, 0, 4);
+  addInfo(infoGrid, "Name:", stage->getName());
+  addInfo(infoGrid, "Size:",
+      wxString::Format(wxT("%i x %i"), stage->getWidth(), stage->getHeight()));
+  if (engine->getTeamSize() > 1) {
+    addInfo(infoGrid, "Team size:", engine->getTeamSize());
+  }
+  addInfo(infoGrid, "Walls:", (stage->getWallCount() - 4));
+  addInfo(infoGrid, "Zones:", stage->getZoneCount());
+  addInfo(infoGrid, "Starts:", stage->getStartCount());
+  int numStageShips = stage->getStageShipCount();
+  if (numStageShips > 0) {
+    char **stageShips = stage->getStageShips();
+    for (int x = 0; x < numStageShips; x++) {
+      const char *shipName = stageShips[x];
+      if (shipName != 0) {
+        int count = 1;
+        for (int y = x + 1; y < numStageShips; y++) {
+          const char *shipName2 = stageShips[y];
+          if (shipName2 != 0 && strcmp(shipName, shipName2) == 0) {
+            count++;
+            stageShips[y] = 0;
+          }
+        }
+        wxString wxShipName = (count == 1) ? wxString(stageShips[x])
+            : wxString::Format(wxT("%s x%i"), shipName, count);
+        addInfo(infoGrid, (x == 0 ? "Ships:" : ""), wxShipName);
+      }
+    }
+  }
+  infoSizer_->Clear(true);
+  infoSizer_->Add(infoGrid);  
 
   char *description = fileManager_->getStageDescription(
       stagesBaseDir_, stageName, getCacheDir().c_str());
@@ -217,9 +255,27 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
 
   mainPanel_->SetFocus();
 
+  delete engine;
+
 #ifndef __WXOSX__
   Show();
 #endif
+}
+
+void StagePreview::addInfo(wxSizer *sizer, const char *name,
+                           const char *value) {
+  if (name != 0) {
+    sizer->Add(new wxStaticText(mainPanel_, wxID_ANY, name));
+  }
+  sizer->Add(new wxStaticText(mainPanel_, wxID_ANY, value));
+}
+
+void StagePreview::addInfo(wxSizer *sizer, const char *name, int i) {
+  if (i > 0) {
+    sizer->Add(new wxStaticText(mainPanel_, wxID_ANY, name));
+    sizer->Add(new wxStaticText(mainPanel_, wxID_ANY,
+                                wxString::Format(wxT("%i"), i)));
+  }
 }
 
 std::string StagePreview::savePreviewReplay(BerryBotsEngine *engine,
