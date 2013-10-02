@@ -1652,7 +1652,12 @@ BerryBots.replay = function() {
                 blastScale =
                     (blastTime - 3) / (BerryBots.TORPEDO_BLAST_TIME - 4);
               }
-              torpedoBlastCircle.setScale(BerryBots.scale(blastScale));
+              if (blastScale < 0.0001) {
+                torpedoBlastCircle.setVisible(false);
+              } else {
+                torpedoBlastCircle.setVisible(true);
+                torpedoBlastCircle.setScale(BerryBots.scale(blastScale));
+              }
             }
           }
 
@@ -1789,19 +1794,25 @@ BerryBots.replay = function() {
                   Math.PI + (BerryBots.TWO_PI - shipState.thrusterAngle));
               var forceFactor = shipState.thrusterForce;
               if (forceFactor < 0.0001) {
-                thruster.setScale(0);
+                thruster.setVisible(false);
               } else {
+                thruster.setVisible(true);
                 thruster.setScale(BerryBots.scale(BerryBots.THRUSTER_ZERO
                     + (forceFactor * (1 - BerryBots.THRUSTER_ZERO))));
               }
 
-              var energy = ship.getChildren()[2];
-              energy.setScale(BerryBots.scale(shipState.energy / 100, 1));
+              var energy = shipState.energy / 100;
+              var energyShape = ship.getChildren()[2];
+              if (energy < 0.0001) {
+                energyShape.setVisible(false);
+              } else {
+                energyShape.setVisible(shipShowEnergys[x]);
+                energyShape.setScale(BerryBots.scale(energy, 1));
+              }
               var shipDotGroup = ship.getChildren()[4];
               shipDotGroup.setRotation(shipDotGroup.getRotation()
                   + (BerryBots.SHIP_ROTATION * BerryBots.shipOrbits[x]));
               ship.getChildren()[1].setVisible(shipShowNames[x]);
-              energy.setVisible(shipShowEnergys[x]);
             } else {
               ship.hide();
             }
@@ -1852,9 +1863,9 @@ BerryBots.replay = function() {
             if (BerryBots.spinnerShip == null) {
               var ship = BerryBots.spinnerShip = BerryBots.shipProto.clone();
               var shipParts = ship.getChildren();
-              shipParts[0].setScale(0);
-              shipParts[1].setScale(0);
-              shipParts[2].setScale(0);
+              shipParts[0].setVisible(false);
+              shipParts[1].setVisible(false);
+              shipParts[2].setVisible(false);
               shipParts[3].setStroke('#f00');
               var dots = shipParts[4].getChildren();
               dots[0].setFill('#f00');
@@ -1877,13 +1888,13 @@ BerryBots.replay = function() {
         } while (true);
         if (BerryBots.skipTime != -1) {
           BerryBots.desktopPing();
-        }
-        if (BerryBots.gameTime >= BerryBots.skipTime) {
-          BerryBots.skipTime = -1;
-          if (BerryBots.spinnerShip != null) {
-            BerryBots.spinnerShip.destroy();
-            BerryBots.spinnerShip = null;
-            BerryBots.mainLayer.setOpacity(1);
+          if (BerryBots.gameTime >= BerryBots.skipTime) {
+            BerryBots.skipTime = -1;
+            if (BerryBots.spinnerShip != null) {
+              BerryBots.spinnerShip.destroy();
+              BerryBots.spinnerShip = null;
+              BerryBots.mainLayer.setOpacity(1);
+            }
           }
         }
       } else if (!BerryBots.showedResults) {
