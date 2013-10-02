@@ -24,10 +24,11 @@
 #include <wx/wx.h>
 #include <wx/webview.h>
 #include "bbconst.h"
+#include "bbwx.h"
 #include "ResourcePath.hpp"
 #include "basedir.h"
 #include "filemanager.h"
-#include "bbwx.h"
+#include "sysexec.h"
 #include "menubarmaker.h"
 #include "bbengine.h"
 #include "stagepreview.h"
@@ -40,6 +41,7 @@ StagePreview::StagePreview(const char *stagesBaseDir,
   menusInitialized_ = false;
   fileManager_ = new FileManager();
   listener_ = 0;
+  systemExecutor_ = new SystemExecutor();
   stagesBaseDir_ = new char[strlen(stagesBaseDir) + 1];
   strcpy(stagesBaseDir_, stagesBaseDir);
   stageName_ = 0;
@@ -114,6 +116,7 @@ StagePreview::~StagePreview() {
   if (stageName_ != 0) {
     delete stageName_;
   }
+  delete systemExecutor_;
 }
 
 void StagePreview::onActivate(wxActivateEvent &event) {
@@ -121,11 +124,9 @@ void StagePreview::onActivate(wxActivateEvent &event) {
   if (!menusInitialized_) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;
-    Fit();
   }
 #endif
-  mainPanel_->SetSizerAndFit(mainPanel_->GetSizer());
-  SetSizerAndFit(GetSizer());
+  Fit();
 }
 
 void StagePreview::onClose(wxCommandEvent &event) {
@@ -167,6 +168,10 @@ void StagePreview::onWebViewError(wxWebViewEvent &event) {
 #endif
 }
 
+void StagePreview::onVisualPreview(wxCommandEvent &event) {
+  systemExecutor_->openHtmlFile(lastPreviewUrl_.substr(7).c_str()); // 7 = "file://"
+}
+
 void StagePreview::onUp() {
   if (listener_ != 0) {
     listener_->onUp();
@@ -193,6 +198,9 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
   Hide();
 #endif
 
+  infoSizer_->Clear(true);
+  descSizer_->Clear(true);
+
   if (stageName_ != 0) {
     delete stageName_;
   }
@@ -216,15 +224,15 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
   }
   SetTitle(wxString::Format(wxT("%s"), stage->getName()));
 
-#ifndef __WINDOWS__
   double stageWidth = stage->getWidth() + (STAGE_MARGIN * 2);
   double stageHeight = stage->getHeight() + (STAGE_MARGIN * 2);
   double previewScale = std::min(1.0,
       std::min(((double) MAX_PREVIEW_WIDTH) / stageWidth,
                ((double) MAX_PREVIEW_HEIGHT) / stageHeight));
-  webView_->SetSizeHints(previewScale * stageWidth, previewScale * stageHeight);
-
   std::string previewUrl = savePreviewReplay(engine);
+  lastPreviewUrl_ = previewUrl;
+#ifndef __WINDOWS__
+  webView_->SetSizeHints(previewScale * stageWidth, previewScale * stageHeight);
   webView_->LoadURL(previewUrl);
 #endif
 
@@ -263,8 +271,16 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
       }
     }
   }
-  infoSizer_->Clear(true);
-  infoSizer_->Add(infoGrid);  
+#ifdef __WINDOWS__
+  wxButton *viewStageButton = new wxButton(mainPanel_, wxID_ANY, "&View Stage");
+  Connect(viewStageButton->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(StagePreview::onVisualPreview));
+  infoGrid->AddSpacer(8);
+  infoGrid->AddSpacer(8);
+  infoGrid->AddSpacer(0);
+  infoGrid->Add(viewStageButton, 0, wxALIGN_RIGHT);
+#endif
+  infoSizer_->Add(infoGrid);
 
   char *description = fileManager_->getStageDescription(
       stagesBaseDir_, stageName, getCacheDir().c_str());
@@ -274,13 +290,11 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
     strcpy(description, descstr.c_str());
   }
   wxStaticText *descCtrl = new wxStaticText(mainPanel_, wxID_ANY, description);
-  descSizer_->Clear(true);
   descSizer_->Add(descCtrl);
   delete description;
 
-  mainPanel_->SetSizerAndFit(mainPanel_->GetSizer());
-  SetSizerAndFit(GetSizer());
-
+  mainPanel_->GetSizer()->SetSizeHints(mainPanel_);
+  mainPanel_->Layout();
   mainPanel_->SetFocus();
   delete engine;
 

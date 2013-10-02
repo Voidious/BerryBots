@@ -21,9 +21,11 @@
 #ifndef STAGE_PREVIEW_H
 #define STAGE_PREVIEW_H
 
+#include <string.h>
 #include <wx/wx.h>
 #include <wx/webview.h>
 #include "menubarmaker.h"
+#include "sysexec.h"
 #include "bbengine.h"
 
 #define MAX_PREVIEW_WIDTH   650
@@ -41,6 +43,8 @@ class StagePreview : public wxFrame {
   FileManager *fileManager_;
   char *stagesBaseDir_;
   char *stageName_;
+  std::string lastPreviewUrl_;
+  SystemExecutor *systemExecutor_;
   StagePreviewListener *listener_;
   wxEventFilter *eventFilter_;
 
@@ -51,6 +55,7 @@ class StagePreview : public wxFrame {
     void onClose(wxCommandEvent &event);
     void onWebViewLoaded(wxWebViewEvent &event);
     void onWebViewError(wxWebViewEvent &event);
+    void onVisualPreview(wxCommandEvent &event);
     void onUp();
     void onDown();
     void setListener(StagePreviewListener *listener);
