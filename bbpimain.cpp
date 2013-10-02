@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
-
+#include <sstream>
 #include "shapes.h"
 #include "bbconst.h"
 #include "bbutil.h"
@@ -31,21 +31,17 @@
 #include "filemanager.h"
 #include "stage.h"
 #include "bbengine.h"
+#include "replaybuilder.h"
 #include "gfxeventhandler.h"
-#include "printhandler.h"
 #include "cliprinthandler.h"
 #include "clipackagereporter.h"
 #include "tarzipper.h"
 #include "ResourcePath.hpp"
 
-BerryBotsEngine *engine = 0;
-Stage *stage = 0;
-PrintHandler *printHandler = 0;
-
 void printUsage() {
   std::cout << "Usage:" << std::endl;
-  std::cout << "  berrybots.sh [-nodisplay] <stage.lua> <bot1.lua> [<bot2.lua> ...]"
-            << std::endl;
+  std::cout << "  berrybots.sh [-nodisplay] [-savereplay]"
+            << " <stage.lua> <bot1.lua> [<bot2.lua> ...]" << std::endl;
   std::cout << "  OR" << std::endl;
   std::cout << "  berrybots.sh -packstage <stage.lua> <version>"
             << std::endl;
@@ -53,6 +49,20 @@ void printUsage() {
   std::cout << "  berrybots.sh -packbot <bot.lua> <version>"
             << std::endl;
   exit(0);
+}
+
+char* replayFilename(const char *stageName) {
+  std::stringstream nameStream;
+  char *timestamp = getTimestamp();
+  nameStream << ((stageName == 0) ? "unknown" : stageName) << "-"
+             << timestamp << ".html";
+  delete timestamp;
+
+  std::string filename = nameStream.str();
+  char *newFilename = new char[filename.length() + 1];
+  strcpy(newFilename, filename.c_str());
+  
+  return newFilename;
 }
 
 int main(int argc, char *argv[]) {
@@ -125,8 +135,9 @@ int main(int argc, char *argv[]) {
   }
 
   bool nodisplay = flagExists(argc, argv, "nodisplay");
-
-  if (argc < 3 || (nodisplay && strcmp(argv[1], "-nodisplay") != 0)) {
+  bool saveReplay = flagExists(argc, argv, "savereplay");
+  int optArgsOffset = (nodisplay ? 1 : 0) + (saveReplay ? 1 : 0);
+  if (argc < 3 + optArgsOffset) {
     printUsage();
   }
 
@@ -135,20 +146,20 @@ int main(int argc, char *argv[]) {
   int screenHeight;
   init(&screenWidth, &screenHeight);
 
-  CliPrintHandler *cliPrintHandler = new CliPrintHandler();
-  printHandler = (PrintHandler*) cliPrintHandler;
+  CliPrintHandler *printHandler = new CliPrintHandler();
 
-  engine = new BerryBotsEngine(printHandler, fileManager, resourcePath().c_str());
-  stage = engine->getStage();
+  BerryBotsEngine *engine =
+      new BerryBotsEngine(printHandler, fileManager, resourcePath().c_str());
+  Stage *stage = engine->getStage();
   // TODO: Enable graphical debugging on Raspberry Pi. Main barrier is UI.
   stage->disableUserGfx();
 
-  char *stageAbsName = fileManager->getAbsFilePath(argv[nodisplay ? 2 : 1]);
+  char *stageAbsName = fileManager->getAbsFilePath(argv[1 + optArgsOffset]);
   char *stageName =
       fileManager->parseRelativeFilePath(stagesBaseDir, stageAbsName);
   if (stageName == 0) {
     std::cout << "Stage must be located under " << STAGES_SUBDIR
-              << "/ subdirectory: " << argv[nodisplay ? 2 : 1] << std::endl;
+              << "/ subdirectory: " << argv[1 + optArgsOffset] << std::endl;
     return 0;
   }
   try {
@@ -164,7 +175,7 @@ int main(int argc, char *argv[]) {
   delete stageAbsName;
   delete stageName;
 
-  int firstTeam = (nodisplay ? 3 : 2);
+  int firstTeam = (2 + optArgsOffset);
   int numTeams = argc - firstTeam;
   char **teams = new char*[numTeams];
   for (int x = 0; x < numTeams; x++) {
@@ -180,7 +191,7 @@ int main(int argc, char *argv[]) {
     delete teamAbsName;
   }
 
-  cliPrintHandler->setNumTeams(numTeams);
+  printHandler->setNumTeams(numTeams);
   try {
     engine->initShips(shipsBaseDir, teams, numTeams, CACHE_SUBDIR);
   } catch (EngineException *e) {
@@ -190,7 +201,7 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  cliPrintHandler->updateTeams(engine->getTeams());
+  printHandler->updateTeams(engine->getTeams());
 
   GfxEventHandler *gfxHandler = 0;
   if (!nodisplay) {
@@ -312,6 +323,36 @@ int main(int argc, char *argv[]) {
     std::cout << std::endl << "TPS: "
               << (((double) engine->getGameTime()) / realSeconds) << std::endl;
   }
+
+  if (saveReplay) {
+    ReplayBuilder *replayBuilder = engine->getReplayBuilder();
+
+    // TODO: move this into a function in the engine
+    Team **rankedTeams = engine->getRankedTeams();
+    replayBuilder->setResults(rankedTeams, engine->getNumTeams());
+
+    char *filename = 0;
+    char *absFilename = 0;
+    do {
+      if (filename != 0) {
+        delete filename;
+      }
+      if (absFilename != 0) {
+        delete absFilename;
+      }
+      filename = replayFilename(stage->getName());
+      char *filePath = fileManager->getFilePath(REPLAYS_SUBDIR, filename);
+      absFilename = fileManager->getAbsFilePath(filePath);
+      delete filePath;
+    } while (fileManager->fileExists(absFilename));
+    replayBuilder->saveReplay(filename);
+    std::cout << std::endl << "Saved replay to: " << REPLAYS_SUBDIR << "/"
+              << filename << std::endl;
+    delete filename;
+    delete absFilename;
+  }
+
+  std::cout << std::endl;
 
   delete engine;
   for (int x = 0; x < numTeams; x++) {

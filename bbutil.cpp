@@ -21,6 +21,7 @@
 #include <math.h>
 #include <string.h>
 #include <algorithm>
+#include <ctime>
 #include "bbutil.h"
 
 double limit(double p, double q, double r) {
@@ -112,5 +113,17 @@ bool isWhitespace(const char *s) {
     }
   }
   return true;
+}
+
+char* getTimestamp() {
+  time_t t;
+  struct tm *timeinfo;
+  char timestamp[80];
+  time(&t);
+  timeinfo = localtime(&t);
+  strftime(timestamp, 80, "%Y.%m.%d-%H.%M.%S", timeinfo);
+  char *newTimestamp = new char[strlen(timestamp) + 1];
+  strcpy(newTimestamp, timestamp);
+  return newTimestamp;
 }
 

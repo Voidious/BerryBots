@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "basedir.h"
+#include "bbutil.h"
 #include "filemanager.h"
 #include "stage.h"
 #include "sensorhandler.h"
@@ -2156,16 +2157,6 @@ int GameRunner_nextResult(lua_State *L) {
   return 1;
 }
 
-std::string getTimestamp() {
-  time_t t;
-  struct tm *timeinfo;
-  char timestamp[80];
-  time(&t);
-  timeinfo = localtime(&t);
-  strftime(timestamp, 80, "%Y.%m.%d-%H.%M.%S", timeinfo);
-  return std::string(timestamp);
-}
-
 char* newFilename(const char *stageName, const char *timestamp) {
   std::stringstream nameStream;
   nameStream << ((stageName == 0) ? "unknown" : stageName) << "-" << timestamp
@@ -2191,11 +2182,12 @@ int GameRunner_saveReplay(lua_State *L) {
       if (absFilename != 0) {
         delete absFilename;
       }
-      std::string timestamp = getTimestamp();
+      char *timestamp = getTimestamp();
       const char *filename =
-          newFilename(runner->replayBuilder->getStageName(), timestamp.c_str());
+          newFilename(runner->replayBuilder->getStageName(), timestamp);
       absFilename = fileManager->getFilePath(getReplaysDir().c_str(), filename);
-      runner->replayBuilder->setTimestamp(timestamp.c_str());
+      runner->replayBuilder->setTimestamp(timestamp);
+      delete timestamp;
     } while (fileManager->fileExists(absFilename));
 
     if (absFilename != 0) {
