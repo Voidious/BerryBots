@@ -93,6 +93,7 @@
 Kinetic.pixelRatio = 1;
 
 var BerryBots = {
+  PLAYER_VERSION: 1,
   STAGE_MARGIN: 25,
   LASER_SPEED: 25,
   TORPEDO_SPEED: 12,
@@ -506,12 +507,13 @@ BerryBots.parseTeamsAndShips = function(teamsOffset) {
   return shipsOffset + 1 + (numShips * 5);
 };
 
-BerryBots.parseStageReplayData = function() {
+BerryBots.parseReplayVersion = function() {
   BerryBots.values = BerryBots.replayData.replace(/\\:/g, '@;@').split(':');
-  BerryBots.getStageProperties();
+  BerryBots.replayVersion = BerryBots.getNumber(0);
 };
 
 BerryBots.parseGlobalReplayData = function() {
+  BerryBots.getStageProperties();
   BerryBots.drawBackground();
   var offset = BerryBots.drawWallsAndZones();
   offset = BerryBots.parseTeamsAndShips(offset);
@@ -595,7 +597,13 @@ BerryBots.parseDynamicReplayData = function(shipAddsOffset) {
 };
 
 BerryBots.parseReplayData = function() {
-  BerryBots.parseStageReplayData();
+  BerryBots.parseReplayVersion();
+  if (BerryBots.PLAYER_VERSION != BerryBots.replayVersion) {
+    window.alert("Error: Replay version: " + BerryBots.replayVersion
+        + ", Player version: " + BerryBots.PLAYER_VERSION);
+    return;
+  }
+
   BerryBots.initGfx();
   var offset = BerryBots.parseGlobalReplayData();
   BerryBots.parseDynamicReplayData(offset);
@@ -635,6 +643,10 @@ BerryBots.initGfx = function() {
 };
 
 BerryBots.addBodyListeners = function() {
+  if (BerryBots.PLAYER_VERSION != BerryBots.replayVersion) {
+    return;
+  }
+
   window.addEventListener('load', function() {
     document.body.onmousemove = function(e) {
       BerryBots.desktopPing();
@@ -1440,6 +1452,10 @@ BerryBots.endText = function(text) {
 
 // Replay the match from our data model, tick by tick.
 BerryBots.replay = function() {
+  if (BerryBots.PLAYER_VERSION != BerryBots.replayVersion) {
+    return;
+  }
+
   var ships = BerryBots.ships;
   var numShips = BerryBots.ships.length;
 
