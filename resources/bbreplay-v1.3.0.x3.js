@@ -513,7 +513,6 @@ BerryBots.parseReplayVersion = function() {
 };
 
 BerryBots.parseGlobalReplayData = function() {
-  BerryBots.getStageProperties();
   BerryBots.drawBackground();
   var offset = BerryBots.drawWallsAndZones();
   offset = BerryBots.parseTeamsAndShips(offset);
@@ -604,6 +603,7 @@ BerryBots.parseReplayData = function() {
     return;
   }
 
+  BerryBots.getStageProperties();
   BerryBots.initGfx();
   var offset = BerryBots.parseGlobalReplayData();
   BerryBots.parseDynamicReplayData(offset);
