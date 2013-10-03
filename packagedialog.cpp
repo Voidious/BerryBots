@@ -291,6 +291,8 @@ int PackageEventFilter::FilterEvent(wxEvent& event) {
 
   if (type == wxEVT_KEY_UP) {
     packageDialog_->setMnemonicLabels(modifierDown);
+  } else if (type == wxEVT_KILL_FOCUS) {
+    packageDialog_->setMnemonicLabels(false);
   }
 
   return Event_Skip;

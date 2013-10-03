@@ -258,5 +258,12 @@ int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
       outputConsole_->abort();
     }
   }
+
+  if (type == wxEVT_KEY_UP) {
+    outputConsole_->setMnemonicLabels(modifierDown);
+  } else if (type == wxEVT_KILL_FOCUS) {
+    outputConsole_->setMnemonicLabels(false);
+  }
+
   return Event_Skip;
 }

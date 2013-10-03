@@ -274,6 +274,8 @@ int RunnerEventFilter::FilterEvent(wxEvent& event) {
   
   if (type == wxEVT_KEY_UP) {
     runnerDialog_->setMnemonicLabels(modifierDown);
+  } else if (type == wxEVT_KILL_FOCUS) {
+    runnerDialog_->setMnemonicLabels(false);
   }
   
   return Event_Skip;
