@@ -106,6 +106,8 @@ var BerryBots = {
   LASER_SPARK_LENGTH: 8,
   LASER_SPARK_THICKNESS: 1.5,
   LASER_SPARK_TIME: 8,
+  LASER_SPARK_SPEED: 5,
+  LASER_SPARK_INITIAL_OFFSET: 9,
   TORPEDO_RADIUS: 4,
   TORPEDO_BLAST_RADIUS: 100,
   TORPEDO_BLAST_TIME: 16,
@@ -426,8 +428,8 @@ BerryBots.drawRectangles = function(baseOffset, fillColor) {
     var height = BerryBots.getNumber(offset + 3);
     var rect = new Kinetic.Rect({
       x: BerryBots.scale(BerryBots.STAGE_MARGIN + left),
-      y: BerryBots.scale(BerryBots.STAGE_MARGIN + BerryBots.stageHeight - height
-                         - bottom),
+      y: BerryBots.scale(
+          BerryBots.STAGE_MARGIN + BerryBots.stageHeight - height - bottom),
       width: BerryBots.scale(width),
       height: BerryBots.scale(height),
       fill: fillColor
@@ -1221,7 +1223,7 @@ BerryBots.getTorpedoDebris = function(baseOffset) {
     var parts = BerryBots.getNumber(offset + 6);
     torpedoDebris[x] = {shipIndex: shipIndex, startTime: time, x: debrisX,
         y: debrisY, dx: dx, dy: dy, parts: parts,
-        speed: ((Math.random() + 1) / 2) * 2.5,
+        speed: BerryBots.scale(((Math.random() + 1) / 2) * 2.5),
         endTime: time + BerryBots.TORPEDO_DEBRIS_TIME};
   }
   return torpedoDebris;
@@ -1561,8 +1563,10 @@ BerryBots.replay = function() {
                  && laserStarts[nextLaserStart].fireTime <= gameTime) {
             var laserStart = laserStarts[nextLaserStart++];
             var laser = BerryBots.makeLaser();
-            var dx = Math.cos(laserStart.heading) * BerryBots.LASER_SPEED;
-            var dy = Math.sin(laserStart.heading) * BerryBots.LASER_SPEED;
+            var dx = BerryBots.scale(
+                Math.cos(laserStart.heading) * BerryBots.LASER_SPEED);
+            var dy = BerryBots.scale(
+                Math.sin(laserStart.heading) * BerryBots.LASER_SPEED);
             laser.setX(laserStart.srcX);
             laser.setY(laserStart.srcY);
             laser.setFill(ships[laserStart.shipIndex].laserColor);
@@ -1599,9 +1603,11 @@ BerryBots.replay = function() {
               laserSparkRects.splice(x--, 1);
               BerryBots.endLaserSpark(laserSparkRect);
             } else {
+              var sparkOffset = laserSparkRect.getOffset();
               laserSparkRect.setOffset(
-                  {x: laserSparkRect.getOffset().x + 5,
-                   y: BerryBots.LASER_SPARK_THICKNESS / 2});
+                  {x: sparkOffset.x
+                       + BerryBots.scale(BerryBots.LASER_SPARK_SPEED),
+                   y: sparkOffset.y});
               laserSparkRect.move(laserSparkRect.sparkData.dx,
                                   -laserSparkRect.sparkData.dy);
             }
@@ -1619,7 +1625,8 @@ BerryBots.replay = function() {
               laserSparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
               laserSparkRect.setRotation(Math.random() * BerryBots.TWO_PI);
               laserSparkRect.setOffset(
-                  {x: 9, y: BerryBots.LASER_SPARK_THICKNESS / 2});
+                  {x: BerryBots.scale(BerryBots.LASER_SPARK_INITIAL_OFFSET),
+                   y: BerryBots.scale(BerryBots.LASER_SPARK_THICKNESS / 2)});
               laserSparkRect.sparkData = laserSpark;
               laserSparkRects.push(laserSparkRect);
               BerryBots.mainLayer.add(laserSparkRect);
@@ -1633,8 +1640,10 @@ BerryBots.replay = function() {
                  && torpedoStarts[nextTorpedoStart].fireTime <= gameTime) {
             var torpedoStart = torpedoStarts[nextTorpedoStart++];
             var torpedo = BerryBots.makeTorpedo();
-            var dx = Math.cos(torpedoStart.heading) * BerryBots.TORPEDO_SPEED;
-            var dy = Math.sin(torpedoStart.heading) * BerryBots.TORPEDO_SPEED;
+            var dx = BerryBots.scale(
+                Math.cos(torpedoStart.heading) * BerryBots.TORPEDO_SPEED);
+            var dy = BerryBots.scale(
+                Math.sin(torpedoStart.heading) * BerryBots.TORPEDO_SPEED);
             torpedo.setX(torpedoStart.srcX);
             torpedo.setY(torpedoStart.srcY);
             torpedo.torpedoData = {dx: dx, dy: dy, id: torpedoStart.id};
@@ -1725,7 +1734,9 @@ BerryBots.replay = function() {
               torpedoDebrisCircle.setFill(
                   ships[debrisData.shipIndex].shipColor);
               torpedoDebrisCircle.setRotation(Math.random() * BerryBots.TWO_PI);
-              torpedoDebrisCircle.setOffset({x: 9});
+              torpedoDebrisCircle.setOffset(
+                  {x: BerryBots.scale(BerryBots.TORPEDO_DEBRIS_INITIAL_OFFSET)}
+              );
               torpedoDebrisCircle.debrisData = debrisData;
               torpedoDebrisCircles.push(torpedoDebrisCircle);
               BerryBots.mainLayer.add(torpedoDebrisCircle);
@@ -1822,8 +1833,8 @@ BerryBots.replay = function() {
                 thruster.setVisible(false);
               } else {
                 thruster.setVisible(true);
-                thruster.setScale(BerryBots.scale(BerryBots.THRUSTER_ZERO
-                    + (forceFactor * (1 - BerryBots.THRUSTER_ZERO))));
+                thruster.setScale(BerryBots.THRUSTER_ZERO
+                    + (forceFactor * (1 - BerryBots.THRUSTER_ZERO)));
               }
 
               var energy = shipState.energy / 100;
@@ -1832,7 +1843,7 @@ BerryBots.replay = function() {
                 energyShape.setVisible(false);
               } else {
                 energyShape.setVisible(shipShowEnergys[x]);
-                energyShape.setScale(BerryBots.scale(energy, 1));
+                energyShape.setScale(energy);
               }
               var shipDotGroup = ship.getChildren()[4];
               shipDotGroup.setRotation(shipDotGroup.getRotation()
