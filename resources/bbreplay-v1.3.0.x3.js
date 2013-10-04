@@ -775,7 +775,7 @@ BerryBots.toggleConsole = function(teamIndex) {
 
   var d = console.div;
   d.style.position = 'absolute';
-  d.style.left = Math.max(0, ((BerryBots.stage.getScaleX()
+  d.style.left = Math.max(10, ((BerryBots.stage.getScaleX()
       * BerryBots.stage.getWidth()) - 775)) + 'px';
   d.style.top = '35px';
 
