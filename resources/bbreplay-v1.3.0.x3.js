@@ -126,6 +126,7 @@ BerryBots.style = {};
 BerryBots.style.consoleTabs =
       '<style type="text/css">'
     + '  .console-tab {'
+    + '    font-size: 1.25em;'
     + '    border: 1px solid #fff;'
     + '    padding: 5px;'
     + '    margin: 4px;'
@@ -279,7 +280,7 @@ BerryBots.getShipProto = function() {
     x: 0,
     y: 16,
     text: '',
-    fontSize: 14,
+    fontSize: 16,
     fontFamily: 'Ubuntu, Arial, Tahoma, sans-serif',
     fill: '#e0e0e0'
   });
@@ -692,6 +693,8 @@ BerryBots.addBodyListeners = function() {
       BerryBots.adjustTimeKnob();
     });
   });
+
+  document.body.style.fontFamily = 'Ubuntu, Arial, Tahoma, sans-serif';
 };
 
 // Thanks ankur singh:
@@ -740,14 +743,13 @@ BerryBots.toggleConsole = function(teamIndex) {
   if (console.div == null) {
     var s = '<style type="text/css">.console { border-collapse: collapse;'
         + 'border: 1px solid #fff; padding: 0.5em; background-color: #000;'
-        + 'font-family: Consolas, Courier, monospace; font-size: 1.2em;'
+        + 'font-family: Consolas, Courier, monospace; font-size: 1.0em;'
         + 'color: #fff; overflow: auto; width: '
         + Math.min(window.innerWidth, 725) + 'px; height: 480px; }'
-        + '.console-title { font-size: 1.55em; background-color: #fff; '
-        + 'color: #000; position: relative; text-align: center; padding: 5px;'
-        + 'font-family: Ubuntu, Arial, Tahoma, sans-serif; }'
+        + '.console-title { font-size: 1.2em; background-color: #fff; '
+        + 'color: #000; position: relative; text-align: center; padding: 5px;}'
         + '.console-x { font-size: 2.25em; position: absolute; left: 4px;'
-        + 'cursor: pointer; top: -17px; } .console-x:hover { color: #f00; }'
+        + 'cursor: pointer; top: -10px; } .console-x:hover { color: #f00; }'
         + '</style>'
         + '<div class="console-title"><div class="console-x" '
         + 'onclick="BerryBots.hideConsole(' + teamIndex + ')">&times;</div>'
@@ -898,8 +900,6 @@ BerryBots.showConsoleTabs = function() {
   d.style.color = '#fff';
   d.margin = '0';
   d.padding = '0';
-  d.style.fontFamily = 'Ubuntu, Arial, Tahoma, sans-serif';
-  d.style.fontSize = '1.55em';
   d.style.position = 'absolute';
   d.style.left = '35px';
   d.style.top = '35px';
@@ -1033,10 +1033,10 @@ BerryBots.showResults = function() {
 
   var s = '<style type="text/css">table, td, th { border-collapse: collapse;'
       + 'background-color: #fff; border: 1px solid #555; color: #000;'
-      + 'font-size: 1.25em; }'
+      + 'font-size: 1.1em; }'
       + '.num { text-align: right; } .mid { text-align: center; }'
       + '.results-x { font-size: 2.5em; position: absolute; left: 10px;'
-      + 'cursor: pointer; top: -11px; } .results-x:hover { color: #f00; }'
+      + 'cursor: pointer; top: -3px; } .results-x:hover { color: #f00; }'
       + '.resultsDialog { border: 6px solid #555; border-radius: 6px;'
       + 'margin: 0; padding: 0; display: inline-block; }'
       + '</style>';
@@ -1106,8 +1106,6 @@ BerryBots.showResults = function() {
   d.innerHTML = s;
   d.margin = '0';
   d.padding = '0';
-  d.style.fontFamily = 'Ubuntu, Arial, Tahoma, sans-serif';
-  d.style.fontSize = '1em';
   document.getElementById('container').appendChild(d);
 
   var resultsDialog = document.getElementById('resultsDialog');
