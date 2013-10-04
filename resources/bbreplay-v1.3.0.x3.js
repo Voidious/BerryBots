@@ -658,6 +658,11 @@ BerryBots.addBodyListeners = function() {
       }
     };
 
+    document.body.onmouseup = function(e) {
+      BerryBots.desktopPing();
+      BerryBots.timeMouseUp(e);
+    };
+
     document.body.onkeydown = function(e) {
       if (e.which == 27) { // escape
         var numTeams = BerryBots.teams.length;
@@ -717,12 +722,16 @@ BerryBots.hideConsole = function(teamIndex) {
   console.showing = false;
 };
 
-BerryBots.showConsole = function(teamIndex) {
+BerryBots.toggleConsole = function(teamIndex) {
   var numTeams = BerryBots.teams.length;
   for (var x = -1; x < numTeams; x++) {
     var console = BerryBots.getConsole(x);
     if (x != teamIndex && console.showing) {
       BerryBots.hideConsole(x);
+    }
+    if (x == teamIndex && console.showing) {
+      BerryBots.hideConsole(x);
+      return;
     }
   }
 
@@ -769,10 +778,18 @@ BerryBots.showConsole = function(teamIndex) {
   d.style.top = '35px';
 
   console.showing = true;
-    BerryBots.scrollToBottom(console.outputDiv);
-  };
-  
-  BerryBots.hideResults = function() {
+  BerryBots.scrollToBottom(console.outputDiv);
+};
+
+BerryBots.toggleResults = function() {
+  if (BerryBots.resultsDiv == null) {
+    BerryBots.showResults();
+  } else {
+    BerryBots.hideResults();
+  }
+};
+
+BerryBots.hideResults = function() {
   if (BerryBots.resultsDiv != null) {
     document.getElementById('container').removeChild(BerryBots.resultsDiv);
     BerryBots.resultsDiv = null;
@@ -851,7 +868,7 @@ BerryBots.hideOverlay = function() {
 BerryBots.showConsoleTabs = function() {
   var s = BerryBots.style.consoleTabs
       + '<div class="console-tab stage-tab" '
-      + 'onclick="BerryBots.showConsole(-1)">' + BerryBots.stageName + '</div>'
+      + 'onclick="BerryBots.toggleConsole(-1)">' + BerryBots.stageName + '</div>'
 
   var ships = BerryBots.ships;
   var teams = BerryBots.teams;
@@ -866,14 +883,14 @@ BerryBots.showConsoleTabs = function() {
       }
     }
     if (showName) {
-      s += '<div class="console-tab" onclick="BerryBots.showConsole('
+      s += '<div class="console-tab" onclick="BerryBots.toggleConsole('
           + teams[x].index + ')">' + BerryBots.escapeHtml(teams[x].name)
           + '</div>';
     }
   }
 
-  s += '<div class="console-tab results-tab" onclick="BerryBots.showResults()">'
-      + 'Results</div>';
+  s += '<div class="console-tab results-tab" '
+      + 'onclick="BerryBots.toggleResults()">Results</div>';
 
   var d = document.createElement('div');
   d.innerHTML = s;
@@ -936,10 +953,6 @@ BerryBots.showTimeDisplay = function() {
     BerryBots.desktopPing();
     BerryBots.timeMouseDown(e);
   };
-  timeTarget.onmouseup = function(e) {
-    BerryBots.desktopPing();
-    BerryBots.timeMouseUp(e);
-  };
   timeTarget.addEventListener('touchstart', function(e) {
     BerryBots.touchPing();
     BerryBots.timeDragging = true;
@@ -989,7 +1002,9 @@ BerryBots.timeMouseDown = function(e) {
 };
 
 BerryBots.timeMouseUp = function(e) {
-  BerryBots.dragEnd(e.pageX);
+  if (BerryBots.timeDragging) {
+    BerryBots.dragEnd(e.pageX);
+  }
 };
 
 BerryBots.dragEnd = function(x) {
