@@ -172,9 +172,11 @@ void ReplayBuilder::addZone(int left, int bottom, int width, int height) {
 void ReplayBuilder::addTeamProperties(Team *team) {
   teamPropertiesData_->addInt(team->index);
   teamPropertiesData_->addString(team->name);
-  int z = numTeamsAdded_++;
-  teamNames_[z] = new char[strlen(team->name) + 1];
-  strcpy(teamNames_[z], team->name);
+  if (!team->stageShip) {
+    int z = numTeamsAdded_++;
+    teamNames_[z] = new char[strlen(team->name) + 1];
+    strcpy(teamNames_[z], team->name);
+  }
 }
 
 // Ship properties format:  (variable)
