@@ -670,7 +670,7 @@ BerryBots.addBodyListeners = function() {
           BerryBots.hideResults();
         }
         BerryBots.timeDragging = false;
-        BerryBots.skipTime = -1;
+        BerryBots.stopSkipping();
       } else if (e.which == 32) { // space bar
         BerryBots.desktopPing();
         BerryBots.playPause();
@@ -779,8 +779,17 @@ BerryBots.showConsole = function(teamIndex) {
 
 BerryBots.playPause = function() {
   BerryBots.paused = !(BerryBots.paused);
-  BerryBots.skipTime = -1;
+  BerryBots.stopSkipping();
   BerryBots.showPlayPause();
+};
+
+BerryBots.stopSkipping = function() {
+  BerryBots.skipTime = -1;
+  if (BerryBots.spinnerShip != null) {
+    BerryBots.spinnerShip.destroy();
+    BerryBots.spinnerShip = null;
+    BerryBots.mainLayer.setOpacity(1);
+  }
 };
 
 BerryBots.showPlayPause = function() {
@@ -1905,12 +1914,7 @@ BerryBots.replay = function() {
         if (BerryBots.skipTime != -1) {
           BerryBots.desktopPing();
           if (BerryBots.gameTime >= BerryBots.skipTime) {
-            BerryBots.skipTime = -1;
-            if (BerryBots.spinnerShip != null) {
-              BerryBots.spinnerShip.destroy();
-              BerryBots.spinnerShip = null;
-              BerryBots.mainLayer.setOpacity(1);
-            }
+            BerryBots.stopSkipping();
           }
         }
       } else if (!BerryBots.showedResults) {
