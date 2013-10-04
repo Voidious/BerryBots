@@ -295,6 +295,7 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
 
   mainPanel_->GetSizer()->SetSizeHints(mainPanel_);
   mainPanel_->Layout();
+  Fit();
   mainPanel_->SetFocus();
   delete engine;
 

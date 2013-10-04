@@ -212,10 +212,12 @@ void OutputConsole::setMnemonicLabels(bool modifierDown) {
   //       shortcut, if possible. For now having trouble figuring out the
   //       wxButton::Command() call.
 #ifdef __WXGTK__
-  if (modifierDown) {
-    abortButton_->SetLabel("Abo&rt  alt-R");
-  } else {
-    abortButton_->SetLabel("    Abo&rt    ");
+  if (abortButton_ != 0) {
+    if (modifierDown) {
+      abortButton_->SetLabel("Abo&rt  alt-R");
+    } else {
+      abortButton_->SetLabel("    Abo&rt    ");
+    }
   }
 #endif
 }
