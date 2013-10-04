@@ -843,6 +843,22 @@ void FileManager::writeFile(const char *filename, const char *contents) {
   fclose(f);
 }
 
+void FileManager::createDirectory(const char *filename) {
+  platformstl::filesystem_traits<char> traits;
+  traits.create_directory(filename);
+}
+
+void FileManager::createDirectoryIfNecessary(const char *dir) {
+  char *parentDir = parseDir(dir);
+  if (strcmp(".", parentDir)) {
+    createDirectoryIfNecessary(parentDir);
+  }
+  if (!fileExists(dir)) {
+    createDirectory(dir);
+  }
+  delete parentDir;
+}
+
 void FileManager::recursiveDelete(const char *fileToDelete) {
   if (isDirectory(fileToDelete)) {
     platformstl::readdir_sequence dir(fileToDelete,
@@ -869,11 +885,6 @@ bool FileManager::isDirectory(const char *filePath) {
     closedir(dir);
     return true;
   }
-}
-
-void FileManager::createDirectory(const char *filename) {
-  platformstl::filesystem_traits<char> traits;
-  traits.create_directory(filename);
 }
 
 char* FileManager::parseFilename(const char *dirAndFilename) {
@@ -906,17 +917,6 @@ char* FileManager::parseRelativeFilePath(const char *absBaseDir,
   char *relativePath = new char[relativePathLen + 1];
   strcpy(relativePath, &(absFilePath[absBaseDirLen + 1]));
   return relativePath;
-}
-
-void FileManager::createDirectoryIfNecessary(const char *dir) {
-  char *parentDir = parseDir(dir);
-  if (strcmp(".", parentDir)) {
-    createDirectoryIfNecessary(parentDir);
-  }
-  if (!fileExists(dir)) {
-    createDirectory(dir);
-  }
-  delete parentDir;
 }
 
 char* FileManager::parseDir(const char *dirAndFilename) {

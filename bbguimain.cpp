@@ -228,6 +228,7 @@ void BerryBotsApp::onBrowseRunners(wxCommandEvent &event) {
 }
 
 void BerryBotsApp::onBrowseReplays(wxCommandEvent &event) {
+  fileManager_->createDirectoryIfNecessary(getReplaysDir().c_str());
   systemExecutor_->browseDirectory(getReplaysDir().c_str());
 }
 

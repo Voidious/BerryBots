@@ -153,6 +153,8 @@ class FileManager {
     void fixSlashes(char *filename);
     char* readFile(const char *filename) throw (FileNotFoundException*);
     void writeFile(const char *filename, const char *contents);
+    void createDirectory(const char *filename);
+    void createDirectoryIfNecessary(const char *dir);
     void recursiveDelete(const char *fileToDelete);
   private:
     char* loadUserLuaFilename(char *userDirPath, const char *metaFilename)
@@ -174,8 +176,6 @@ class FileManager {
     void crawlFiles(lua_State *L, const char *startFile,
                     BerryBotsEngine *engine)
                     throw (InvalidLuaFilenameException*, LuaException*);
-    void createDirectory(const char *filename);
-    void createDirectoryIfNecessary(const char *dir);
     void checkLuaFilename(const char *filename)
         throw (InvalidLuaFilenameException*);
     void throwForLuaError(lua_State *L, const char *formatString)

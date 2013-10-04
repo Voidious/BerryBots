@@ -48,22 +48,22 @@ wxMenuBar* MenuBarMaker::getNewMenuBar() {
   wxMenu *browseMenu = new wxMenu();
 #ifdef __WXOSX__
   browseMenu->Insert(0, BROWSE_SHIPS_MENU_ID,
-                     "&Ships Directory\tShift+Ctrl+S", 0);
+                     "&Ships\tShift+Ctrl+S", 0);
   browseMenu->Insert(1, BROWSE_STAGES_MENU_ID,
-                     "S&tages Directory\tShift+Ctrl+T", 0);
+                     "S&tages\tShift+Ctrl+T", 0);
   browseMenu->Insert(2, BROWSE_RUNNERS_MENU_ID,
-                     "&Runners Directory\tShift+Ctrl+R", 0);
+                     "&Runners\tShift+Ctrl+R", 0);
   browseMenu->Insert(3, BROWSE_REPLAYS_MENU_ID,
                      "Repla&ys\tShift+Ctrl+Y", 0);
   browseMenu->Insert(4, BROWSE_API_DOCS_MENU_ID,
                      "&API Docs\tShift+Ctrl+A", 0);
 #else
   browseMenu->Insert(0, BROWSE_SHIPS_MENU_ID,
-                     "&Ships Directory\tShift+Alt+S", 0);
+                     "&Ships\tShift+Alt+S", 0);
   browseMenu->Insert(1, BROWSE_STAGES_MENU_ID,
-                     "S&tages Directory\tShift+Alt+T", 0);
+                     "S&tages\tShift+Alt+T", 0);
   browseMenu->Insert(2, BROWSE_RUNNERS_MENU_ID,
-                     "&Runners Directory\tShift+Alt+R", 0);
+                     "&Runners\tShift+Alt+R", 0);
   browseMenu->Insert(3, BROWSE_REPLAYS_MENU_ID,
                      "Repla&ys\tShift+Alt+Y", 0);
   browseMenu->Insert(4, BROWSE_API_DOCS_MENU_ID,
