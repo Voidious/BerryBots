@@ -1,9 +1,11 @@
 -- An oval race track. Ships need to cross each zone in a counter-clockwise
 -- pattern. The ship with the most laps is displayed as the leader on screen,
--- along with the fastest lap.
+-- along with the fastest lap. First to 20 laps wins.
 --
 -- Racer is the only sample ship designed for this stage, but WallHugger can
 -- also get around it if he gets lucky and gets onto a counter-clockwise path.
+
+LAPS = 20
 
 function configure(stageBuilder)
   stageBuilder:setSize(1000, 700)
@@ -92,5 +94,11 @@ function run()
         "LEADER: " .. lapLeader .. ": " .. maxLaps .. " laps", 225, 360)
     admin:drawText(
         "BEST LAP: " .. bestLapName .. ": " .. bestLap .. " ticks", 225, 310)
+  end
+  if (maxLaps >= LAPS) then
+    for i, ship in pairs(ships) do
+      admin:setScore(ship, shipLaps[ship:name()].laps)
+    end
+    admin:gameOver()
   end
 end
