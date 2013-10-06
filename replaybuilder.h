@@ -29,7 +29,7 @@
 #define REPLAY_VERSION            1
 #define REPLAY_TEMPLATE           "resources/replay_template.html"
 #define KINETIC_JS                "resources/kinetic-v4.7.2.min.js"
-#define BBREPLAY_JS               "resources/bbreplay-v1.3.0.x3.js"
+#define BBREPLAY_JS               "resources/bbreplay-v1.3.0.js"
 #define REPLAY_TITLE_PLACEHOLDER  "{$replayTitle}"
 #define REPLAY_DATA_PLACEHOLDER   "{$replayData}"
 #define EXTRA_JS_PLACEHOLDER      "{$extraJavascript}"

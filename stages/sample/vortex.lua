@@ -32,7 +32,6 @@ function configure(stageBuilder)
   stageBuilder:addZone(960, 0, 40, 40)
   stageBuilder:addZone(0, 960, 40, 40)
   stageBuilder:addZone(960, 960, 40, 40)
-  stageBuilder:setBattleMode(true)
 
   local start = userShipStart()
   stageBuilder:addStart(start.x, start.y)
