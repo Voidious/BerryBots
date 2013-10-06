@@ -494,7 +494,7 @@ void GfxManager::updateViews(sf::RenderWindow *window, unsigned int viewWidth,
         topViewportHeight + teamsViewportHeight, dockViewportWidth,
         bottomViewportHeight));
     stageView_.setViewport(sf::FloatRect(dockViewportWidth, 0.f,
-                                        stageViewportWidth, 1.f));
+                                         stageViewportWidth, 1.f));
     dockTeamsViewHeight_ = dockTeamsHeight;
   } else {
     stageView_.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
@@ -902,7 +902,7 @@ void GfxManager::drawUserGfxs(sf::RenderWindow *window, Stage *stage,
       drawUserGfxCircles(window, stage->getShipGfxCircles(x),
                          stage->getShipGfxCircleCount(x));
       drawUserGfxTexts(window, stage->getShipGfxTexts(x),
-                         stage->getShipGfxTextCount(x));
+                       stage->getShipGfxTextCount(x));
     }
   }
 
@@ -962,7 +962,7 @@ void GfxManager::drawUserGfxCircles(sf::RenderWindow *window,
     UserGfxCircle** gfxCircles, int numCircles) {
   for (int y = 0; y < numCircles; y++) {
     UserGfxCircle *gfxCircle = gfxCircles[y];
-    sf::CircleShape circle(gfxCircle->radius);
+    sf::CircleShape circle(gfxCircle->radius, 180);
     circle.setPosition(adjustX(gfxCircle->x) - gfxCircle->radius,
         adjustY(gfxCircle->y - gfxCircle->radius, gfxCircle->radius * 2));
     circle.setFillColor(sf::Color(gfxCircle->fillR, gfxCircle->fillG,
