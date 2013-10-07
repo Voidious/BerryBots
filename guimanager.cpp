@@ -498,6 +498,7 @@ sf::RenderWindow* GuiManager::getMainWindow() {
 void GuiManager::startMatch(const char *stageName, char **teamNames,
                             int numUserTeams) {
   do {
+    stagePreview_->Hide();
     runNewMatch(stageName, teamNames, numUserTeams);
   } while (restarting_);
 }
@@ -1048,6 +1049,8 @@ void GuiManager::showStagePreview(const char *stageName) {
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
   stagePreview_->showPreview(stageName,
                              newMatchPosition.x + 50, newMatchPosition.y + 50);
+  stagePreview_->Show();
+  stagePreview_->Raise();
 }
 
 void GuiManager::closeStagePreview() {
@@ -1260,6 +1263,7 @@ void MatchStarter::startMatch(const char *stageName, char **teamNames,
 }
 
 void MatchStarter::previewStage(const char *stageName) {
+  guiManager_->selectStage(stageName);
   guiManager_->showStagePreview(stageName);
 }
 
@@ -1274,10 +1278,6 @@ void MatchStarter::onClose() {
 
 void MatchStarter::onEscape() {
   guiManager_->dialogEscaped();
-}
-
-void MatchStarter::onActive() {
-  guiManager_->closeStagePreview();
 }
 
 void MatchStarter::onUpdateUi() {
@@ -1511,10 +1511,6 @@ void PreviewInputListener::onUp() {
 
 void PreviewInputListener::onDown() {
   guiManager_->previewNextStage();
-}
-
-void PreviewInputListener::onLoaded(const char *stageName) {
-  guiManager_->selectStage(stageName);
 }
 
 RunnerConsoleListener::RunnerConsoleListener(GuiManager *guiManager) {

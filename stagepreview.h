@@ -23,10 +23,9 @@
 
 #include <string.h>
 #include <wx/wx.h>
-#include <wx/webview.h>
 #include "menubarmaker.h"
-#include "sysexec.h"
 #include "bbengine.h"
+#include "gfxmanager.h"
 
 #define MAX_PREVIEW_WIDTH   650
 #define MAX_PREVIEW_HEIGHT  500
@@ -37,14 +36,14 @@ class StagePreview : public wxFrame {
   wxPanel *mainPanel_;
   wxSizer *infoSizer_;
   wxSizer *descSizer_;
-  wxWebView *webView_;
+  GfxManager *previewGfxManager_;
+  wxStaticBitmap *visualPreview_;
   MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
   FileManager *fileManager_;
   char *stagesBaseDir_;
   char *stageName_;
   std::string lastPreviewUrl_;
-  SystemExecutor *systemExecutor_;
   StagePreviewListener *listener_;
   wxEventFilter *eventFilter_;
 
@@ -53,9 +52,6 @@ class StagePreview : public wxFrame {
     ~StagePreview();
     void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);
-    void onWebViewLoaded(wxWebViewEvent &event);
-    void onWebViewError(wxWebViewEvent &event);
-    void onVisualPreview(wxCommandEvent &event);
     void onUp();
     void onDown();
     void setListener(StagePreviewListener *listener);
@@ -63,7 +59,7 @@ class StagePreview : public wxFrame {
   private:
     void addInfo(wxSizer *sizer, const char *name, const char *value);
     void addInfo(wxSizer *sizer, const char *name, int i);
-    std::string savePreviewReplay(BerryBotsEngine *engine);
+    char *savePreviewImage(BerryBotsEngine *engine);
 };
 
 class StagePreviewListener {
@@ -71,7 +67,6 @@ class StagePreviewListener {
     virtual void onClose() = 0;
     virtual void onUp() = 0;
     virtual void onDown() = 0;
-    virtual void onLoaded(const char *stageName) = 0;
     virtual ~StagePreviewListener() {};
 };
 

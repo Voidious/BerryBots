@@ -274,9 +274,6 @@ void NewMatchDialog::addShip(char *ship) {
 }
 
 void NewMatchDialog::onActivate(wxActivateEvent &event) {
-  if (event.GetActive()) {
-    listener_->onActive();
-  }
   if (!menusInitialized_) {
     this->SetMenuBar(menuBarMaker_->getNewMenuBar());
     menusInitialized_ = true;

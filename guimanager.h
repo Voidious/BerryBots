@@ -197,7 +197,6 @@ class MatchStarter : public NewMatchListener {
     virtual void refreshFiles();
     virtual void onClose();
     virtual void onEscape();
-    virtual void onActive();
     virtual void onUpdateUi();
     virtual void reloadBaseDirs();
 };
@@ -285,7 +284,6 @@ class PreviewInputListener : public StagePreviewListener {
     virtual void onClose();
     virtual void onUp();
     virtual void onDown();
-    virtual void onLoaded(const char *stageName);
 };
 
 class RunnerConsoleListener : public ConsoleListener {

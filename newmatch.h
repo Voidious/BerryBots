@@ -32,7 +32,6 @@ class NewMatchListener {
     virtual void refreshFiles() = 0;
     virtual void onClose() = 0;
     virtual void onEscape() = 0;
-    virtual void onActive() = 0;
     virtual void onUpdateUi() = 0;
     virtual void reloadBaseDirs() = 0;
     virtual ~NewMatchListener() {};
