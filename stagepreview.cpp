@@ -245,19 +245,6 @@ void StagePreview::addInfo(wxSizer *sizer, const char *name, int i) {
 }
 
 char* StagePreview::savePreviewImage(BerryBotsEngine *engine) {
-  sf::RenderWindow *previewWindow;
-#ifdef __WXOSX__
-  // On Mac OS X, we need to initialize before the wxWidgets stuff below or we
-  // hit some unexplainable crashes when we delete an SFML window. I don't know
-  // why, I've merely devised a work-around. Judging from some SFML forum
-  // threads, it sounds likely to be an issue with nightmare-ish video drivers.
-  previewWindow = new sf::RenderWindow(
-      sf::VideoMode(MAX_PREVIEW_WIDTH, MAX_PREVIEW_HEIGHT), "Preview",
-                                       sf::Style::None,
-      sf::ContextSettings(0, 0, (isAaDisabled() ? 0 : 4), 2, 0));
-  previewWindow->setVisible(false);
-#endif
-
   Stage *stage = engine->getStage();
   unsigned int viewWidth = stage->getWidth() + (2 * STAGE_MARGIN);
   unsigned int viewHeight = stage->getHeight() + (2 * STAGE_MARGIN);
@@ -269,15 +256,11 @@ char* StagePreview::savePreviewImage(BerryBotsEngine *engine) {
   unsigned int targetWidth = round(windowScale * viewWidth);
   unsigned int targetHeight = round(windowScale * viewHeight);
 
-#ifdef __WXOSX__
-  previewWindow->setSize(sf::Vector2u(targetWidth, targetHeight));
-#else
-  previewWindow = new sf::RenderWindow(
+  sf::RenderWindow *previewWindow = new sf::RenderWindow(
       sf::VideoMode(targetWidth, targetHeight), "Preview",
       sf::Style::None,
       sf::ContextSettings(0, 0, (isAaDisabled() ? 0 : 4), 2, 0));
   previewWindow->setVisible(false);
-#endif
 
   Team **teams = new Team*[1];
   teams[0] = new Team;

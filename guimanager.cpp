@@ -644,9 +644,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                          engine_->getNumShips(), resourcePath());
   gfxManager_->initViews(window, viewWidth_, viewHeight_);
   window->setVisible(true);
-  window->clear();
   drawFrame(window);
-  window->display();
 
   runCurrentMatch();
 }
