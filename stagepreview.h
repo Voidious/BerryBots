@@ -61,7 +61,8 @@ class StagePreview : public wxFrame {
   private:
     void addInfo(wxSizer *sizer, const char *name, const char *value);
     void addInfo(wxSizer *sizer, const char *name, int i);
-    char *savePreviewImage(sf::RenderWindow *window, BerryBotsEngine *engine);
+    char *savePreviewImage(sf::RenderWindow *window, BerryBotsEngine *engine,
+                           unsigned int &targetWidth, unsigned int &targetHeight);
 };
 
 class StagePreviewListener {

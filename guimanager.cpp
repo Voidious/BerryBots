@@ -1070,19 +1070,18 @@ void GuiManager::showErrorConsole() {
 }
 
 void GuiManager::showStagePreview(const char *stageName) {
-#ifdef __WXOSX__
+#ifndef __WXGTK__
   // On Mac OS X - or my MacBook Pro, anyway - we absolutely have to new up the
   // SFML window before doing any wxWidgets stuff when we're triggered from an
   // event like this. If we selectStage() first, for instance, the app will
   // crash when we delete that window. (That would be when you start your second
   // match.)
+  // On Mac and Windows it's a better experience to use a persistent window. On
+  // Linux, setSize() doesn't work reliably on the SFML window after it's
+  // created, so we create a new one each time.
   if (previewWindow_ == 0) {
-    // But we can still get away with keeping it persistent, which reduces
-    // any potential flickering to a one time deal.
     previewWindow_ = initPreviewWindow(50, 50);
   }
-  // On Linux, setSize() doesn't work reliably on the SFML window after it's
-  // created, so we just create a new one each time.
 #endif
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
   selectStage(stageName);

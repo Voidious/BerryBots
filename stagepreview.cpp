@@ -169,10 +169,14 @@ void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
     return;
   }
   SetTitle(wxString::Format(wxT("%s"), stage->getName()));
-  char *previewFilename = savePreviewImage(window, engine);
+  unsigned int targetWidth;
+  unsigned int targetHeight;
+  char *previewFilename = savePreviewImage(window, engine, targetWidth,
+                                           targetHeight);
   wxImage previewImage;
   previewImage.LoadFile(previewFilename);
-  visualPreview_->SetBitmap(wxBitmap(previewImage));
+  visualPreview_->SetMinSize(wxSize(targetWidth, targetHeight));
+  visualPreview_->SetMaxSize(wxSize(targetWidth, targetHeight));
   delete previewFilename;
 
 #ifdef __WXOSX__
@@ -227,6 +231,10 @@ void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
   mainPanel_->Layout();
   Fit();
   mainPanel_->SetFocus();
+
+  // On Windows, if we set the bitmap before the Layout/Fit stuff on Windows, we
+  // get visual artifacts when paging through the stages with up/down keys.
+  visualPreview_->SetBitmap(wxBitmap(previewImage));
   delete engine;
 }
 
@@ -247,7 +255,7 @@ void StagePreview::addInfo(wxSizer *sizer, const char *name, int i) {
 }
 
 char* StagePreview::savePreviewImage(sf::RenderWindow *window,
-                                     BerryBotsEngine *engine) {
+    BerryBotsEngine *engine, unsigned int &targetWidth, unsigned int &targetHeight) {
   Stage *stage = engine->getStage();
   unsigned int viewWidth = stage->getWidth() + (2 * STAGE_MARGIN);
   unsigned int viewHeight = stage->getHeight() + (2 * STAGE_MARGIN);
@@ -256,18 +264,18 @@ char* StagePreview::savePreviewImage(sf::RenderWindow *window,
   double windowScale =
       std::min(1.0, std::min(((double) screenWidth) / viewWidth,
                              ((double) screenHeight) / viewHeight));
-  unsigned int targetWidth = round(windowScale * viewWidth);
-  unsigned int targetHeight = round(windowScale * viewHeight);
+  targetWidth = round(windowScale * viewWidth);
+  targetHeight = round(windowScale * viewHeight);
 
-#ifdef __WXOSX__
-  window->setSize(sf::Vector2u(targetWidth, targetHeight));
-#else
+#ifdef __WXGTK__
   // Since setSize() doesn't work reliably, we create it inline on Linux.
   window = new sf::RenderWindow(
       sf::VideoMode(targetWidth, targetHeight), "Preview",
       sf::Style::None,
       sf::ContextSettings(0, 0, (isAaDisabled() ? 0 : 4), 2, 0));
   window->setVisible(false);
+#else
+  window->setSize(sf::Vector2u(targetWidth, targetHeight));
 #endif
 
   Team **teams = new Team*[1];
@@ -316,7 +324,7 @@ char* StagePreview::savePreviewImage(sf::RenderWindow *window,
   sf::Image previewImage = window->capture();
   fileManager_->createDirectoryIfNecessary(getTmpDir().c_str());
   previewImage.saveToFile(absFilename);
-#ifndef __WXOSX__
+#ifdef __WXGTK__
   delete window;
 #endif
   previewGfxManager_->destroyBbGfx();
