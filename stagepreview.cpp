@@ -21,6 +21,8 @@
 #include <string.h>
 #include <sstream>
 #include <algorithm>
+#include <SFML/Graphics.hpp>
+#include <SFML/System/Vector2.hpp>
 #include <wx/wx.h>
 #include "bbconst.h"
 #include "bbwx.h"
@@ -32,10 +34,9 @@
 #include "gfxmanager.h"
 #include "stagepreview.h"
 
-StagePreview::StagePreview(const char *stagesBaseDir,
-                           MenuBarMaker *menuBarMaker)
+StagePreview::StagePreview(const char *stagesBaseDir,MenuBarMaker *menuBarMaker)
     : wxFrame(NULL, wxID_ANY, "Preview", wxDefaultPosition, wxDefaultSize,
-              wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX | wxTAB_TRAVERSAL)) {
+              wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   menuBarMaker_ = menuBarMaker;
   menusInitialized_ = false;
   fileManager_ = new FileManager();
@@ -143,7 +144,8 @@ void StagePreview::setListener(StagePreviewListener *listener) {
   listener_ = listener;
 }
 
-void StagePreview::showPreview(const char *stageName, int x, int y) {
+void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
+                               int x, int y) {
   if (stageName_ != 0) {
     delete stageName_;
   }
@@ -167,7 +169,7 @@ void StagePreview::showPreview(const char *stageName, int x, int y) {
     return;
   }
   SetTitle(wxString::Format(wxT("%s"), stage->getName()));
-  char *previewFilename = savePreviewImage(engine);
+  char *previewFilename = savePreviewImage(window, engine);
   wxImage previewImage;
   previewImage.LoadFile(previewFilename);
   visualPreview_->SetBitmap(wxBitmap(previewImage));
@@ -244,7 +246,8 @@ void StagePreview::addInfo(wxSizer *sizer, const char *name, int i) {
   }
 }
 
-char* StagePreview::savePreviewImage(BerryBotsEngine *engine) {
+char* StagePreview::savePreviewImage(sf::RenderWindow *window,
+                                     BerryBotsEngine *engine) {
   Stage *stage = engine->getStage();
   unsigned int viewWidth = stage->getWidth() + (2 * STAGE_MARGIN);
   unsigned int viewHeight = stage->getHeight() + (2 * STAGE_MARGIN);
@@ -256,11 +259,16 @@ char* StagePreview::savePreviewImage(BerryBotsEngine *engine) {
   unsigned int targetWidth = round(windowScale * viewWidth);
   unsigned int targetHeight = round(windowScale * viewHeight);
 
-  sf::RenderWindow *previewWindow = new sf::RenderWindow(
+#ifdef __WXOSX__
+  window->setSize(sf::Vector2u(targetWidth, targetHeight));
+#else
+  // Since setSize() doesn't work reliably, we create it inline on Linux.
+  window = new sf::RenderWindow(
       sf::VideoMode(targetWidth, targetHeight), "Preview",
       sf::Style::None,
       sf::ContextSettings(0, 0, (isAaDisabled() ? 0 : 4), 2, 0));
-  previewWindow->setVisible(false);
+  window->setVisible(false);
+#endif
 
   Team **teams = new Team*[1];
   teams[0] = new Team;
@@ -289,14 +297,14 @@ char* StagePreview::savePreviewImage(BerryBotsEngine *engine) {
   teams[0]->numTexts = 0;
   stage->setTeamsAndShips(teams, 1, ships, 1);
 
-  previewGfxManager_->initBbGfx(previewWindow, viewHeight, stage, teams, 1,
-                                ships, 1, resourcePath());
-  previewGfxManager_->initViews(previewWindow, viewWidth, viewHeight);
+  previewGfxManager_->initBbGfx(window, viewHeight, stage, teams, 1, ships, 1,
+                                resourcePath());
+  previewGfxManager_->initViews(window, viewWidth, viewHeight);
 
   GfxEventHandler *gfxHandler = new GfxEventHandler();
-  previewWindow->clear();
-  previewGfxManager_->drawGame(previewWindow, stage, ships, 1, 0, gfxHandler,
-                               false, false, 0);
+  window->clear();
+  previewGfxManager_->drawGame(window, stage, ships, 1, 0, gfxHandler, false,
+                               false, 0);
 
   std::stringstream filenameStream;
   filenameStream << (rand() % 10000000) << ".png";
@@ -305,10 +313,12 @@ char* StagePreview::savePreviewImage(BerryBotsEngine *engine) {
   char *absFilename = fileManager_->getAbsFilePath(filename);
   delete filename;
 
-  sf::Image previewImage = previewWindow->capture();
+  sf::Image previewImage = window->capture();
   fileManager_->createDirectoryIfNecessary(getTmpDir().c_str());
   previewImage.saveToFile(absFilename);
-  delete previewWindow;
+#ifndef __WXOSX__
+  delete window;
+#endif
   previewGfxManager_->destroyBbGfx();
 
   delete gfxHandler;

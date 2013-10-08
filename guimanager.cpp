@@ -60,6 +60,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   reloadBaseDirs();
 
   window_ = 0;
+  previewWindow_ = 0;
   zipper_ = new GuiZipper();
   fileManager_ = new FileManager(zipper_);
   gameRunner_ = 0;
@@ -146,6 +147,9 @@ GuiManager::~GuiManager() {
   }
   if (window_ != 0) {
     delete window_;
+  }
+  if (previewWindow_ != 0) {
+    delete previewWindow_;
   }
   if (gfxHandler_ != 0) {
     delete gfxHandler_;
@@ -489,6 +493,28 @@ sf::RenderWindow* GuiManager::initMainWindow(unsigned int width,
 #endif
 
   return window_;
+}
+
+sf::RenderWindow* GuiManager::initPreviewWindow(unsigned int width,
+                                                unsigned int height) {
+  if (previewWindow_ != 0) {
+    sf::RenderWindow *oldWindow = previewWindow_;
+    previewWindow_ = 0;
+    delete oldWindow;
+  }
+
+  previewWindow_ = new sf::RenderWindow(sf::VideoMode(width, height), "Preview",
+      sf::Style::None,
+      sf::ContextSettings(0, 0, (isAaDisabled() ? 0 : 4), 2, 0));
+  previewWindow_->setVisible(false);
+
+#ifdef __WINDOWS__
+  previewWindow_->setIcon(32, 32, windowIcon_.getPixelsPtr());
+#elif defined(__WXGTK__)
+  previewWindow_->setIcon(128, 128, windowIcon_.getPixelsPtr());
+#endif
+
+  return previewWindow_;
 }
 
 sf::RenderWindow* GuiManager::getMainWindow() {
@@ -1044,8 +1070,23 @@ void GuiManager::showErrorConsole() {
 }
 
 void GuiManager::showStagePreview(const char *stageName) {
+#ifdef __WXOSX__
+  // On Mac OS X - or my MacBook Pro, anyway - we absolutely have to new up the
+  // SFML window before doing any wxWidgets stuff when we're triggered from an
+  // event like this. If we selectStage() first, for instance, the app will
+  // crash when we delete that window. (That would be when you start your second
+  // match.)
+  if (previewWindow_ == 0) {
+    // But we can still get away with keeping it persistent, which reduces
+    // any potential flickering to a one time deal.
+    previewWindow_ = initPreviewWindow(50, 50);
+  }
+  // On Linux, setSize() doesn't work reliably on the SFML window after it's
+  // created, so we just create a new one each time.
+#endif
   wxPoint newMatchPosition = newMatchDialog_->GetPosition();
-  stagePreview_->showPreview(stageName,
+  selectStage(stageName);
+  stagePreview_->showPreview(previewWindow_, stageName,
                              newMatchPosition.x + 50, newMatchPosition.y + 50);
   stagePreview_->Show();
   stagePreview_->Raise();
@@ -1261,7 +1302,6 @@ void MatchStarter::startMatch(const char *stageName, char **teamNames,
 }
 
 void MatchStarter::previewStage(const char *stageName) {
-  guiManager_->selectStage(stageName);
   guiManager_->showStagePreview(stageName);
 }
 

@@ -22,6 +22,7 @@
 #define STAGE_PREVIEW_H
 
 #include <string.h>
+#include <SFML/Graphics.hpp>
 #include <wx/wx.h>
 #include "menubarmaker.h"
 #include "bbengine.h"
@@ -55,11 +56,12 @@ class StagePreview : public wxFrame {
     void onUp();
     void onDown();
     void setListener(StagePreviewListener *listener);
-    void showPreview(const char *stageName, int x, int y);
+    void showPreview(
+        sf::RenderWindow *window, const char *stageName, int x, int y);
   private:
     void addInfo(wxSizer *sizer, const char *name, const char *value);
     void addInfo(wxSizer *sizer, const char *name, int i);
-    char *savePreviewImage(BerryBotsEngine *engine);
+    char *savePreviewImage(sf::RenderWindow *window, BerryBotsEngine *engine);
 };
 
 class StagePreviewListener {

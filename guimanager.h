@@ -60,6 +60,12 @@ class GuiManager {
   PackageStageDialog *packageStageDialog_;
   RunnerDialog *runnerDialog_;
   sf::RenderWindow *window_;
+  // Logically, the preview window should be managed by StagePreview. But on
+  // OS X, the creation and deletion of the SFML windows needs to be carefully
+  // managed in relation to the app's wxWidgets operations, otherwise the SFML
+  // window will cause the app to crash when deleted. I believe it's some kind
+  // of driver issue, but I don't really know.
+  sf::RenderWindow *previewWindow_;
   GuiPrintHandler *guiPrintHandler_;
   OutputConsole *stageConsole_;
   OutputConsole **teamConsoles_;
@@ -163,6 +169,8 @@ class GuiManager {
     char* getTmpDirCopy();
   private:
     sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
+    sf::RenderWindow* initPreviewWindow(unsigned int width,
+                                        unsigned int height);
     sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
     void drawFrame(sf::RenderWindow *window);
