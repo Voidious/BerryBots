@@ -523,8 +523,8 @@ sf::RenderWindow* GuiManager::getMainWindow() {
 
 void GuiManager::startMatch(const char *stageName, char **teamNames,
                             int numUserTeams) {
+  stagePreview_->Hide();
   do {
-    stagePreview_->Hide();
     runNewMatch(stageName, teamNames, numUserTeams);
   } while (restarting_);
 }
@@ -775,6 +775,7 @@ void GuiManager::resumeMatch() {
     hideGameRunnerDialog();
     hidePackagingConsole();
     hideErrorConsole();
+    stagePreview_->Hide();
     runCurrentMatch();
   }
   while (restarting_) {
