@@ -77,10 +77,8 @@ class AppGuiListener : public GuiListener {
 wxIMPLEMENT_APP(BerryBotsApp);
 
 bool BerryBotsApp::OnInit() {
-  fileManager_->recursiveDelete(getTmpDir().c_str());
-
 #ifdef __WXGTK__
-  // Needed to load dock icons for wxWidgets dialogs.
+  // Needed to load stage previews and wxWidgets dialog icons.
   wxImage::AddHandler(new wxPNGHandler);
 #endif
 
@@ -98,12 +96,12 @@ bool BerryBotsApp::OnInit() {
   if (!isConfigured()) {
     std::stringstream configInfo;
     configInfo << "TLDR: Before you can use BerryBots, you need to select a "
-               << "base directory. This is where BerryBots will read and write "
-               << "files like ships and stages."
+               << "base directory. This is where BerryBots will store files "
+               << "like ships and stages."
                << std::endl << std::endl
-               << "Home > Documents > BerryBots is a reasonable choice."
+               << "Documents > BerryBots is a reasonable choice."
                << std::endl << std::endl
-               << "---"
+               << "--------"
                << std::endl << std::endl
                << "After selecting a directory, subdirectories will be created "
                << "for ships (bots/), stages (stages/), and Game Runners "
@@ -114,9 +112,9 @@ bool BerryBotsApp::OnInit() {
                << "apidoc/ subdirectory."
                << std::endl << std::endl
                << "As needed, BerryBots will also create a cache (cache/) "
-               << "subdirectory for extracting packaged ships and stages, as "
-               << "well as a temp (.tmp/) subdirectory for working files used "
-               << "to package ships and stages."
+               << "subdirectory for unpackaged ships and stages, a replays "
+               << "subdirectory (replays/), and a temp (.tmp/) subdirectory for "
+               << "working files used internally by BerryBots."
                << std::endl << std::endl
                << "Have fun!";
     
@@ -128,6 +126,7 @@ bool BerryBotsApp::OnInit() {
   }
 #endif
 
+  fileManager_->recursiveDelete(getTmpDir().c_str());  
   guiListener_ = new AppGuiListener(this);
   guiManager_ = new GuiManager(guiListener_);
   fileManager_ = new FileManager();

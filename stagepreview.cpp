@@ -66,7 +66,6 @@ StagePreview::StagePreview(const char *stagesBaseDir,MenuBarMaker *menuBarMaker)
   mainSizer->Add(mainPanel_, 0, wxEXPAND);
   wxBoxSizer *topSizer = new wxBoxSizer(wxVERTICAL);
 
-  wxImage::AddHandler(new wxPNGHandler); 
   wxImage iconImg;
   char *imgPath = fileManager_->getFilePath(resourcePath().c_str(), BBICON_128);
   iconImg.LoadFile(imgPath);
