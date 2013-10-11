@@ -116,37 +116,34 @@
 
 <div id="intro">
     <p><img src="icon_64x64.png" style="float: left; margin-right: 0.5em"> 
-      BerryBots ships and stages are programmed in Lua 5.1. If you're new to
-      Lua, check out the
-      <a href="http://www.lua.org/manual/5.1/">Lua 5.1 Manual</a>,
-      the <a href="http://lua-users.org/wiki/TutorialDirectory">Tutorial Directory</a>
+      BerryBots programs are written in Lua. If you're new to Lua, check out the
+      <a href="http://www.lua.org/manual/5.1/">Lua 5.1 Manual</a>, the
+      <a href="http://lua-users.org/wiki/TutorialDirectory">Tutorial Directory</a>
       at the Lua-users wiki, or learn by example from the
-      <a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Bots">sample ships</a>
-      and
-      <a href="http://berrybots.com/wiki/index.php?title=Category:Sample_Stages">sample stages</a>.
+      <a href="http://berrybots.com/wiki/index.php?title=Category:Samples">BerryBots sample programs</a>.
     </p>
     <p>
-      To create a ship or stage, your main Lua program must implement the
-      functions of the
+      To create a ship or stage, your Lua program must implement the functions
+      of the
       <a href="modules/ShipControl.html">ShipControl</a>
       or
       <a href="modules/StageControl.html">StageControl</a>
-      interface. These are called by BerryBots before, during, and after the
-      match. The parameters passed to these functions allow your program to
-      learn about and control all gameplay elements in BerryBots.
+      interface. These functions are called by BerryBots before, during, and
+      after the match. The parameters passed to them allow your program to
+      learn about and control the gameplay elements in BerryBots.
     </p>
     <p>
-      The Game Runner API lets you write code to execute BerryBots matches and
-      process the results. To write a Game Runner program, your main Lua program
-      must implement the functions of the
+      The Game Runner API lets you write code to execute BerryBots matches,
+      process the results, and (optionally) save replays. To write a Game
+      Runner, your Lua program must implement the functions of the
       <a href="modules/RunnerControl.html">RunnerControl</a>
-      interface. The parameters passed to your Game Runner program allow it to
-      specify input parameters, prompt a user for input, queue BerryBots
-      matches, process match results, and read and write files to disk.
+      interface. The parameters passed to your program allow it to specify input
+      parameters, prompt a user for input, queue BerryBots matches, process
+      match results, save replays, and read and write files to disk.
     </p>
     <p>
-      For more information about programming BerryBots ships and stages, or to
-      post about your own creations, visit the
+      For more information about programming for BerryBots, or to post about
+      your own creations, visit the
       <a href="http://berrybots.com/wiki">BerryBots Wiki</a>.
     </p>
 </div>
