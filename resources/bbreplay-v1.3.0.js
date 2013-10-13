@@ -419,7 +419,7 @@ BerryBots.scale = function(x) {
   return BerryBots.canvasScale * x;
 };
 
-BerryBots.drawRectangles = function(baseOffset, fillColor) {
+BerryBots.drawRectangles = function(baseOffset, fillColor, numDowns) {
   var numRectangles = BerryBots.getNumber(baseOffset);
   for (var x = 0; x < numRectangles; x++) {
     var offset = baseOffset + 1 + (x * 4);
@@ -436,14 +436,18 @@ BerryBots.drawRectangles = function(baseOffset, fillColor) {
       fill: fillColor
     });
     BerryBots.stageLayer.add(rect);
+    for (var y = 0; y < numDowns; y++) {
+      rect.moveDown();
+    }
   }
   return numRectangles;
 };
 
 BerryBots.drawWallsAndZones = function() {
-  var numWalls = BerryBots.drawRectangles(4, 'white');
+  var numWalls = BerryBots.drawRectangles(4, 'white', 0);
   var zonesOffset = 5 + (numWalls * 4);
-  var numZones = BerryBots.drawRectangles(zonesOffset, BerryBots.ZONE_COLOR);
+  var numZones =
+      BerryBots.drawRectangles(zonesOffset, BerryBots.ZONE_COLOR, numWalls);
   return zonesOffset + 1 + (numZones * 4);
 };
 
