@@ -77,7 +77,7 @@ class AppGuiListener : public GuiListener {
 wxIMPLEMENT_APP(BerryBotsApp);
 
 bool BerryBotsApp::OnInit() {
-#ifdef __WXGTK__
+#ifndef __WXOSX__
   // Needed to load stage previews and wxWidgets dialog icons.
   wxImage::AddHandler(new wxPNGHandler);
 #endif

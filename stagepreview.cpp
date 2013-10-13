@@ -341,27 +341,30 @@ PreviewEventFilter::PreviewEventFilter(StagePreview *stagePreview) {
 }
 
 int PreviewEventFilter::FilterEvent(wxEvent& event) {
-  const wxEventType type = event.GetEventType();
-  if (type == wxEVT_KEY_DOWN && stagePreview_->IsActive()) {
-    wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
-    int keyCode = keyEvent->GetKeyCode();
-    if (keyCode == WXK_ESCAPE || keyCode == WXK_SPACE
-        || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
-      stagePreview_->Close();
+  if (stagePreview_->IsActive()) {
+    const wxEventType type = event.GetEventType();
+    if (type == wxEVT_KEY_DOWN && stagePreview_->IsActive()) {
+      wxKeyEvent *keyEvent = ((wxKeyEvent*) &event);
+      int keyCode = keyEvent->GetKeyCode();
+      if (keyCode == WXK_ESCAPE || keyCode == WXK_SPACE
+          || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
+        stagePreview_->Close();
+        return Event_Processed;
+      } else if (keyCode == WXK_UP) {
+        stagePreview_->onUp();
+        return Event_Processed;
+      } else if (keyCode == WXK_DOWN) {
+        stagePreview_->onDown();
+        return Event_Processed;
+      }
+    } else if (type == wxEVT_NAVIGATION_KEY) {
+      wxNavigationKeyEvent *keyEvent = ((wxNavigationKeyEvent*) &event);
+      if (keyEvent->GetDirection()) {
+        stagePreview_->onDown();
+      } else {
+        stagePreview_->onUp();
+      }
       return Event_Processed;
-    } else if (keyCode == WXK_UP) {
-      stagePreview_->onUp();
-      return Event_Processed;
-    } else if (keyCode == WXK_DOWN) {
-      stagePreview_->onDown();
-      return Event_Processed;
-    }
-  } else if (type == wxEVT_NAVIGATION_KEY) {
-    wxNavigationKeyEvent *keyEvent = ((wxNavigationKeyEvent*) &event);
-    if (keyEvent->GetDirection()) {
-      stagePreview_->onDown();
-    } else {
-      stagePreview_->onUp();
     }
   }
 

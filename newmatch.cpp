@@ -634,6 +634,7 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
     } else if ((keyCode == WXK_SPACE || keyCode == WXK_BACK)
                && (newMatchDialog_->loadedShipsSelectHasFocus())) {
       newMatchDialog_->removeSelectedLoadedShips();
+      return Event_Processed;
     } else if (keyCode == WXK_SPACE && newMatchDialog_->stageSelectHasFocus()) {
       newMatchDialog_->previewSelectedStage();
       return Event_Processed;

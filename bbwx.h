@@ -25,7 +25,7 @@
 #define NEW_MATCH_MENU_ID        2
 #define PACKAGE_SHIP_MENU_ID     3
 #define PACKAGE_STAGE_MENU_ID    4
-#define GAME_RUNNER_MENU_ID    5
+#define GAME_RUNNER_MENU_ID      5
 #define ERROR_CONSOLE_MENU_ID    6
 #define CHANGE_BASE_DIR_MENU_ID  7
 #define FILE_QUIT_MENU_ID        8
