@@ -183,14 +183,18 @@ bool fileExists(const char *filename) {
       if ([fileManager fileExistsAtPath:self.stagesDir]
           && [fileManager fileExistsAtPath:self.shipsDir]) {
         selectRoot = false;
+        bool needToSave = false;
         if (self.runnersDir == nil) {
           self.runnersDir = [NSString stringWithFormat:@"%@/runners",
                              [self.shipsDir stringByDeletingLastPathComponent]];
-          [self save];
+          needToSave = true;
         }
         if (self.replaysDir == nil) {
           self.replaysDir = [NSString stringWithFormat:@"%@/replays",
                              [self.shipsDir stringByDeletingLastPathComponent]];
+          needToSave = true;
+        }
+        if (needToSave) {
           [self save];
         }
       }
