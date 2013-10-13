@@ -126,6 +126,13 @@ void BerryBotsRunner::setListener(RefresherListener *listener) {
 }
 
 void BerryBotsRunner::deleteReplayBuilder(ReplayBuilder *replayBuilder) {
+  if (schedulerSettings_->done) {
+    // If we've already quit, BerryBotsRunner will delete any pending
+    // ReplayBuilders. It's possible it has already deleted this ReplayBuilder,
+    // so don't try to.
+    return;
+  }
+
   // TODO: is this too slow? a map would be nice.
   for (int x = 0; x < schedulerSettings_->numMatches; x++) {
     MatchConfig *config = schedulerSettings_->matches[x];
