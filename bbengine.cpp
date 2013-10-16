@@ -354,12 +354,14 @@ bool BerryBotsEngine::hasScores() {
 }
 
 void BerryBotsEngine::processWinnerRanksScores() {
-  if (hasScores_ && !hasRanks_) {
+  bool hasEffectiveRanks = hasRanks_;
+  if (hasScores_ && !hasEffectiveRanks) {
     setTeamRanksByScore();
-  } else if (winnerName_ != 0 && !hasRanks_) {
+    hasEffectiveRanks = true;
+  } else if (winnerName_ != 0 && !hasEffectiveRanks) {
     setRank(winnerName_, 1);
   }
-  if (winnerName_ == 0 && (hasScores_ || hasRanks_)) {
+  if (strlen(winnerName_) == 0 && (hasScores_ || hasEffectiveRanks)) {
     for (int x = 0; x < numTeams_; x++) {
       Team *team = teams_[x];
       if (team->result.rank == 1) {

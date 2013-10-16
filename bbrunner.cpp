@@ -225,6 +225,7 @@ void* BerryBotsRunner::runMatch(void *vargs) {
     delete e;
   }
   if (!aborted && engine->isGameOver()) {
+    engine->processWinnerRanksScores();
     const char *winner = engine->getWinnerFilename();
     if (winner != 0) {
       config->setWinnerFilename(winner);

@@ -137,6 +137,7 @@ class BerryBotsEngine {
     const char* getWinnerFilename();
     TeamResult** getTeamResults();
     bool hasScores();
+    void processWinnerRanksScores();
 
     void initStage(const char *stagesBaseDir, const char *stageName,
                    const char *cacheDir) throw (EngineException*);
@@ -170,7 +171,6 @@ class BerryBotsEngine {
                         int callStyle) throw (EngineException*);
     ReplayBuilder* getReplayBuilder();
   private:
-    void processWinnerRanksScores();
     void setTeamRanksByScore();
     void initShipRound(Ship *ship);
     void updateTeamShipsAlive();
