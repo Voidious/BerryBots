@@ -433,15 +433,6 @@ int RunnerFormEventFilter::FilterEvent(wxEvent& event) {
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       runnerForm_->cancel();
       return Event_Processed;
-#ifdef __WXOSX__
-    // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
-    } else if (keyEvent->GetUnicodeKey() == 'L' && modifierDown) {
-      runnerForm_->cancel();
-      return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'O' && modifierDown) {
-      runnerForm_->ok();
-      return Event_Processed;
-#endif
     }
   }
 

@@ -326,15 +326,6 @@ int ResultsEventFilter::FilterEvent(wxEvent& event) {
         || (keyEvent->GetUnicodeKey() == 'W' && modifierDown)) {
       resultsDialog_->Close();
       return Event_Processed;
-#ifdef __WXOSX__
-    // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
-    } else if (keyEvent->GetUnicodeKey() == 'S' && modifierDown) {
-      resultsDialog_->saveReplay();
-      return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'V' && modifierDown) {
-      resultsDialog_->viewReplay();
-      return Event_Processed;
-#endif
     }
   }
 

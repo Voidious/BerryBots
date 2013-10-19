@@ -277,15 +277,6 @@ int PackageEventFilter::FilterEvent(wxEvent& event) {
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       packageDialog_->onEscape();
       return Event_Processed;
-#ifdef __WXOSX__
-    // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
-    } else if (keyEvent->GetUnicodeKey() == 'K' && modifierDown) {
-      packageDialog_->packageSelectedItem();
-      return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
-      packageDialog_->refreshFiles();
-      return Event_Processed;
-#endif
     }
   }
 

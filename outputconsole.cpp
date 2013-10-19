@@ -251,13 +251,13 @@ int OutputConsoleEventFilter::FilterEvent(wxEvent& event) {
       return Event_Processed;
     } else if (keyEvent->GetUnicodeKey() == '=' && keyEvent->ControlDown()) {
       outputConsole_->increaseTextSize();
+      return Event_Processed;
     } else if (keyEvent->GetUnicodeKey() == '-' && keyEvent->ControlDown()) {
       outputConsole_->decreaseTextSize();
+      return Event_Processed;
     } else if (keyEvent->GetUnicodeKey() == '0' && keyEvent->ControlDown()) {
       outputConsole_->defaultTextSize();
-    } else if (outputConsole_->getStyle() == CONSOLE_RUNNER
-               && keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
-      outputConsole_->abort();
+      return Event_Processed;
     }
   }
 

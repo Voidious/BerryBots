@@ -83,7 +83,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   shipsBaseDirSizer->Add(shipsBaseDirValueLabel_, 0 ,wxALIGN_BOTTOM);
   onSetBaseDirs();
   dirsSizer->Add(stagesBaseDirSizer);
-#if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
+#if defined(__WXOSX__) || defined(__WXGTK__) || defined(__WINDOWS__)
   browseStagesButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
 #ifndef __WINDOWS__
   // Bizarrely, it's impossible to add any padding between the bitmap and the
@@ -177,8 +177,18 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   refreshButton_ = new wxButton(mainPanel_, wxID_REFRESH, "    &Refresh    ");
   gridSizer->Add(refreshButton_, 0, wxALIGN_LEFT);
 
+#ifdef __WXOSX__
+  // If we start the first match via the wxWidgets 2.9.5+ mnemonics on Mac OS X,
+  // the app will crash the first time we start a match with a mouse click. We
+  // already have hand-rolled mnemonics for OS X, so use those instead. This is
+  // similar to how we need to be careful about initializing SFML windows before
+  // any wxWidgets operations in GuiManager.
+  startButton_ = new wxButton(mainPanel_, wxID_ANY, "    Start Match!    ",
+                              wxDefaultPosition, wxDefaultSize);
+#else
   startButton_ = new wxButton(mainPanel_, wxID_ANY, "    Start &Match!    ",
                               wxDefaultPosition, wxDefaultSize);
+#endif
   browseApidocsButton_->MoveAfterInTabOrder(browseShipsButton_);
   gridSizer->Add(startButton_, 0, wxALIGN_RIGHT);
   borderSizer_->Add(gridSizer, 0, wxALL, 12);
@@ -554,7 +564,7 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
 #ifdef __WXOSX__
     clearButton_->SetLabel("C&lear \u2318L");
     refreshButton_->SetLabel("&Refresh \u2318R");
-    startButton_->SetLabel("Start &Match \u2318M");
+    startButton_->SetLabel("Start Match \u2318M");
 #else
     clearButton_->SetLabel("C&lear  alt-L");
     refreshButton_->SetLabel("&Refresh  alt-R");
@@ -563,7 +573,11 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
   } else {
     clearButton_->SetLabel("C&lear");
     refreshButton_->SetLabel("    &Refresh    ");
+#ifdef __WXOSX__
     startButton_->SetLabel("    Start &Match!    ");
+#else
+    startButton_->SetLabel("    Start Match!    ");
+#endif
   }
 }
 
@@ -639,15 +653,10 @@ int NewMatchEventFilter::FilterEvent(wxEvent& event) {
       newMatchDialog_->previewSelectedStage();
       return Event_Processed;
 #ifdef __WXOSX__
-    // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
+    // Manually simulate the mnemonic for Start Match button to avoid weird
+    // SFML window destructor crashes.
     } else if (keyEvent->GetUnicodeKey() == 'M' && modifierDown) {
       newMatchDialog_->startMatch();
-      return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
-      newMatchDialog_->refreshFiles();
-      return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'L' && modifierDown) {
-      newMatchDialog_->clearLoadedShips();
       return Event_Processed;
 #endif
     }

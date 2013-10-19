@@ -260,15 +260,6 @@ int RunnerEventFilter::FilterEvent(wxEvent& event) {
         || (keyEvent->GetUnicodeKey() == 'W' && keyEvent->ControlDown())) {
       runnerDialog_->onEscape();
       return Event_Processed;
-#ifdef __WXOSX__
-    // Mac OS X doesn't handle mnemonics, so add some manual keyboard shortcuts.
-    } else if (keyEvent->GetUnicodeKey() == 'L' && modifierDown) {
-      runnerDialog_->launchSelectedItem();
-      return Event_Processed;
-    } else if (keyEvent->GetUnicodeKey() == 'R' && modifierDown) {
-      runnerDialog_->refreshFiles();
-      return Event_Processed;
-#endif
     }
   }
   
