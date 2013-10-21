@@ -21,7 +21,7 @@
 #ifndef GUI_ZIPPER_H
 #define GUI_ZIPPER_H
 
-#include <libarchive/archive.h>
+#include <archive.h>
 #include "filemanager.h"
 #include "zipper.h"
 

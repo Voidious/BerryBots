@@ -1,0 +1,260 @@
+##############################################################################
+# Configure build parameters.
+CC = @CXX@
+.DEFAULT_GOAL = @target@
+
+SFML_PATH = @sfml@
+WXWIDGETS_PATH = @wx@
+LIBARCHIVE_PATH = @libarchive@
+SFML_BUILD_PATH = ${SFML_PATH}/build
+##############################################################################
+
+# You shouldn't have to edit anything below this line. #######################
+
+VERSION = 1.3.0
+
+##############################################################################
+# BerryBots GUI common source files
+SOURCES =  bbguimain.cpp guiprinthandler.cpp guimanager.cpp newmatch.cpp
+SOURCES += outputconsole.cpp bbutil.cpp gfxmanager.cpp filemanager.cpp
+SOURCES += circle2d.cpp line2d.cpp point2d.cpp sensorhandler.cpp zone.cpp
+SOURCES += bbengine.cpp bblua.cpp gfxeventhandler.cpp rectangle.cpp stage.cpp
+SOURCES += packagedialog.cpp packageship.cpp packagestage.cpp dockitem.cpp
+SOURCES += dockshape.cpp docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp
+SOURCES += menubarmaker.cpp guigamerunner.cpp runnerdialog.cpp runnerform.cpp
+SOURCES += bbrunner.cpp resultsdialog.cpp replaybuilder.cpp sysexec.cpp
+SOURCES += stagepreview.cpp
+##############################################################################
+
+
+##############################################################################
+# Sources and flags for building on Raspberry Pi (Raspbian "wheezy")
+RPI_SOURCES =  bbpimain.cpp bbengine.cpp stage.cpp bbutil.cpp bblua.cpp
+RPI_SOURCES += line2d.cpp point2d.cpp circle2d.cpp rectangle.cpp zone.cpp
+RPI_SOURCES += bbpigfx.cpp filemanager.cpp gfxeventhandler.cpp sensorhandler.cpp
+RPI_SOURCES += cliprinthandler.cpp clipackagereporter.cpp libshapes.c oglinit.c
+RPI_SOURCES += zipper.cpp tarzipper.cpp bbrunner.cpp relativebasedir.cpp
+RPI_SOURCES += relativerespath.cpp replaybuilder.cpp ./luajit/src/libluajit.a
+
+RPI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include -I/opt/vc/include
+RPI_CFLAGS += -I/opt/vc/include/interface/vcos/pthreads
+RPI_CFLAGS += -I/opt/vc/include/interface/vmcs_host/linux
+
+RPI_LDFLAGS = -L/opt/vc/lib -lGLESv2 -ldl
+##############################################################################
+
+
+##############################################################################
+# BerryBots CLI common source files
+CLI_SOURCES =  bbsfmlmain.cpp bbutil.cpp gfxmanager.cpp filemanager.cpp
+CLI_SOURCES += circle2d.cpp line2d.cpp point2d.cpp sensorhandler.cpp zone.cpp
+CLI_SOURCES += bbengine.cpp bblua.cpp gfxeventhandler.cpp rectangle.cpp
+CLI_SOURCES += stage.cpp cliprinthandler.cpp clipackagereporter.cpp dockitem.cpp
+CLI_SOURCES += dockshape.cpp docktext.cpp dockfader.cpp zipper.cpp guizipper.cpp
+CLI_SOURCES += bbrunner.cpp replaybuilder.cpp
+##############################################################################
+
+
+##############################################################################
+# osx: Sources and flags for building GUI on Mac OS X / Cocoa
+OSX_EXTRA_SOURCES =  osxbasedir.mm osxcfg.m ResourcePath.mm
+OSX_EXTRA_SOURCES += ./luajit/src/libluajit.a
+ifneq ($(LIBARCHIVE_PATH), )
+  OSX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
+endif
+OSX_EXTRA_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
+
+OSX_CFLAGS = -I./luajit/src -I./stlsoft-1.9.116/include
+OSX_LDFLAGS = 
+
+ifneq ($(LIBARCHIVE_PATH), )
+  OSX_CFLAGS += -I${LIBARCHIVE_PATH}/libarchive
+else
+  OSX_LDFLAGS += -larchive
+endif
+
+ifneq ($(SFML_PATH), )
+  OSX_CFLAGS +=  -I${SFML_PATH}/include
+  OSX_LDFLAGS += -L./sfml-lib
+endif
+
+ifneq ($(WXWIDGETS_PATH), )
+  OSX_CFLAGS +=  `${WXWIDGETS_PATH}/wx-config --cflags`
+  OSX_LDFLAGS += `${WXWIDGETS_PATH}/wx-config --libs`
+else
+  OSX_CFLAGS +=  @WX_CFLAGS@
+  OSX_LDFLAGS += @WX_LIBS@
+endif
+
+OSX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
+OSX_LDFLAGS += -ldl -pagezero_size 10000 -image_base 100000000 -std=c99
+##############################################################################
+
+
+##############################################################################
+# osxcli: Sources and flags for building CLI on Mac OS X / Cocoa
+OSXCLI_EXTRA_SOURCES = relativebasedir.cpp relativerespath.cpp
+OSXCLI_EXTRA_SOURCES += ./luajit/src/libluajit.a
+ifneq ($(LIBARCHIVE_PATH), )
+  OSXCLI_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
+endif
+OSXCLI_EXTRA_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
+
+OSXCLI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
+OSXCLI_LDFLAGS =
+ifneq ($(LIBARCHIVE_PATH), )
+  OSXCLI_CFLAGS += -I${LIBARCHIVE_PATH}/libarchive
+else
+  OSXCLI_LDFLAGS += -larchive
+endif
+OSXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
+OSXCLI_LDFLAGS += -pagezero_size 10000 -image_base 100000000
+##############################################################################
+
+
+##############################################################################
+# Sources and flags for building GUI on Linux / GTK
+LINUX_EXTRA_SOURCES =  relativebasedir.cpp relativerespath.cpp
+LINUX_EXTRA_SOURCES += ./luajit/src/libluajit.a
+ifneq ($(LIBARCHIVE_PATH), )
+  LINUX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
+endif
+
+LINUX_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
+LINUX_LDFLAGS =
+
+ifneq ($(LIBARCHIVE_PATH), )
+  LINUX_CFLAGS += -I${LIBARCHIVE_PATH}/libarchive
+else
+  LINUX_LDFLAGS += -larchive
+endif
+
+ifneq ($(SFML_PATH), )
+  LINUX_CFLAGS +=  -I${SFML_PATH}/include
+  LINUX_LDFLAGS += -L${SFML_BUILD_PATH}/lib
+endif
+
+ifneq ($(WXWIDGETS_PATH), )
+  LINUX_CFLAGS +=  `${WXWIDGETS_PATH}/wx-config --cflags`
+  LINUX_LDFLAGS += `${WXWIDGETS_PATH}/wx-config --libs`
+else
+  LINUX_CFLAGS +=  @WX_CFLAGS@
+  LINUX_LDFLAGS += @WX_LIBS@
+endif
+
+LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
+##############################################################################
+
+
+##############################################################################
+# Sources and flags for building CLI on Linux / GTK
+LINUXCLI_EXTRA_SOURCES = LINUX_EXTRA_SOURCES
+LINUXCLI_CFLAGS = -I./luajit/src -I./stlsoft-1.9.116/include
+LINUXCLI_LDFLAGS =
+
+ifneq ($(LIBARCHIVE_PATH), )
+  LINUX_CFLAGS += -I${LIBARCHIVE_PATH}/libarchive
+else
+  LINUX_LDFLAGS += -larchive
+endif
+
+ifneq ($(SFML_PATH), )
+  LINUXCLI_CFLAGS +=  -I${SFML_PATH}/include
+  LINUXCLI_LDFLAGS += -L${SFML_BUILD_PATH}/lib
+endif
+
+LINUXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
+##############################################################################
+
+
+##############################################################################
+# Build targets
+GUIPLATS = osx linux
+CLIPLATS = rpi osxcli linuxcli
+
+none:
+	@echo "Please do                       "
+	@echo "  make PLATFORM                 "
+	@echo "where PLATFORM is one of these: "
+	@echo "  GUI: $(GUIPLATS)     "
+	@echo "  CLI: $(CLIPLATS)     "
+
+MAKE_LUAJIT=cd luajit; $(MAKE); cd ..
+CLEAN_LUAJIT=cd luajit; $(MAKE) clean; cd ..
+
+rpi:
+	$(MAKE_LUAJIT)
+	$(CC) ${RPI_SOURCES} ${RPI_CFLAGS} ${RPI_LDFLAGS} -o bbmain
+	cp ./scripts/bb_rpi.sh ./berrybots
+	chmod 755 ./berrybots
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
+	@echo "==== Launch BerryBots with: ./berrybots"
+
+osx:
+	$(MAKE_LUAJIT)
+ifeq ($(SFML_PATH), )
+	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o berrybots
+else
+	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
+	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
+	cp ./scripts/bb_gui_osx.sh ./berrybots
+	chmod 755 ./berrybots
+endif
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
+	@echo "==== Launch BerryBots with: ./berrybots"
+
+osxcli:
+	$(MAKE_LUAJIT)
+ifeq ($(SFML_PATH), )
+	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o berrybots
+else
+	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
+	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o bbmain
+	cp ./scripts/bb_gui_osx.sh ./berrybots
+	chmod 755 ./berrybots
+endif
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
+	@echo "==== Launch BerryBots with: ./berrybots"
+
+linux:
+	$(MAKE_LUAJIT)
+ifeq ($(SFML_PATH), )
+	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o berrybots
+else
+	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
+	rm -rf ./sfml-lib
+	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
+	cp ./scripts/bb_gui_linux.sh ./berrybots
+	chmod 755 ./berrybots
+endif
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
+	@echo "==== Launch BerryBots with: ./berrybots"
+
+linuxcli:
+	$(MAKE_LUAJIT)
+ifeq ($(SFML_PATH), )
+	$(CC) ${CLI_SOURCES} ${LINUXCLI_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o berrybots
+else
+	$(CC) ${CLI_SOURCES} ${LINUXCLI_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o bbgui
+	rm -rf ./sfml-lib
+	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
+	cp ./scripts/bb_gui_linux.sh ./berrybots
+	chmod 755 ./berrybots
+endif
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
+	@echo "==== Launch BerryBots with: ./berrybots"
+
+install:
+	cp berrybots $(DESTDIR)/usr/bin
+	mkdir /usr/share/berrybots
+	cp LICENSE $(DESTDIR)/usr/share/berrybots
+	cp README $(DESTDIR)/usr/share/berrybots
+	cp -r resources $(DESTDIR)/usr/share/berrybots
+	cp -r bots $(DESTDIR)/usr/share/berrybots
+	cp -r stages $(DESTDIR)/usr/share/berrybots
+	cp -r runners $(DESTDIR)/usr/share/berrybots
+	cp -r apidoc $(DESTDIR)/usr/share/berrybots
+
+clean:
+	$(CLEAN_LUAJIT)
+	rm -rf *o sfml-lib bbgui berrybots.sh berrybots config.log config.status Makefile autom4te.cache

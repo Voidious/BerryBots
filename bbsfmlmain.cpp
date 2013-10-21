@@ -42,13 +42,13 @@
 
 void printUsage() {
   std::cout << "Usage:" << std::endl;
-  std::cout << "  berrybots.sh [-nodisplay] [-savereplay]"
+  std::cout << "  ./berrybots [-nodisplay] [-savereplay]"
             << " <stage.lua> <bot1.lua> [<bot2.lua> ...]" << std::endl;
   std::cout << "  OR" << std::endl;
-  std::cout << "  berrybots.sh -packstage <stage.lua> <version>"
+  std::cout << "  ./berrybots -packstage <stage.lua> <version>"
             << std::endl;
   std::cout << "  OR" << std::endl;
-  std::cout << "  berrybots.sh -packbot <bot.lua> <version>"
+  std::cout << "  ./berrybots -packbot <bot.lua> <version>"
             << std::endl;
   exit(0);
 }
