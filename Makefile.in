@@ -114,7 +114,7 @@ OSXCLI_LDFLAGS += -pagezero_size 10000 -image_base 100000000
 
 ##############################################################################
 # Sources and flags for building GUI on Linux / GTK
-LINUX_EXTRA_SOURCES =  relativebasedir.cpp relativerespath.cpp
+LINUX_EXTRA_SOURCES =  linuxbasedir.cpp linuxrespath.cpp linuxcfg.cpp
 LINUX_EXTRA_SOURCES += ./luajit/src/libluajit.a
 ifneq ($(LIBARCHIVE_PATH), )
   LINUX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
@@ -148,14 +148,14 @@ LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
 
 ##############################################################################
 # Sources and flags for building CLI on Linux / GTK
-LINUXCLI_EXTRA_SOURCES = LINUX_EXTRA_SOURCES
+LINUXCLI_EXTRA_SOURCES = relativebasedir.cpp relativerespath.cpp
 LINUXCLI_CFLAGS = -I./luajit/src -I./stlsoft-1.9.116/include
 LINUXCLI_LDFLAGS =
 
 ifneq ($(LIBARCHIVE_PATH), )
-  LINUX_CFLAGS += -I${LIBARCHIVE_PATH}/libarchive
+  LINUXCLI_CFLAGS += -I${LIBARCHIVE_PATH}/libarchive
 else
-  LINUX_LDFLAGS += -larchive
+  LINUXCLI_LDFLAGS += -larchive
 endif
 
 ifneq ($(SFML_PATH), )

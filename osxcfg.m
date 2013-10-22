@@ -199,14 +199,14 @@ bool fileExists(const char *filename) {
         }
       }
     }
-    bool returnValue;
+    bool loaded;
     if (selectRoot) {
-      returnValue = [self chooseNewRootDir];
+      loaded = [self chooseNewRootDir];
     } else {
-      returnValue = true;
+      loaded = true;
     }
 
-    if (returnValue && ![self.samplesVersion isEqualToString:@SAMPLES_VERSION]) {
+    if (loaded && ![self.samplesVersion isEqualToString:@SAMPLES_VERSION]) {
       NSString *srcDir = [[NSBundle mainBundle] resourcePath];
       if ([fileManager isReadableFileAtPath:srcDir]) {
         NSAlert *alert = [[NSAlert alloc] init];
@@ -234,7 +234,7 @@ bool fileExists(const char *filename) {
       }
     }
 
-    return returnValue;
+    return loaded;
   }
   return false;
 }

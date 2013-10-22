@@ -18,9 +18,20 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
-#include "bbconst.h"
+#ifndef LINUX_RESPATH_H
+#define LINUX_RESPATH_H
+
+#include <string.h>
+#include "filemanager.h"
 #include "ResourcePath.hpp"
 
 std::string resourcePath() {
-  return std::string(".") + BB_DIRSEP;
+  FileManager fileManager;
+  if (fileManager.fileExists("/usr/share/berrybots")) {
+    return std::string("/usr/share/berrybots/");
+  } else {
+    return "./";
+  }
 }
+
+#endif
