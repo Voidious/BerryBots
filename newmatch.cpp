@@ -23,6 +23,7 @@
 #include <wx/iconbndl.h>
 #include "bbwx.h"
 #include "basedir.h"
+#include "ResourcePath.hpp"
 #include "filemanager.h"
 #include "newmatch.h"
 
@@ -34,7 +35,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   menuBarMaker_ = menuBarMaker;
 
 #ifdef __WINDOWS__
-  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
+  SetIcon(wxIcon(resourcePath() + BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
 
   // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
   wxFont windowFont = GetFont();
@@ -42,7 +43,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
     SetFont(windowFont.Larger());
   }
 #elif defined(__WXGTK__)
-  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
+  SetIcon(wxIcon(resourcePath() + BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
   mainPanel_ = new wxPanel(this);

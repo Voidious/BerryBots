@@ -22,6 +22,7 @@
 #include <wx/wx.h>
 #include <wx/valnum.h>
 #include "bbwx.h"
+#include "ResourcePath.hpp"
 #include "gamerunner.h"
 #include "runnerform.h"
 
@@ -41,7 +42,7 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
   }
 
 #ifdef __WINDOWS__
-  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
+  SetIcon(wxIcon(resourcePath() + BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
   
   // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
   wxFont windowFont = GetFont();
@@ -49,7 +50,7 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
     SetFont(windowFont.Larger());
   }
 #elif __WXGTK__
-  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
+  SetIcon(wxIcon(resourcePath() + BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
   mainPanel_ = new wxPanel(this);

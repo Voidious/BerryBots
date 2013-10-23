@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <wx/wx.h>
 #include "bbwx.h"
+#include "ResourcePath.hpp"
 #include "outputconsole.h"
 
 OutputConsole::OutputConsole(const char *title, int style,
@@ -62,9 +63,9 @@ OutputConsole::OutputConsole(const char *title, int style,
   menusInitialized_ = false;
 
 #ifdef __WINDOWS__
-  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
+  SetIcon(wxIcon(resourcePath() + BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
 #elif defined(__WXGTK__)
-  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
+  SetIcon(wxIcon(resourcePath() + BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
 #ifdef __WXOSX__

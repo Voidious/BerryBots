@@ -119,9 +119,9 @@ GuiManager::GuiManager(GuiListener *listener) {
   numStages_ = numShips_ = numRunners_ = 0;
 
 #ifdef __WINDOWS__
-  windowIcon_.loadFromFile(BBICON_32);
+  windowIcon_.loadFromFile(resourcePath() + BBICON_32);
 #elif defined(__WXGTK__)
-  windowIcon_.loadFromFile(BBICON_128);
+  windowIcon_.loadFromFile(resourcePath() + BBICON_128);
 #endif
 }
 

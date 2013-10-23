@@ -246,7 +246,8 @@ endif
 
 install:
 	cp berrybots $(DESTDIR)/usr/bin
-	mkdir /usr/share/berrybots
+	chmod 755 $(DESTDIR)/usr/bin/berrybots
+	mkdir -p $(DESTDIR)/usr/share/berrybots
 	cp LICENSE $(DESTDIR)/usr/share/berrybots
 	cp README $(DESTDIR)/usr/share/berrybots
 	cp -r resources $(DESTDIR)/usr/share/berrybots
@@ -255,6 +256,13 @@ install:
 	cp -r runners $(DESTDIR)/usr/share/berrybots
 	cp -r apidoc $(DESTDIR)/usr/share/berrybots
 
+uninstall:
+	rm $(DESTDIR)/usr/bin/berrybots
+	rm -rf $(DESTDIR)/usr/share/berrybots
+
 clean:
 	$(CLEAN_LUAJIT)
-	rm -rf *o sfml-lib bbgui berrybots.sh berrybots config.log config.status Makefile autom4te.cache
+	rm -rf *o sfml-lib bbgui berrybots.sh berrybots config.log config.status autom4te.cache
+
+distclean: clean
+	rm Makefile
