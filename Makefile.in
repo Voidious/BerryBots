@@ -245,6 +245,7 @@ endif
 	@echo "==== Launch BerryBots with: ./berrybots"
 
 install:
+	mkdir -p $(DESTDIR)/usr/bin
 	cp berrybots $(DESTDIR)/usr/bin
 	chmod 755 $(DESTDIR)/usr/bin/berrybots
 	mkdir -p $(DESTDIR)/usr/share/berrybots
