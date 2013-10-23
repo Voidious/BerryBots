@@ -115,9 +115,8 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 #endif
   moreButtonsSizer->Add(browseApidocsButton_);
 
-#ifdef __WXOSX__
-  // Using cwd as base dir on other platforms, so only support changing base dir
-  // on Mac OS X for now.
+#ifndef __WINDOWS__
+  // Still using cwd as base dir on Windows, for now.
   folderButton_ = new wxButton(mainPanel_, wxID_ANY, "&Base Dir ");
   folderButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
   moreButtonsSizer->AddSpacer(12);
