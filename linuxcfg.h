@@ -23,7 +23,7 @@
 
 #include <string.h>
 
-#define SETTINGS_FILENAME  ".berrybots"
+#define SETTINGS_FILENAME  "berrybots/config"
 
 class LinuxCfg {
   std::string stagesDir_;
@@ -53,6 +53,7 @@ class LinuxCfg {
     void save();
   private:
     void loadSetting(std::string key, std::string value);
+    std::string configDir();
     std::string userHomeDir();
     std::string settingsPath();
     void copyAllAppFiles(std::string srcDir, bool forceAll);

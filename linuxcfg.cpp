@@ -263,20 +263,27 @@ void LinuxCfg::loadSetting(std::string key, std::string value) {
   }
 }
 
+std::string LinuxCfg::configDir() {
+  char *xdgConfigEnv = getenv("XDG_CONFIG_HOME");
+  if (xdgConfigEnv == NULL || strlen(xdgConfigEnv) == 0) {
+    return std::string(userHomeDir() + "/.config");
+  } else {
+    return std::string(xdgConfigEnv);
+  }
+}
+
 std::string LinuxCfg::userHomeDir() {
   char *homeEnv = getenv("HOME");
-  std::string userHomeDir;
   if (homeEnv == NULL) {
     struct passwd *pw = getpwuid(getuid());
-    userHomeDir.append(pw->pw_dir);
+    return std::string(pw->pw_dir);
   } else {
-    userHomeDir.append(homeEnv);
+    return std::string(homeEnv);
   }
-  return userHomeDir;
 }
 
 std::string LinuxCfg::settingsPath() {
-  std::string settingsPath(userHomeDir());
+  std::string settingsPath(configDir());
   settingsPath.append("/");
   settingsPath.append(SETTINGS_FILENAME);
   return settingsPath;
