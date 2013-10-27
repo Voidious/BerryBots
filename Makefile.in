@@ -6,8 +6,8 @@ CC = @CXX@
 SFML_PATH = @sfml@
 WXWIDGETS_PATH = @wx@
 LIBARCHIVE_PATH = @libarchive@
-SFML_BUILD_PATH = ${SFML_PATH}/build
 BUILD_FOR_DEB_PKG=@deb@
+SFML_BUILD_PATH = ${SFML_PATH}/build
 ##############################################################################
 
 # You shouldn't have to edit anything below this line. #######################
@@ -114,7 +114,7 @@ OSXCLI_LDFLAGS += -pagezero_size 10000 -image_base 100000000
 
 
 ##############################################################################
-# Sources and flags for building GUI on Linux / GTK
+# linux: Sources and flags for building GUI on Linux / GTK
 LINUX_EXTRA_SOURCES =  linuxbasedir.cpp linuxrespath.cpp linuxcfg.cpp
 LINUX_EXTRA_SOURCES += ./luajit/src/libluajit.a
 ifneq ($(LIBARCHIVE_PATH), )
@@ -133,9 +133,7 @@ endif
 ifneq ($(SFML_PATH), )
   LINUX_CFLAGS +=  -I${SFML_PATH}/include
   LINUX_LDFLAGS += -L${SFML_BUILD_PATH}/lib
-  ifeq ($(BUILD_FOR_DEB_PKG), 1)
-    LINUX_LDFLAGS += -Wl,-rpath,$(DESTDIR)/usr/lib/berrybots,--enable-new-dtags
-  endif
+  LINUX_LDFLAGS += -Wl,-rpath,$(DESTDIR)/usr/lib/berrybots,--enable-new-dtags
 endif
 
 ifneq ($(WXWIDGETS_PATH), )
@@ -151,7 +149,7 @@ LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
 
 
 ##############################################################################
-# Sources and flags for building CLI on Linux / GTK
+# linuxcli: Sources and flags for building CLI on Linux / GTK
 LINUXCLI_EXTRA_SOURCES = relativebasedir.cpp relativerespath.cpp
 LINUXCLI_CFLAGS = -I./luajit/src -I./stlsoft-1.9.116/include
 LINUXCLI_LDFLAGS =
@@ -186,15 +184,15 @@ none:
 MAKE_LUAJIT=cd luajit; $(MAKE); cd ..
 CLEAN_LUAJIT=cd luajit; $(MAKE) clean; cd ..
 MAKE_SFML=cd SFML-2.1; mkdir build; cd build; cmake ..; make; cd ../..
-CLEAN_SFML=rm -rf ./SFML-2.1/build
+CLEAN_SFML=rm -rf SFML-2.1/build
 MAKE_WX=cd wxWidgets-2.9.5; ./configure --disable-shared; $(MAKE); cd ..
 CLEAN_WX=cd wxWidgets-2.9.5; make clean; cd ..
 
 rpi:
 	$(MAKE_LUAJIT)
 	$(CC) ${RPI_SOURCES} ${RPI_CFLAGS} ${RPI_LDFLAGS} -o bbmain
-	cp ./scripts/bb_rpi.sh ./berrybots
-	chmod 755 ./berrybots
+	cp scripts/bb_rpi.sh berrybots
+	chmod 755 berrybots
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"
 
@@ -205,8 +203,8 @@ ifeq ($(SFML_PATH), )
 else
 	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
 	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
-	cp ./scripts/bb_gui_osx.sh ./berrybots
-	chmod 755 ./berrybots
+	cp scripts/bb_gui_osx.sh berrybots
+	chmod 755 berrybots
 endif
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"
@@ -218,8 +216,8 @@ ifeq ($(SFML_PATH), )
 else
 	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
 	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o bbmain
-	cp ./scripts/bb_gui_osx.sh ./berrybots
-	chmod 755 ./berrybots
+	cp scripts/bb_gui_osx.sh berrybots
+	chmod 755 berrybots
 endif
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"
@@ -232,15 +230,14 @@ else
   ifeq ($(BUILD_FOR_DEB_PKG), 1)
 	$(MAKE_SFML)
 	$(MAKE_WX)
-	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o berrybots
-  else
-	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
-	cp ./scripts/bb_gui_linux.sh ./berrybots
   endif
-	rm -rf ./sfml-lib
-	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
-	chmod 755 ./berrybots
+	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
+	cp scripts/bb_gui_linux.sh berrybots
+	rm -rf sfml-lib
+	cp -r ${SFML_BUILD_PATH}/lib sfml-lib
+	chmod 755 bbgui
 endif
+	chmod 755 berrybots
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"
 
@@ -250,18 +247,20 @@ ifeq ($(SFML_PATH), )
 	$(CC) ${CLI_SOURCES} ${LINUXCLI_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o berrybots
 else
 	$(CC) ${CLI_SOURCES} ${LINUXCLI_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o bbgui
-	rm -rf ./sfml-lib
-	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
-	cp ./scripts/bb_gui_linux.sh ./berrybots
-	chmod 755 ./berrybots
+	rm -rf sfml-lib
+	cp -r ${SFML_BUILD_PATH}/lib sfml-lib
+	cp scripts/bb_gui_linux.sh berrybots
+	chmod 755 berrybots
 endif
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"
 
 install:
+ifeq ($(wildcard bbgui), ) 
+	$(error Can only install BerryBots GUI targets.)
+endif
 	mkdir -p $(DESTDIR)/usr/bin
-	cp berrybots $(DESTDIR)/usr/bin
-	chmod 755 $(DESTDIR)/usr/bin/berrybots
+	cp bbgui $(DESTDIR)/usr/bin/berrybots
 	mkdir -p $(DESTDIR)/usr/share/berrybots
 	cp LICENSE $(DESTDIR)/usr/share/berrybots
 	cp README $(DESTDIR)/usr/share/berrybots
@@ -270,7 +269,6 @@ install:
 	cp -r stages $(DESTDIR)/usr/share/berrybots
 	cp -r runners $(DESTDIR)/usr/share/berrybots
 	cp -r apidoc $(DESTDIR)/usr/share/berrybots
-ifeq ($(BUILD_FOR_DEB_PKG), 1)
 	mkdir -p $(DESTDIR)/usr/lib
 	rm -rf $(DESTDIR)/usr/lib/berrybots
 	cp -r sfml-lib $(DESTDIR)/usr/lib/berrybots
@@ -278,7 +276,6 @@ ifeq ($(BUILD_FOR_DEB_PKG), 1)
 	ln -s $(DESTDIR)/usr/share/berrybots/resources/icon.iconset/icon_128x128.png $(DESTDIR)/usr/share/pixmaps/berrybots.png
 	mkdir -p $(DESTDIR)/usr/share/applications
 	cp scripts/berrybots.desktop $(DESTDIR)/usr/share/applications
-endif
 
 uninstall:
 	rm $(DESTDIR)/usr/bin/berrybots
