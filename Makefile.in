@@ -273,13 +273,19 @@ install:
 ifeq ($(BUILD_FOR_DEB_PKG), 1)
 	mkdir -p $(DESTDIR)/usr/lib
 	rm -rf $(DESTDIR)/usr/lib/berrybots
-	cp -r ./sfml-lib $(DESTDIR)/usr/lib/berrybots
+	cp -r sfml-lib $(DESTDIR)/usr/lib/berrybots
+	mkdir -p $(DESTDIR)/usr/share/pixmaps
+	ln -s $(DESTDIR)/usr/share/berrybots/resources/icon.iconset/icon_128x128.png $(DESTDIR)/usr/share/pixmaps/berrybots.png
+	mkdir -p $(DESTDIR)/usr/share/applications
+	cp scripts/berrybots.desktop $(DESTDIR)/usr/share/applications
 endif
 
 uninstall:
 	rm $(DESTDIR)/usr/bin/berrybots
 	rm -rf $(DESTDIR)/usr/share/berrybots
 	rm -rf $(DESTDIR)/usr/lib/berrybots
+	rm $(DESTDIR)/usr/share/applications/berrybots.desktop
+	rm $(DESTDIR)/usr/share/pixmaps/berrybots.png
 
 clean:
 	$(CLEAN_LUAJIT)
