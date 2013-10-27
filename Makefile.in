@@ -7,6 +7,7 @@ SFML_PATH = @sfml@
 WXWIDGETS_PATH = @wx@
 LIBARCHIVE_PATH = @libarchive@
 SFML_BUILD_PATH = ${SFML_PATH}/build
+BUILD_FOR_DEB_PKG=@deb@
 ##############################################################################
 
 # You shouldn't have to edit anything below this line. #######################
@@ -132,6 +133,9 @@ endif
 ifneq ($(SFML_PATH), )
   LINUX_CFLAGS +=  -I${SFML_PATH}/include
   LINUX_LDFLAGS += -L${SFML_BUILD_PATH}/lib
+  ifeq ($(BUILD_FOR_DEB_PKG), 1)
+    LINUX_LDFLAGS += -Wl,-rpath,$(DESTDIR)/usr/lib/berrybots,--enable-new-dtags
+  endif
 endif
 
 ifneq ($(WXWIDGETS_PATH), )
@@ -181,6 +185,10 @@ none:
 
 MAKE_LUAJIT=cd luajit; $(MAKE); cd ..
 CLEAN_LUAJIT=cd luajit; $(MAKE) clean; cd ..
+MAKE_SFML=cd SFML-2.1; mkdir build; cd build; cmake ..; make; cd ../..
+CLEAN_SFML=rm -rf ./SFML-2.1/build
+MAKE_WX=cd wxWidgets-2.9.5; ./configure --disable-shared; $(MAKE); cd ..
+CLEAN_WX=cd wxWidgets-2.9.5; make clean; cd ..
 
 rpi:
 	$(MAKE_LUAJIT)
@@ -221,10 +229,16 @@ linux:
 ifeq ($(SFML_PATH), )
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o berrybots
 else
+  ifeq ($(BUILD_FOR_DEB_PKG), 1)
+	$(MAKE_SFML)
+	$(MAKE_WX)
+	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o berrybots
+  else
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
+	cp ./scripts/bb_gui_linux.sh ./berrybots
+  endif
 	rm -rf ./sfml-lib
 	cp -r ${SFML_BUILD_PATH}/lib ./sfml-lib
-	cp ./scripts/bb_gui_linux.sh ./berrybots
 	chmod 755 ./berrybots
 endif
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
@@ -256,13 +270,23 @@ install:
 	cp -r stages $(DESTDIR)/usr/share/berrybots
 	cp -r runners $(DESTDIR)/usr/share/berrybots
 	cp -r apidoc $(DESTDIR)/usr/share/berrybots
+ifeq ($(BUILD_FOR_DEB_PKG), 1)
+	mkdir -p $(DESTDIR)/usr/lib
+	rm -rf $(DESTDIR)/usr/lib/berrybots
+	cp -r ./sfml-lib $(DESTDIR)/usr/lib/berrybots
+endif
 
 uninstall:
 	rm $(DESTDIR)/usr/bin/berrybots
 	rm -rf $(DESTDIR)/usr/share/berrybots
+	rm -rf $(DESTDIR)/usr/lib/berrybots
 
 clean:
 	$(CLEAN_LUAJIT)
+ifeq ($(BUILD_FOR_DEB_PKG), 1)
+	$(CLEAN_SFML)
+	$(CLEAN_WX)
+endif
 	rm -rf *o sfml-lib bbgui berrybots.sh berrybots config.log config.status autom4te.cache
 
 distclean: clean

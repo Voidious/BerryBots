@@ -37,15 +37,37 @@ fi
 
 # Raspberry Pi doesn't depend on anything.
 if test "$rpi" != 1; then
-  withSfml=1
-  withWx=1
-  withLa=1
+  withSfml=0
+  withWx=0
+  withLa=0
+  withDeb=0
+  AC_ARG_WITH([deb],
+              [(optional) Build for Debian packaging; this also sets --with-sfml=./SFML-2.1
+                          and --with-wx=./wxWidgets-2.9.5],
+              [
+              withSfml=1
+              AC_SUBST([sfml], [./SFML-2.1])
+              withWx=1
+              AC_SUBST([wx], [./wxWidgets-2.9.5])
+              withDeb=1
+              ],
+              [withDeb=0])
+  AC_SUBST([deb], $withDeb)
   AC_ARG_WITH([sfml], [(optional) Path to SFML, e.g., /home/voidious/SFML-2.1],
-              [AC_SUBST([sfml], $withval)], [withSfml=0])
+              [
+              AC_SUBST([sfml], $withval)
+              withSfml=1
+              ], [])
   AC_ARG_WITH([wx], [(optional) Path to wxWidgets, e.g., /home/voidious/wxWidgets-2.9.5],
-              [AC_SUBST([wx], $withval)], [withWx=0])
+              [
+              AC_SUBST([wx], $withval)
+              withWx=1
+              ], [])
   AC_ARG_WITH([libarchive], [(optional) Path to libarchive, e.g., /home/voidious/libarchive-3.1.2],
-              [AC_SUBST([libarchive], $withval)], [withLa=0])
+              [
+              AC_SUBST([libarchive], $withval)
+              withLa=1
+              ], [])
 
   AC_MSG_NOTICE([
     Checking for wxWidgets...])
