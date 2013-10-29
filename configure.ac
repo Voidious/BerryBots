@@ -40,30 +40,36 @@ if test "$rpi" != 1; then
   withSfml=0
   withWx=0
   withLa=0
-  withDeb=0
-  AC_ARG_WITH([deb],
-              [(optional) Build for Debian packaging; this also sets --with-sfml=./SFML-2.1
-                          and --with-wx=./wxWidgets-2.9.5],
+  withLocalDeps=0
+  AC_ARG_WITH([localdeps],
+              AS_HELP_STRING([--with-localdeps],
+                [Build with local SFML and wxWidgets, for Linux packaging; this also sets --with-sfml=./SFML-2.1 and --with-wx=./wxWidgets-2.9.5, which should contain extracted source.]),
               [
               withSfml=1
               AC_SUBST([sfml], [./SFML-2.1])
               withWx=1
               AC_SUBST([wx], [./wxWidgets-2.9.5])
-              withDeb=1
+              withLocalDeps=1
               ],
-              [withDeb=0])
-  AC_SUBST([deb], $withDeb)
-  AC_ARG_WITH([sfml], [(optional) Path to SFML, e.g., /home/voidious/SFML-2.1],
+              [withLocalDeps=0])
+  AC_SUBST([localdeps], $withLocalDeps)
+  AC_ARG_WITH([sfml],
+              AS_HELP_STRING([--with-sfml],
+                [Path to SFML, e.g., /home/voidious/SFML-2.1]),
               [
               AC_SUBST([sfml], $withval)
               withSfml=1
               ], [])
-  AC_ARG_WITH([wx], [(optional) Path to wxWidgets, e.g., /home/voidious/wxWidgets-2.9.5],
+  AC_ARG_WITH([wx],
+              AS_HELP_STRING([--with-wx],
+                [Path to wxWidgets, e.g., /home/voidious/wxWidgets-2.9.5]),
               [
               AC_SUBST([wx], $withval)
               withWx=1
               ], [])
-  AC_ARG_WITH([libarchive], [(optional) Path to libarchive, e.g., /home/voidious/libarchive-3.1.2],
+  AC_ARG_WITH([libarchive],
+              AS_HELP_STRING([--with-libarchive],
+                [Path to libarchive, e.g., /home/voidious/libarchive-3.1.2]),
               [
               AC_SUBST([libarchive], $withval)
               withLa=1

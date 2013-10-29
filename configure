@@ -638,7 +638,7 @@ WX_CFLAGS
 WX_CPPFLAGS
 WX_CONFIG_PATH
 libarchive
-deb
+localdeps
 wx
 sfml
 host_os
@@ -697,7 +697,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
-with_deb
+with_localdeps
 with_sfml
 with_wx
 with_libarchive
@@ -1328,11 +1328,15 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-(optional) Build for Debian packaging; this also sets --with-sfml=./SFML-2.1
-                          and --with-wx=./wxWidgets-2.9.5
-(optional) Path to SFML, e.g., /home/voidious/SFML-2.1
-(optional) Path to wxWidgets, e.g., /home/voidious/wxWidgets-2.9.5
-(optional) Path to libarchive, e.g., /home/voidious/libarchive-3.1.2
+  --with-localdeps        Build with local SFML and wxWidgets, for Linux
+                          packaging; this also sets --with-sfml=./SFML-2.1 and
+                          --with-wx=./wxWidgets-2.9.5, which should contain
+                          extracted source.
+  --with-sfml             Path to SFML, e.g., /home/voidious/SFML-2.1
+  --with-wx               Path to wxWidgets, e.g.,
+                          /home/voidious/wxWidgets-2.9.5
+  --with-libarchive       (optional) Path to libarchive, e.g.,
+                          /home/voidious/libarchive-3.1.2
   --with-wxdir=PATH       Use uninstalled version of wxWidgets in PATH
   --with-wx-config=CONFIG wx-config script to use (optional)
   --with-wx-prefix=PREFIX Prefix where wxWidgets is installed (optional)
@@ -2742,24 +2746,24 @@ if test "$rpi" != 1; then
   withSfml=0
   withWx=0
   withLa=0
-  withDeb=0
+  withLocalDeps=0
 
-# Check whether --with-deb was given.
-if test "${with_deb+set}" = set; then :
-  withval=$with_deb;
+# Check whether --with-localdeps was given.
+if test "${with_localdeps+set}" = set; then :
+  withval=$with_localdeps;
               withSfml=1
               sfml=./SFML-2.1
 
               withWx=1
               wx=./wxWidgets-2.9.5
 
-              withDeb=1
+              withLocalDeps=1
 
 else
-  withDeb=0
+  withLocalDeps=0
 fi
 
-  deb=$withDeb
+  localdeps=$withLocalDeps
 
 
 # Check whether --with-sfml was given.

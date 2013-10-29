@@ -6,8 +6,15 @@ CC = @CXX@
 SFML_PATH = @sfml@
 WXWIDGETS_PATH = @wx@
 LIBARCHIVE_PATH = @libarchive@
-BUILD_FOR_DEB_PKG=@deb@
+LOCAL_DEPS=@localdeps@
 SFML_BUILD_PATH = ${SFML_PATH}/build
+
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+bindir = @bindir@
+libdir = @libdir@
+datarootdir = @datarootdir@
+datadir = @datadir@
 ##############################################################################
 
 # You shouldn't have to edit anything below this line. #######################
@@ -133,7 +140,7 @@ endif
 ifneq ($(SFML_PATH), )
   LINUX_CFLAGS +=  -I${SFML_PATH}/include
   LINUX_LDFLAGS += -L${SFML_BUILD_PATH}/lib
-  LINUX_LDFLAGS += -Wl,-rpath,$(DESTDIR)/usr/lib/berrybots,--enable-new-dtags
+  LINUX_LDFLAGS += -Wl,-rpath,$(DESTDIR)$(libdir)/berrybots,--enable-new-dtags
 endif
 
 ifneq ($(WXWIDGETS_PATH), )
@@ -227,7 +234,7 @@ linux:
 ifeq ($(SFML_PATH), )
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o berrybots
 else
-  ifeq ($(BUILD_FOR_DEB_PKG), 1)
+  ifeq ($(LOCAL_DEPS), 1)
 	$(MAKE_SFML)
 	$(MAKE_WX)
   endif
@@ -259,34 +266,34 @@ install:
 ifeq ($(wildcard bbgui), ) 
 	$(error Can only install BerryBots GUI targets.)
 endif
-	mkdir -p $(DESTDIR)/usr/bin
-	cp bbgui $(DESTDIR)/usr/bin/berrybots
-	mkdir -p $(DESTDIR)/usr/share/berrybots
-	cp LICENSE $(DESTDIR)/usr/share/berrybots
-	cp README $(DESTDIR)/usr/share/berrybots
-	cp -r resources $(DESTDIR)/usr/share/berrybots
-	cp -r bots $(DESTDIR)/usr/share/berrybots
-	cp -r stages $(DESTDIR)/usr/share/berrybots
-	cp -r runners $(DESTDIR)/usr/share/berrybots
-	cp -r apidoc $(DESTDIR)/usr/share/berrybots
-	mkdir -p $(DESTDIR)/usr/lib
-	rm -rf $(DESTDIR)/usr/lib/berrybots
-	cp -r sfml-lib $(DESTDIR)/usr/lib/berrybots
-	mkdir -p $(DESTDIR)/usr/share/pixmaps
-	ln -s $(DESTDIR)/usr/share/berrybots/resources/icon.iconset/icon_128x128.png $(DESTDIR)/usr/share/pixmaps/berrybots.png
-	mkdir -p $(DESTDIR)/usr/share/applications
-	cp scripts/berrybots.desktop $(DESTDIR)/usr/share/applications
+	mkdir -p $(DESTDIR)$(bindir)
+	cp bbgui $(DESTDIR)$(bindir)/berrybots
+	mkdir -p $(DESTDIR)$(datadir)/berrybots
+	cp LICENSE $(DESTDIR)$(datadir)/berrybots
+	cp README $(DESTDIR)$(datadir)/berrybots
+	cp -r resources $(DESTDIR)$(datadir)/berrybots
+	cp -r bots $(DESTDIR)$(datadir)/berrybots
+	cp -r stages $(DESTDIR)$(datadir)/berrybots
+	cp -r runners $(DESTDIR)$(datadir)/berrybots
+	cp -r apidoc $(DESTDIR)$(datadir)/berrybots
+	mkdir -p $(DESTDIR)$(libdir)
+	rm -rf $(DESTDIR)$(libdir)/berrybots
+	cp -r sfml-lib $(DESTDIR)$(libdir)/berrybots
+	mkdir -p $(DESTDIR)$(datarootdir)/pixmaps
+	cp $(DESTDIR)$(datadir)/berrybots/resources/icon.iconset/icon_128x128.png $(DESTDIR)/$(datarootdir)/pixmaps/berrybots.png
+	mkdir -p $(DESTDIR)$(datarootdir)/applications
+	cp scripts/berrybots.desktop $(DESTDIR)$(datarootdir)/applications
 
 uninstall:
-	rm $(DESTDIR)/usr/bin/berrybots
-	rm -rf $(DESTDIR)/usr/share/berrybots
-	rm -rf $(DESTDIR)/usr/lib/berrybots
-	rm $(DESTDIR)/usr/share/applications/berrybots.desktop
-	rm $(DESTDIR)/usr/share/pixmaps/berrybots.png
+	rm $(DESTDIR)$(bindir)/berrybots
+	rm -rf $(DESTDIR)$(datadir)/berrybots
+	rm -rf $(DESTDIR)$(libdir)/berrybots
+	rm $(DESTDIR)$(datarootdir)/applications/berrybots.desktop
+	rm $(DESTDIR)$(datarootdir)/pixmaps/berrybots.png
 
 clean:
 	$(CLEAN_LUAJIT)
-ifeq ($(BUILD_FOR_DEB_PKG), 1)
+ifeq ($(LOCAL_DEPS), 1)
 	$(CLEAN_SFML)
 	$(CLEAN_WX)
 endif
