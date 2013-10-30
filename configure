@@ -1332,11 +1332,12 @@ Optional Packages:
                           packaging; this also sets --with-sfml=./SFML-2.1 and
                           --with-wx=./wxWidgets-2.9.5, which should contain
                           extracted source.
-  --with-sfml             Path to SFML, e.g., /home/voidious/SFML-2.1
-  --with-wx               Path to wxWidgets, e.g.,
+  --with-sfml             Path to SFML after compiling from source, e.g.,
+                          /home/voidious/SFML-2.1
+  --with-wx               Path to wxWidgets after compiling from source, e.g.,
                           /home/voidious/wxWidgets-2.9.5
-  --with-libarchive       (optional) Path to libarchive, e.g.,
-                          /home/voidious/libarchive-3.1.2
+  --with-libarchive       Path to libarchive after compiling from source,
+                          e.g., /home/voidious/libarchive-3.1.2
   --with-wxdir=PATH       Use uninstalled version of wxWidgets in PATH
   --with-wx-config=CONFIG wx-config script to use (optional)
   --with-wx-prefix=PREFIX Prefix where wxWidgets is installed (optional)

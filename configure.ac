@@ -55,21 +55,21 @@ if test "$rpi" != 1; then
   AC_SUBST([localdeps], $withLocalDeps)
   AC_ARG_WITH([sfml],
               AS_HELP_STRING([--with-sfml],
-                [Path to SFML, e.g., /home/voidious/SFML-2.1]),
+                [Path to SFML after compiling from source, e.g., /home/voidious/SFML-2.1]),
               [
               AC_SUBST([sfml], $withval)
               withSfml=1
               ], [])
   AC_ARG_WITH([wx],
               AS_HELP_STRING([--with-wx],
-                [Path to wxWidgets, e.g., /home/voidious/wxWidgets-2.9.5]),
+                [Path to wxWidgets after compiling from source, e.g., /home/voidious/wxWidgets-2.9.5]),
               [
               AC_SUBST([wx], $withval)
               withWx=1
               ], [])
   AC_ARG_WITH([libarchive],
               AS_HELP_STRING([--with-libarchive],
-                [Path to libarchive, e.g., /home/voidious/libarchive-3.1.2]),
+                [Path to libarchive after compiling from source, e.g., /home/voidious/libarchive-3.1.2]),
               [
               AC_SUBST([libarchive], $withval)
               withLa=1
