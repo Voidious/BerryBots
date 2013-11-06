@@ -637,10 +637,11 @@ WX_CXXFLAGS
 WX_CFLAGS
 WX_CPPFLAGS
 WX_CONFIG_PATH
-libarchive
 localdeps
+libarchive
 wx
-sfml
+sfml_lib
+sfml_header
 host_os
 host_vendor
 host_cpu
@@ -697,10 +698,11 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
-with_localdeps
-with_sfml
+with_sfml_src
+with_sfml_dl
 with_wx
 with_libarchive
+with_localdeps
 with_wxdir
 with_wx_config
 with_wx_prefix
@@ -1328,16 +1330,20 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-localdeps        Build with local SFML and wxWidgets, for Linux
-                          packaging; this also sets --with-sfml=./SFML-2.1 and
-                          --with-wx=./wxWidgets-2.9.5, which should contain
-                          extracted source.
-  --with-sfml             Path to SFML after compiling from source, e.g.,
-                          /home/voidious/SFML-2.1
+  --with-sfml-src         Path to SFML after compiling from source, e.g.,
+                          /home/voidious/SFML-2.1. Libs in SFML/build/lib,
+                          headers in SFML/include.
+  --with-sfml-dl          Path to SFML binaries downloaded from web (probably
+                          sfml-dev.org), e.g., /home/voidious/SFML-2.1. Libs
+                          in SFML/lib, headers in SFML/include.
   --with-wx               Path to wxWidgets after compiling from source, e.g.,
                           /home/voidious/wxWidgets-2.9.5
   --with-libarchive       Path to libarchive after compiling from source,
                           e.g., /home/voidious/libarchive-3.1.2
+  --with-localdeps        Build with local SFML and wxWidgets, for Linux
+                          packaging; this also sets --with-sfml-src=./SFML-2.1
+                          and --with-wx=./wxWidgets-2.9.5, which should
+                          contain extracted source.
   --with-wxdir=PATH       Use uninstalled version of wxWidgets in PATH
   --with-wx-config=CONFIG wx-config script to use (optional)
   --with-wx-prefix=PREFIX Prefix where wxWidgets is installed (optional)
@@ -2749,28 +2755,24 @@ if test "$rpi" != 1; then
   withLa=0
   withLocalDeps=0
 
-# Check whether --with-localdeps was given.
-if test "${with_localdeps+set}" = set; then :
-  withval=$with_localdeps;
+# Check whether --with-sfml-src was given.
+if test "${with_sfml_src+set}" = set; then :
+  withval=$with_sfml_src;
+              sfml_header="${withval}/include"
+
+              sfml_lib="${withval}/build/lib"
+
               withSfml=1
-              sfml=./SFML-2.1
 
-              withWx=1
-              wx=./wxWidgets-2.9.5
-
-              withLocalDeps=1
-
-else
-  withLocalDeps=0
 fi
 
-  localdeps=$withLocalDeps
 
+# Check whether --with-sfml-dl was given.
+if test "${with_sfml_dl+set}" = set; then :
+  withval=$with_sfml_dl;
+              sfml_header="${withval}/include"
 
-# Check whether --with-sfml was given.
-if test "${with_sfml+set}" = set; then :
-  withval=$with_sfml;
-              sfml=$withval
+              sfml_lib="${withval}/lib"
 
               withSfml=1
 
@@ -2795,6 +2797,26 @@ if test "${with_libarchive+set}" = set; then :
               withLa=1
 
 fi
+
+
+# Check whether --with-localdeps was given.
+if test "${with_localdeps+set}" = set; then :
+  withval=$with_localdeps;
+              withSfml=1
+              sfml_header=./SFML-2.1/include
+
+              sfml_lib=./SFML-2.1/build/lib
+
+              withWx=1
+              wx=./wxWidgets-2.9.5
+
+              withLocalDeps=1
+
+else
+  withLocalDeps=0
+fi
+
+  localdeps=$withLocalDeps
 
 
   { $as_echo "$as_me:${as_lineno-$LINENO}:
@@ -3672,7 +3694,8 @@ else
     a path to an SFML that you downloaded or compiled.
 
     Example install: \"sudo apt-get install libsfml-dev\"
-    Example provide: \"./configure --with-sfml=/path/to/sfml\"
+    Example provide: \"./configure --with-sfml-src=/path/to/compiled/sfml\"
+                     \"./configure --with-sfml-dl=/path/to/downloaded/sfml\"
   " "$LINENO" 5
 fi
 

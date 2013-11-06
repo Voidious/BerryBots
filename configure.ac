@@ -41,23 +41,20 @@ if test "$rpi" != 1; then
   withWx=0
   withLa=0
   withLocalDeps=0
-  AC_ARG_WITH([localdeps],
-              AS_HELP_STRING([--with-localdeps],
-                [Build with local SFML and wxWidgets, for Linux packaging; this also sets --with-sfml=./SFML-2.1 and --with-wx=./wxWidgets-2.9.5, which should contain extracted source.]),
+  AC_ARG_WITH([sfml-src],
+              AS_HELP_STRING([--with-sfml-src],
+                [Path to SFML after compiling from source, e.g., /home/voidious/SFML-2.1. Libs in SFML/build/lib, headers in SFML/include.]),
               [
+              AC_SUBST([sfml_header], "${withval}/include")
+              AC_SUBST([sfml_lib], "${withval}/build/lib")
               withSfml=1
-              AC_SUBST([sfml], [./SFML-2.1])
-              withWx=1
-              AC_SUBST([wx], [./wxWidgets-2.9.5])
-              withLocalDeps=1
-              ],
-              [withLocalDeps=0])
-  AC_SUBST([localdeps], $withLocalDeps)
-  AC_ARG_WITH([sfml],
-              AS_HELP_STRING([--with-sfml],
-                [Path to SFML after compiling from source, e.g., /home/voidious/SFML-2.1]),
+              ], [])
+  AC_ARG_WITH([sfml-dl],
+              AS_HELP_STRING([--with-sfml-dl],
+                [Path to SFML binaries downloaded from web (probably sfml-dev.org), e.g., /home/voidious/SFML-2.1. Libs in SFML/lib, headers in SFML/include.]),
               [
-              AC_SUBST([sfml], $withval)
+              AC_SUBST([sfml_header], "${withval}/include")
+              AC_SUBST([sfml_lib], "${withval}/lib")
               withSfml=1
               ], [])
   AC_ARG_WITH([wx],
@@ -74,6 +71,19 @@ if test "$rpi" != 1; then
               AC_SUBST([libarchive], $withval)
               withLa=1
               ], [])
+  AC_ARG_WITH([localdeps],
+              AS_HELP_STRING([--with-localdeps],
+                [Build with local SFML and wxWidgets, for Linux packaging; this also sets --with-sfml-src=./SFML-2.1 and --with-wx=./wxWidgets-2.9.5, which should contain extracted source.]),
+              [
+              withSfml=1
+              AC_SUBST([sfml_header], [./SFML-2.1/include])
+              AC_SUBST([sfml_lib], [./SFML-2.1/build/lib])
+              withWx=1
+              AC_SUBST([wx], [./wxWidgets-2.9.5])
+              withLocalDeps=1
+              ],
+              [withLocalDeps=0])
+  AC_SUBST([localdeps], $withLocalDeps)
 
   AC_MSG_NOTICE([
     Checking for wxWidgets...])
@@ -122,7 +132,8 @@ if test "$rpi" != 1; then
     a path to an SFML that you downloaded or compiled.
 
     Example install: "sudo apt-get install libsfml-dev"
-    Example provide: "./configure --with-sfml=/path/to/sfml"
+    Example provide: "./configure --with-sfml-src=/path/to/compiled/sfml"
+                     "./configure --with-sfml-dl=/path/to/downloaded/sfml"
   ])])
 
 

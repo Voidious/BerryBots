@@ -3,11 +3,11 @@
 CC = @CXX@
 .DEFAULT_GOAL = @target@
 
-SFML_PATH = @sfml@
+SFML_HEADER_PATH = @sfml_header@
+SFML_LIB_PATH = @sfml_lib@
 WXWIDGETS_PATH = @wx@
 LIBARCHIVE_PATH = @libarchive@
 LOCAL_DEPS=@localdeps@
-SFML_BUILD_PATH = ${SFML_PATH}/build
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -81,8 +81,8 @@ else
   OSX_LDFLAGS += -larchive
 endif
 
-ifneq ($(SFML_PATH), )
-  OSX_CFLAGS +=  -I${SFML_PATH}/include
+ifneq ($(SFML_HEADER_PATH), )
+  OSX_CFLAGS +=  -I${SFML_HEADER_PATH}
   OSX_LDFLAGS += -L./sfml-lib
 endif
 
@@ -137,9 +137,9 @@ else
   LINUX_LDFLAGS += -larchive
 endif
 
-ifneq ($(SFML_PATH), )
-  LINUX_CFLAGS +=  -I${SFML_PATH}/include
-  LINUX_LDFLAGS += -L${SFML_BUILD_PATH}/lib
+ifneq ($(SFML_HEADER_PATH), )
+  LINUX_CFLAGS +=  -I${SFML_HEADER_PATH}
+  LINUX_LDFLAGS += -L${SFML_LIB_PATH}
   LINUX_LDFLAGS += -Wl,-rpath,$(DESTDIR)$(libdir)/berrybots,--enable-new-dtags
 endif
 
@@ -167,9 +167,9 @@ else
   LINUXCLI_LDFLAGS += -larchive
 endif
 
-ifneq ($(SFML_PATH), )
-  LINUXCLI_CFLAGS +=  -I${SFML_PATH}/include
-  LINUXCLI_LDFLAGS += -L${SFML_BUILD_PATH}/lib
+ifneq ($(SFML_HEADER_PATH), )
+  LINUXCLI_CFLAGS +=  -I${SFML_HEADER_PATH}
+  LINUXCLI_LDFLAGS += -L${SFML_LIB_PATH}
 endif
 
 LINUXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
@@ -205,10 +205,10 @@ rpi:
 
 osx:
 	$(MAKE_LUAJIT)
-ifeq ($(SFML_PATH), )
+ifeq ($(SFML_HEADER_PATH), )
 	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o berrybots
 else
-	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
+	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_LIB_PATH}"
 	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
 	cp scripts/bb_gui_osx.sh berrybots
 	chmod 755 berrybots
@@ -218,10 +218,10 @@ endif
 
 osxcli:
 	$(MAKE_LUAJIT)
-ifeq ($(SFML_PATH), )
+ifeq ($(SFML_HEADER_PATH), )
 	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o berrybots
 else
-	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_BUILD_PATH}/lib"
+	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_LIB_PATH}"
 	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o bbmain
 	cp scripts/bb_gui_osx.sh berrybots
 	chmod 755 berrybots
@@ -231,7 +231,7 @@ endif
 
 linux:
 	$(MAKE_LUAJIT)
-ifeq ($(SFML_PATH), )
+ifeq ($(SFML_HEADER_PATH), )
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o berrybots
 else
   ifeq ($(LOCAL_DEPS), 1)
@@ -241,7 +241,7 @@ else
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
 	cp scripts/bb_gui_linux.sh berrybots
 	rm -rf sfml-lib
-	cp -r ${SFML_BUILD_PATH}/lib sfml-lib
+	cp -r ${SFML_LIB_PATH} sfml-lib
 	chmod 755 bbgui
 endif
 	chmod 755 berrybots
@@ -250,12 +250,12 @@ endif
 
 linuxcli:
 	$(MAKE_LUAJIT)
-ifeq ($(SFML_PATH), )
+ifeq ($(SFML_HEADER_PATH), )
 	$(CC) ${CLI_SOURCES} ${LINUXCLI_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o berrybots
 else
 	$(CC) ${CLI_SOURCES} ${LINUXCLI_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o bbgui
 	rm -rf sfml-lib
-	cp -r ${SFML_BUILD_PATH}/lib sfml-lib
+	cp -r ${SFML_LIB_PATH} sfml-lib
 	cp scripts/bb_gui_linux.sh berrybots
 	chmod 755 berrybots
 endif
