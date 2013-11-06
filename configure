@@ -638,8 +638,8 @@ WX_CFLAGS
 WX_CPPFLAGS
 WX_CONFIG_PATH
 localdeps
-libarchive
 wx
+libarchive
 sfml_lib
 sfml_header
 host_os
@@ -700,7 +700,6 @@ ac_user_opts='
 enable_option_checking
 with_sfml_src
 with_sfml_dl
-with_wx
 with_libarchive
 with_localdeps
 with_wxdir
@@ -1336,14 +1335,12 @@ Optional Packages:
   --with-sfml-dl          Path to SFML binaries downloaded from web (probably
                           sfml-dev.org), e.g., /home/voidious/SFML-2.1. Libs
                           in SFML/lib, headers in SFML/include.
-  --with-wx               Path to wxWidgets after compiling from source, e.g.,
-                          /home/voidious/wxWidgets-2.9.5
   --with-libarchive       Path to libarchive after compiling from source,
                           e.g., /home/voidious/libarchive-3.1.2
   --with-localdeps        Build with local SFML and wxWidgets, for Linux
-                          packaging; this also sets --with-sfml-src=./SFML-2.1
-                          and --with-wx=./wxWidgets-2.9.5, which should
-                          contain extracted source.
+                          packaging; expects SFML source in ./SFML-2.1,
+                          wxWidgets source in ./wxWidgets-2.9.5, and compiles
+                          them inline.
   --with-wxdir=PATH       Use uninstalled version of wxWidgets in PATH
   --with-wx-config=CONFIG wx-config script to use (optional)
   --with-wx-prefix=PREFIX Prefix where wxWidgets is installed (optional)
@@ -2779,16 +2776,6 @@ if test "${with_sfml_dl+set}" = set; then :
 fi
 
 
-# Check whether --with-wx was given.
-if test "${with_wx+set}" = set; then :
-  withval=$with_wx;
-              wx=$withval
-
-              withWx=1
-
-fi
-
-
 # Check whether --with-libarchive was given.
 if test "${with_libarchive+set}" = set; then :
   withval=$with_libarchive;
@@ -3090,21 +3077,21 @@ $as_echo "no (version $WX_VERSION is not new enough)" >&6; }
 
   if test "$withWx" == 1; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}:
-    Using provided wxWidgets install." >&5
+    Using local wxWidgets install." >&5
 $as_echo "$as_me:
-    Using provided wxWidgets install." >&6;}
+    Using local wxWidgets install." >&6;}
 elif test "$wxFound" == 1; then :
   { $as_echo "$as_me:${as_lineno-$LINENO}:
-    Found wxWidgets installed on system." >&5
+    Found wxWidgets." >&5
 $as_echo "$as_me:
-    Found wxWidgets installed on system." >&6;}
+    Found wxWidgets." >&6;}
 else
   as_fn_error $? "
     wxWidgets not found and not provided. You must either install wxWidgets
     or provide a path to a wxWidgets that you downloaded or compiled.
 
     Example install: \"sudo apt-get install libwxgtk2.9-dev\"
-    Example provide: \"./configure --with-wx=/path/to/wx\"
+    Example provide: \"./configure --with-wxdir=/path/to/wx\"
 
     If you think wxWidgets is installed, please check that wx-config is in the
     path, the directory where wxWidgets libraries are installed (returned by

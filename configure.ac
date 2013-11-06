@@ -57,13 +57,6 @@ if test "$rpi" != 1; then
               AC_SUBST([sfml_lib], "${withval}/lib")
               withSfml=1
               ], [])
-  AC_ARG_WITH([wx],
-              AS_HELP_STRING([--with-wx],
-                [Path to wxWidgets after compiling from source, e.g., /home/voidious/wxWidgets-2.9.5]),
-              [
-              AC_SUBST([wx], $withval)
-              withWx=1
-              ], [])
   AC_ARG_WITH([libarchive],
               AS_HELP_STRING([--with-libarchive],
                 [Path to libarchive after compiling from source, e.g., /home/voidious/libarchive-3.1.2]),
@@ -73,7 +66,7 @@ if test "$rpi" != 1; then
               ], [])
   AC_ARG_WITH([localdeps],
               AS_HELP_STRING([--with-localdeps],
-                [Build with local SFML and wxWidgets, for Linux packaging; this also sets --with-sfml-src=./SFML-2.1 and --with-wx=./wxWidgets-2.9.5, which should contain extracted source.]),
+                [Build with local SFML and wxWidgets, for Linux packaging; expects SFML source in ./SFML-2.1, wxWidgets source in ./wxWidgets-2.9.5, and compiles them inline.]),
               [
               withSfml=1
               AC_SUBST([sfml_header], [./SFML-2.1/include])
@@ -92,15 +85,15 @@ if test "$rpi" != 1; then
   AM_PATH_WXCONFIG($reqwx, wxFound=1)
 
   AS_IF([test "$withWx" == 1], [AC_MSG_NOTICE([
-    Using provided wxWidgets install.])],
+    Using local wxWidgets install.])],
         [test "$wxFound" == 1], [AC_MSG_NOTICE([
-    Found wxWidgets installed on system.])],
+    Found wxWidgets.])],
         [AC_MSG_ERROR([
     wxWidgets not found and not provided. You must either install wxWidgets
     or provide a path to a wxWidgets that you downloaded or compiled.
 
     Example install: "sudo apt-get install libwxgtk2.9-dev"
-    Example provide: "./configure --with-wx=/path/to/wx"
+    Example provide: "./configure --with-wxdir=/path/to/wx"
 
     If you think wxWidgets is installed, please check that wx-config is in the
     path, the directory where wxWidgets libraries are installed (returned by
