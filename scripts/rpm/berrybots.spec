@@ -17,6 +17,7 @@ BuildRequires: dyninst
 BuildRequires: elfutils
 BuildRequires: file
 BuildRequires: freetype-devel
+BuildRequires: gcc-c++
 BuildRequires: gdb
 BuildRequires: gdk-pixbuf2-devel
 BuildRequires: glew-devel
