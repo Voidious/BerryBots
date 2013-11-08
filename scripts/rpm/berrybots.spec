@@ -62,9 +62,13 @@ Spaceships, lasers, mazes, races, battles, and programmable stages! A fun and fl
 
 
 %build
-%{!?_with_localdeps: %{!?_without_localdeps: %define _with_localdeps --with-localdeps}}
+%{!?_with_localsfml: %{!?_without_localsfml: %define _with_localsfml --with-localsfml}}
+%{!?_with_localwx: %{!?_without_localwx: %define _with_localwx --with-localwx}}
+%{!?_with_localla: %{!?_without_localla: %define _with_localla --with-localla}}
 %configure \
-        %{?_with_localdeps}
+        %{?_with_localsfml} \
+        %{?_with_localwx} \
+        %{?_with_localla}
 make %{?_smp_mflags}
 
 

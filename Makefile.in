@@ -7,7 +7,10 @@ SFML_HEADER_PATH = @sfml_header@
 SFML_LIB_PATH = @sfml_lib@
 WXWIDGETS_PATH = @wx@
 LIBARCHIVE_PATH = @libarchive@
-LOCAL_DEPS=@localdeps@
+
+LOCAL_SFML=@localsfml@
+LOCAL_WX=@localwx@
+LOCAL_LIBARCHIVE=@localla@
 
 prefix = @prefix@
 exec_prefix = @exec_prefix@
@@ -194,6 +197,8 @@ MAKE_SFML=cd SFML-2.1; mkdir build; cd build; cmake ..; make; cd ../..
 CLEAN_SFML=rm -rf SFML-2.1/build
 MAKE_WX=cd wxWidgets-2.9.5; ./configure --disable-shared; $(MAKE); cd ..
 CLEAN_WX=cd wxWidgets-2.9.5; make clean; cd ..
+MAKE_LIBARCHIVE=cd libarchive-3.1.2; ./configure; $(MAKE); cd ..
+CLEAN_LIBARCHIVE=cd libarchive-3.1.2; make clean; cd ..
 
 rpi:
 	$(MAKE_LUAJIT)
@@ -234,9 +239,14 @@ linux:
 ifeq ($(SFML_HEADER_PATH), )
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o berrybots
 else
-  ifeq ($(LOCAL_DEPS), 1)
+  ifeq ($(LOCAL_SFML), 1)
 	$(MAKE_SFML)
+  endif
+  ifeq ($(LOCAL_WX), 1)
 	$(MAKE_WX)
+  endif
+  ifeq ($(LOCAL_LIBARCHIVE), 1)
+	$(MAKE_LIBARCHIVE)
   endif
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
 	cp scripts/bb_gui_linux.sh berrybots
@@ -293,9 +303,14 @@ uninstall:
 
 clean:
 	$(CLEAN_LUAJIT)
-ifeq ($(LOCAL_DEPS), 1)
+ifeq ($(LOCAL_SFML), 1)
 	$(CLEAN_SFML)
+endif
+ifeq ($(LOCAL_WX), 1)
 	$(CLEAN_WX)
+endif
+ifeq ($(LOCAL_LIBARCHIVE), 1)
+	$(CLEAN_LIBARCHIVE)
 endif
 	rm -rf *o sfml-lib bbgui berrybots.sh berrybots config.log config.status autom4te.cache
 

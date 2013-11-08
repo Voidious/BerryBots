@@ -637,8 +637,10 @@ WX_CXXFLAGS
 WX_CFLAGS
 WX_CPPFLAGS
 WX_CONFIG_PATH
-localdeps
+localla
+localwx
 wx
+localsfml
 libarchive
 sfml_lib
 sfml_header
@@ -701,7 +703,9 @@ enable_option_checking
 with_sfml_src
 with_sfml_dl
 with_libarchive
-with_localdeps
+with_localsfml
+with_localwx
+with_localla
 with_wxdir
 with_wx_config
 with_wx_prefix
@@ -1337,10 +1341,14 @@ Optional Packages:
                           in SFML/lib, headers in SFML/include.
   --with-libarchive       Path to libarchive after compiling from source,
                           e.g., /home/voidious/libarchive-3.1.2
-  --with-localdeps        Build with local SFML and wxWidgets, for Linux
-                          packaging; expects SFML source in ./SFML-2.1,
-                          wxWidgets source in ./wxWidgets-2.9.5, and compiles
-                          them inline.
+  --with-localsfml        Build with local SFML, for Linux packaging; expects
+                          SFML source in ./SFML-2.1 and compiles it inline.
+  --with-localwx          Build with local wxWidgets, for Linux packaging;
+                          expects wxWidgets source in ./wxWidgets-2.9.5 and
+                          compiles it inline.
+  --with-localla          Build with local libarchive, for Linux packaging;
+                          expects libarchive source in ./libarchive-3.1.2 and
+                          compiles it inline.
   --with-wxdir=PATH       Use uninstalled version of wxWidgets in PATH
   --with-wx-config=CONFIG wx-config script to use (optional)
   --with-wx-prefix=PREFIX Prefix where wxWidgets is installed (optional)
@@ -2748,9 +2756,11 @@ fi
 # Raspberry Pi doesn't depend on anything.
 if test "$rpi" != 1; then
   withSfml=0
+  withLocalSfml=0
   withWx=0
+  withLocalWx=0
   withLa=0
-  withLocalDeps=0
+  withLocalLa=0
 
 # Check whether --with-sfml-src was given.
 if test "${with_sfml_src+set}" = set; then :
@@ -2786,24 +2796,53 @@ if test "${with_libarchive+set}" = set; then :
 fi
 
 
-# Check whether --with-localdeps was given.
-if test "${with_localdeps+set}" = set; then :
-  withval=$with_localdeps;
+# Check whether --with-localsfml was given.
+if test "${with_localsfml+set}" = set; then :
+  withval=$with_localsfml;
               withSfml=1
+              withLocalSfml=1
               sfml_header=./SFML-2.1/include
 
               sfml_lib=./SFML-2.1/build/lib
 
-              withWx=1
-              wx=./wxWidgets-2.9.5
-
-              withLocalDeps=1
 
 else
-  withLocalDeps=0
+  withLocalSfml=0
 fi
 
-  localdeps=$withLocalDeps
+  localsfml=$withLocalSfml
+
+
+
+# Check whether --with-localwx was given.
+if test "${with_localwx+set}" = set; then :
+  withval=$with_localwx;
+              withWx=1
+              withLocalWx=1
+              wx=./wxWidgets-2.9.5
+
+
+else
+  withLocalWx=0
+fi
+
+  localwx=$withLocalWx
+
+
+# Check whether --with-localla was given.
+if test "${with_localla+set}" = set; then :
+  withval=$with_localla;
+              withLa=1
+              withLocalLa=1
+              libarchive=./libarchive-3.1.2
+
+
+else
+  withLocalLa=0
+fi
+
+  localla=$withLocalLa
+
 
 
   { $as_echo "$as_me:${as_lineno-$LINENO}:

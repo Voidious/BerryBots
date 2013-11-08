@@ -38,9 +38,11 @@ fi
 # Raspberry Pi doesn't depend on anything.
 if test "$rpi" != 1; then
   withSfml=0
+  withLocalSfml=0
   withWx=0
+  withLocalWx=0
   withLa=0
-  withLocalDeps=0
+  withLocalLa=0
   AC_ARG_WITH([sfml-src],
               AS_HELP_STRING([--with-sfml-src],
                 [Path to SFML after compiling from source, e.g., /home/voidious/SFML-2.1. Libs in SFML/build/lib, headers in SFML/include.]),
@@ -64,19 +66,39 @@ if test "$rpi" != 1; then
               AC_SUBST([libarchive], $withval)
               withLa=1
               ], [])
-  AC_ARG_WITH([localdeps],
-              AS_HELP_STRING([--with-localdeps],
-                [Build with local SFML and wxWidgets, for Linux packaging; expects SFML source in ./SFML-2.1, wxWidgets source in ./wxWidgets-2.9.5, and compiles them inline.]),
+  AC_ARG_WITH([localsfml],
+              AS_HELP_STRING([--with-localsfml],
+                [Build with local SFML, for Linux packaging; expects SFML source in ./SFML-2.1 and compiles it inline.]),
               [
               withSfml=1
+              withLocalSfml=1
               AC_SUBST([sfml_header], [./SFML-2.1/include])
               AC_SUBST([sfml_lib], [./SFML-2.1/build/lib])
-              withWx=1
-              AC_SUBST([wx], [./wxWidgets-2.9.5])
-              withLocalDeps=1
               ],
-              [withLocalDeps=0])
-  AC_SUBST([localdeps], $withLocalDeps)
+              [withLocalSfml=0])
+  AC_SUBST([localsfml], $withLocalSfml)
+
+  AC_ARG_WITH([localwx],
+              AS_HELP_STRING([--with-localwx],
+                [Build with local wxWidgets, for Linux packaging; expects wxWidgets source in ./wxWidgets-2.9.5 and compiles it inline.]),
+              [
+              withWx=1
+              withLocalWx=1
+              AC_SUBST([wx], [./wxWidgets-2.9.5])
+              ],
+              [withLocalWx=0])
+  AC_SUBST([localwx], $withLocalWx)
+  AC_ARG_WITH([localla],
+              AS_HELP_STRING([--with-localla],
+                [Build with local libarchive, for Linux packaging; expects libarchive source in ./libarchive-3.1.2 and compiles it inline.]),
+              [
+              withLa=1
+              withLocalLa=1
+              AC_SUBST([libarchive], [./libarchive-3.1.2])
+              ],
+              [withLocalLa=0])
+  AC_SUBST([localla], $withLocalLa)
+
 
   AC_MSG_NOTICE([
     Checking for wxWidgets...])
