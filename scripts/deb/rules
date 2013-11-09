@@ -10,7 +10,7 @@
 #export DH_VERBOSE=1
 
 override_dh_auto_configure:
-	./configure --prefix=/usr --with-localsfml --with-localwx
+	./configure --prefix=/usr --with-localsfml --with-localwx --with-localla
 
 override_dh_shlibdeps:
 	LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:./sfml-lib dh_shlibdeps
