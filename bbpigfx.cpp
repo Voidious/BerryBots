@@ -157,13 +157,7 @@ void initVgGfx(int screenWidth, int screenHeight, Stage *stage, Ship **ships,
 
   for (int x = 0; x < TORPEDO_BLAST_FRAMES; x++) {
     torpedoBlastPaths[x] = newpath();
-    int blastSize;
-    if (x < 5) {
-      blastSize = ceil(TORPEDO_BLAST_RADIUS * 2.0 * (4 - x) / 4);
-    } else {
-      blastSize = ceil(
-          TORPEDO_BLAST_RADIUS * 2.0 * (x - 3) / (TORPEDO_BLAST_FRAMES - 4));
-    }
+    int blastSize = ceil(TORPEDO_BLAST_RADIUS * 2.0 * (x + 1.0) / TORPEDO_BLAST_FRAMES);
     vguEllipse(torpedoBlastPaths[x], 0, 0, blastSize, blastSize);
   }
 
@@ -409,14 +403,21 @@ void drawTorpedoBlasts(int time, GfxEventHandler *gfxHandler) {
   int numTorpedoBlasts = gfxHandler->getTorpedoBlastCount();
 
   if (numTorpedoBlasts > 0) {
-    StrokeWidth(5);
+    StrokeWidth(2.5);
     vgSetPaint(blastPaint, VG_STROKE_PATH);
     for (int x = 0; x < numTorpedoBlasts; x++) {
       TorpedoBlastGraphic *torpedoBlast = torpedoBlasts[x];
+      int blastTime = time - torpedoBlast->time;
+      if (blastTime < 10 && (blastTime <= 2 || blastTime >= 7)) {
+        vgLoadIdentity();
+        vgScale(scale, scale);
+        vgTranslate(stageLeft + torpedoBlast->x, stageBottom + torpedoBlast->y);
+        vgDrawPath(torpedoBlastPaths[TORPEDO_BLAST_FRAMES - 1], VG_STROKE_PATH);
+      }
       vgLoadIdentity();
       vgScale(scale, scale);
       vgTranslate(stageLeft + torpedoBlast->x, stageBottom + torpedoBlast->y);
-      vgDrawPath(torpedoBlastPaths[time - torpedoBlast->time], VG_STROKE_PATH);
+      vgDrawPath(torpedoBlastPaths[blastTime], VG_STROKE_PATH);
     }
   }
 }

@@ -68,6 +68,7 @@ GfxManager::GfxManager(bool showDock) {
   torpedoRay_.setSize(sf::Vector2f(TORPEDO_SIZE * 2, 1));
   torpedoRayPoint_ = sf::Vector2f(TORPEDO_SIZE, .5);
   torpedoBlastShape_.setRadius(TORPEDO_BLAST_RADIUS);
+  torpedoBlastShape_.setPointCount(100);
   thrusterShape_.setSize(
       sf::Vector2f(DRAW_SHIP_RADIUS + THRUSTER_LENGTH, THRUSTER_THICKNESS));
   thrusterPoint_ = sf::Vector2f(0, THRUSTER_THICKNESS / 2);
@@ -149,7 +150,7 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
   torpedoRay_.setOutlineColor(torpedoColor_);
   torpedoRay_.setFillColor(torpedoColor_);
   torpedoBlastShape_.setOutlineColor(blastColor_);
-  torpedoBlastShape_.setOutlineThickness(5);
+  torpedoBlastShape_.setOutlineThickness(2.5);
   torpedoBlastShape_.setFillColor(sf::Color::Transparent);
   
   thrusterShape_.setOutlineThickness(0);
@@ -644,13 +645,15 @@ void GfxManager::drawTorpedoBlasts(sf::RenderWindow *window, int time,
   for (int x = 0; x < numTorpedoBlasts; x++) {
     TorpedoBlastGraphic *torpedoBlast = torpedoBlasts[x];
     int blastTime = time - torpedoBlast->time;
-    double blastScale;
-    if (blastTime < 5) {
-      blastScale = ((double) (4 - blastTime)) / 4;
-    } else {
-      blastScale = ((double) (blastTime - 3)) / (TORPEDO_BLAST_FRAMES - 4);
+    if (blastTime < 10 && (blastTime <= 2 || blastTime >= 7)) {
+      double blastOffset = TORPEDO_BLAST_RADIUS;
+      torpedoBlastShape_.setRadius(TORPEDO_BLAST_RADIUS);
+      torpedoBlastShape_.setPosition(adjustX(torpedoBlast->x - blastOffset),
+          adjustY(torpedoBlast->y - blastOffset, blastOffset * 2));
+      window->draw(torpedoBlastShape_);
     }
 
+    double blastScale = (blastTime + 1.0) / TORPEDO_BLAST_FRAMES;
     double blastOffset = blastScale * TORPEDO_BLAST_RADIUS;
     torpedoBlastShape_.setRadius(blastScale * TORPEDO_BLAST_RADIUS);
     torpedoBlastShape_.setPosition(adjustX(torpedoBlast->x - blastOffset),

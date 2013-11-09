@@ -110,7 +110,7 @@ var BerryBots = {
   SPARK_INITIAL_OFFSET: 9,
   TORPEDO_RADIUS: 4,
   BLAST_RADIUS: 100,
-  BLAST_TIME: 16,
+  BLAST_TIME: 20,
   DEBRIS_RADIUS: 1.5,
   DEBRIS_TIME: 40,
   DEBRIS_INITIAL_OFFSET: 9,
@@ -365,13 +365,19 @@ BerryBots.getTorpedoProto = function() {
 };
 
 BerryBots.getTorpedoBlastProto = function() {
-  return new Kinetic.Circle({
+  var blastFullCircle = new Kinetic.Circle({
     x: 0,
     y: 0,
     radius: BerryBots.BLAST_RADIUS,
     stroke: BerryBots.TORPEDO_COLOR,
-    strokeWidth: 5
+    strokeWidth: 2.5
   });
+  var blastInnerCircle = blastFullCircle.clone();
+
+  var torpedoBlastProto = new Kinetic.Group({x: 0, y: 0});
+  torpedoBlastProto.add(blastFullCircle);
+  torpedoBlastProto.add(blastInnerCircle);
+  return torpedoBlastProto;
 };
 
 BerryBots.getTorpedoDebrisProto = function() {
@@ -1620,7 +1626,7 @@ BerryBots.replay = function() {
 
           for (var x = 0; x < sparkRects.length; x++) {
             var sparkRect = sparkRects[x];
-            if (sparkRect.sparkData.endTime < gameTime) {
+            if (sparkRect.sparkData.endTime <= gameTime) {
               sparkRects.splice(x--, 1);
               BerryBots.endLaserSpark(sparkRect);
             } else {
@@ -1691,44 +1697,37 @@ BerryBots.replay = function() {
             torpedo.setY(torpedo.getY() - torpedo.torpedoData.dy);
           }
 
-          for (var x = 0; x < blastCircles.length; x++) {
-            var blastCircle = blastCircles[x];
-            if (blastCircle.blastData.endTime < gameTime) {
-              blastCircles.splice(x--, 1);
-              BerryBots.endTorpedoBlast(blastCircle);
-            } else {
-              var blastTime = gameTime - blastCircle.blastData.startTime;
-              var blastScale;
-              if (blastTime < 5) {
-                blastScale = (4 - blastTime) / 4;
-              } else {
-                blastScale = (blastTime - 3) / (BerryBots.BLAST_TIME - 4);
-              }
-              if (blastScale < 0.0001) {
-                blastCircle.setVisible(false);
-              } else {
-                blastCircle.setVisible(true);
-                blastCircle.setScale(BerryBots.scale(blastScale));
-              }
-            }
-          }
-
           var torpedoBlasts = BerryBots.torpedoBlasts;
           var numTorpedoBlasts = torpedoBlasts.length;
           while (nextTorpedoBlast < numTorpedoBlasts
                  && torpedoBlasts[nextTorpedoBlast].startTime <= gameTime) {
             var torpedoBlast = torpedoBlasts[nextTorpedoBlast++];
-            var blastCircle = BerryBots.makeTorpedoBlast();
-            blastCircle.setX(torpedoBlast.x);
-            blastCircle.setY(torpedoBlast.y);
-            blastCircle.blastData = torpedoBlast;
-            blastCircles.push(blastCircle);
-            BerryBots.mainLayer.add(blastCircle);
+            var blastGroup = BerryBots.makeTorpedoBlast();
+            blastGroup.setX(torpedoBlast.x);
+            blastGroup.setY(torpedoBlast.y);
+            blastGroup.blastData = torpedoBlast;
+            blastCircles.push(blastGroup);
+            BerryBots.mainLayer.add(blastGroup);
+          }
+
+          for (var x = 0; x < blastCircles.length; x++) {
+            var blastGroup = blastCircles[x];
+            if (blastGroup.blastData.endTime <= gameTime) {
+              blastCircles.splice(x--, 1);
+              BerryBots.endTorpedoBlast(blastGroup);
+            } else {
+              var blastTime = gameTime - blastGroup.blastData.startTime;
+              var blastScale = (blastTime + 1) / BerryBots.BLAST_TIME;
+              blastGroup.getChildren()[1].setRadius(
+                  blastScale * BerryBots.BLAST_RADIUS);
+              blastGroup.getChildren()[0].setVisible(
+                  blastTime < 10 && (blastTime <= 2 || blastTime >=7));
+            }
           }
 
           for (var x = 0; x < debrisCircles.length; x++) {
             var debrisCircle = debrisCircles[x];
-            if (debrisCircle.debrisData.endTime < gameTime) {
+            if (debrisCircle.debrisData.endTime <= gameTime) {
               debrisCircles.splice(x--, 1);
               BerryBots.endTorpedoDebris(debrisCircle);
             } else {
@@ -1763,7 +1762,7 @@ BerryBots.replay = function() {
           // Ship destroys.
           for (var x = 0; x < destroyCircles.length; x++) {
             var destroyCircle = destroyCircles[x];
-            if (destroyCircle.destroyData.endTime < gameTime) {
+            if (destroyCircle.destroyData.endTime <= gameTime) {
               destroyCircles.splice(x--, 1);
               destroyCircle.destroy();
             } else {
@@ -1874,7 +1873,7 @@ BerryBots.replay = function() {
           // Stage texts.
           for (var x = 0; x < stageTextShapes.length; x++) {
             var stageTextShape = stageTextShapes[x];
-            if (stageTextShape.textData.endTime < gameTime) {
+            if (stageTextShape.textData.endTime <= gameTime) {
               stageTextShapes.splice(x--, 1);
               BerryBots.endText(stageTextShape);
             }
