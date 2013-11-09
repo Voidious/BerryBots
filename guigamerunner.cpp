@@ -37,7 +37,7 @@ extern "C" {
 
 GuiGameRunner::GuiGameRunner(PrintHandler *printHandler, char **stageNames,
     int numStages, char **teamNames, int numTeams, Zipper *zipper,
-    const char *replayTemplateDir) {
+    const char *replayTemplateDir, RunnerFormListener *runnerFormListener) {
   runnerName_ = 0;
   printHandler_ = printHandler;
   numFormElements_ = 0;
@@ -57,6 +57,7 @@ GuiGameRunner::GuiGameRunner(PrintHandler *printHandler, char **stageNames,
     replayTemplateDir_ = new char[strlen(replayTemplateDir) + 1];
     strcpy(replayTemplateDir_, replayTemplateDir);
   }
+  runnerFormListener_ = runnerFormListener;
 }
 
 GuiGameRunner::~GuiGameRunner() {
@@ -134,7 +135,7 @@ void GuiGameRunner::setDefault(const char *name, bool value) {
 bool GuiGameRunner::ok(const char *message) {
   RunnerForm *form = new RunnerForm(runnerName_, formElements_,
       numFormElements_, stageNames_, numStages_, teamNames_, numTeams_,
-      message);
+      message, runnerFormListener_);
   form->Show();
   form->Raise();
   while (!form->isDone() && !quitting_) {

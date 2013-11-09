@@ -27,13 +27,14 @@
 #include "runnerform.h"
 
 RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
-                       int numElements, char **stageNames, int numStages,
-                       char **shipNames, int numShips, const char *message)
+    int numElements, char **stageNames, int numStages, char **shipNames,
+    int numShips, const char *message, RunnerFormListener *listener)
     : wxFrame(NULL, wxID_ANY, runnerName, wxPoint(50, 50), wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   formElements_ = formElements;
   numElements_ = numElements;
   ok_ = done_ = false;
+  listener_ = listener;
   if (message == 0) {
     message_ = 0;
   } else {
@@ -90,6 +91,14 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
   Connect(this->GetId(), wxEVT_CLOSE_WINDOW,
           wxCommandEventHandler(RunnerForm::onClose));
 
+#ifdef __WINDOWS__
+  // On Windows XP, not redrawing the game while interrupted (dialog shown)
+  // creates visual artifacts, so manually redraw it on update UI in Windows.
+  // The same kills the framerate in Linux/GTK. Either way works on Mac/Cocoa.
+  Connect(this->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(RunnerForm::onUpdateUi));
+#endif
+
   eventFilter_ = new RunnerFormEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
 }
@@ -100,6 +109,7 @@ RunnerForm::~RunnerForm() {
   if (message_ != 0) {
     delete message_;
   }
+  delete listener_;
 }
 
 wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
@@ -304,6 +314,10 @@ void RunnerForm::onFormChange(wxUpdateUIEvent &event) {
   } else {
     okButton_->Disable();
   }
+}
+
+void RunnerForm::onUpdateUi(wxUpdateUIEvent &event) {
+  listener_->onUpdateUi();
 }
 
 bool RunnerForm::isDone() {

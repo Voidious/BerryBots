@@ -940,7 +940,8 @@ void GuiManager::launchGameRunner(const char *runnerName) {
   GuiPrintHandler *printHandler =
       new GuiPrintHandler(0, runnerConsole_, menuBarMaker_);
   gameRunner_ = new GuiGameRunner(printHandler, stageNames, numStages_,
-      shipNames, numShips_, zipper_, resourcePath().c_str());
+      shipNames, numShips_, zipper_, resourcePath().c_str(),
+      new RunnerFormRedrawer(this));
   runnerDialog_->Hide();
   nextWindow_ = 0;
   runnerRunning_ = true;
@@ -1569,6 +1570,14 @@ ResultsRestarter::ResultsRestarter(GuiManager *guiManager) {
 
 void ResultsRestarter::onRestart() {
   guiManager_->restartMatch();
+}
+
+RunnerFormRedrawer::RunnerFormRedrawer(GuiManager *guiManager) {
+  guiManager_ = guiManager;
+}
+
+void RunnerFormRedrawer::onUpdateUi() {
+  guiManager_->redrawMainWindow();
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

@@ -46,11 +46,12 @@ class GuiGameRunner : public GameRunner {
   BerryBotsRunner *bbRunner_;
   Zipper *zipper_;
   char *replayTemplateDir_;
+  RunnerFormListener *runnerFormListener_;
 
   public:
     GuiGameRunner(PrintHandler *printHandler, char **stageNames, int numStages,
         char **teamNames, int numTeams, Zipper *zipper,
-        const char *replayTemplateDir);
+        const char *replayTemplateDir, RunnerFormListener *runnerFormListener);
     ~GuiGameRunner();
     virtual void addStageSelect(const char *name);
     virtual void addSingleShipSelect(const char *name);

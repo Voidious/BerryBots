@@ -36,6 +36,7 @@
 #include "guiprinthandler.h"
 #include "resultsdialog.h"
 #include "replaybuilder.h"
+#include "runnerform.h"
 
 #define ITEM_STAGE   1
 #define ITEM_SHIP    2
@@ -312,6 +313,14 @@ class ResultsRestarter : public ResultsDialogListener {
   public:
     ResultsRestarter(GuiManager *guiManager);
     virtual void onRestart();
+};
+
+class RunnerFormRedrawer : public RunnerFormListener {
+  GuiManager *guiManager_;
+
+  public:
+    RunnerFormRedrawer(GuiManager *guiManager);
+    virtual void onUpdateUi();
 };
 
 class ViewListener : public GfxViewListener {

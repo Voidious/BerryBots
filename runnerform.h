@@ -30,6 +30,7 @@
 #define CHECKBOX_HEIGHT     1
 
 class RunnerFormElement;
+class RunnerFormListener;
 
 class RunnerForm : public wxFrame {
   RunnerFormElement **formElements_;
@@ -43,11 +44,12 @@ class RunnerForm : public wxFrame {
   bool done_;
   bool ok_;
   char *message_;
+  RunnerFormListener *listener_;
 
   public:
     RunnerForm(const char *runnerName, RunnerFormElement **formElements,
         int numElements, char **stageNames, int numStages, char **shipNames,
-        int numShips, const char *message);
+        int numShips, const char *message, RunnerFormListener *listener);
     ~RunnerForm();
     void onCancel(wxCommandEvent &event);
     void cancel();
@@ -55,6 +57,7 @@ class RunnerForm : public wxFrame {
     void ok();
     void onClose(wxCommandEvent &event);
     void onFormChange(wxUpdateUIEvent &event);
+    void onUpdateUi(wxUpdateUIEvent &event);
     bool isDone();
     bool isOk();
     void setMnemonicLabels(bool modifierDown);
@@ -99,6 +102,12 @@ class RunnerFormElement {
     void clearValues();
     void setControl(wxControl *control);
     wxControl* getControl();
+};
+
+class RunnerFormListener {
+  public:
+    virtual void onUpdateUi() = 0;
+    virtual ~RunnerFormListener() {};
 };
 
 class RunnerFormEventFilter : public wxEventFilter {
