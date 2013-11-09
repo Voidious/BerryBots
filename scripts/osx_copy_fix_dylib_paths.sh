@@ -3,25 +3,25 @@
 SFML_LIBNAMES="libsfml-graphics libsfml-system libsfml-window"
 SFML_VERSION="2.0"
 
-rm -rf ./sfml-lib
-if [ ! -e ./sfml-lib ]
+rm -rf $2
+if [ ! -e $2 ]
   then
   echo "Copying SFML libs..."
-  mkdir sfml-lib
-  cd sfml-lib
+  mkdir $2
   for TARGET in ${SFML_LIBNAMES} ; do
-    cp $1/${TARGET}.${SFML_VERSION}.dylib .
+    cp $1/${TARGET}.${SFML_VERSION}.dylib $2
+    cd $2
     ln -s ${TARGET}.${SFML_VERSION}.dylib ${TARGET}.2.dylib
     ln -s ${TARGET}.${SFML_VERSION}.dylib ${TARGET}.dylib
+    cd -
   done
-  cd ..
 
   for TARGET in ${SFML_LIBNAMES} ; do
-    LIBFILE=sfml-lib/${TARGET}.${SFML_VERSION}.dylib
+    LIBFILE=$2/${TARGET}.${SFML_VERSION}.dylib
     TARGETID=`otool -DX ${LIBFILE}`
     install_name_tool -id ${LIBFILE} ${LIBFILE}
     for TARGET2 in ${SFML_LIBNAMES} ; do
-      LIBFILE2=sfml-lib/${TARGET2}.${SFML_VERSION}.dylib
+      LIBFILE2=$2/${TARGET2}.${SFML_VERSION}.dylib
       install_name_tool -change ${TARGETID} ${LIBFILE} ${LIBFILE2}
     done
   done

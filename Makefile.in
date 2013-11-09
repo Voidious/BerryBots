@@ -68,7 +68,7 @@ CLI_SOURCES += bbrunner.cpp replaybuilder.cpp
 
 ##############################################################################
 # osx: Sources and flags for building GUI on Mac OS X / Cocoa
-OSX_EXTRA_SOURCES =  osxbasedir.mm osxcfg.m ResourcePath.mm
+OSX_EXTRA_SOURCES =  osxbasedir.mm osxcfg.m linuxrespath.cpp
 OSX_EXTRA_SOURCES += ./luajit/src/libluajit.a
 ifneq ($(LIBARCHIVE_PATH), )
   OSX_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
@@ -213,7 +213,7 @@ osx:
 ifeq ($(SFML_HEADER_PATH), )
 	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o berrybots
 else
-	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_LIB_PATH}"
+	./scripts/osx_copy_fix_dylib_paths.sh "${SFML_LIB_PATH}" "sfml-lib"
 	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
 	cp scripts/bb_gui_osx.sh berrybots
 	chmod 755 berrybots
@@ -226,7 +226,7 @@ osxcli:
 ifeq ($(SFML_HEADER_PATH), )
 	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o berrybots
 else
-	./scripts/osxcli_copy_fix_dylib_paths.sh "${SFML_LIB_PATH}"
+	./scripts/osx_copy_fix_dylib_paths.sh "${SFML_LIB_PATH}" "sfml-lib"
 	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o bbmain
 	cp scripts/bb_gui_osx.sh berrybots
 	chmod 755 berrybots
@@ -289,6 +289,9 @@ endif
 	mkdir -p $(DESTDIR)$(libdir)
 	rm -rf $(DESTDIR)$(libdir)/berrybots
 	cp -r sfml-lib $(DESTDIR)$(libdir)/berrybots
+ifeq ($(.DEFAULT_GOAL), osx)
+	./scripts/osx_fix_dylib_paths.sh $(DESTDIR)$(bindir)/berrybots $(DESTDIR)$(libdir)/berrybots
+endif
 	mkdir -p $(DESTDIR)$(datarootdir)/pixmaps
 	cp $(DESTDIR)$(datadir)/berrybots/resources/icon.iconset/icon_128x128.png $(DESTDIR)/$(datarootdir)/pixmaps/berrybots.png
 	mkdir -p $(DESTDIR)$(datarootdir)/applications
