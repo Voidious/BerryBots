@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Exec=berrybots
+Name=BerryBots
+GenericName=Programming Game
+Icon=berrybots
+Categories=Game
+Type=Application
+Comment=Program ships and stages in Lua.

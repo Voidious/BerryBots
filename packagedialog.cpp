@@ -19,8 +19,9 @@
 */
 
 #include <wx/wx.h>
-#include "packagedialog.h"
 #include "bbwx.h"
+#include "ResourcePath.hpp"
+#include "packagedialog.h"
 
 PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
     PackageDialogListener *listener, MenuBarMaker *menuBarMaker)
@@ -32,7 +33,7 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
   numItems_ = 0;
 
 #ifdef __WINDOWS__
-  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
+  SetIcon(wxIcon(resourcePath() + BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
 
   // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
   wxFont windowFont = GetFont();
@@ -40,7 +41,7 @@ PackageDialog::PackageDialog(const char *title, const char *buttonLabel,
     SetFont(windowFont.Larger());
   }
 #elif __WXGTK__
-  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
+  SetIcon(wxIcon(resourcePath() + BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
   mainPanel_ = new wxPanel(this);

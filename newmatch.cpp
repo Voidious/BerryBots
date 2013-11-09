@@ -23,6 +23,7 @@
 #include <wx/iconbndl.h>
 #include "bbwx.h"
 #include "basedir.h"
+#include "ResourcePath.hpp"
 #include "filemanager.h"
 #include "newmatch.h"
 
@@ -34,7 +35,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   menuBarMaker_ = menuBarMaker;
 
 #ifdef __WINDOWS__
-  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
+  SetIcon(wxIcon(resourcePath() + BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
 
   // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
   wxFont windowFont = GetFont();
@@ -42,7 +43,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
     SetFont(windowFont.Larger());
   }
 #elif defined(__WXGTK__)
-  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
+  SetIcon(wxIcon(resourcePath() + BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
   mainPanel_ = new wxPanel(this);
@@ -115,9 +116,8 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 #endif
   moreButtonsSizer->Add(browseApidocsButton_);
 
-#ifdef __WXOSX__
-  // Using cwd as base dir on other platforms, so only support changing base dir
-  // on Mac OS X for now.
+#ifndef __WINDOWS__
+  // Still using cwd as base dir on Windows, for now.
   folderButton_ = new wxButton(mainPanel_, wxID_ANY, "&Base Dir ");
   folderButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
   moreButtonsSizer->AddSpacer(12);

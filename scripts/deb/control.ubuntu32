@@ -1,0 +1,17 @@
+Source: berrybots
+Section: Games
+Priority: extra
+Maintainer: Patrick Cupka <pcupka@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), libxfixes-dev, libjavascriptcoregtk-1.0-dev, libhcrypto4-heimdal:i386, libkeyutils1:i386, libtasn1-3:i386, libopenal-dev:i386, libpcre3-dev, libgcrypt11:i386, libgssapi3-heimdal:i386, libexpat1-dev, x11proto-xf86vidmode-dev, libp11-kit0:i386, libglew1.8:i386, libroken18-heimdal:i386, libxcursor1:i386, libpixman-1-dev, libglew-dev:i386, libxcomposite-dev, libidn11:i386, libk5crypto3:i386, libhx509-5-heimdal:i386, libldap-2.4-2:i386, libsndfile1-dev, x11proto-randr-dev, libkrb5-3:i386, libwebkitgtk-dev, libglapi-mesa:i386, libpthread-stubs0-dev:i386, libwind0-heimdal:i386, mawk, libgdk-pixbuf2.0-dev, libglib2.0-dev, cmake-data, libxcb-shm0:i386, libxcb-glx0:i386, pkg-config, libice6:i386, libxext6:i386, libkrb5support0:i386, libfontconfig1-dev, libffi6:i386, mesa-common-dev, libxinerama1:i386, libxrandr-dev, libkrb5-26-heimdal:i386, libpng12-dev, libice-dev:i386, libglu1-mesa-dev, x11proto-render-dev, libdrm-dev, libgpg-error0:i386, libgssapi-krb5-2:i386, libxxf86vm-dev, libxdamage-dev, libnettle4:i386, libopenal1:i386, libcairo2-dev, libgnutls26:i386, libxcb1:i386, libxrender1:i386, locales, libgl1-mesa-dev, libfreetype6-dev, libxdmcp-dev:i386, x11proto-damage-dev, libheimntlm0-heimdal:i386, libsoup2.4-dev, libarchive-dev:i386, libasn1-8-heimdal:i386, libxcb-render0:i386, libpango1.0-dev, libxdmcp6:i386, x11proto-composite-dev, libx11-xcb-dev, mime-support, libcurl3-gnutls:i386, libsm6:i386, libxau6:i386, libxau-dev:i386, libxi-dev, libgtk2.0-dev, libatk1.0-dev, libsqlite3-0:i386, cmake, x11proto-kb-dev, x11proto-xinerama-dev, libheimbase1-heimdal:i386, libjpeg-turbo8-dev:i386, libxml2:i386, libjpeg-turbo8:i386, libsasl2-2:i386, librtmp0:i386, libpopt0:i386, libarchive12:i386, cpio
+Standards-Version: 3.9.3
+Homepage: http://berrybots.com
+Vcs-Git: git://github.com/Voidious/BerryBots.git
+Vcs-Browser: https://github.com/Voidious/BerryBots
+
+Package: berrybots
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A cross-platform Lua programming game.
+ Spaceships, lasers, mazes, races, battles, and programmable stages!
+ A fun and flexible Lua programming game for Mac, Linux, Windows,
+ and Raspberry Pi.

@@ -63,6 +63,8 @@ class BerryBotsApp : public wxApp {
     void onBrowseRunners(wxCommandEvent &event);
     void onBrowseReplays(wxCommandEvent &event);
     void onBrowseApidocs(wxCommandEvent &event);
+  private:
+    std::string dirName(const char *name);
 };
 
 class AppGuiListener : public GuiListener {
@@ -90,34 +92,46 @@ bool BerryBotsApp::OnInit() {
       sf::VideoMode(800, 600), "BerryBots", sf::Style::Default,
       sf::ContextSettings(0, 0, 0, 2, 0));
   delete window;
+#endif
 
-  // On OS X, if base directory has not been selected yet on OS, throw up an
-  // informational dialog with wxWidgets before the file open dialog.
+#ifndef __WINDOWS__
+  // On Mac OS X and Linux, if a base directory has not yet been selected, show
+  // an informational dialog before the file chooser comes up.
   if (!isConfigured()) {
     std::stringstream configInfo;
     configInfo << "TLDR: Before you can use BerryBots, you need to select a "
-               << "base directory. This is where BerryBots will store files "
-               << "like ships and stages."
+               << "base " << DIRECTORY << ". This is where BerryBots will store "
+               << "files like ships and stages."
                << std::endl << std::endl
+#ifdef __WXGTK__
+               << "~/Documents/BerryBots is a reasonable choice."
+#else
                << "Documents > BerryBots is a reasonable choice."
+#endif
                << std::endl << std::endl
                << "--------"
                << std::endl << std::endl
-               << "After selecting a directory, subdirectories will be created "
-               << "for ships (bots/), stages (stages/), and Game Runners "
-               << "(runners/). The samples will be copied into these "
-               << "directories. Place your own programs in them, too."
+               << "After selecting a " << DIRECTORY << ", sub" << DIRECTORIES
+               << " will be created for ships (" << dirName("bots") << "), "
+               << "stages (" << dirName("stages") << "), and Game Runners "
+               << "(" << dirName("runners") << "). The samples will be copied "
+               << "into these " << DIRECTORIES << ". Place your own programs "
+               << "in them, too."
                << std::endl << std::endl
+#ifdef __WXOSX__
+               // On Linux, we use the read-only copy in /usr/share/berrybots.
                << "The BerryBots Lua API documentation will be copied into the "
-               << "apidoc/ subdirectory."
+               << dirName("apidoc") << " sub" << DIRECTORY << "."
                << std::endl << std::endl
-               << "As needed, BerryBots will also create a cache (cache/) "
-               << "subdirectory for unpackaged ships and stages, a replays "
-               << "subdirectory (replays/), and a temp (.tmp/) subdirectory for "
-               << "working files used internally by BerryBots."
+#endif
+               << "As needed, BerryBots will also create a cache sub"
+               << DIRECTORY << " (" << dirName("cache") << ") for unpackaged "
+               << "ships and stages, a replays sub" << DIRECTORY << " ("
+               << dirName("replays") << "), and a temp sub" << DIRECTORY << " ("
+               << dirName(".tmp") << ") for working files used by BerryBots."
                << std::endl << std::endl
                << "Have fun!";
-    
+
     wxMessageDialog selectBaseDirMessage(NULL, configInfo.str(),
                                          "BerryBots Setup", wxOK);
     if (selectBaseDirMessage.ShowModal() != wxID_OK) {
@@ -233,6 +247,16 @@ void BerryBotsApp::onBrowseReplays(wxCommandEvent &event) {
 
 void BerryBotsApp::onBrowseApidocs(wxCommandEvent &event) {
   systemExecutor_->openHtmlFile(getApidocPath().c_str());
+}
+
+std::string BerryBotsApp::dirName(const char *name) {
+  std::stringstream dirName;
+#ifdef __WXGTK__
+  dirName << name << "/";
+#else
+  dirName << "\"" << name << "\"";
+#endif
+  return dirName.str();
 }
 
 AppGuiListener::AppGuiListener(BerryBotsApp *app) {

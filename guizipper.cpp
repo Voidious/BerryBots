@@ -21,8 +21,8 @@
 #include <fcntl.h>
 #include <sstream>
 #include <sys/stat.h>
-#include <libarchive/archive.h>
-#include <libarchive/archive_entry.h>
+#include <archive.h>
+#include <archive_entry.h>
 #include <platformstl/filesystem/filesystem_traits.hpp>
 #include "filemanager.h"
 #include "guizipper.h"

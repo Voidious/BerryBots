@@ -24,6 +24,7 @@
 #include <wx/datetime.h>
 #include "bbwx.h"
 #include "basedir.h"
+#include "ResourcePath.hpp"
 #include "filemanager.h"
 #include "sysexec.h"
 #include "resultsdialog.h"
@@ -43,7 +44,7 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
   systemExecutor_ = new SystemExecutor();
 
 #ifdef __WINDOWS__
-  SetIcon(wxIcon(BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
+  SetIcon(wxIcon(resourcePath() + BERRYBOTS_ICO, wxBITMAP_TYPE_ICO));
   
   // The 8-9 point default font size in Windows is much smaller than Mac/Linux.
   wxFont windowFont = GetFont();
@@ -51,7 +52,7 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
     SetFont(windowFont.Larger());
   }
 #elif __WXGTK__
-  SetIcon(wxIcon(BBICON_128, wxBITMAP_TYPE_PNG));
+  SetIcon(wxIcon(resourcePath() + BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
   mainPanel_ = new wxPanel(this, wxID_ANY);

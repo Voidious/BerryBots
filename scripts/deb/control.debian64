@@ -1,0 +1,17 @@
+Source: berrybots
+Section: Games
+Priority: extra
+Maintainer: Patrick Cupka <pcupka@gmail.com>
+Build-Depends: debhelper (>= 8.0.0), libarchive12:amd64, g++-4.7, libxfixes-dev, file, libpcre3:amd64, zlib1g:amd64, libidn11:amd64, libatk1.0-0:amd64, cpp-4.7, libx11-6:amd64, libgnutls26:amd64, findutils, libxdamage1:amd64, libcairo2:amd64, libldap-2.4-2:amd64, libpcre3-dev, libxcb1:amd64, binutils, coreutils, librtmp0:amd64, libkrb5-3:amd64, libfontconfig1:amd64, libxext6:amd64, linux-libc-dev:amd64, libexpat1-dev, x11proto-input-dev, libffi5:amd64, libgl1-mesa-glx:amd64, libpixman-1-dev, libxcursor1:amd64, libxcomposite-dev, libsm6:amd64, libxinerama-dev:amd64, libxau6:amd64, libmpfr4:amd64, libc6:amd64, zlib1g-dev:amd64, libsndfile1-dev, libgcc1:amd64, libc-bin, libattr1:amd64, x11proto-randr-dev, libdrm2:amd64, libxxf86vm1:amd64, libtinfo5:amd64, libgpg-error0:amd64, grep, bash, libcurl3-gnutls:amd64, libgssapi-krb5-2:amd64, libuuid1:amd64, libstdc++6-4.7-dev, mawk, libgdk-pixbuf2.0-dev, libglib2.0-dev, libxdmcp-dev:amd64, libxrender1:amd64, libxcb-shm0-dev:amd64, libstdc++6:amd64, cmake-data, x11proto-xext-dev, pkg-config, libfreetype6:amd64, libxcb-shm0:amd64, libxcomposite1:amd64, dash, libgtk2.0-0:amd64, libxcb-render0:amd64, libgdk-pixbuf2.0-0:amd64, libfontconfig1-dev, libpopt0:amd64, libselinux1:amd64, libxml2:amd64, libxrandr-dev, mesa-common-dev, libmagic1:amd64, perl-base, libxinerama1:amd64, libjpeg8:amd64, libssh2-1:amd64, libpng12-dev, make, liblzma5:amd64, libglu1-mesa-dev, x11proto-render-dev, libgmp10:amd64, libglew1.7:amd64, libxmu6:amd64, libk5crypto3:amd64, gcc, libxdamage-dev, g++, libopenal1:amd64, libice6:amd64, libtasn1-3:amd64, libxcb-glx0:amd64, libcairo2-dev, gcc-4.7, libxfixes3:amd64, libxrender-dev:amd64, locales, libx11-dev:amd64, libpango1.0-0:amd64, libpthread-stubs0-dev:amd64, libxcb1-dev:amd64, libgl1-mesa-dev, x11proto-fixes-dev, libfreetype6-dev, libc6-dev:amd64, x11proto-damage-dev, libglib2.0-0:amd64, libexpat1:amd64, sed, libxcb-render0-dev:amd64, libarchive-dev:amd64, libkrb5support0:amd64, libxi6:amd64, libmpc2:amd64, libxdmcp6:amd64, libxcursor-dev:amd64, libglu1-mesa:amd64, libp11-kit0:amd64, libxrandr2:amd64, libpango1.0-dev, libjpeg8-dev:amd64, libice-dev:amd64, x11proto-composite-dev, mime-support, x11proto-core-dev, diffutils, libxi-dev, libopenal-dev:amd64, libgtk2.0-dev, libgcrypt11:amd64, libnettle4:amd64, libatk1.0-dev, libsm-dev:amd64, libcomerr2:amd64, libbz2-1.0:amd64, libglapi-mesa:amd64, cmake, libkeyutils1:amd64, libglew-dev:amd64, x11proto-kb-dev, x11proto-xinerama-dev, libpixman-1-0:amd64, libxext-dev:amd64, libsasl2-2:amd64, libsndfile1:amd64, libpng12-0:amd64, libacl1:amd64, libx11-xcb1:amd64, libxt6:amd64, libxau-dev:amd64, cpio
+Standards-Version: 3.9.3
+Homepage: http://berrybots.com
+Vcs-Git: git://github.com/Voidious/BerryBots.git
+Vcs-Browser: https://github.com/Voidious/BerryBots
+
+Package: berrybots
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A cross-platform Lua programming game.
+ Spaceships, lasers, mazes, races, battles, and programmable stages!
+ A fun and flexible Lua programming game for Mac, Linux, Windows,
+ and Raspberry Pi.

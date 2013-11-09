@@ -74,4 +74,12 @@
 #define BB_DIRSEP_CHR  '/'
 #endif
 
+#if defined(__APPLE__) || defined(_WIN32)
+#define DIRECTORY    "folder"
+#define DIRECTORIES  "folders"
+#else
+#define DIRECTORY    "directory"
+#define DIRECTORIES  "directories"
+#endif
+
 #endif
