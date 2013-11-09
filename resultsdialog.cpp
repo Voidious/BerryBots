@@ -141,7 +141,7 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
 
   wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
   saveButton_ = new wxButton(mainPanel_, wxID_ANY, "    &Save Replay    ");
-  viewButton_ = new wxButton(mainPanel_, wxID_ANY, "    &View Replay    ");
+  viewButton_ = new wxButton(mainPanel_, wxID_ANY, "  &View Replay (HTML)  ");
   restartButton_ = new wxButton(mainPanel_, wxID_ANY, "    &Restart    ");
   buttonSizer->AddSpacer(5);
   buttonSizer->Add(restartButton_, 0, wxEXPAND | wxALIGN_RIGHT);
@@ -318,7 +318,7 @@ void ResultsDialog::setMnemonicLabels(bool modifierDown) {
   } else {
     restartButton_->SetLabel("    &Restart    ");
     saveButton_->SetLabel("    &Save Replay    ");
-    viewButton_->SetLabel("    &View Replay    ");
+    viewButton_->SetLabel("  &View Replay (HTML)  ");
   }
 }
 
