@@ -306,6 +306,14 @@ class RunnerConsoleListener : public ConsoleListener {
     virtual ~RunnerConsoleListener() {};
 };
 
+class ResultsRestarter : public ResultsDialogListener {
+  GuiManager *guiManager_;
+
+  public:
+    ResultsRestarter(GuiManager *guiManager);
+    virtual void onRestart();
+};
+
 class ViewListener : public GfxViewListener {
   GuiManager *guiManager_;
 

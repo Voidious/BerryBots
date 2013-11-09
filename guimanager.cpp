@@ -751,7 +751,7 @@ void GuiManager::showResults(ReplayBuilder *replayBuilder) {
 
   resultsDialog_ = new ResultsDialog(engine_->getStage()->getName(),
       rankedTeams, engine_->getNumTeams(), engine_->hasScores(),
-      wxPoint(xCenter, yCenter), replayBuilder);
+      wxPoint(xCenter, yCenter), replayBuilder, new ResultsRestarter(this));
   delete rankedTeams;
   resultsDialog_->Show();
   resultsDialog_->Raise();
@@ -1561,6 +1561,14 @@ void RunnerConsoleListener::onClose() {
 
 void RunnerConsoleListener::onAbort() {
   guiManager_->abortGameRunner();
+}
+
+ResultsRestarter::ResultsRestarter(GuiManager *guiManager) {
+  guiManager_ = guiManager;
+}
+
+void ResultsRestarter::onRestart() {
+  guiManager_->restartMatch();
 }
 
 ViewListener::ViewListener(GuiManager *guiManager) {

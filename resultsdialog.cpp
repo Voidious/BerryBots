@@ -30,7 +30,8 @@
 #include "resultsdialog.h"
 
 ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
-    bool hasScores, wxPoint center, ReplayBuilder *replayBuilder)
+    bool hasScores, wxPoint center, ReplayBuilder *replayBuilder,
+    ResultsDialogListener *listener)
     : wxFrame(NULL, wxID_ANY, "Results", wxDefaultPosition, wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxMAXIMIZE_BOX | wxRESIZE_BORDER)) {
 
@@ -40,6 +41,7 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
   savedReplay_ = false;
   strcpy(stageName_, stageName);
   replayBuilder_ = replayBuilder;
+  listener_ = listener;
   fileManager_ = new FileManager();
   systemExecutor_ = new SystemExecutor();
 
@@ -140,13 +142,16 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
   wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
   saveButton_ = new wxButton(mainPanel_, wxID_ANY, "    &Save Replay    ");
   viewButton_ = new wxButton(mainPanel_, wxID_ANY, "    &View Replay    ");
-  buttonSizer->AddSpacer(3);
+  restartButton_ = new wxButton(mainPanel_, wxID_ANY, "    &Restart    ");
+  buttonSizer->AddSpacer(5);
+  buttonSizer->Add(restartButton_, 0, wxEXPAND | wxALIGN_RIGHT);
+  buttonSizer->AddStretchSpacer(1);
+  buttonSizer->AddSpacer(5);
   buttonSizer->AddStretchSpacer(1);
   buttonSizer->Add(saveButton_, 0, wxEXPAND);
   buttonSizer->AddSpacer(5);
   buttonSizer->Add(viewButton_, 0, wxEXPAND);
-  buttonSizer->AddStretchSpacer(1);
-  buttonSizer->AddSpacer(3);
+  buttonSizer->AddSpacer(5);
 
   panelSizer_->Add(buttonSizer, 0, wxEXPAND, 50);
   panelSizer_->AddSpacer(3);
@@ -165,6 +170,8 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
           wxCommandEventHandler(ResultsDialog::onSaveReplay));
   Connect(viewButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(ResultsDialog::onViewReplay));
+  Connect(restartButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+          wxCommandEventHandler(ResultsDialog::onRestart));
 
   eventFilter_ = new ResultsEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
@@ -173,8 +180,6 @@ ResultsDialog::ResultsDialog(const char *stageName, Team **teams, int numTeams,
 ResultsDialog::~ResultsDialog() {
   this->GetEventHandler()->RemoveFilter(eventFilter_);
   delete eventFilter_;
-  delete saveButton_;
-  delete viewButton_;
   delete stageName_;
   delete fileManager_;
   delete systemExecutor_;
@@ -185,6 +190,9 @@ ResultsDialog::~ResultsDialog() {
     delete timestamp_;
   }
   delete replayBuilder_; // inherited from the engine
+  if (listener_ != 0) {
+    delete listener_;
+  }
 }
 
 void ResultsDialog::onClose(wxCommandEvent &event) {
@@ -197,6 +205,10 @@ void ResultsDialog::onSaveReplay(wxCommandEvent &event) {
 
 void ResultsDialog::onViewReplay(wxCommandEvent &event) {
   viewReplay();
+}
+
+void ResultsDialog::onRestart(wxCommandEvent &event) {
+  restart();
 }
 
 void ResultsDialog::saveReplay() {
@@ -217,6 +229,12 @@ void ResultsDialog::saveReplay() {
 void ResultsDialog::viewReplay() {
   saveReplay();
   systemExecutor_->openHtmlFile(replayFilename_);
+}
+
+void ResultsDialog::restart() {
+  if (listener_ != 0) {
+    listener_->onRestart();
+  }
 }
 
 char* ResultsDialog::generateFilename() {
@@ -289,13 +307,16 @@ void ResultsDialog::setMnemonicLabels(bool modifierDown) {
   //       wxButton::Command() call.
   if (modifierDown) {
 #ifdef __WXOSX__
+    restartButton_->SetLabel("&Restart \u2318R");
     saveButton_->SetLabel("&Save Replay \u2318S");
     viewButton_->SetLabel("&View Replay \u2318V");
 #else
+    restartButton_->SetLabel("&Restart  alt-R");
     saveButton_->SetLabel("&Save Replay  alt-S");
     viewButton_->SetLabel("&View Replay  alt-V");
 #endif
   } else {
+    restartButton_->SetLabel("    &Restart    ");
     saveButton_->SetLabel("    &Save Replay    ");
     viewButton_->SetLabel("    &View Replay    ");
   }
@@ -326,6 +347,10 @@ int ResultsEventFilter::FilterEvent(wxEvent& event) {
     if (keyCode == WXK_ESCAPE
         || (keyEvent->GetUnicodeKey() == 'W' && modifierDown)) {
       resultsDialog_->Close();
+      return Event_Processed;
+    } else if (keyCode == WXK_BACK
+               || (keyEvent->GetUnicodeKey() == 'R' && modifierDown)) {
+      resultsDialog_->restart();
       return Event_Processed;
     }
   }

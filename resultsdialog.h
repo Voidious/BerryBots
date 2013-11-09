@@ -29,9 +29,16 @@
 #include "filemanager.h"
 #include "sysexec.h"
 
+class ResultsDialogListener {
+  public:
+    virtual void onRestart() = 0;
+    virtual ~ResultsDialogListener() {};
+};
+
 class ResultsDialog : public wxFrame {
   wxButton *saveButton_;
   wxButton *viewButton_;
+  wxButton *restartButton_;
   wxPanel *mainPanel_;
   wxBoxSizer *dialogSizer_;
   wxBoxSizer *panelSizer_;
@@ -42,17 +49,21 @@ class ResultsDialog : public wxFrame {
   ReplayBuilder *replayBuilder_;
   FileManager *fileManager_;
   SystemExecutor *systemExecutor_;
+  ResultsDialogListener *listener_;
   wxEventFilter *eventFilter_;
 
   public:
     ResultsDialog(const char *stageName, Team **teams, int numTeams,
-                  bool hasScores, wxPoint center, ReplayBuilder *replayBuilder);
+                  bool hasScores, wxPoint center, ReplayBuilder *replayBuilder,
+                  ResultsDialogListener *listener);
     ~ResultsDialog();
     void onClose(wxCommandEvent &event);
     void onSaveReplay(wxCommandEvent &event);
     void onViewReplay(wxCommandEvent &event);
+    void onRestart(wxCommandEvent &event);
     void saveReplay();
     void viewReplay();
+    void restart();
     void setMnemonicLabels(bool modifierDown);
   private:
     char* generateFilename();
