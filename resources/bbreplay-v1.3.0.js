@@ -113,6 +113,7 @@ var BerryBots = {
   BLAST_TIME: 16,
   DEBRIS_RADIUS: 1.5,
   DEBRIS_TIME: 40,
+  DEBRIS_INITIAL_OFFSET: 9,
   DESTROY_BASE_RADIUS: 6,
   DESTROY_CIRCLES: 3,
   DESTROY_FRAMES: 16,
@@ -1238,9 +1239,12 @@ BerryBots.getTorpedoDebris = function(baseOffset) {
     var dx = BerryBots.scale(BerryBots.getNumber(offset + 4) / 100);
     var dy = BerryBots.scale(BerryBots.getNumber(offset + 5) / 100);
     var parts = BerryBots.getNumber(offset + 6);
+    var speeds = new Array();
+    for (var y = 0; y < parts; y++) {
+      speeds.push(BerryBots.scale(((Math.random() + 1) / 2) * 2.5))
+    }
     torpedoDebris[x] = {shipIndex: shipIndex, startTime: time, x: debrisX,
-        y: debrisY, dx: dx, dy: dy, parts: parts,
-        speed: BerryBots.scale(((Math.random() + 1) / 2) * 2.5),
+        y: debrisY, dx: dx, dy: dy, parts: parts, speeds: speeds,
         endTime: time + BerryBots.DEBRIS_TIME};
   }
   return torpedoDebris;
@@ -1749,7 +1753,8 @@ BerryBots.replay = function() {
               debrisCircle.setOffset(
                   {x: BerryBots.scale(BerryBots.DEBRIS_INITIAL_OFFSET)}
               );
-              debrisCircle.debrisData = debrisData;
+              debrisCircle.debrisData = {dx: debrisData.dx, dy: debrisData.dy,
+                  speed: debrisData.speeds[x], endTime: debrisData.endTime};
               debrisCircles.push(debrisCircle);
               BerryBots.mainLayer.add(debrisCircle);
             }
