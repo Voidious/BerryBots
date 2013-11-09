@@ -139,6 +139,14 @@ int registerClass(
   return 1;
 }
 
+const char *getPrintStr(lua_State *L) {
+  if (lua_isboolean(L, 1)) {
+    return lua_toboolean(L, 1) ? "true" : "false";
+  } else {
+    return luaL_optstring(L, 1, "");
+  }
+}
+
 Ship* checkShip(lua_State *L, int index) {
   luaL_checktype(L, index, LUA_TUSERDATA);
   Ship *ship = (Ship *) luaL_checkudata(L, index, SHIP);
@@ -1837,7 +1845,7 @@ int registerStageGfx(lua_State *L) {
 
 int ShipGlobals_print(lua_State *L) {
   int top = lua_gettop(L);
-  const char *str = luaL_optstring(L, 1, "");
+  const char *str = getPrintStr(L);
   BerryBotsEngine *engine = (BerryBotsEngine*) lua_getprinter(L);
   if (engine != 0) {
     engine->shipPrint(L, str);
@@ -1859,7 +1867,7 @@ int registerShipGlobals(lua_State *L) {
 
 int StageGlobals_print(lua_State *L) {
   int top = lua_gettop(L);
-  const char *str = luaL_optstring(L, 1, "");
+  const char *str = getPrintStr(L);
   BerryBotsEngine *engine = (BerryBotsEngine*) lua_getprinter(L);
   if (engine != 0) {
     engine->stagePrint(str);
@@ -2320,7 +2328,7 @@ int registerRunnerFiles(lua_State *L) {
 
 int RunnerGlobals_print(lua_State *L) {
   int top = lua_gettop(L);
-  const char *str = luaL_optstring(L, 1, "");
+  const char *str = getPrintStr(L);
   PrintHandler *printHandler = (PrintHandler*) lua_getprinter(L);
   if (printHandler != 0) {
     printHandler->runnerPrint(str);
