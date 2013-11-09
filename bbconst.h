@@ -21,7 +21,7 @@
 #ifndef BBCONST_H
 #define BBCONST_H
 
-#define SAMPLES_VERSION       "1.3.0"
+#define SAMPLES_VERSION       "1.3.1"
 
 #define SHIPS_SUBDIR          "bots"
 #define STAGES_SUBDIR         "stages"

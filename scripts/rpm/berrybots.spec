@@ -1,11 +1,11 @@
 Name:           berrybots
-Version:        1.3.0
+Version:        1.3.1
 Release:        1%{?dist}
 Summary:        A cross-platform Lua programming game.
 
 License:        zlib
 URL:            http://berrybots.com
-Source0:        berrybots-1.3.0.tar.gz
+Source0:        berrybots-1.3.1.tar.gz
 
 BuildRequires: atk-devel
 BuildRequires: binutils
@@ -85,7 +85,6 @@ make install DESTDIR=%{buildroot}
 %{_datadir}/pixmaps/berrybots.png
 
 
-
 %changelog
-* Thu Jul 07 2011 Patrick Cupka <pcupka@gmail.com> - 1.3.0-1
+* Thu Jul 07 2011 Patrick Cupka <pcupka@gmail.com> - 1.3.1-1
 - Initial version of the package
