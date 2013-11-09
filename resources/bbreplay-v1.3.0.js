@@ -1380,7 +1380,8 @@ BerryBots.escapeHtml = function(s) {
           .replace(/</g, "&lt;")
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
+          .replace(/'/g, "&#039;")
+          .replace(/ /g, "&nbsp;");
 };
 
 BerryBots.makeLaser = function() {
@@ -1895,6 +1896,7 @@ BerryBots.replay = function() {
             BerryBots.mainLayer.add(stageTextShape);
           }
 
+          // Log entries.
           var logEntries = BerryBots.logEntries;
           var numLogEntries = logEntries.length;
           while (nextLogEntry < numLogEntries

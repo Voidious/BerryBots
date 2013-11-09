@@ -755,6 +755,8 @@ std::string ReplayBuilder::htmlTitle() {
 std::string ReplayBuilder::escapeString(std::string s) {
   findReplace(s, ':', "\\\\:");
   findReplace(s, '\'', "\\'");
+  findReplace(s, '\n', "\\n");
+  findReplace(s, '\r', "\\n");
   return s;
 }
 
