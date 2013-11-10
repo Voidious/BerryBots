@@ -106,18 +106,25 @@ OSX_LDFLAGS += -ldl -pagezero_size 10000 -image_base 100000000 -std=c99
 # osxcli: Sources and flags for building CLI on Mac OS X / Cocoa
 OSXCLI_EXTRA_SOURCES = relativebasedir.cpp relativerespath.cpp
 OSXCLI_EXTRA_SOURCES += ./luajit/src/libluajit.a
+OSXCLI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
+OSXCLI_LDFLAGS =
+
 ifneq ($(LIBARCHIVE_PATH), )
   OSXCLI_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
 endif
 OSXCLI_EXTRA_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
 
-OSXCLI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
-OSXCLI_LDFLAGS =
 ifneq ($(LIBARCHIVE_PATH), )
   OSXCLI_CFLAGS += -I${LIBARCHIVE_PATH}/libarchive
 else
   OSXCLI_LDFLAGS += -larchive
 endif
+
+ifneq ($(SFML_HEADER_PATH), )
+  OSXCLI_CFLAGS +=  -I${SFML_HEADER_PATH}
+  OSXCLI_LDFLAGS += -L${SFML_LIB_PATH}
+endif
+
 OSXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
 OSXCLI_LDFLAGS += -pagezero_size 10000 -image_base 100000000
 ##############################################################################
@@ -161,8 +168,13 @@ LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
 ##############################################################################
 # linuxcli: Sources and flags for building CLI on Linux / GTK
 LINUXCLI_EXTRA_SOURCES = relativebasedir.cpp relativerespath.cpp
+LINUXCLI_EXTRA_SOURCES += ./luajit/src/libluajit.a
 LINUXCLI_CFLAGS = -I./luajit/src -I./stlsoft-1.9.116/include
 LINUXCLI_LDFLAGS =
+
+ifneq ($(LIBARCHIVE_PATH), )
+  LINUXCLI_EXTRA_SOURCES += ${LIBARCHIVE_PATH}/.libs/libarchive.a
+endif
 
 ifneq ($(LIBARCHIVE_PATH), )
   LINUXCLI_CFLAGS += -I${LIBARCHIVE_PATH}/libarchive
@@ -228,7 +240,7 @@ ifeq ($(SFML_HEADER_PATH), )
 else
 	./scripts/osx_copy_fix_dylib_paths.sh "${SFML_LIB_PATH}" "sfml-lib"
 	$(CC) ${CLI_SOURCES} ${OSXCLI_EXTRA_SOURCES} ${OSXCLI_CFLAGS} ${OSXCLI_LDFLAGS} -o bbmain
-	cp scripts/bb_gui_osx.sh berrybots
+	cp scripts/bb_osx.sh berrybots
 	chmod 755 berrybots
 endif
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
@@ -263,10 +275,10 @@ linuxcli:
 ifeq ($(SFML_HEADER_PATH), )
 	$(CC) ${CLI_SOURCES} ${LINUXCLI_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o berrybots
 else
-	$(CC) ${CLI_SOURCES} ${LINUXCLI_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o bbgui
+	$(CC) ${CLI_SOURCES} ${LINUXCLI_EXTRA_SOURCES} ${LINUXCLI_CFLAGS} ${LINUXCLI_LDFLAGS} -o bbmain
 	rm -rf sfml-lib
 	cp -r ${SFML_LIB_PATH} sfml-lib
-	cp scripts/bb_gui_linux.sh berrybots
+	cp scripts/bb_linux.sh berrybots
 	chmod 755 berrybots
 endif
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
