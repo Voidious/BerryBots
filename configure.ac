@@ -34,9 +34,26 @@ else
       host_vendor = ${host_vendor}])
 fi
 
+AC_ARG_WITH([nodeps],
+            AS_HELP_STRING([--with-nodeps],
+              [Don't process any dependencies for SFML, wxWidgets, or libarchive. The 'cloud' binary doesn't need any of them.]),
+            [
+            withNodeps=1
+            withSfml=1
+            withWx=1
+            withLa=1
+            ],
+            [
+            withNodeps=0
+            withSfml=0
+            withWx=0
+            withLa=0
+            ])
+
 
 # Raspberry Pi doesn't depend on anything.
 if test "$rpi" != 1; then
+if test "$withNodeps" != 1; then
   withSfml=0
   withLocalSfml=0
   withWx=0
@@ -175,6 +192,7 @@ if test "$rpi" != 1; then
   AC_CHECK_LIB([z], [main], [], [AC_MSG_ERROR([
     zlib not found on your system.
   ])])
+fi
 fi
 
 

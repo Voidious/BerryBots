@@ -67,6 +67,17 @@ CLI_SOURCES += bbrunner.cpp replaybuilder.cpp
 
 
 ##############################################################################
+# BerryBots cloud source files
+CLOUD_SOURCES =  bbcloudmain.cpp bbutil.cpp filemanager.cpp circle2d.cpp
+CLOUD_SOURCES += line2d.cpp point2d.cpp sensorhandler.cpp zone.cpp bbengine.cpp
+CLOUD_SOURCES += bblua.cpp rectangle.cpp stage.cpp cliprinthandler.cpp
+CLOUD_SOURCES += zipper.cpp tarzipper.cpp bbrunner.cpp replaybuilder.cpp
+CLOUD_SOURCES += relativebasedir.cpp relativerespath.cpp
+CLOUD_SOURCES += ./luajit/src/libluajit.a
+##############################################################################
+
+
+##############################################################################
 # osx: Sources and flags for building GUI on Mac OS X / Cocoa
 OSX_EXTRA_SOURCES =  osxbasedir.mm osxcfg.m linuxrespath.cpp
 OSX_EXTRA_SOURCES += ./luajit/src/libluajit.a
@@ -192,6 +203,18 @@ LINUXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
 
 
 ##############################################################################
+# cloud: Flags for building headliness/cloud on any platform.
+CLOUD_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
+CLOUD_LDFLAGS = -lz -ldl -lpthread
+
+ifeq ($(.DEFAULT_GOAL), osx)
+  CLOUD_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
+  CLOUD_LDFLAGS += -pagezero_size 10000 -image_base 100000000
+endif
+##############################################################################
+
+
+##############################################################################
 # Build targets
 GUIPLATS = osx linux
 CLIPLATS = rpi osxcli linuxcli
@@ -281,6 +304,13 @@ else
 	cp scripts/bb_linux.sh berrybots
 	chmod 755 berrybots
 endif
+	@echo "==== Successfully built BerryBots $(VERSION) ===="
+	@echo "==== Launch BerryBots with: ./berrybots"
+
+cloud:
+	$(MAKE_LUAJIT)
+	$(CC) ${CLOUD_SOURCES} ${CLOUD_CFLAGS} ${CLOUD_LDFLAGS} -o berrybots
+	chmod 755 berrybots
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"
 

@@ -700,6 +700,7 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
+with_nodeps
 with_sfml_src
 with_sfml_dl
 with_libarchive
@@ -1333,6 +1334,9 @@ if test -n "$ac_init_help"; then
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
+  --with-nodeps           Don't process any dependencies for SFML, wxWidgets,
+                          or libarchive. The 'cloud' binary doesn't need any
+                          of them.
   --with-sfml-src         Path to SFML after compiling from source, e.g.,
                           /home/voidious/SFML-2.1. Libs in SFML/build/lib,
                           headers in SFML/include.
@@ -2753,8 +2757,28 @@ $as_echo "$as_me:
 fi
 
 
+# Check whether --with-nodeps was given.
+if test "${with_nodeps+set}" = set; then :
+  withval=$with_nodeps;
+            withNodeps=1
+            withSfml=1
+            withWx=1
+            withLa=1
+
+else
+
+            withNodeps=0
+            withSfml=0
+            withWx=0
+            withLa=0
+
+fi
+
+
+
 # Raspberry Pi doesn't depend on anything.
 if test "$rpi" != 1; then
+if test "$withNodeps" != 1; then
   withSfml=0
   withLocalSfml=0
   withWx=0
@@ -3853,6 +3877,7 @@ else
   " "$LINENO" 5
 fi
 
+fi
 fi
 
 
