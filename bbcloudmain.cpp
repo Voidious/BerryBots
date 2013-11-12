@@ -46,8 +46,10 @@ void printUsage() {
 char* replayFilename(const char *stageName) {
   std::stringstream nameStream;
   char *timestamp = getTimestamp();
-  nameStream << ((stageName == 0) ? "unknown" : stageName) << "-"
-             << timestamp << ".html";
+  nameStream << ((stageName == 0) ? "unknown" : stageName) << "-" << timestamp
+             << "-";
+  nameStream << std::hex << (rand() % 4096);
+  nameStream << ".html";
   delete timestamp;
 
   std::string filename = nameStream.str();
