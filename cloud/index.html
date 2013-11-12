@@ -1,4 +1,13 @@
 <html>
+<style type="text/css" media="screen">
+    #editor { 
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+    }
+</style>
 <head><title>BerryBots Cloud demo</title></head>
 <body>
 
@@ -21,25 +30,58 @@ function runMatch() {
 }
 </script>
 
-<form>
-  Stage:
-  <select id="Stage">
-    <option>battle1.lua</option>
-    <option>joust.lua</option>
-  </select>
-  <br>
-  Opponent:
-  <select id="Opponent">
-    <option>chaser.lua</option>
-    <option>jouster.lua</option>
-    <option>randombot.lua</option>
-    <option>wallhugger.lua</option>
-    <option>basicbattler.lua</option>
-  </select>
-  <br>
-  <input type="button" value="Run Match" onclick="runMatch()">
-  <br>
-  <input type="text" id="replay">
-</body>
+<div id="editor">-- A ship control program.
 
+ship = nil
+world = nil
+
+function init(shipArg, worldArg)
+  ship = shipArg
+  world = worldArg
+  ship:setName("Player")
+  ship:setShipColor(255, 255, 0)
+  ship:setLaserColor(0, 255, 0)
+end
+
+function run(enemyShips, sensors)
+
+end
+</div>
+
+<div style="width=500px; position: relative;">
+  <script src="ace.js" type="text/javascript" charset="utf-8"></script>
+  <script>
+    var editor = ace.edit("editor");
+    editor.getSession().setMode("ace/mode/lua");
+    editor.setTheme("ace/theme/textmate");
+    editor.getSession().setTabSize(2);
+    editor.getSession().setUseSoftTabs(true);
+    editor.setHighlightActiveLine(false);
+  </script>
+</div>
+
+<div style="position: absolute; left: 650px;">
+  <form>
+    Stage:
+    <select id="Stage">
+      <option>battle1.lua</option>
+      <option>joust.lua</option>
+    </select>
+    <br>
+    Opponent:
+    <select id="Opponent">
+      <option>chaser.lua</option>
+      <option>jouster.lua</option>
+      <option>randombot.lua</option>
+      <option>wallhugger.lua</option>
+      <option>basicbattler.lua</option>
+    </select>
+    <br>
+    <input type="button" value="Run Match" onclick="runMatch()">
+    <br>
+    <input type="text" id="replay">
+  </form>
+</div>
+
+</body>
 </html>
