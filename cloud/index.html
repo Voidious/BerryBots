@@ -1,22 +1,45 @@
 <html>
 <head><title>BerryBots Cloud demo</title></head>
 <body>
-<input type="text" id="replay">
-</body>
 
 <script type="text/javascript">
-var x = new XMLHttpRequest();
-x.open("GET", "/cgi-bin/runmatch.pl", false);
-x.setRequestHeader('Content-Type', 'text/xml');
-x.onreadystatechange = function () {
-  if (x.readyState == 4) {
-    var parser = new DOMParser();
-    var xmlDoc = parser.parseFromString(x.responseText, "application/xml");
-    var r = document.getElementById('replay');
-    r.value = xmlDoc.getElementsByTagName("r")[0].childNodes[0].nodeValue;
-  }
-};
-x.send();
+function runMatch() {
+  var x = new XMLHttpRequest();
+  var params = "stage=" + document.getElementById('Stage').value
+      + "&opponent=" + document.getElementById('Opponent').value;
+  x.open('POST', '/cgi-bin/runmatch.pl', true);
+  x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  x.onreadystatechange = function () {
+    if (x.readyState == 4) {
+      var parser = new DOMParser();
+      var xmlDoc = parser.parseFromString(x.responseText, 'application/xml');
+      var r = document.getElementById('replay');
+      r.value = xmlDoc.getElementsByTagName("r")[0].childNodes[0].nodeValue;
+    }
+  };
+  x.send(params);
+}
 </script>
+
+<form>
+  Stage:
+  <select id="Stage">
+    <option>battle1.lua</option>
+    <option>joust.lua</option>
+  </select>
+  <br>
+  Opponent:
+  <select id="Opponent">
+    <option>chaser.lua</option>
+    <option>jouster.lua</option>
+    <option>randombot.lua</option>
+    <option>wallhugger.lua</option>
+    <option>basicbattler.lua</option>
+  </select>
+  <br>
+  <input type="button" value="Run Match" onclick="runMatch()">
+  <br>
+  <input type="text" id="replay">
+</body>
 
 </html>
