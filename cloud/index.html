@@ -1,0 +1,22 @@
+<html>
+<head><title>BerryBots Cloud demo</title></head>
+<body>
+<input type="text" id="replay">
+</body>
+
+<script type="text/javascript">
+var x = new XMLHttpRequest();
+x.open("GET", "/cgi-bin/runmatch.pl", false);
+x.setRequestHeader('Content-Type', 'text/xml');
+x.onreadystatechange = function () {
+  if (x.readyState == 4) {
+    var parser = new DOMParser();
+    var xmlDoc = parser.parseFromString(x.responseText, "application/xml");
+    var r = document.getElementById('replay');
+    r.value = xmlDoc.getElementsByTagName("r")[0].childNodes[0].nodeValue;
+  }
+};
+x.send();
+</script>
+
+</html>
