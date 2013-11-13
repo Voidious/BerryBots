@@ -6,8 +6,30 @@
         right: 0;
         bottom: 0;
         left: 0;
-        width: 550px;
+        width: 625px;
         height: 600px;
+        border: 1px solid #333;
+    }
+
+    .formLabel {
+      display: inline-block;
+      width: 5em;
+      font-size: 1.15em;
+      vertical-align: top;
+    }
+
+    .di {
+      display: inline;
+    }
+
+    .runMatch {
+      font-size: 1.5em;
+      width: 200px;
+    }
+
+    .fileList {
+      font-size: 1em;
+      width: 175px;
     }
 </style>
 <head><title>BerryBots Cloud demo</title></head>
@@ -18,7 +40,8 @@
 function runMatch() {
   var x = new XMLHttpRequest();
   var params = 'stage=' + document.getElementById('Stage').value
-      + '&opponent=' + document.getElementById('Opponent').value;
+      + '&opponent=' + document.getElementById('Opponent').value
+      + '&code=' + encodeURI(editor.getValue()).replace(/\+/g, "%2B");
   x.open('POST', '/cgi-bin/runmatch.pl', true);
   x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   x.onreadystatechange = function () {
@@ -30,18 +53,57 @@ function runMatch() {
         player = document.createElement('iframe');
         player.id = 'player';
         player.style.width = '95%'; 
-        player.style.height = '600px'; 
+        player.style.height = '650px'; 
         document.getElementById('playerDiv').appendChild(player);       
       }
-      player.src = xmlDoc.getElementsByTagName('r')[0].childNodes[0].nodeValue;
       window.location.hash = '';
       window.location.hash = 'player';
+      player.src = '/replays/' + xmlDoc.getElementsByTagName('r')[0].childNodes[0].nodeValue;
     }
   };
   x.send(params);
 }
+
+function loadBot(filename) {
+  var x = new XMLHttpRequest();
+  x.open('GET', '/bots/' + filename, false);
+  x.setRequestHeader('Content-Type', 'text/plain');
+  x.onreadystatechange = function () {
+    if (x.readyState == 4) {
+      editor.setValue(x.responseText);
+      editor.clearSelection();
+      editor.scrollToLine(0);
+      window.location.hash = '';
+      window.location.hash = 'editor';
+    }
+  };
+  x.send();
+}
+
+function onStageSelect() {
+  var stage = document.getElementById('Stage').value;
+  if (stage == 'maze2.lua') {
+    selectBot('<none>');
+  } else if (stage == 'battle1.lua') {
+    var opponent = document.getElementById('Opponent').value;
+    if (opponent == 'jouster.lua' || opponent == '<none>') {
+      selectBot('randombot.lua');
+    }
+  }
+}
+
+function selectBot(filename) {
+  var opponentSelect = document.getElementById('Opponent');
+  for (var x = 0; x < opponentSelect.options.length; x++) {
+    if (opponentSelect.options[x].text == filename) {
+      opponentSelect.options[x].selected = true;
+      return;
+    }
+  }
+}
 </script>
 
+<a name="editor"></a>
 <div>
   <div id="editor">-- A ship control program.
 
@@ -53,34 +115,65 @@ function init(shipArg, worldArg)
   world = worldArg
   ship:setName("Player")
   ship:setShipColor(255, 255, 0)
-  ship:setLaserColor(0, 255, 0)
+  ship:setLaserColor(255, 255, 255)
+  ship:setThrusterColor(255, 255, 0)
 end
 
+local heading = math.random() * math.pi * 2
 function run(enemyShips, sensors)
+  ship:fireThruster(heading, 0.25)
+end
+
+function roundOver()
+
+end
+
+function gameOver()
 
 end
   </div>
 
-  <div style="position: absolute; left: 575px;">
+  <div style="position: absolute; left: 650px;">
     <form>
-      Stage:
-      <select id="Stage">
-        <option>battle1.lua</option>
-        <option>joust.lua</option>
-      </select>
+      <div>
+        <div class="formLabel">Stage:</div>
+        <div class="di">
+          <select id="Stage" size="3" onchange="onStageSelect()" class="fileList">
+            <option SELECTED>joust.lua</option>
+            <option>battle1.lua</option>
+            <option>maze2.lua</option>
+          </select>
+        </div>
+      </div>
       <br>
-      Opponent:
-      <select id="Opponent">
-        <option>chaser.lua</option>
-        <option>jouster.lua</option>
-        <option>randombot.lua</option>
-        <option>wallhugger.lua</option>
-        <option>basicbattler.lua</option>
-      </select>
+      <div>
+        <div class="formLabel">Opponent:</div>
+        <div class="di">
+          <select id="Opponent" size="7" class="fileList">
+            <option SELECTED>jouster.lua</option>
+            <option>chaser.lua</option>
+            <option>randombot.lua</option>
+            <option>wallhugger.lua</option>
+            <option>basicbattler.lua</option>
+            <option>floatingduck.lua</option>
+            <option>&lt;none&gt;</option>
+          </select>
+        </div>
+      </div>
       <br>
-      <input type="button" value="Run Match" onclick="runMatch()">
-      <br>
-      <input type="text" id="replay">
+      <input type="button" class="runMatch" value="Run Match" onclick="runMatch()">
+      <br><br><br>
+      Start from:
+      <br><input type="button" value="Default code" onclick="loadBot('player.lua')">
+      <br><input type="button" value="Jouster's code" onclick="loadBot('jouster.lua')">
+      <br><input type="button" value="Chaser's code" onclick="loadBot('chaser.lua')">
+      <br><input type="button" value="RandomBot's code" onclick="loadBot('randombot.lua')">
+      <br><input type="button" value="WallHugger's code" onclick="loadBot('wallhugger.lua')">
+      <br><input type="button" value="BasicBattler's code" onclick="loadBot('basicbattler.lua')">
+      <br><br>
+      <a href="http://berrybots.com/apidoc" target="_blank">BerryBots API docs</a>
+      <br><br>
+      <a href="http://berrybots.com" target="_blank">BerryBots.com</a>
     </form>
   </div>
 </div>
