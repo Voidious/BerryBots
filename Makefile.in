@@ -205,7 +205,7 @@ LINUXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
 ##############################################################################
 # cloud: Flags for building headliness/cloud on any platform.
 CLOUD_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
-CLOUD_LDFLAGS = -lz -ldl -lpthread
+CLOUD_LDFLAGS = -ldl -lpthread
 
 ifeq ($(.DEFAULT_GOAL), osx)
   CLOUD_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib

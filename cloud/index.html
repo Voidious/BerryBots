@@ -6,31 +6,44 @@
         right: 0;
         bottom: 0;
         left: 0;
+        width: 550px;
+        height: 600px;
     }
 </style>
 <head><title>BerryBots Cloud demo</title></head>
-<body>
+<link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
+<body style="font-family: Ubuntu, Arial, Tahoma, sans-serif;">
 
 <script type="text/javascript">
 function runMatch() {
   var x = new XMLHttpRequest();
-  var params = "stage=" + document.getElementById('Stage').value
-      + "&opponent=" + document.getElementById('Opponent').value;
+  var params = 'stage=' + document.getElementById('Stage').value
+      + '&opponent=' + document.getElementById('Opponent').value;
   x.open('POST', '/cgi-bin/runmatch.pl', true);
   x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   x.onreadystatechange = function () {
     if (x.readyState == 4) {
       var parser = new DOMParser();
       var xmlDoc = parser.parseFromString(x.responseText, 'application/xml');
-      var r = document.getElementById('replay');
-      r.value = xmlDoc.getElementsByTagName("r")[0].childNodes[0].nodeValue;
+      var player = document.getElementById('player');
+      if (player == null) {
+        player = document.createElement('iframe');
+        player.id = 'player';
+        player.style.width = '95%'; 
+        player.style.height = '600px'; 
+        document.getElementById('playerDiv').appendChild(player);       
+      }
+      player.src = xmlDoc.getElementsByTagName('r')[0].childNodes[0].nodeValue;
+      window.location.hash = '';
+      window.location.hash = 'player';
     }
   };
   x.send(params);
 }
 </script>
 
-<div id="editor">-- A ship control program.
+<div>
+  <div id="editor">-- A ship control program.
 
 ship = nil
 world = nil
@@ -46,42 +59,44 @@ end
 function run(enemyShips, sensors)
 
 end
+  </div>
+
+  <div style="position: absolute; left: 575px;">
+    <form>
+      Stage:
+      <select id="Stage">
+        <option>battle1.lua</option>
+        <option>joust.lua</option>
+      </select>
+      <br>
+      Opponent:
+      <select id="Opponent">
+        <option>chaser.lua</option>
+        <option>jouster.lua</option>
+        <option>randombot.lua</option>
+        <option>wallhugger.lua</option>
+        <option>basicbattler.lua</option>
+      </select>
+      <br>
+      <input type="button" value="Run Match" onclick="runMatch()">
+      <br>
+      <input type="text" id="replay">
+    </form>
+  </div>
 </div>
 
-<div style="width=500px; position: relative;">
-  <script src="ace.js" type="text/javascript" charset="utf-8"></script>
-  <script>
-    var editor = ace.edit("editor");
-    editor.getSession().setMode("ace/mode/lua");
-    editor.setTheme("ace/theme/textmate");
-    editor.getSession().setTabSize(2);
-    editor.getSession().setUseSoftTabs(true);
-    editor.setHighlightActiveLine(false);
-  </script>
+<div id="playerDiv" style="position: absolute; top: 625px; width: 95%">
+  <a name="player"></a>
 </div>
 
-<div style="position: absolute; left: 650px;">
-  <form>
-    Stage:
-    <select id="Stage">
-      <option>battle1.lua</option>
-      <option>joust.lua</option>
-    </select>
-    <br>
-    Opponent:
-    <select id="Opponent">
-      <option>chaser.lua</option>
-      <option>jouster.lua</option>
-      <option>randombot.lua</option>
-      <option>wallhugger.lua</option>
-      <option>basicbattler.lua</option>
-    </select>
-    <br>
-    <input type="button" value="Run Match" onclick="runMatch()">
-    <br>
-    <input type="text" id="replay">
-  </form>
-</div>
+<script src="ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+  var editor = ace.edit("editor");
+  editor.getSession().setMode("ace/mode/lua");
+  editor.setTheme("ace/theme/textmate");
+  editor.getSession().setTabSize(2);
+  editor.getSession().setUseSoftTabs(true);
+</script>
 
 </body>
 </html>

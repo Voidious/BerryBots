@@ -1,6 +1,8 @@
 #!/usr/bin/perl
 use CGI;
 
+$basedir = "/home/ubuntu/berrybots";
+
 @stages = ('battle1.lua', 'joust.lua');
 @opponents = ('chaser.lua', 'jouster.lua', 'randombot.lua', 'wallhugger.lua',
               'basicbattler.lua');
@@ -20,12 +22,12 @@ if (!isValidOpponent($opponent)) {
   die("Invalid opponent: " + $opponent . "\n");
 }
 
-chdir('/home/admin/berrybots');
-$s = `/home/admin/berrybots/berrybots stages/sample/$stage bots/sample/floatingduck.lua bots/sample/$opponent`;
+chdir($basedir);
+$s = `$basedir/berrybots stages/sample/$stage bots/sample/floatingduck.lua bots/sample/$opponent`;
 $s =~ /\nSaved replay to: replays\/(.*)\n/;
 $replayFilename = $1;
 
-`cp /home/admin/berrybots/replays/$replayFilename /var/www/replays`;
+`cp $basedir/replays/$replayFilename /var/www/replays`;
 
 print "<?xml version=\"1.0\" ?>\n<r>" . $replayFilename . "</r>\n";
 
