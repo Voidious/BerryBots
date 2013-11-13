@@ -1110,7 +1110,7 @@ void BerryBotsEngine::printLuaErrorToShipConsole(lua_State *L,
                                                  const char *formatString) {
   if (printHandler_ != 0) {
     char *errorMessage = formatLuaError(L, formatString);
-    printHandler_->shipPrint(L, errorMessage);
+    shipPrint(L, errorMessage);
     delete errorMessage;
   }
   for (int x = 0; x < numInitializedTeams_; x++) {
