@@ -15,11 +15,11 @@ $opponent = $query->param("opponent");
 print "Content-type: text/html\n\n";
 
 if (!isValidStage($stage)) {
-  die("Invalid stage: " + $stage . "\n");
+  die("Invalid stage: " . $stage . "\n");
 }
 
 if (!isValidOpponent($opponent)) {
-  die("Invalid opponent: " + $opponent . "\n");
+  die("Invalid opponent: " . $opponent . "\n");
 }
 
 chdir($basedir);
@@ -36,7 +36,7 @@ sub isValidStage {
   my $stage = $_[0];
   my $valid = 0;
   foreach my $validStage (@stages) {
-    if ($stage == $validStage) {
+    if ($stage eq $validStage) {
       $valid = 1;
       break;
     }
@@ -48,7 +48,7 @@ sub isValidOpponent {
   my $opponent = $_[0];
   my $valid = 0;
   foreach my $validOpponent (@opponents) {
-    if ($opponent == $validOpponent) {
+    if ($opponent eq $validOpponent) {
       $valid = 1;
       break;
     }
