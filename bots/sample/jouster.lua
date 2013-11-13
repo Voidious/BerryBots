@@ -4,14 +4,10 @@
 
 ship = nil
 world = nil
-width = nil
-height = nil
 
 function init(shipRef, worldArg)
   ship = shipRef
   world = worldArg
-  width = world:width()
-  height = world:height()
   ship:setName("Jouster")
   ship:setShipColor(255, 0, 0)
   ship:setLaserColor(100, 100, 100)
