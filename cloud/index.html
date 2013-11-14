@@ -23,9 +23,16 @@
       display: inline;
     }
 
+    .helpButton {
+      font-size: 1em;
+      float: left;
+      width: 5em;
+    }
+
     .runMatch {
       font-size: 1em;
-      width: 200px;
+      float: right;
+      width: 7em;
     }
 
     .botButton {
@@ -38,7 +45,7 @@
 
     .fileList {
       font-size: 1em;
-      width: 140px;
+      width: 9em;
     }
 </style>
 <head><title>BerryBots cloud demo</title></head>
@@ -114,6 +121,11 @@ function selectBot(filename) {
     }
   }
 }
+
+function openHelp() {
+  window.open('help.html', 'help', 'titlebar=no,width=520,height=250,top='
+      + window.screenY + ',left=' + (window.screenX + 500));
+}
 </script>
 
 <a name="editor"></a>
@@ -123,6 +135,7 @@ function selectBot(filename) {
 ship = nil
 world = nil
 heading = nil
+force = nil
 
 function init(shipArg, worldArg)
   ship = shipArg
@@ -132,10 +145,11 @@ function init(shipArg, worldArg)
   ship:setLaserColor(255, 255, 255)
   ship:setThrusterColor(255, 255, 0)
   heading = math.random() * math.pi * 2
+  force = world:constants().MAX_THRUSTER_FORCE / 4
 end
 
 function run(enemyShips, sensors)
-  ship:fireThruster(heading, 0.25)
+  ship:fireThruster(heading, force)
 end
 
 function roundOver()
@@ -149,31 +163,36 @@ end
 
   <div style="position: absolute; left: 690px;">
     <form>
-      <div style="margin-bottom: 0.5em;">
-        <div class="formLabel">Stage:</div>
-        <div class="di">
-          <select id="Stage" size="3" onchange="onStageSelect()" class="fileList">
-            <option SELECTED value="joust.lua">Joust</option>
-            <option value="battle1.lua">Battle</option>
-            <option value="maze2.lua">Maze</option>
-          </select>
+      <div style="width: 15em">
+        <div style="margin-bottom: 0.5em;">
+          <div class="formLabel">Stage:</div>
+          <div class="di">
+            <select id="Stage" size="3" onchange="onStageSelect()" class="fileList">
+              <option SELECTED value="joust.lua">Joust</option>
+              <option value="battle1.lua">Battle</option>
+              <option value="maze2.lua">Maze</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-bottom: 0.5em;">
+          <div class="formLabel">Opponent:</div>
+          <div class="di">
+            <select id="Opponent" size="7" class="fileList">
+              <option SELECTED>jouster.lua</option>
+              <option>floatingduck.lua</option>
+              <option>chaser.lua</option>
+              <option>randombot.lua</option>
+              <option>wallhugger.lua</option>
+              <option>basicbattler.lua</option>
+              <option>&lt;none&gt;</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <input type="button" class="helpButton" value="Help" onclick="openHelp()">
+          <input type="button" class="runMatch" value="Run Match" onclick="runMatch()">
         </div>
       </div>
-      <div style="margin-bottom: 0.5em;">
-        <div class="formLabel">Opponent:</div>
-        <div class="di">
-          <select id="Opponent" size="7" class="fileList">
-            <option SELECTED>jouster.lua</option>
-            <option>chaser.lua</option>
-            <option>randombot.lua</option>
-            <option>wallhugger.lua</option>
-            <option>basicbattler.lua</option>
-            <option>floatingduck.lua</option>
-            <option>&lt;none&gt;</option>
-          </select>
-        </div>
-      </div>
-      <input type="button" class="runMatch" value="Run Match" onclick="runMatch()">
       <br><br><br>
       Start from:
       <div class="botButtonList">
