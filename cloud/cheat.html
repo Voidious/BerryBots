@@ -1,0 +1,43 @@
+<html>
+<head><title>BerryBots cheat sheet</title></head>
+<link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
+<link rel="shortcut icon" href="favicon.gif">
+<style>
+a {
+  color: #00f;
+  text-decoration: none;
+  border: 0;
+  font-weight: bold;
+}
+
+tt {
+  font-size: 115%;
+}
+
+ul {
+    padding-left: 1.5em;
+}
+
+li {
+  margin-bottom: 5px;
+}
+</style>
+<body style="font-family: Ubuntu, Arial, sans-serif;">
+
+<div style="width: 500px;">
+  <ul>
+    <li>Bots are written in <a href="http://lua.org">Lua</a>.</li>
+    <li><a href="http://berrybots.com/apidoc/modules/ShipControl.html" target="_blank">ShipControl</a>
+      = your program.
+    <li><a href="http://berrybots.com/apidoc/modules/Ship.html" target="_blank">Ship</a>
+      = your ship, passed to your program via <tt>init()</tt>.</li>
+    <li>Bottom left is <tt>(0,0)</tt>.</li>
+    <li>Angles are in
+      <a href="http://math.rice.edu/~pcmi/sphere/drg_txt.html" target="_blank">radians</a>.
+      Right/east = <tt>0</tt>, up/north = <tt>(&pi;/2)</tt>.</li>
+    <li><a href="http://berrybots.com/apidoc/modules/World.html#Constants">World.constants()</a>
+      has many useful constants describing the game rules and physics.
+  </ul>
+</div>
+
+</body></html>
