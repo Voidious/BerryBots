@@ -13,7 +13,7 @@ $stage = $query->param("stage");
 $opponent = $query->param("opponent");
 $code = $query->param("code");
 
-$filename = int(rand(100000000)) . ".lua";
+$filename = "player" . int(rand(100000000)) . ".lua";
 open (OUTFILE, ">" . $basedir . "/bots/" . $filename);
 print (OUTFILE $code);
 close(OUTFILE);

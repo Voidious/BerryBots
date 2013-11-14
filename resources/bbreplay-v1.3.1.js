@@ -771,7 +771,7 @@ BerryBots.toggleConsole = function(teamIndex) {
     for (var x = 0; x < numMessages; x++) {
       messages[x] = BerryBots.escapeHtml(messages[x]);
     }
-    s += console.logMessages.join('<br>');
+    s += messages.join('<br>');
     s += '</div>';
     var d = document.createElement('div');
     d.innerHTML = s;
@@ -1381,7 +1381,9 @@ BerryBots.escapeHtml = function(s) {
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;")
           .replace(/'/g, "&#039;")
-          .replace(/ /g, "&nbsp;");
+          .replace(/ /g, "&nbsp;")
+          .replace(/\t/g, "&nbsp&nbsp&nbsp&nbsp")
+          .replace(/\n/g, "<br>\n");
 };
 
 BerryBots.makeLaser = function() {
