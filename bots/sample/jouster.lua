@@ -1,6 +1,6 @@
 -- A jousting ship. Starts the battle by strafing to the side to avoid the
 -- initial collision, then tries to stay away from the dangerous edges of the
--- stage while otherwise move directly at the enemy.
+-- stage while otherwise moving directly at the enemy.
 
 ship = nil
 world = nil

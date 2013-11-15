@@ -8,6 +8,8 @@
         left: 0;
         width: 665px;
         height: 625px;
+        font-family: Ubuntu Mono, Consolas, monospace;
+        font-size: 14px;
         border: 1px solid #333;
     }
 
@@ -37,6 +39,7 @@
     .rerunMatch {
       font-size: 1em;
       width: 7em;
+      margin-bottom: 10px;
     }
 
     .botButton {
@@ -54,6 +57,7 @@
 </style>
 <head><title>BerryBots cloud demo</title></head>
 <link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:regular' rel='stylesheet' type='text/css'>
 <link rel="shortcut icon" href="favicon.gif">
 <body style="font-family: Ubuntu, Arial, sans-serif;">
 
@@ -72,12 +76,6 @@ function runMatch() {
       var xmlDoc = parser.parseFromString(x.responseText, 'application/xml');
       var player = document.getElementById('player');
       if (player == null) {
-        player = document.createElement('iframe');
-        player.id = 'player';
-        player.style.width = '95%'; 
-        player.style.height = '650px'; 
-        document.getElementById('playerDiv').appendChild(player);       
-
         var button = document.createElement('input');
         button.id = 'rerun';
         button.type = "submit";
@@ -87,8 +85,13 @@ function runMatch() {
           runMatch();
           button.disabled = true;
         }
-
         document.getElementById('playerDiv').appendChild(button);       
+
+        player = document.createElement('iframe');
+        player.id = 'player';
+        player.style.width = '95%'; 
+        player.style.height = '650px'; 
+        document.getElementById('playerDiv').appendChild(player);       
       }
       document.getElementById('run').disabled = false;
       var rerun = document.getElementById('rerun');
@@ -115,6 +118,7 @@ function loadBot(filename) {
       editor.setValue(x.responseText);
       editor.clearSelection();
       editor.scrollToLine(0);
+      editor.moveCursorTo(0, 0);
       window.location.hash = '';
       window.location.hash = 'editor';
     }
@@ -166,7 +170,7 @@ function init(shipArg, worldArg)
   ship:setShipColor(255, 255, 0)
   ship:setLaserColor(255, 255, 255)
   ship:setThrusterColor(255, 255, 0)
-  heading = math.random() * math.pi * 2
+  heading = 0
   force = world:constants().MAX_THRUSTER_FORCE / 4
 end
 
