@@ -9,7 +9,6 @@
         width: 665px;
         height: 625px;
         border: 1px solid #333;
-        margin-top: 8px;
     }
 
     .formLabel {
@@ -123,8 +122,8 @@ function selectBot(filename) {
 }
 
 function openHelp() {
-  window.open('help.html', 'help', 'titlebar=no,width=520,height=250,top='
-      + window.screenY + ',left=' + (window.screenX + 500));
+  window.open('help.html', 'help', 'titlebar=no,scrollbars=no,width=530,'
+      + 'height=265,top=' + window.screenY + ',left=' + (window.screenX + 500));
 }
 </script>
 
@@ -159,7 +158,7 @@ end
 function gameOver()
 
 end
-  </div>
+</div>
 
   <div style="position: absolute; left: 690px;">
     <form>
@@ -178,12 +177,12 @@ end
           <div class="formLabel">Opponent:</div>
           <div class="di">
             <select id="Opponent" size="7" class="fileList">
-              <option SELECTED>jouster.lua</option>
-              <option>floatingduck.lua</option>
-              <option>chaser.lua</option>
-              <option>randombot.lua</option>
-              <option>wallhugger.lua</option>
-              <option>basicbattler.lua</option>
+              <option SELECTED value="jouster.lua">Jouster</option>
+              <option value="floatingduck.lua">FloatingDuck</option>
+              <option value="chaser.lua">Chaser</option>
+              <option value="randombot.lua">RandomBot</option>
+              <option value="wallhugger.lua">WallHugger</option>
+              <option value="basicbattler.lua">BasicBattler</option>
               <option>&lt;none&gt;</option>
             </select>
           </div>
@@ -217,7 +216,7 @@ end
       &bull; <a href="http://ace.c9.io">Ace</a>
       &bull; <a href="http://kineticjs.com">KineticJS</a>
       <br><br>
-      Replay URL: <input type="text" onMouseUp="return false" size="50" id="replayUrl" onfocus="this.select()">
+      Replay URL: <input type="text" onMouseUp="return false" size="25" id="replayUrl" onfocus="this.select()">
     </form>
   </div>
 </div>
@@ -233,6 +232,7 @@ end
   editor.setTheme("ace/theme/textmate");
   editor.getSession().setTabSize(2);
   editor.getSession().setUseSoftTabs(true);
+  editor.setHighlightActiveLine(false);
 </script>
 
 </body>
