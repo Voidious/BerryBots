@@ -34,6 +34,11 @@
       width: 7em;
     }
 
+    .rerunMatch {
+      font-size: 1em;
+      width: 7em;
+    }
+
     .botButton {
       font-size: 1em;
     }
@@ -54,6 +59,7 @@
 
 <script type="text/javascript">
 function runMatch() {
+  document.getElementById('run').disabled = true;
   var x = new XMLHttpRequest();
   var params = 'stage=' + document.getElementById('Stage').value
       + '&opponent=' + document.getElementById('Opponent').value
@@ -71,6 +77,23 @@ function runMatch() {
         player.style.width = '95%'; 
         player.style.height = '650px'; 
         document.getElementById('playerDiv').appendChild(player);       
+
+        var button = document.createElement('input');
+        button.id = 'rerun';
+        button.type = "submit";
+        button.value = "Rerun Match";
+        button.className = "rerunMatch";
+        button.onclick = function() {
+          runMatch();
+          button.disabled = true;
+        }
+
+        document.getElementById('playerDiv').appendChild(button);       
+      }
+      document.getElementById('run').disabled = false;
+      var rerun = document.getElementById('rerun');
+      if (rerun != null) {
+        rerun.disabled = false;
       }
       window.location.hash = '';
       window.location.hash = 'player';
@@ -189,7 +212,7 @@ end
         </div>
         <div>
           <input type="button" class="helpButton" value="Help" onclick="openHelp()">
-          <input type="button" class="runMatch" value="Run Match" onclick="runMatch()">
+          <input type="button" id="run" class="runMatch" value="Run Match" onclick="runMatch()">
         </div>
       </div>
       <br><br><br>
