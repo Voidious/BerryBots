@@ -4,27 +4,29 @@ module "World"
 --- Constants that help define the game rules and physics.
 -- @class table
 -- @name Constants
--- @field SHIP_RADIUS The radius of a ship.
--- @field LASER_SPEED The speed at which a laser travels each tick.
+-- @field SHIP_RADIUS The radius of a ship. <tt>(8)</tt>
+-- @field LASER_SPEED The distance a laser travels each tick. <tt>(25)</tt>
 -- @field LASER_HEAT The number of ticks it takes for a laser gun to cool down
---     before it can fire again.
+--     before it can fire again. <tt>(5)</tt>
 -- @field LASER_DAMAGE The amount of energy depleted by a laser when it hits.
--- @field TORPEDO_SPEED The speed at which a torpedo travels each tick.
+--     <tt>(4)</tt>
+-- @field TORPEDO_SPEED The distance a torpedo travels each tick. <tt>(12)</tt>
 -- @field TORPEDO_HEAT The number of ticks it takes for a torpedo gun to cool
---     down before it can fire again.
+--     down before it can fire again. <tt>(100)</tt>
 -- @field TORPEDO_BLAST_RADIUS The radius of the blast caused by a torpedo
 --     explosion. Any ship closer to the blast center will take damage.
+--     <tt>(100)</tt>
 -- @field TORPEDO_BLAST_FORCE The magnitude of force from a torpedo blast to a
---     ship located exactly at the center of a blast.
+--     ship located exactly at the center of a blast. <tt>(30)</tt>
 -- @field TORPEDO_BLAST_DAMAGE The damage caused by a torpedo blast to a ship
---     located exactly at the center of a blast.
+--     located exactly at the center of a blast. <tt>(30)</tt>
 -- @field DEFAULT_ENERGY The amount of energy a ship starts with each game and
---     each round.
--- @field MAX_THRUSTER_FORCE The maximum magnitude of force a thruster can emit
---     in one tick.
+--     each round. <tt>(100)</tt>
+-- @field MAX_THRUSTER_FORCE The maximum force a thruster can emit.
+--     <tt>(1.0)</tt>
 -- @field WALL_BOUNCE The portion of the colliding force that is reflected back
 --     into a ship when it collides with a wall. A value of 1.0 would mean a
---     ship loses no momentum when hitting a wall.
+--     ship loses no momentum when hitting a wall. <tt>(0.5)</tt>
 
 --- A table of constants that describe the game rules and physics.
 -- @see Constants
