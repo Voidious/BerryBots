@@ -99,7 +99,7 @@ function runMatch() {
       player.id = 'player';
       player.style.width = '95%'; 
       var viewportHeight = document.documentElement.clientHeight
-      player.style.height = (viewportHeight - 45) + 'px'; 
+      player.style.height = Math.min(850, (viewportHeight - 45)) + 'px'; 
       document.getElementById('run').disabled = false;
 
       var replayPath = '/replays/' + xmlDoc.getElementsByTagName('r')[0].childNodes[0].nodeValue;
