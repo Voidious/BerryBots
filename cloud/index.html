@@ -75,7 +75,12 @@ function runMatch() {
       var parser = new DOMParser();
       var xmlDoc = parser.parseFromString(x.responseText, 'application/xml');
       var player = document.getElementById('player');
-      if (player == null) {
+      if (player != null) {
+        document.getElementById('playerDiv').removeChild(player);
+      }
+
+      var rerun = document.getElementById('rerun');
+      if (rerun == null) {
         var button = document.createElement('input');
         button.id = 'rerun';
         button.type = "submit";
@@ -85,26 +90,27 @@ function runMatch() {
           runMatch();
           button.disabled = true;
         }
-        document.getElementById('playerDiv').appendChild(button);       
+        document.getElementById('playerDiv').appendChild(button);
+        rerun = button;
+      }
+      rerun.disabled = false;
 
-        player = document.createElement('iframe');
-        player.id = 'player';
-        player.style.width = '95%'; 
-        var viewportHeight = document.documentElement.clientHeight
-        player.style.height = (viewportHeight - 45) + 'px'; 
-        document.getElementById('playerDiv').appendChild(player);       
-      }
+      player = document.createElement('iframe');
+      player.id = 'player';
+      player.style.width = '95%'; 
+      var viewportHeight = document.documentElement.clientHeight
+      player.style.height = (viewportHeight - 45) + 'px'; 
       document.getElementById('run').disabled = false;
-      var rerun = document.getElementById('rerun');
-      if (rerun != null) {
-        rerun.disabled = false;
-      }
-      window.location.hash = '';
-      window.location.hash = 'player';
+
       var replayPath = '/replays/' + xmlDoc.getElementsByTagName('r')[0].childNodes[0].nodeValue;
       document.getElementById('replayUrl').value =
           'http://' + window.location.hostname + replayPath;
       player.src = replayPath;
+      document.getElementById('playerDiv').appendChild(player);
+      if (window.location.hash != '#player') {
+        window.location.hash = 'player';
+      }
+      window.scrollTo(0,document.body.scrollHeight);
     }
   };
   x.send(params);
@@ -120,8 +126,6 @@ function loadBot(filename) {
       editor.clearSelection();
       editor.scrollToLine(0);
       editor.moveCursorTo(0, 0);
-      window.location.hash = '';
-      window.location.hash = 'editor';
     }
   };
   x.send();
