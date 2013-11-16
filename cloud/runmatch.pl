@@ -2,6 +2,7 @@
 use CGI;
 
 $basedir = "/home/ubuntu/berrybots";
+$maxCodeLength = 512 * 1024;
 
 @stages = ('battle1.lua', 'joust.lua', 'maze2.lua');
 @opponents = ('chaser.lua', 'jouster.lua', 'randombot.lua', 'wallhugger.lua',
@@ -26,6 +27,10 @@ if (!isValidStage($stage)) {
 
 if (!isValidOpponent($opponent)) {
   die("Invalid opponent: " . $opponent . "\n");
+}
+
+if (length($code) > $maxCodeLength) {
+  die("Code too big: " . length($code));
 }
 
 $opponent = "sample/" . $opponent;
