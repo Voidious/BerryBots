@@ -51,8 +51,14 @@ unlink($basedir . "/bots/" . $filename);
 
 `cp $basedir/replays/$replayFilename /var/www/replays`;
 
-print "<?xml version=\"1.0\" ?>\n<r>" . $replayFilename . "</r>\n";
+$s =~ /^([\s\S]*)\nSaved replay to: replays/;
+$errorLog = $1;
+$errorLog = "\n" . $errorLog;
+$errorLog =~ s/\nShip: /\n\n/g;
+$errorLog =~ s/^\s+//g;
 
+print "<?xml version=\"1.0\" ?>\n<replay>\n  <r>" . $replayFilename . "</r>\n"
+    . "  <e><![CDATA[" . $errorLog . "]]></e>\n</replay>\n";
 
 sub isValidStage {
   my $stage = $_[0];

@@ -13,6 +13,10 @@
         border: 1px solid #333;
     }
 
+    #playerDiv {
+      position: relative;
+    }
+
     .formLabel {
       display: inline-block;
       width: 5em;
@@ -54,6 +58,52 @@
       font-size: 1em;
       width: 9em;
     }
+
+    .errorDiv {
+      display: inline-block;
+      margin-left: 100px;
+    }
+
+    .errorSpan {
+      color: #f00;
+      font-weight: bold;
+      vertical-align: middle;
+    }
+
+    .errorButton {
+      margin-left: 10px;
+      font-size: 1em;
+    }
+
+    .errorLogDiv {
+      background-color: #fff;
+      position: absolute;
+      margin-left: 100px;
+      left: 50px;
+      top: 44px;
+      width: 650px;
+      height: 450px;
+      padding: 10px;
+      border: 1px solid #000;
+      overflow:scroll;
+    }
+
+    .errorText {
+      font-family: Ubuntu Mono, Consolas, monospace;
+      font-size: 14px;
+      margin-top: 25px;
+      border-top: 1px solid #000;
+      padding-top: 7px;
+    }
+
+    .closeErrorLog {
+      font-size: 36px;
+      position: absolute;
+      left: 5px;
+      top: -5px;
+      text-decoration: none;
+      color: #000;
+    }
 </style>
 <head><title>Play BerryBots</title></head>
 <link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
@@ -67,33 +117,67 @@ function runMatch() {
   var x = new XMLHttpRequest();
   var params = 'stage=' + document.getElementById('Stage').value
       + '&opponent=' + document.getElementById('Opponent').value
-      + '&code=' + encodeURI(editor.getValue()).replace(/\+/g, "%2B");
+      + '&code=' + encodeURI(editor.getValue()).replace(/\+/g, '%2B');
   x.open('POST', '/cgi-bin/runmatch.pl', true);
   x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   x.onreadystatechange = function () {
     if (x.readyState == 4) {
+      // TODO: split this up
       var parser = new DOMParser();
       var xmlDoc = parser.parseFromString(x.responseText, 'application/xml');
+
       var player = document.getElementById('player');
+      var playerDiv = document.getElementById('playerDiv');
       if (player != null) {
-        document.getElementById('playerDiv').removeChild(player);
+        playerDiv.removeChild(player);
+      }
+
+      var errorDiv = document.getElementById('errorDiv');
+      if (errorDiv != null) {
+        playerDiv.removeChild(errorDiv);
+      }
+
+      var errorLogDiv = document.getElementById('errorLogDiv');
+      if (errorLogDiv != null) {
+        playerDiv.removeChild(errorLogDiv);
       }
 
       var rerun = document.getElementById('rerun');
       if (rerun == null) {
         var button = document.createElement('input');
         button.id = 'rerun';
-        button.type = "submit";
-        button.value = "Rerun Match";
-        button.className = "rerunMatch";
+        button.type = 'submit';
+        button.value = 'Rerun Match';
+        button.className = 'rerunMatch';
         button.onclick = function() {
           runMatch();
           button.disabled = true;
         }
-        document.getElementById('playerDiv').appendChild(button);
+        playerDiv.appendChild(button);
         rerun = button;
       }
       rerun.disabled = false;
+
+      var errorLog = xmlDoc.getElementsByTagName('e')[0].childNodes[0].nodeValue;
+      if (errorLog.length > 0) {
+        errorDiv = document.createElement('div');
+        errorDiv.id = 'errorDiv';
+        errorDiv.className = 'errorDiv';
+        var youHaveErrors = document.createElement('span');
+        youHaveErrors.className = 'errorSpan';
+        youHaveErrors.innerHTML = 'Your bot hit some errors.';
+        errorDiv.appendChild(youHaveErrors);
+
+        var errorButton = document.createElement('input');
+        errorButton.type = 'submit';
+        errorButton.value = 'View Errors';
+        errorButton.className = 'errorButton';
+        errorButton.onclick = function() {
+          viewErrors(errorLog);
+        }
+        errorDiv.appendChild(errorButton);
+        playerDiv.appendChild(errorDiv);
+      }
 
       player = document.createElement('iframe');
       player.id = 'player';
@@ -157,6 +241,47 @@ function openHelp() {
   window.open('help.html', 'help', 'titlebar=no,scrollbars=no,width=530,'
       + 'height=265,top=' + window.screenY + ',left=' + (window.screenX + 500));
 }
+
+function viewErrors(errorLog) {
+  hideErrors();
+
+  var errorLogDiv = document.createElement('div');
+  errorLogDiv.id = 'errorLogDiv';
+  errorLogDiv.className = 'errorLogDiv';
+
+  var errorText = document.createElement('p');
+  errorText.className = 'errorText';
+  errorText.innerHTML = errorLog.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/ /g, '&nbsp;').replace(/\n/g, '<br>')
+      .replace(/\t/g, '&nbsp;&nbsp;&nbsp;&nbsp;');
+  errorLogDiv.appendChild(errorText);
+
+  var closeLink = document.createElement('a');
+  closeLink.innerHTML = '&times;'
+  closeLink.href = 'javascript:void(0)';
+  closeLink.className = 'closeErrorLog';
+  closeLink.onclick = function(e) {
+    hideErrors();
+  };
+  errorLogDiv.appendChild(closeLink);
+  document.getElementById('playerDiv').appendChild(errorLogDiv);
+}
+
+function hideErrors() {
+  var errorLogDiv = document.getElementById('errorLogDiv');
+  if (errorLogDiv != null) {
+    document.getElementById('playerDiv').removeChild(errorLogDiv);
+  }
+}
+
+window.addEventListener('load', function() {
+  document.body.onkeydown = function(e) {
+    if (e.which == 27) { // escape
+      hideErrors();
+    }
+  };
+});
+
 </script>
 
 <a name="editor"></a>
