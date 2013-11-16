@@ -67,13 +67,13 @@ CLI_SOURCES += bbrunner.cpp replaybuilder.cpp
 
 
 ##############################################################################
-# BerryBots cloud source files
-CLOUD_SOURCES =  bbcloudmain.cpp bbutil.cpp filemanager.cpp circle2d.cpp
-CLOUD_SOURCES += line2d.cpp point2d.cpp sensorhandler.cpp zone.cpp bbengine.cpp
-CLOUD_SOURCES += bblua.cpp rectangle.cpp stage.cpp cliprinthandler.cpp
-CLOUD_SOURCES += zipper.cpp tarzipper.cpp bbrunner.cpp replaybuilder.cpp
-CLOUD_SOURCES += relativebasedir.cpp relativerespath.cpp
-CLOUD_SOURCES += ./luajit/src/libluajit.a
+# BerryBots webui source files
+WEBUI_SOURCES =  bbwebmain.cpp bbutil.cpp filemanager.cpp circle2d.cpp
+WEBUI_SOURCES += line2d.cpp point2d.cpp sensorhandler.cpp zone.cpp bbengine.cpp
+WEBUI_SOURCES += bblua.cpp rectangle.cpp stage.cpp cliprinthandler.cpp
+WEBUI_SOURCES += zipper.cpp tarzipper.cpp bbrunner.cpp replaybuilder.cpp
+WEBUI_SOURCES += relativebasedir.cpp relativerespath.cpp
+WEBUI_SOURCES += ./luajit/src/libluajit.a
 ##############################################################################
 
 
@@ -203,13 +203,13 @@ LINUXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
 
 
 ##############################################################################
-# cloud: Flags for building headliness/cloud on any platform.
-CLOUD_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
-CLOUD_LDFLAGS = -ldl -lpthread
+# webui: Flags for building headless / save to replay on any platform.
+WEBUI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
+WEBUI_LDFLAGS = -ldl -lpthread
 
 ifeq ($(.DEFAULT_GOAL), osx)
-  CLOUD_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
-  CLOUD_LDFLAGS += -pagezero_size 10000 -image_base 100000000
+  WEBUI_SOURCES += /usr/lib/libz.dylib /usr/lib/libiconv.dylib
+  WEBUI_LDFLAGS += -pagezero_size 10000 -image_base 100000000
 endif
 ##############################################################################
 
@@ -307,9 +307,9 @@ endif
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"
 
-cloud:
+webui:
 	$(MAKE_LUAJIT)
-	$(CC) ${CLOUD_SOURCES} ${CLOUD_CFLAGS} ${CLOUD_LDFLAGS} -o berrybots
+	$(CC) ${WEBUI_SOURCES} ${WEBUI_CFLAGS} ${WEBUI_LDFLAGS} -o berrybots
 	chmod 755 berrybots
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"

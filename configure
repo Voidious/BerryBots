@@ -1335,7 +1335,7 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-nodeps           Don't process any dependencies for SFML, wxWidgets,
-                          or libarchive. The 'cloud' binary doesn't need any
+                          or libarchive. The 'webui' binary doesn't need any
                           of them.
   --with-sfml-src         Path to SFML after compiling from source, e.g.,
                           /home/voidious/SFML-2.1. Libs in SFML/build/lib,

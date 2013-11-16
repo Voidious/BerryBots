@@ -36,7 +36,7 @@ fi
 
 AC_ARG_WITH([nodeps],
             AS_HELP_STRING([--with-nodeps],
-              [Don't process any dependencies for SFML, wxWidgets, or libarchive. The 'cloud' binary doesn't need any of them.]),
+              [Don't process any dependencies for SFML, wxWidgets, or libarchive. The 'webui' binary doesn't need any of them.]),
             [
             withNodeps=1
             withSfml=1
