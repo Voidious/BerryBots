@@ -90,7 +90,8 @@ function runMatch() {
         player = document.createElement('iframe');
         player.id = 'player';
         player.style.width = '95%'; 
-        player.style.height = '650px'; 
+        var viewportHeight = document.documentElement.clientHeight
+        player.style.height = (viewportHeight - 45) + 'px'; 
         document.getElementById('playerDiv').appendChild(player);       
       }
       document.getElementById('run').disabled = false;
