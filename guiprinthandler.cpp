@@ -47,6 +47,14 @@ void GuiPrintHandler::stagePrint(const char *text) {
 }
 
 void GuiPrintHandler::shipPrint(lua_State *L, const char *text) {
+  doPrint(L, text);
+}
+
+void GuiPrintHandler::shipError(lua_State *L, const char *text) {
+  doPrint(L, text);
+}
+
+void GuiPrintHandler::doPrint(lua_State *L, const char *text) {
   for (int x = 0; x < numTeams_; x++) {
     if (teams_[x]->state == L) {
       teamConsoles_[x]->println(text);

@@ -1110,7 +1110,10 @@ void BerryBotsEngine::printLuaErrorToShipConsole(lua_State *L,
                                                  const char *formatString) {
   if (printHandler_ != 0) {
     char *errorMessage = formatLuaError(L, formatString);
-    shipPrint(L, errorMessage);
+    if (printHandler_ != 0) {
+      printHandler_->shipError(L, errorMessage);
+    }
+    replayBuilder_->addLogEntry(this->getTeam(L), gameTime_, errorMessage);
     delete errorMessage;
   }
   for (int x = 0; x < numInitializedTeams_; x++) {

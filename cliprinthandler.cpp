@@ -24,8 +24,13 @@
 #include "cliprinthandler.h"
 
 CliPrintHandler::CliPrintHandler() {
-  numTeams_ = 0;
-  nextTeamIndex_ = 0;
+  numTeams_ = nextTeamIndex_ = 0;
+  onlyPlayer1Errors_ = false;
+}
+
+CliPrintHandler::CliPrintHandler(bool onlyPlayer1Errors) {
+  numTeams_ = nextTeamIndex_ = 0;
+  onlyPlayer1Errors_ = onlyPlayer1Errors;
 }
 
 CliPrintHandler::~CliPrintHandler() {
@@ -43,14 +48,26 @@ void CliPrintHandler::setNumTeams(int numTeams) {
 }
 
 void CliPrintHandler::stagePrint(const char *text) {
-  std::cout << "Stage: " << text << std::endl;
+  if (!onlyPlayer1Errors_) {
+    std::cout << "Stage: " << text << std::endl;
+  }
 }
 
 void CliPrintHandler::shipPrint(lua_State *L, const char *text) {
+  doPrint(L, text, false);
+}
+
+void CliPrintHandler::shipError(lua_State *L, const char *text) {
+  doPrint(L, text, true);
+}
+
+void CliPrintHandler::doPrint(lua_State *L, const char *text, bool isError) {
   for (int x = 0; x < numTeams_; x++) {
     Team *team = teams_[x];
     if (team->state == L) {
-      std::cout << "Ship: " << teamNames_[x] << ": " << text << std::endl;
+      if (!onlyPlayer1Errors_ || (x == 0 && isError)) {
+        std::cout << "Ship: " << teamNames_[x] << ": " << text << std::endl;
+      }
       break;
     }
   }

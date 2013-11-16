@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
   }
 
   srand(time(NULL));
-  CliPrintHandler *printHandler = new CliPrintHandler();
+  CliPrintHandler *printHandler = new CliPrintHandler(true);
   BerryBotsEngine *engine =
       new BerryBotsEngine(printHandler, fileManager, resourcePath().c_str());
   Stage *stage = engine->getStage();

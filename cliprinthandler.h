@@ -34,16 +34,22 @@ class CliPrintHandler : public PrintHandler {
   char **teamNames_;
   int numTeams_;
   int nextTeamIndex_;
+  bool onlyPlayer1Errors_;
 
   public:
     CliPrintHandler();
+    CliPrintHandler(bool onlyPlayer1Errors);
     ~CliPrintHandler();
     void setNumTeams(int numTeams);
     virtual void stagePrint(const char *text);
     virtual void shipPrint(lua_State *L, const char *text);
+    virtual void shipError(lua_State *L, const char *text);
     virtual void runnerPrint(const char *text);
     virtual void registerTeam(Team *team, const char *filename);
     void updateTeams(Team** teams);
+  private:
+    virtual void doPrint(lua_State *L, const char *text, bool isError);
+
 };
 
 #endif
