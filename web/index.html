@@ -1,16 +1,24 @@
 <html>
 <style type="text/css" media="screen">
+    body {
+      font-family: Ubuntu, Arial, sans-serif;
+    }
+
+    body a, a:visited {
+      color: #00f;
+    }
+
     #editor { 
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        width: 665px;
-        height: 625px;
-        font-family: Ubuntu Mono, Consolas, monospace;
-        font-size: 14px;
-        border: 1px solid #333;
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 665px;
+      height: 625px;
+      font-family: Ubuntu Mono, Consolas, monospace;
+      font-size: 14px;
+      border: 1px solid #333;
     }
 
     #playerDiv {
@@ -128,7 +136,7 @@
 <link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:regular' rel='stylesheet' type='text/css'>
 <link rel="shortcut icon" href="favicon.gif">
-<body style="font-family: Ubuntu, Arial, sans-serif;">
+<body>
 
 <script type="text/javascript">
 function runMatch() {
@@ -236,10 +244,15 @@ function loadBot(filename) {
 
 function onStageSelect() {
   var stage = document.getElementById('Stage').value;
+  var opponent = document.getElementById('Opponent').value;
   if (stage == 'maze2.lua' || stage == 'lasergallery.lua') {
     selectBot('<none>');
+  } else if (stage == 'joust.lua') {
+    if (!(opponent == 'jouster.lua' || opponent == 'chaser.lua'
+        || opponent == 'floatingduck.lua')) {
+      selectBot('jouster.lua');
+    }
   } else if (stage == 'battle1.lua') {
-    var opponent = document.getElementById('Opponent').value;
     if (opponent == 'jouster.lua' || opponent == '<none>') {
       selectBot('randombot.lua');
     }
