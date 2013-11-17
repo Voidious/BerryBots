@@ -249,7 +249,7 @@ function onStageSelect() {
 function selectBot(filename) {
   var opponentSelect = document.getElementById('Opponent');
   for (var x = 0; x < opponentSelect.options.length; x++) {
-    if (opponentSelect.options[x].text == filename) {
+    if (opponentSelect.options[x].value == filename) {
       opponentSelect.options[x].selected = true;
       return;
     }
