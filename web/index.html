@@ -28,12 +28,6 @@
       display: inline;
     }
 
-    .helpButton {
-      font-size: 1em;
-      float: left;
-      width: 5em;
-    }
-
     .runMatch {
       font-size: 1em;
       float: right;
@@ -46,12 +40,29 @@
       margin-bottom: 10px;
     }
 
-    .botButton {
-      font-size: 1em;
+    .uiLink {
+      font-weight: bold;
+      text-decoration: none;
     }
 
-    .botButtonList {
-      margin-left: 1em;
+    .helpLink {
+      float: left;
+      vertical-align: middle;
+      margin-top: 2px;
+    }
+
+    .errorLink {
+      vertical-align: middle;
+      margin-left: 0.5em;
+    }
+
+    .botLinkList {
+      margin-top: 0.3em;
+      padding-left: 1.5em;
+    }
+
+    .botLinkList li {
+      margin-top: 3px;
     }
 
     .fileList {
@@ -104,6 +115,14 @@
       text-decoration: none;
       color: #000;
     }
+
+    .errorTitle {
+      font-size: 22px;
+      left: 279px;
+      top: 5px;
+      position: absolute;
+    }
+
 </style>
 <head><title>Play BerryBots</title></head>
 <link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
@@ -168,14 +187,14 @@ function runMatch() {
         youHaveErrors.innerHTML = 'Your bot hit some errors.';
         errorDiv.appendChild(youHaveErrors);
 
-        var errorButton = document.createElement('input');
-        errorButton.type = 'submit';
-        errorButton.value = 'View Errors';
-        errorButton.className = 'errorButton';
-        errorButton.onclick = function() {
+        var errorLink = document.createElement('a');
+        errorLink.href = 'javascript:void(0)';
+        errorLink.innerHTML = '[ View error log ]';
+        errorLink.className = 'uiLink errorLink';
+        errorLink.onclick = function() {
           viewErrors(errorLog);
         }
-        errorDiv.appendChild(errorButton);
+        errorDiv.appendChild(errorLink);
         playerDiv.appendChild(errorDiv);
       }
 
@@ -264,6 +283,12 @@ function viewErrors(errorLog) {
     hideErrors();
   };
   errorLogDiv.appendChild(closeLink);
+
+  var errorTitle = document.createElement('span');
+  errorTitle.innerHTML = 'Error Log';
+  errorTitle.className = 'errorTitle';
+  errorLogDiv.appendChild(errorTitle);
+
   document.getElementById('playerDiv').appendChild(errorLogDiv);
 }
 
@@ -345,20 +370,20 @@ end
           </div>
         </div>
         <div>
-          <input type="button" class="helpButton" value="Help" onclick="openHelp()">
+          <a href="javascript:void(0)" class="uiLink helpLink" onclick="openHelp()">[ Help ]</a>
           <input type="button" id="run" class="runMatch" value="Run Match" onclick="runMatch()">
         </div>
       </div>
       <br><br><br>
-      Start from:
-      <div class="botButtonList">
-        <input type="button" class="botButton" value="Default code" onclick="loadBot('player.lua')">
-        <br><input type="button" class="botButton" value="Jouster's code" onclick="loadBot('jouster.lua')">
-        <br><input type="button" class="botButton" value="Chaser's code" onclick="loadBot('chaser.lua')">
-        <br><input type="button" class="botButton" value="RandomBot's code" onclick="loadBot('randombot.lua')">
-        <br><input type="button" class="botButton" value="WallHugger's code" onclick="loadBot('wallhugger.lua')">
-        <br><input type="button" class="botButton" value="BasicBattler's code" onclick="loadBot('basicbattler.lua')">
-      </div>
+      Start with code from:
+      <ul class="botLinkList">
+        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('player.lua')">Default code</a></li>
+        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('jouster.lua')">Jouster</a></li>
+        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('chaser.lua')">Chaser</a></li>
+        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('randombot.lua')">RandomBot</a></li>
+        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('wallhugger.lua')">WallHugger</a></li>
+        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('basicbattler.lua')">BasicBattler</a></li>
+      </ul>
       <br>
       BerryBots Lua API docs:
       <br>
