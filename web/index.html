@@ -236,7 +236,7 @@ function loadBot(filename) {
 
 function onStageSelect() {
   var stage = document.getElementById('Stage').value;
-  if (stage == 'maze2.lua') {
+  if (stage == 'maze2.lua' || stage == 'lasergallery.lua') {
     selectBot('<none>');
   } else if (stage == 'battle1.lua') {
     var opponent = document.getElementById('Opponent').value;
@@ -348,10 +348,11 @@ end
         <div style="margin-bottom: 0.5em;">
           <div class="formLabel">Stage:</div>
           <div class="di">
-            <select id="Stage" size="3" onchange="onStageSelect()" class="fileList">
+            <select id="Stage" size="4" onchange="onStageSelect()" class="fileList">
               <option SELECTED value="joust.lua">Joust</option>
               <option value="battle1.lua">Battle</option>
               <option value="maze2.lua">Maze</option>
+              <option value="lasergallery.lua">LaserGallery</option>
             </select>
           </div>
         </div>

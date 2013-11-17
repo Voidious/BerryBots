@@ -4,7 +4,7 @@ use CGI;
 $basedir = "/home/ubuntu/berrybots";
 $maxCodeLength = 512 * 1024;
 
-@stages = ('battle1.lua', 'joust.lua', 'maze2.lua');
+@stages = ('battle1.lua', 'joust.lua', 'maze2.lua', 'lasergallery.lua');
 @opponents = ('chaser.lua', 'jouster.lua', 'randombot.lua', 'wallhugger.lua',
               'basicbattler.lua', 'floatingduck.lua', '<none>');
 
