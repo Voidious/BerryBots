@@ -84,7 +84,7 @@
 
     .errorDiv {
       display: inline-block;
-      margin-left: 100px;
+      margin-left: 40px;
     }
 
     .errorSpan {
@@ -163,6 +163,17 @@
       vertical-align: top;
       margin-top: 2px;
     }
+
+    .replayUrlDiv {
+      display: inline-block;
+      margin-left: 40px;
+      vertical-align: text-top;
+    }
+
+    .replayLabel {
+      display: inline-block;
+      margin-right: 5px;
+    }
 </style>
 <head><title>Play BerryBots</title></head>
 <link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
@@ -222,6 +233,30 @@ function runMatch() {
       }
       rerun.disabled = false;
 
+      if (document.getElementById('replayUrl') == null) {
+        var ruDiv = document.createElement('div');
+        ruDiv.className = 'replayUrlDiv';
+
+        var replayLabel = document.createElement('div');
+        replayLabel.className = 'replayLabel';
+        replayLabel.innerHTML = 'Replay: ';
+        ruDiv.appendChild(replayLabel);
+
+        var input = document.createElement('input');
+        input.id = 'replayUrl';
+        input.type = 'text';
+        input.size = 25;
+        input.onfocus = function(e) {
+          this.select();
+        }
+        input.onmouseup = function(e) {
+          return false;
+        }
+        ruDiv.appendChild(input);
+
+        playerDiv.appendChild(ruDiv);
+      }
+
       var errorLog = xmlDoc.getElementsByTagName('e')[0].childNodes[0].nodeValue;
       if (errorLog.length > 0) {
         errorDiv = document.createElement('div');
@@ -245,14 +280,16 @@ function runMatch() {
 
       player = document.createElement('iframe');
       player.id = 'player';
-      player.style.width = '95%'; 
-      var viewportHeight = document.documentElement.clientHeight
-      player.style.height = Math.min(850, (viewportHeight - 45)) + 'px'; 
+      player.style.width = '95%';
+      var viewportHeight = document.body.clientHeight;
+      player.style.height = Math.max(300, Math.min(document.body.clientWidth,
+          Math.min(850, (viewportHeight - 45)))) + 'px'; 
       document.getElementById('run').disabled = false;
 
       var replayPath = '/replays/' + xmlDoc.getElementsByTagName('r')[0].childNodes[0].nodeValue;
       document.getElementById('replayUrl').value =
           'http://' + window.location.hostname + replayPath;
+
       player.src = replayPath;
       document.getElementById('playerDiv').appendChild(player);
       if (window.location.hash != '#player') {
@@ -503,8 +540,6 @@ end
       <div id="sendFeedbackDiv">
         <a href="javascript:void(0)" class="uiLink" onclick="showFeedbackForm()">[ Send Feedback ]</a>
       </div>
-      <br>
-      Replay URL: <input type="text" onMouseUp="return false" size="25" id="replayUrl" onfocus="this.select()">
     </form>
   </div>
 </div>
