@@ -25,6 +25,10 @@
       position: relative;
     }
 
+    #sendFeedbackDiv {
+      position: relative;
+    }
+
     .formLabel {
       display: inline-block;
       width: 5em;
@@ -131,6 +135,34 @@
       position: absolute;
     }
 
+    .feedbackDiv {
+      display: inline;
+      background-color: #fff;
+      border: 1px solid #000;
+      padding: 12px;
+      left: -150px;
+      top: -160px;
+      width: 350px;
+      position: absolute;
+      z-index: 100;
+    }
+
+    .feedbackArea {
+      width: 100%;
+      margin: 4px 0;
+    }
+
+    .feedbackButton {
+      float: right;
+    }
+
+    .feedbackLabel {
+      display: inline-block;
+      font-size: 0.8em;
+      width: 8em;
+      vertical-align: top;
+      margin-top: 2px;
+    }
 </style>
 <head><title>Play BerryBots</title></head>
 <link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
@@ -139,12 +171,17 @@
 <body>
 
 <script type="text/javascript">
+
+function encodeQuery(s) {
+  return encodeURI(s).replace(/\+/g, '%2B');
+}
+
 function runMatch() {
   document.getElementById('run').disabled = true;
   var x = new XMLHttpRequest();
   var params = 'stage=' + document.getElementById('Stage').value
       + '&opponent=' + document.getElementById('Opponent').value
-      + '&code=' + encodeURI(editor.getValue()).replace(/\+/g, '%2B');
+      + '&code=' + encodeQuery(editor.getValue());
   x.open('POST', '/cgi-bin/runmatch.pl', true);
   x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   x.onreadystatechange = function () {
@@ -312,10 +349,61 @@ function hideErrors() {
   }
 }
 
+function showFeedbackForm() {
+  var feedbackDiv = document.createElement('div');
+  feedbackDiv.id = 'feedbackDiv';
+  feedbackDiv.className = 'feedbackDiv';
+  feedbackDiv.innerHTML = '<div>\n'
+      + '  <div class="feedbackLabel">Name (optional):</div>\n'
+      + '  <input type="text" id="feedbackName" size="20">\n'
+      + '  <br>\n'
+      + '  <div class="feedbackLabel">Email (optional):</div>\n'
+      + '  <input type="text" id="feedbackEmail" size="20">\n'
+      + '  <textarea rows="6" id="feedbackArea" class="feedbackArea">'
+          + '</textarea>\n';
+
+  var feedbackButton = document.createElement('input');
+  feedbackButton.id = 'feedbackButton';
+  feedbackButton.className = 'feedbackButton';
+  feedbackButton.type = 'submit';
+  feedbackButton.value = 'Send Feedback';
+  feedbackButton.onclick = function(e) {
+    document.getElementById('feedbackButton').disabled = true;
+    var x = new XMLHttpRequest();
+    var params = 'message='
+        + encodeQuery(document.getElementById('feedbackArea').value)
+        + '&name=' + encodeQuery(document.getElementById('feedbackName').value)
+        + '&email=' + encodeQuery(document.getElementById('feedbackEmail').value);
+    x.open('POST', '/cgi-bin/feedback.pl', true);
+    x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    x.onreadystatechange = function () {
+      if (x.readyState == 4) {
+        var feedbackButton = document.getElementById('feedbackButton');
+        if (feedbackButton != null) {
+          feedbackButton.disabled = true;
+        }
+      }
+      hideFeedbackForm();
+    }
+    x.send(params);
+  };
+  feedbackDiv.appendChild(feedbackButton);
+  document.getElementById('sendFeedbackDiv').appendChild(feedbackDiv);
+  document.getElementById('feedbackArea').focus();
+}
+
+function hideFeedbackForm() {
+  var feedbackDiv = document.getElementById('feedbackDiv');
+  if (feedbackDiv != null) {
+    document.getElementById('sendFeedbackDiv').removeChild(feedbackDiv);
+  }
+}
+
 window.addEventListener('load', function() {
   document.body.onkeydown = function(e) {
     if (e.which == 27) { // escape
       hideErrors();
+      hideFeedbackForm();
     }
   };
 });
@@ -412,6 +500,10 @@ end
       &bull; <a href="http://ace.c9.io">Ace</a>
       &bull; <a href="http://kineticjs.com">KineticJS</a>
       <br><br>
+      <div id="sendFeedbackDiv">
+        <a href="javascript:void(0)" class="uiLink" onclick="showFeedbackForm()">[ Send Feedback ]</a>
+      </div>
+      <br>
       Replay URL: <input type="text" onMouseUp="return false" size="25" id="replayUrl" onfocus="this.select()">
     </form>
   </div>
