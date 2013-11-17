@@ -54,7 +54,7 @@ unlink($basedir . "/bots/" . $filename);
 $s =~ /^([\s\S]*)\nSaved replay to: replays/;
 $errorLog = $1;
 $errorLog = "\n" . $errorLog;
-$errorLog =~ s/\nShip: /\n\n/g;
+$errorLog =~ s/\nShip: [^:]+: /\n\n/g;
 $errorLog =~ s/^\s+//g;
 
 print "<?xml version=\"1.0\" ?>\n<replay>\n  <r>" . $replayFilename . "</r>\n"
