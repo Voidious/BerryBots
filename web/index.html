@@ -217,7 +217,7 @@ function runMatch() {
   var opponent = document.getElementById('Opponent').value;
   var params = 'stage=' + stage + '&opponent=' + opponent
       + '&code=' + encodeQuery(editor.getValue());
-  _gaq.push(['_trackEvent', 'run match', stage]);
+  _gaq.push(['_trackEvent', 'run match', stage, opponent, editor.getValue().length]);
   x.open('POST', '/cgi-bin/runmatch.pl', true);
   x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   var startTime = new Date().getTime();
@@ -225,9 +225,7 @@ function runMatch() {
     if (x.readyState == 4) {
       var endTime = new Date().getTime();
       var elapsedTime = endTime - startTime;
-      _gaq.push(['_trackTiming', 'run match', 'load time', elapsedTime]);
-      _gaq.push(['_trackTiming', 'run match',
-                 stage + ' load time', elapsedTime]);
+      _gaq.push(['_trackTiming', 'run match', 'load time', elapsedTime, stage, 100]);
 
       // TODO: split this up
       var parser = new DOMParser();
@@ -377,13 +375,13 @@ function selectBot(filename) {
 }
 
 function openHelp() {
-  _gaq.push(['_trackEvent', 'help']);
+  _gaq.push(['_trackEvent', 'help', 'open']);
   window.open('help.html', 'help', 'titlebar=no,scrollbars=no,width=530,'
       + 'height=245,top=' + window.screenY + ',left=' + (window.screenX + 500));
 }
 
 function viewErrors(errorLog) {
-  _gaq.push(['_trackEvent', 'error log']);
+  _gaq.push(['_trackEvent', 'error log', 'open']);
   hideErrors();
 
   var errorLogDiv = document.createElement('div');
