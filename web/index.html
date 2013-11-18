@@ -139,7 +139,7 @@
       display: inline;
       background-color: #fff;
       border: 1px solid #000;
-      padding: 12px;
+      padding: 15px 15px 8px 15px;
       left: -150px;
       top: -160px;
       width: 350px;
@@ -162,6 +162,15 @@
       width: 8em;
       vertical-align: top;
       margin-top: 2px;
+    }
+
+    .closeFeedback {
+      font-size: 18px;
+      position: absolute;
+      left: 3px;
+      top: -3px;
+      text-decoration: none;
+      color: #000;
     }
 
     .replayUrlDiv {
@@ -399,6 +408,15 @@ function showFeedbackForm() {
       + '  <textarea rows="6" id="feedbackArea" class="feedbackArea">'
           + '</textarea>\n';
 
+  var closeLink = document.createElement('a');
+  closeLink.innerHTML = '&times;'
+  closeLink.href = 'javascript:void(0)';
+  closeLink.className = 'closeFeedback';
+  closeLink.onclick = function(e) {
+    hideFeedbackForm();
+  };
+  feedbackDiv.appendChild(closeLink);
+
   var feedbackButton = document.createElement('input');
   feedbackButton.id = 'feedbackButton';
   feedbackButton.className = 'feedbackButton';
@@ -538,7 +556,7 @@ end
       &bull; <a href="http://kineticjs.com">KineticJS</a>
       <br><br>
       <div id="sendFeedbackDiv">
-        <a href="javascript:void(0)" class="uiLink" onclick="showFeedbackForm()">[ Send Feedback ]</a>
+        <a href="javascript:void(0)" class="uiLink" onclick="showFeedbackForm()">[ Send feedback ]</a>
       </div>
     </form>
   </div>
