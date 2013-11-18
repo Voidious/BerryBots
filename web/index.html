@@ -123,15 +123,15 @@
       font-size: 36px;
       position: absolute;
       left: 5px;
-      top: -5px;
+      top: -6px;
       text-decoration: none;
       color: #000;
     }
 
     .errorTitle {
-      font-size: 22px;
-      left: 279px;
-      top: 5px;
+      font-size: 18px;
+      left: 285px;
+      top: 6px;
       position: absolute;
     }
 
@@ -170,7 +170,7 @@
       left: 3px;
       top: -3px;
       text-decoration: none;
-      color: #000;
+      color: #444;
     }
 
     .replayUrlDiv {
@@ -184,7 +184,21 @@
       margin-right: 5px;
     }
 </style>
-<head><title>Play BerryBots</title></head>
+<head>
+  <title>Play BerryBots</title>
+  <script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-45782896-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+  </script>
+
+</head>
 <link href='https://fonts.googleapis.com/css?family=Ubuntu:regular' rel='stylesheet' type='text/css'>
 <link href='https://fonts.googleapis.com/css?family=Ubuntu+Mono:regular' rel='stylesheet' type='text/css'>
 <link rel="shortcut icon" href="favicon.gif">
@@ -199,13 +213,22 @@ function encodeQuery(s) {
 function runMatch() {
   document.getElementById('run').disabled = true;
   var x = new XMLHttpRequest();
-  var params = 'stage=' + document.getElementById('Stage').value
-      + '&opponent=' + document.getElementById('Opponent').value
+  var stage = document.getElementById('Stage').value;
+  var opponent = document.getElementById('Opponent').value;
+  var params = 'stage=' + stage + '&opponent=' + opponent
       + '&code=' + encodeQuery(editor.getValue());
+  _gaq.push(['_trackEvent', 'run match', stage]);
   x.open('POST', '/cgi-bin/runmatch.pl', true);
   x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  var startTime = new Date().getTime();
   x.onreadystatechange = function () {
     if (x.readyState == 4) {
+      var endTime = new Date().getTime();
+      var elapsedTime = endTime - startTime;
+      _gaq.push(['_trackTiming', 'run match', 'load time', elapsedTime]);
+      _gaq.push(['_trackTiming', 'run match',
+                 stage + ' load time', elapsedTime]);
+
       // TODO: split this up
       var parser = new DOMParser();
       var xmlDoc = parser.parseFromString(x.responseText, 'application/xml');
@@ -314,6 +337,7 @@ function loadBot(filename) {
   var x = new XMLHttpRequest();
   x.open('GET', '/bots/' + filename, false);
   x.setRequestHeader('Content-Type', 'text/plain');
+  _gaq.push(['_trackEvent', 'start from', filename]);
   x.onreadystatechange = function () {
     if (x.readyState == 4) {
       editor.setValue(x.responseText);
@@ -353,11 +377,13 @@ function selectBot(filename) {
 }
 
 function openHelp() {
+  _gaq.push(['_trackEvent', 'help']);
   window.open('help.html', 'help', 'titlebar=no,scrollbars=no,width=530,'
       + 'height=265,top=' + window.screenY + ',left=' + (window.screenX + 500));
 }
 
 function viewErrors(errorLog) {
+  _gaq.push(['_trackEvent', 'error log']);
   hideErrors();
 
   var errorLogDiv = document.createElement('div');
@@ -477,10 +503,9 @@ force = nil
 function init(shipArg, worldArg)
   ship = shipArg
   world = worldArg
+
   ship:setName("Player")
-  ship:setShipColor(255, 255, 0)
-  ship:setLaserColor(255, 255, 255)
-  ship:setThrusterColor(255, 255, 0)
+  ship:setLaserColor(255, 255, 0)
   heading = 0
   force = world:constants().MAX_THRUSTER_FORCE / 4
 end
@@ -574,17 +599,6 @@ end
   editor.getSession().setTabSize(2);
   editor.getSession().setUseSoftTabs(true);
   editor.setHighlightActiveLine(false);
-</script>
-
-<script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-45782896-1', 'playberrybots.com');
-  ga('send', 'pageview');
-
 </script>
 
 </body>
