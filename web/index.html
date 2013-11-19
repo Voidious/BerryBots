@@ -210,6 +210,8 @@ function encodeQuery(s) {
   return encodeURI(s).replace(/\+/g, '%2B');
 }
 
+var animatedScrollOnce = false;
+
 function runMatch() {
   document.getElementById('run').disabled = true;
   var x = new XMLHttpRequest();
@@ -322,13 +324,32 @@ function runMatch() {
 
       player.src = replayPath;
       document.getElementById('playerDiv').appendChild(player);
+      if (animatedScrollOnce) {
+        window.scrollTo(0, document.body.scrollHeight);
+      } else {
+        animatedScrollOnce = true;
+        smoothScrollTo(document.body.scrollHeight);
+      }
       if (window.location.hash != '#player') {
         window.location.hash = 'player';
       }
-      window.scrollTo(0,document.body.scrollHeight);
     }
   };
   x.send(params);
+}
+
+function smoothScrollTo(z) {
+  delayedScroll(self.pageYOffset, z, 25, 17);
+}
+
+function delayedScroll(startY, endY, deltaY, delayMs) {
+  setTimeout(function() {
+    var y = startY + deltaY;
+    window.scrollTo(0, Math.min(y, endY));
+    if (y < endY) {
+      delayedScroll(y, endY, deltaY, delayMs);
+    }
+  }, delayMs);
 }
 
 function loadBot(filename) {
