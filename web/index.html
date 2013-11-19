@@ -84,7 +84,7 @@
 
     .errorDiv {
       display: inline-block;
-      margin-left: 40px;
+      margin-left: 48px;
     }
 
     .errorSpan {
@@ -175,13 +175,25 @@
 
     .replayUrlDiv {
       display: inline-block;
-      margin-left: 40px;
+      margin-left: 19px;
       vertical-align: text-top;
     }
 
     .replayLabel {
       display: inline-block;
       margin-right: 5px;
+    }
+
+    .runSpinner {
+      float: right;
+      margin-right: 5px;
+    }
+
+    .rerunSpinner {
+      display: inline-block;
+      width: 24px;
+      margin: 0 0 0 5px;
+      vertical-align: middle;
     }
 </style>
 <head>
@@ -213,7 +225,16 @@ function encodeQuery(s) {
 var animatedScrollOnce = false;
 
 function runMatch() {
-  document.getElementById('run').disabled = true;
+  showSpinner('run');
+  processMatch();
+}
+
+function rerunMatch() {
+  showSpinner('rerun');
+  processMatch();
+}
+
+function processMatch() {
   var x = new XMLHttpRequest();
   var stage = document.getElementById('Stage').value;
   var opponent = document.getElementById('Opponent').value;
@@ -251,19 +272,24 @@ function runMatch() {
 
       var rerun = document.getElementById('rerun');
       if (rerun == null) {
-        var button = document.createElement('input');
-        button.id = 'rerun';
-        button.type = 'submit';
-        button.value = 'Rerun Match';
-        button.className = 'rerunMatch';
-        button.onclick = function() {
-          runMatch();
-          button.disabled = true;
+        var rerun = document.createElement('input');
+        rerun.id = 'rerun';
+        rerun.type = 'submit';
+        rerun.value = 'Rerun Match';
+        rerun.className = 'rerunMatch';
+        rerun.onclick = function() {
+          rerunMatch();
         }
-        playerDiv.appendChild(button);
-        rerun = button;
+        playerDiv.appendChild(rerun);
       }
-      rerun.disabled = false;
+
+      var rerunSpinner = document.getElementById('rerunSpinner');
+      if (rerunSpinner == null) {
+        rerunSpinner = document.createElement('div');
+        rerunSpinner.id = 'rerunSpinner';
+        rerunSpinner.className = 'rerunSpinner';
+        playerDiv.appendChild(rerunSpinner);
+      }
 
       if (document.getElementById('replayUrl') == null) {
         var ruDiv = document.createElement('div');
@@ -314,25 +340,30 @@ function runMatch() {
       player.id = 'player';
       player.style.width = '95%';
       var viewportHeight = document.body.clientHeight;
-      player.style.height = Math.max(300, Math.min(document.body.clientWidth,
-          Math.min(850, (viewportHeight - 45)))) + 'px'; 
-      document.getElementById('run').disabled = false;
+      var playerHeight = Math.max(300, Math.min(document.body.clientWidth,
+          Math.min(850, (viewportHeight - 45))));
+      playerDiv.style.height = playerHeight + 'px';
+      player.style.height = playerHeight + 'px'; 
+      hideSpinners();
 
       var replayPath = '/replays/' + xmlDoc.getElementsByTagName('r')[0].childNodes[0].nodeValue;
       document.getElementById('replayUrl').value =
           'http://' + window.location.hostname + replayPath;
 
-      player.src = replayPath;
-      document.getElementById('playerDiv').appendChild(player);
-      if (animatedScrollOnce) {
-        window.scrollTo(0, document.body.scrollHeight);
-      } else {
+      var delay = 0;
+      if (!animatedScrollOnce) {
+        delay = 500;
         animatedScrollOnce = true;
         smoothScrollTo(document.body.scrollHeight);
       }
-      if (window.location.hash != '#player') {
-        window.location.hash = 'player';
-      }
+      setTimeout(function() {
+        player.src = replayPath;
+        document.getElementById('playerDiv').appendChild(player);
+        window.scrollTo(0, document.body.scrollHeight);
+        if (window.location.hash != '#player') {
+          window.location.hash = 'player';
+        }
+      }, delay);
     }
   };
   x.send(params);
@@ -499,6 +530,46 @@ function hideFeedbackForm() {
   }
 }
 
+function showSpinner(prefix) {
+  hideSpinner(prefix);
+  disableButton('run');
+  disableButton('rerun');
+  var d = document.getElementById(prefix + 'Spinner');
+  if (d != null) {
+    d.appendChild(makeSpinner(prefix + 'SpinnerImg'));
+  }
+}
+
+function disableButton(prefix) {
+  var d = document.getElementById(prefix);
+  if (d != null) {
+    d.disabled = true;
+  }
+}
+
+function makeSpinner(id) {
+  var spinner = document.createElement('img');
+  spinner.id = id;
+  spinner.src = 'spinner.gif';
+  return spinner;
+}
+
+function hideSpinners() {
+  hideSpinner('run');
+  hideSpinner('rerun');
+}
+
+function hideSpinner(prefix) {
+  var d = document.getElementById(prefix);
+  if (d != null) {
+    d.disabled = false;
+    var spinImg = document.getElementById(prefix + 'SpinnerImg');
+    if (spinImg != null) {
+      document.getElementById(prefix + 'Spinner').removeChild(spinImg);
+    }
+  }
+}
+
 window.addEventListener('load', function() {
   document.body.onkeydown = function(e) {
     if (e.which == 27) { // escape
@@ -573,6 +644,7 @@ end
         <div>
           <a href="javascript:void(0)" class="uiLink helpLink" onclick="openHelp()">[ Help ]</a>
           <input type="button" id="run" class="runMatch" value="Run Match" onclick="runMatch()">
+          <div id="runSpinner" class="runSpinner"></div>
         </div>
       </div>
       <br><br><br>
