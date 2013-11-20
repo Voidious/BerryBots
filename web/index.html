@@ -219,7 +219,7 @@
 <script type="text/javascript">
 
 function encodeQuery(s) {
-  return encodeURI(s).replace(/\+/g, '%2B');
+  return encodeURI(s).replace(/\+/g, '%2B').replace(/;/g, '%3B');
 }
 
 var animatedScrollOnce = false;
