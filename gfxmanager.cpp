@@ -861,14 +861,16 @@ void GfxManager::drawStageTexts(sf::RenderWindow *window, Stage *stage,
     StageText **stageTexts = stage->getStageTexts();
     for (int x = 0; x < numTexts; x++) {
       StageText *stageText = stageTexts[x];
-      sf::Text text(stageText->text, font_,
-          limit(MIN_TEXT_FONT_SIZE, stageText->fontSize, MAX_TEXT_FONT_SIZE));
-      text.setColor(sf::Color(stageText->textR, stageText->textG,
-                              stageText->textB, stageText->textA));
-      sf::FloatRect textRect = text.getLocalBounds();
-      text.setPosition(adjustX(stageText->x),
-                       adjustY(stageText->y + round(textRect.height * 1.5)));
-      window->draw(text);
+      if (strlen(stageText->text) > 0) {
+        sf::Text text(stageText->text, font_,
+                      limit(MIN_TEXT_FONT_SIZE, stageText->fontSize, MAX_TEXT_FONT_SIZE));
+        text.setColor(sf::Color(stageText->textR, stageText->textG,
+                                stageText->textB, stageText->textA));
+        sf::FloatRect textRect = text.getLocalBounds();
+        text.setPosition(adjustX(stageText->x),
+                         adjustY(stageText->y + round(textRect.height * 1.5)));
+        window->draw(text);
+      }
     }
   }
 }
@@ -981,14 +983,16 @@ void GfxManager::drawUserGfxTexts(sf::RenderWindow *window,
                                   UserGfxText** gfxTexts, int numTexts) {
   for (int y = 0; y < numTexts; y++) {
     UserGfxText *gfxText = gfxTexts[y];
-    sf::Text text(gfxText->text, font_,
-        limit(MIN_TEXT_FONT_SIZE, gfxText->fontSize, MAX_TEXT_FONT_SIZE));
-    text.setColor(sf::Color(gfxText->textR, gfxText->textG, gfxText->textB,
-                            gfxText->textA));
-    sf::FloatRect textRect = text.getLocalBounds();
-    text.setPosition(adjustX(gfxText->x),
-                     adjustY(gfxText->y + round(textRect.height * 1.5)));
-    window->draw(text);
+    if (strlen(gfxText->text) > 0) {
+      sf::Text text(gfxText->text, font_,
+          limit(MIN_TEXT_FONT_SIZE, gfxText->fontSize, MAX_TEXT_FONT_SIZE));
+      text.setColor(sf::Color(gfxText->textR, gfxText->textG, gfxText->textB,
+                              gfxText->textA));
+      sf::FloatRect textRect = text.getLocalBounds();
+      text.setPosition(adjustX(gfxText->x),
+                       adjustY(gfxText->y + round(textRect.height * 1.5)));
+      window->draw(text);
+    }
   }
 }
 
