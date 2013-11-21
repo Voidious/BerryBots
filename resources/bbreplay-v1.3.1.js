@@ -178,6 +178,14 @@ BerryBots.style.controls =
     + '  .pause:hover .pause-wedge {'
     + '    background-color: #0f0;'
     + '  }'
+    + '  .speed {'
+    + '    position: absolute;'
+    + '    color: #fff;'
+    + '    font-size: 1.3em;'
+    + '  }'
+    + '  .speed > div:hover {'
+    + '    cursor: pointer;'
+    + '  }'
     + '</style>';
 
 BerryBots.style.timeDisplay = function(timerWidth, timerLeft, top) {
@@ -654,6 +662,9 @@ BerryBots.initGfx = function() {
   BerryBots.torpedoDebrisProto.setScale(scale, scale);
   BerryBots.torpedoDebrisPool = [];
   BerryBots.textPool = [];
+  BerryBots.playbackSpeed = 0.5; // ~30 fps
+  BerryBots.playbackLabel = 'normal';
+  BerryBots.nextDrawTime = 0;
 };
 
 BerryBots.addBodyListeners = function() {
@@ -815,6 +826,12 @@ BerryBots.playPause = function() {
   BerryBots.showPlayPause();
 };
 
+BerryBots.setSpeed = function(speed, label) {
+  BerryBots.playbackSpeed = speed;
+  BerryBots.playbackLabel = label;
+  BerryBots.setPlaybackLabelColors();
+};
+
 BerryBots.stopSkipping = function() {
   BerryBots.skipTime = -1;
   if (BerryBots.spinnerShip != null) {
@@ -824,18 +841,34 @@ BerryBots.stopSkipping = function() {
   }
 };
 
+BerryBots.setPlaybackLabelColor = function(d) {
+  if (d != null) {
+    d.style.color = (d.id == BerryBots.playbackLabel) ? '#0f0' : '#fff';
+  }
+};
+
+BerryBots.setPlaybackLabelColors = function() {
+  BerryBots.setPlaybackLabelColor(document.getElementById('normal'));
+  BerryBots.setPlaybackLabelColor(document.getElementById('bouncy'));
+  BerryBots.setPlaybackLabelColor(document.getElementById('ludicrous'));
+}
+
 BerryBots.showPlayPause = function() {
   var playElement = document.getElementById('play');
   var pauseElement = document.getElementById('pause');
-  if (playElement == null || pauseElement == null) {
+  var speedElement = document.getElementById('speed');
+  if (playElement == null || pauseElement == null
+      || speedElement == null) {
     return;
   }
 
   var playStyle = playElement.style;
   var pauseStyle = pauseElement.style;
+  var speedStyle = speedElement.style;
   if (BerryBots.gameTime >= BerryBots.endTime) {
     playStyle.visibility = 'hidden';
     pauseStyle.visibility = 'hidden';
+    speedStyle.visibility = 'hidden';
   } else {
     var stage = BerryBots.stage;
     var center =
@@ -843,18 +876,32 @@ BerryBots.showPlayPause = function() {
     var top = (stage.getScaleY() * stage.getHeight());
   
     var d = document.getElementById('controls');
-    d.style.position = 'absolute';
+    var normalDiv = document.getElementById('normal');
+    var bouncyDiv = document.getElementById('bouncy');
+    var ludicDiv = document.getElementById('ludicrous');
+    speedStyle.position = normalDiv.style.position = bouncyDiv.style.position =
+        ludicDiv.style.position = d.style.position = 'absolute';
     if (BerryBots.paused) {
       d.style.left = Math.max(0, center - 30) + 'px';
-      d.style.top = Math.max(0, top - 325) + 'px';
+      d.style.top = (top - 355) + 'px';
       pauseStyle.visibility = 'hidden';
       playStyle.visibility = 'visible';
+      normalDiv.style.top = bouncyDiv.style.top = ludicDiv.style.top = '-140px';
+      normalDiv.style.left = '-112px';
+      bouncyDiv.style.left = '-7px';
+      ludicDiv.style.left = '93px';
     } else {
       d.style.left = Math.max(0, center - 87) + 'px';
-      d.style.top = (top - 490) + 'px';
+      d.style.top = (top - 520) + 'px';
       playStyle.visibility = 'hidden';
       pauseStyle.visibility = 'visible';
+      normalDiv.style.top = bouncyDiv.style.top = ludicDiv.style.top = '25px';
+      normalDiv.style.left = '-55px';
+      bouncyDiv.style.left = '50px';
+      ludicDiv.style.left = '150px';
     }
+
+    BerryBots.setPlaybackLabelColors();
   }
 };
 
@@ -919,12 +966,18 @@ BerryBots.showConsoleTabs = function() {
 
 BerryBots.showControls = function() {
   var s = BerryBots.style.controls
-      + '<div class="controls" onclick="BerryBots.playPause()">'
-      + '  <div id="play" class="play"></div>'
-      + '  <div id="pause" class="pause">'
+      + '<div class="controls">'
+      + '  <div id="play" class="play" onclick="BerryBots.playPause()"></div>'
+      + '  <div id="pause" class="pause" onclick="BerryBots.playPause()">'
       + '    <div class="pause-wedge"></div>'
       + '    <div class="pause-wedge"></div>'
       + '  </div>'
+      + '</div>'
+      + '<div id="speed" class="speed">'
+      + '  <div id="normal" onclick="BerryBots.setSpeed(0.5, \'normal\')">Normal</div>'
+      + '  <div id="bouncy" onclick="BerryBots.setSpeed(1, \'bouncy\')">Bouncy</div>'
+      + '  <div id="ludicrous"'
+      + '      onclick="BerryBots.setSpeed(20, \'ludicrous\')">Ludicrous</div>'
       + '</div>';
 
   var d = document.createElement('div');
@@ -1582,375 +1635,384 @@ BerryBots.replay = function() {
       BerryBots.adjustTimeKnob();
     }
     if (!(BerryBots.paused)) {
-      if (nextShipState < BerryBots.shipStates.length) {
-        do {
-          var gameTime = BerryBots.gameTime;
-
-          // Lasers.
-          var laserStarts = BerryBots.laserStarts;
-          var numLaserStarts = laserStarts.length;
-          while (nextLaserStart < numLaserStarts
-                 && laserStarts[nextLaserStart].fireTime <= gameTime) {
-            var laserStart = laserStarts[nextLaserStart++];
-            var laser = BerryBots.makeLaser();
-            var dx = BerryBots.scale(
-                Math.cos(laserStart.heading) * BerryBots.LASER_SPEED);
-            var dy = BerryBots.scale(
-                Math.sin(laserStart.heading) * BerryBots.LASER_SPEED);
-            laser.setX(laserStart.srcX);
-            laser.setY(laserStart.srcY);
-            laser.setFill(ships[laserStart.shipIndex].laserColor);
-            laser.setRotation(BerryBots.TWO_PI - laserStart.heading);
-            laser.laserData = {dx: dx, dy: dy, id: laserStart.id};
-            lasers.push(laser);
-            BerryBots.mainLayer.add(laser);
-          }
-
-          var laserEnds = BerryBots.laserEnds;
-          var numLaserEnds = laserEnds.length;
-          while (nextLaserEnd < numLaserEnds
-                 && laserEnds[nextLaserEnd].time <= gameTime) {
-            var laserEnd = laserEnds[nextLaserEnd++];
-            // TODO: use a map instead?
+      if (BerryBots.gameTime >= BerryBots.nextDrawTime) {
+        BerryBots.nextDrawTime += BerryBots.playbackSpeed;
+      } else {
+        if (nextShipState < BerryBots.shipStates.length) {
+          do {
+            var gameTime = BerryBots.gameTime;
+  
+            // Lasers.
+            var laserStarts = BerryBots.laserStarts;
+            var numLaserStarts = laserStarts.length;
+            while (nextLaserStart < numLaserStarts
+                   && laserStarts[nextLaserStart].fireTime <= gameTime) {
+              var laserStart = laserStarts[nextLaserStart++];
+              var laser = BerryBots.makeLaser();
+              var dx = BerryBots.scale(
+                  Math.cos(laserStart.heading) * BerryBots.LASER_SPEED);
+              var dy = BerryBots.scale(
+                  Math.sin(laserStart.heading) * BerryBots.LASER_SPEED);
+              laser.setX(laserStart.srcX);
+              laser.setY(laserStart.srcY);
+              laser.setFill(ships[laserStart.shipIndex].laserColor);
+              laser.setRotation(BerryBots.TWO_PI - laserStart.heading);
+              laser.laserData = {dx: dx, dy: dy, id: laserStart.id};
+              lasers.push(laser);
+              BerryBots.mainLayer.add(laser);
+            }
+  
+            var laserEnds = BerryBots.laserEnds;
+            var numLaserEnds = laserEnds.length;
+            while (nextLaserEnd < numLaserEnds
+                   && laserEnds[nextLaserEnd].time <= gameTime) {
+              var laserEnd = laserEnds[nextLaserEnd++];
+              // TODO: use a map instead?
+              for (var x = 0; x < lasers.length; x++) {
+                var laser = lasers[x];
+                if (laser.laserData.id == laserEnd.id) {
+                  lasers.splice(x--, 1);
+                  BerryBots.endLaser(laser);
+                }
+              }
+            }
+  
             for (var x = 0; x < lasers.length; x++) {
               var laser = lasers[x];
-              if (laser.laserData.id == laserEnd.id) {
-                lasers.splice(x--, 1);
-                BerryBots.endLaser(laser);
+              laser.setX(laser.getX() + laser.laserData.dx);
+              laser.setY(laser.getY() - laser.laserData.dy);
+            }
+  
+            for (var x = 0; x < sparkRects.length; x++) {
+              var sparkRect = sparkRects[x];
+              if (sparkRect.sparkData.endTime <= gameTime) {
+                sparkRects.splice(x--, 1);
+                BerryBots.endLaserSpark(sparkRect);
+              } else {
+                var sparkOffset = sparkRect.getOffset();
+                sparkRect.setOffset(
+                    {x: sparkOffset.x + BerryBots.scale(BerryBots.SPARK_SPEED),
+                     y: sparkOffset.y});
+                sparkRect.move(sparkRect.sparkData.dx, -sparkRect.sparkData.dy);
               }
             }
-          }
-
-          for (var x = 0; x < lasers.length; x++) {
-            var laser = lasers[x];
-            laser.setX(laser.getX() + laser.laserData.dx);
-            laser.setY(laser.getY() - laser.laserData.dy);
-          }
-
-          for (var x = 0; x < sparkRects.length; x++) {
-            var sparkRect = sparkRects[x];
-            if (sparkRect.sparkData.endTime <= gameTime) {
-              sparkRects.splice(x--, 1);
-              BerryBots.endLaserSpark(sparkRect);
-            } else {
-              var sparkOffset = sparkRect.getOffset();
-              sparkRect.setOffset(
-                  {x: sparkOffset.x + BerryBots.scale(BerryBots.SPARK_SPEED),
-                   y: sparkOffset.y});
-              sparkRect.move(sparkRect.sparkData.dx, -sparkRect.sparkData.dy);
+  
+            var laserSparks = BerryBots.laserSparks;
+            var numLaserSparks = laserSparks.length;
+            while (nextLaserSpark < numLaserSparks
+                   && laserSparks[nextLaserSpark].startTime <= gameTime) {
+              var laserSpark = laserSparks[nextLaserSpark++];
+              for (var x = 0; x < 4; x++) {
+                var sparkRect = BerryBots.makeLaserSpark();
+                sparkRect.setX(laserSpark.x);
+                sparkRect.setY(laserSpark.y);
+                sparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
+                sparkRect.setRotation(Math.random() * BerryBots.TWO_PI);
+                sparkRect.setOffset(
+                    {x: BerryBots.scale(BerryBots.SPARK_INITIAL_OFFSET),
+                     y: BerryBots.scale(BerryBots.SPARK_THICKNESS / 2)});
+                sparkRect.sparkData = laserSpark;
+                sparkRects.push(sparkRect);
+                BerryBots.mainLayer.add(sparkRect);
+              }
             }
-          }
-
-          var laserSparks = BerryBots.laserSparks;
-          var numLaserSparks = laserSparks.length;
-          while (nextLaserSpark < numLaserSparks
-                 && laserSparks[nextLaserSpark].startTime <= gameTime) {
-            var laserSpark = laserSparks[nextLaserSpark++];
-            for (var x = 0; x < 4; x++) {
-              var sparkRect = BerryBots.makeLaserSpark();
-              sparkRect.setX(laserSpark.x);
-              sparkRect.setY(laserSpark.y);
-              sparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
-              sparkRect.setRotation(Math.random() * BerryBots.TWO_PI);
-              sparkRect.setOffset(
-                  {x: BerryBots.scale(BerryBots.SPARK_INITIAL_OFFSET),
-                   y: BerryBots.scale(BerryBots.SPARK_THICKNESS / 2)});
-              sparkRect.sparkData = laserSpark;
-              sparkRects.push(sparkRect);
-              BerryBots.mainLayer.add(sparkRect);
+  
+            // Torpedos.
+            var torpedoStarts = BerryBots.torpedoStarts;
+            var numTorpedoStarts = torpedoStarts.length;
+            while (nextTorpedoStart < numTorpedoStarts
+                   && torpedoStarts[nextTorpedoStart].fireTime <= gameTime) {
+              var torpedoStart = torpedoStarts[nextTorpedoStart++];
+              var torpedo = BerryBots.makeTorpedo();
+              var dx = BerryBots.scale(
+                  Math.cos(torpedoStart.heading) * BerryBots.TORPEDO_SPEED);
+              var dy = BerryBots.scale(
+                  Math.sin(torpedoStart.heading) * BerryBots.TORPEDO_SPEED);
+              torpedo.setX(torpedoStart.srcX);
+              torpedo.setY(torpedoStart.srcY);
+              torpedo.torpedoData = {dx: dx, dy: dy, id: torpedoStart.id};
+              torpedos.push(torpedo);
+              BerryBots.mainLayer.add(torpedo);
             }
-          }
-
-          // Torpedos.
-          var torpedoStarts = BerryBots.torpedoStarts;
-          var numTorpedoStarts = torpedoStarts.length;
-          while (nextTorpedoStart < numTorpedoStarts
-                 && torpedoStarts[nextTorpedoStart].fireTime <= gameTime) {
-            var torpedoStart = torpedoStarts[nextTorpedoStart++];
-            var torpedo = BerryBots.makeTorpedo();
-            var dx = BerryBots.scale(
-                Math.cos(torpedoStart.heading) * BerryBots.TORPEDO_SPEED);
-            var dy = BerryBots.scale(
-                Math.sin(torpedoStart.heading) * BerryBots.TORPEDO_SPEED);
-            torpedo.setX(torpedoStart.srcX);
-            torpedo.setY(torpedoStart.srcY);
-            torpedo.torpedoData = {dx: dx, dy: dy, id: torpedoStart.id};
-            torpedos.push(torpedo);
-            BerryBots.mainLayer.add(torpedo);
-          }
-
-          var torpedoEnds = BerryBots.torpedoEnds;
-          var numTorpedoEnds = torpedoEnds.length;
-          while (nextTorpedoEnd < numTorpedoEnds
-                 && torpedoEnds[nextTorpedoEnd].time <= gameTime) {
-            var torpedoEnd = torpedoEnds[nextTorpedoEnd++];
-            // TODO: use a map instead?
+  
+            var torpedoEnds = BerryBots.torpedoEnds;
+            var numTorpedoEnds = torpedoEnds.length;
+            while (nextTorpedoEnd < numTorpedoEnds
+                   && torpedoEnds[nextTorpedoEnd].time <= gameTime) {
+              var torpedoEnd = torpedoEnds[nextTorpedoEnd++];
+              // TODO: use a map instead?
+              for (var x = 0; x < torpedos.length; x++) {
+                var torpedo = torpedos[x];
+                if (torpedo.torpedoData.id == torpedoEnd.id) {
+                  torpedos.splice(x--, 1);
+                  BerryBots.endTorpedo(torpedo);
+                }
+              }
+            }
+  
             for (var x = 0; x < torpedos.length; x++) {
               var torpedo = torpedos[x];
-              if (torpedo.torpedoData.id == torpedoEnd.id) {
-                torpedos.splice(x--, 1);
-                BerryBots.endTorpedo(torpedo);
-              }
+              torpedo.setX(torpedo.getX() + torpedo.torpedoData.dx);
+              torpedo.setY(torpedo.getY() - torpedo.torpedoData.dy);
             }
-          }
-
-          for (var x = 0; x < torpedos.length; x++) {
-            var torpedo = torpedos[x];
-            torpedo.setX(torpedo.getX() + torpedo.torpedoData.dx);
-            torpedo.setY(torpedo.getY() - torpedo.torpedoData.dy);
-          }
-
-          var torpedoBlasts = BerryBots.torpedoBlasts;
-          var numTorpedoBlasts = torpedoBlasts.length;
-          while (nextTorpedoBlast < numTorpedoBlasts
-                 && torpedoBlasts[nextTorpedoBlast].startTime <= gameTime) {
-            var torpedoBlast = torpedoBlasts[nextTorpedoBlast++];
-            var blastGroup = BerryBots.makeTorpedoBlast();
-            blastGroup.setX(torpedoBlast.x);
-            blastGroup.setY(torpedoBlast.y);
-            blastGroup.blastData = torpedoBlast;
-            blastCircles.push(blastGroup);
-            BerryBots.mainLayer.add(blastGroup);
-          }
-
-          for (var x = 0; x < blastCircles.length; x++) {
-            var blastGroup = blastCircles[x];
-            if (blastGroup.blastData.endTime <= gameTime) {
-              blastCircles.splice(x--, 1);
-              BerryBots.endTorpedoBlast(blastGroup);
-            } else {
-              var blastTime = gameTime - blastGroup.blastData.startTime;
-              var blastScale = (blastTime + 1) / BerryBots.BLAST_TIME;
-              blastGroup.getChildren()[1].setRadius(
-                  blastScale * BerryBots.BLAST_RADIUS);
-              blastGroup.getChildren()[0].setVisible(
-                  blastTime < 10 && (blastTime <= 2 || blastTime >=7));
+  
+            var torpedoBlasts = BerryBots.torpedoBlasts;
+            var numTorpedoBlasts = torpedoBlasts.length;
+            while (nextTorpedoBlast < numTorpedoBlasts
+                   && torpedoBlasts[nextTorpedoBlast].startTime <= gameTime) {
+              var torpedoBlast = torpedoBlasts[nextTorpedoBlast++];
+              var blastGroup = BerryBots.makeTorpedoBlast();
+              blastGroup.setX(torpedoBlast.x);
+              blastGroup.setY(torpedoBlast.y);
+              blastGroup.blastData = torpedoBlast;
+              blastCircles.push(blastGroup);
+              BerryBots.mainLayer.add(blastGroup);
             }
-          }
-
-          for (var x = 0; x < debrisCircles.length; x++) {
-            var debrisCircle = debrisCircles[x];
-            if (debrisCircle.debrisData.endTime <= gameTime) {
-              debrisCircles.splice(x--, 1);
-              BerryBots.endTorpedoDebris(debrisCircle);
-            } else {
-              debrisCircle.setOffset({x: debrisCircle.getOffset().x
-                                          + debrisCircle.debrisData.speed});
-              debrisCircle.move(debrisCircle.debrisData.dx,
-                                -debrisCircle.debrisData.dy);
-            }
-          }
-
-          var torpedoDebris = BerryBots.torpedoDebris;
-          var numTorpedoDebris = torpedoDebris.length;
-          while (nextTorpedoDebris < numTorpedoDebris
-                 && torpedoDebris[nextTorpedoDebris].startTime <= gameTime) {
-            var debrisData = torpedoDebris[nextTorpedoDebris++];
-            for (var x = 0; x < debrisData.parts; x++) {
-              var debrisCircle = BerryBots.makeTorpedoDebris();
-              debrisCircle.setX(debrisData.x);
-              debrisCircle.setY(debrisData.y);
-              debrisCircle.setFill(ships[debrisData.shipIndex].shipColor);
-              debrisCircle.setRotation(Math.random() * BerryBots.TWO_PI);
-              debrisCircle.setOffset(
-                  {x: BerryBots.scale(BerryBots.DEBRIS_INITIAL_OFFSET)}
-              );
-              debrisCircle.debrisData = {dx: debrisData.dx, dy: debrisData.dy,
-                  speed: debrisData.speeds[x], endTime: debrisData.endTime};
-              debrisCircles.push(debrisCircle);
-              BerryBots.mainLayer.add(debrisCircle);
-            }
-          }
-
-          // Ship destroys.
-          for (var x = 0; x < destroyCircles.length; x++) {
-            var destroyCircle = destroyCircles[x];
-            if (destroyCircle.destroyData.endTime <= gameTime) {
-              destroyCircles.splice(x--, 1);
-              destroyCircle.destroy();
-            } else {
-              var radiusFactor = 1 + Math.floor(
-                  (gameTime - destroyCircle.destroyData.startTime) / 2);
-              destroyCircle.setRadius(
-                  radiusFactor * BerryBots.DESTROY_BASE_RADIUS);
-            }
-          }
-
-          var shipDestroys = BerryBots.shipDestroys;
-          var numShipDestroys = shipDestroys.length;
-          while (nextShipDestroy < numShipDestroys
-                 && shipDestroys[nextShipDestroy].startTime <= gameTime) {
-            var shipDestroy = shipDestroys[nextShipDestroy++];
-            var destroyCircle = BerryBots.shipDestroyProto.clone();
-            destroyCircle.setX(shipDestroy.x);
-            destroyCircle.setY(shipDestroy.y);
-            destroyCircle.setStroke(ships[shipDestroy.shipIndex].shipColor);
-            destroyCircle.destroyData = shipDestroy;
-            destroyCircles.push(destroyCircle);
-            BerryBots.mainLayer.add(destroyCircle);
-          }
-
-          // Ships.
-          var shipAdds = BerryBots.shipAdds;
-          var numShipAdds = shipAdds.length;
-          while (nextShipAdd < numShipAdds
-                 && shipAdds[nextShipAdd].time <= gameTime) {
-            shipAlives[shipAdds[nextShipAdd++].index] = true;
-          }
-
-          var shipRemoves = BerryBots.shipRemoves;
-          var numShipRemoves = shipRemoves.length;
-          while (nextShipRemove < numShipRemoves
-                 && shipRemoves[nextShipRemove].time <= gameTime) {
-            shipAlives[shipRemoves[nextShipRemove++].index] = false;
-          }
-
-          var shipAddShowNames = BerryBots.shipAddShowNames;
-          var numShipAddShowNames = shipAddShowNames.length;
-          while (nextShipShowName < numShipAddShowNames
-                 && shipAddShowNames[nextShipShowName].time <= gameTime) {
-            shipShowNames[shipAddShowNames[nextShipShowName++].index] = true;
-          }
-
-          var shipAddHideNames = BerryBots.shipAddHideNames;
-          var numShipAddHideNames = shipAddHideNames.length;
-          while (nextShipHideName < numShipAddHideNames
-                 && shipAddHideNames[nextShipHideName].time <= gameTime) {
-            shipShowNames[shipAddHideNames[nextShipHideName++].index] = false;
-          }
-
-          var shipAddShowEnergys = BerryBots.shipAddShowEnergys;
-          var numShipAddShowEnergys = shipAddShowEnergys.length;
-          while (nextShipShowEnergy < numShipAddShowEnergys
-                 && shipAddShowEnergys[nextShipShowEnergy].time <= gameTime) {
-            var shipIndex = shipAddShowEnergys[nextShipShowEnergy++].index;
-            shipShowEnergys[shipIndex] = true;
-            ships[shipIndex].getChildren()[1].setPosition(0, 24);
-          }
-
-          var shipAddHideEnergys = BerryBots.shipAddHideEnergys;
-          var numShipAddHideEnergys = shipAddHideEnergys.length;
-          while (nextShipHideEnergy < numShipAddHideEnergys
-                 && shipAddHideEnergys[nextShipHideEnergy].time <= gameTime) {
-            var shipIndex = shipAddHideEnergys[nextShipHideEnergy++].index;
-            shipShowEnergys[shipIndex] = false;
-            ships[shipIndex].getChildren()[1].setPosition(0, 16);
-          }
-
-          for (var x = 0; x < numShips; x++) {
-            var ship = ships[x];
-            if (shipAlives[x]) {
-              var shipState = BerryBots.shipStates[nextShipState++];
-              ship.show();
-              ship.setX(shipState.x);
-              ship.setY(shipState.y);
-              var thruster = ship.getChildren()[0];
-              thruster.setRotation(
-                  Math.PI + (BerryBots.TWO_PI - shipState.thrusterAngle));
-              var forceFactor = shipState.thrusterForce;
-              if (forceFactor < 0.0001) {
-                thruster.setVisible(false);
+  
+            for (var x = 0; x < blastCircles.length; x++) {
+              var blastGroup = blastCircles[x];
+              if (blastGroup.blastData.endTime <= gameTime) {
+                blastCircles.splice(x--, 1);
+                BerryBots.endTorpedoBlast(blastGroup);
               } else {
-                thruster.setVisible(true);
-                thruster.setScale(BerryBots.THRUSTER_ZERO
-                    + (forceFactor * (1 - BerryBots.THRUSTER_ZERO)));
+                var blastTime = gameTime - blastGroup.blastData.startTime;
+                var blastScale = (blastTime + 1) / BerryBots.BLAST_TIME;
+                blastGroup.getChildren()[1].setRadius(
+                    blastScale * BerryBots.BLAST_RADIUS);
+                blastGroup.getChildren()[0].setVisible(
+                    blastTime < 10 && (blastTime <= 2 || blastTime >=7));
               }
-
-              var energy = shipState.energy / 100;
-              var energyShape = ship.getChildren()[2];
-              if (energy < 0.0001) {
-                energyShape.setVisible(false);
+            }
+  
+            for (var x = 0; x < debrisCircles.length; x++) {
+              var debrisCircle = debrisCircles[x];
+              if (debrisCircle.debrisData.endTime <= gameTime) {
+                debrisCircles.splice(x--, 1);
+                BerryBots.endTorpedoDebris(debrisCircle);
               } else {
-                energyShape.setVisible(shipShowEnergys[x]);
-                energyShape.setScale(energy);
+                debrisCircle.setOffset({x: debrisCircle.getOffset().x
+                                            + debrisCircle.debrisData.speed});
+                debrisCircle.move(debrisCircle.debrisData.dx,
+                                  -debrisCircle.debrisData.dy);
               }
-              var shipDotGroup = ship.getChildren()[4];
-              shipDotGroup.setRotation(shipDotGroup.getRotation()
-                  + (BerryBots.SHIP_ROTATION * BerryBots.shipOrbits[x]));
-              ship.getChildren()[1].setVisible(shipShowNames[x]);
+            }
+  
+            var torpedoDebris = BerryBots.torpedoDebris;
+            var numTorpedoDebris = torpedoDebris.length;
+            while (nextTorpedoDebris < numTorpedoDebris
+                   && torpedoDebris[nextTorpedoDebris].startTime <= gameTime) {
+              var debrisData = torpedoDebris[nextTorpedoDebris++];
+              for (var x = 0; x < debrisData.parts; x++) {
+                var debrisCircle = BerryBots.makeTorpedoDebris();
+                debrisCircle.setX(debrisData.x);
+                debrisCircle.setY(debrisData.y);
+                debrisCircle.setFill(ships[debrisData.shipIndex].shipColor);
+                debrisCircle.setRotation(Math.random() * BerryBots.TWO_PI);
+                debrisCircle.setOffset(
+                    {x: BerryBots.scale(BerryBots.DEBRIS_INITIAL_OFFSET)}
+                );
+                debrisCircle.debrisData = {dx: debrisData.dx, dy: debrisData.dy,
+                    speed: debrisData.speeds[x], endTime: debrisData.endTime};
+                debrisCircles.push(debrisCircle);
+                BerryBots.mainLayer.add(debrisCircle);
+              }
+            }
+  
+            // Ship destroys.
+            for (var x = 0; x < destroyCircles.length; x++) {
+              var destroyCircle = destroyCircles[x];
+              if (destroyCircle.destroyData.endTime <= gameTime) {
+                destroyCircles.splice(x--, 1);
+                destroyCircle.destroy();
+              } else {
+                var radiusFactor = 1 + Math.floor(
+                    (gameTime - destroyCircle.destroyData.startTime) / 2);
+                destroyCircle.setRadius(
+                    radiusFactor * BerryBots.DESTROY_BASE_RADIUS);
+              }
+            }
+  
+            var shipDestroys = BerryBots.shipDestroys;
+            var numShipDestroys = shipDestroys.length;
+            while (nextShipDestroy < numShipDestroys
+                   && shipDestroys[nextShipDestroy].startTime <= gameTime) {
+              var shipDestroy = shipDestroys[nextShipDestroy++];
+              var destroyCircle = BerryBots.shipDestroyProto.clone();
+              destroyCircle.setX(shipDestroy.x);
+              destroyCircle.setY(shipDestroy.y);
+              destroyCircle.setStroke(ships[shipDestroy.shipIndex].shipColor);
+              destroyCircle.destroyData = shipDestroy;
+              destroyCircles.push(destroyCircle);
+              BerryBots.mainLayer.add(destroyCircle);
+            }
+  
+            // Ships.
+            var shipAdds = BerryBots.shipAdds;
+            var numShipAdds = shipAdds.length;
+            while (nextShipAdd < numShipAdds
+                   && shipAdds[nextShipAdd].time <= gameTime) {
+              shipAlives[shipAdds[nextShipAdd++].index] = true;
+            }
+  
+            var shipRemoves = BerryBots.shipRemoves;
+            var numShipRemoves = shipRemoves.length;
+            while (nextShipRemove < numShipRemoves
+                   && shipRemoves[nextShipRemove].time <= gameTime) {
+              shipAlives[shipRemoves[nextShipRemove++].index] = false;
+            }
+  
+            var shipAddShowNames = BerryBots.shipAddShowNames;
+            var numShipAddShowNames = shipAddShowNames.length;
+            while (nextShipShowName < numShipAddShowNames
+                   && shipAddShowNames[nextShipShowName].time <= gameTime) {
+              shipShowNames[shipAddShowNames[nextShipShowName++].index] = true;
+            }
+  
+            var shipAddHideNames = BerryBots.shipAddHideNames;
+            var numShipAddHideNames = shipAddHideNames.length;
+            while (nextShipHideName < numShipAddHideNames
+                   && shipAddHideNames[nextShipHideName].time <= gameTime) {
+              shipShowNames[shipAddHideNames[nextShipHideName++].index] = false;
+            }
+  
+            var shipAddShowEnergys = BerryBots.shipAddShowEnergys;
+            var numShipAddShowEnergys = shipAddShowEnergys.length;
+            while (nextShipShowEnergy < numShipAddShowEnergys
+                   && shipAddShowEnergys[nextShipShowEnergy].time <= gameTime) {
+              var shipIndex = shipAddShowEnergys[nextShipShowEnergy++].index;
+              shipShowEnergys[shipIndex] = true;
+              ships[shipIndex].getChildren()[1].setPosition(0, 24);
+            }
+  
+            var shipAddHideEnergys = BerryBots.shipAddHideEnergys;
+            var numShipAddHideEnergys = shipAddHideEnergys.length;
+            while (nextShipHideEnergy < numShipAddHideEnergys
+                   && shipAddHideEnergys[nextShipHideEnergy].time <= gameTime) {
+              var shipIndex = shipAddHideEnergys[nextShipHideEnergy++].index;
+              shipShowEnergys[shipIndex] = false;
+              ships[shipIndex].getChildren()[1].setPosition(0, 16);
+            }
+  
+            for (var x = 0; x < numShips; x++) {
+              var ship = ships[x];
+              if (shipAlives[x]) {
+                var shipState = BerryBots.shipStates[nextShipState++];
+                ship.show();
+                ship.setX(shipState.x);
+                ship.setY(shipState.y);
+                var thruster = ship.getChildren()[0];
+                thruster.setRotation(
+                    Math.PI + (BerryBots.TWO_PI - shipState.thrusterAngle));
+                var forceFactor = shipState.thrusterForce;
+                if (forceFactor < 0.0001) {
+                  thruster.setVisible(false);
+                } else {
+                  thruster.setVisible(true);
+                  thruster.setScale(BerryBots.THRUSTER_ZERO
+                      + (forceFactor * (1 - BerryBots.THRUSTER_ZERO)));
+                }
+  
+                var energy = shipState.energy / 100;
+                var energyShape = ship.getChildren()[2];
+                if (energy < 0.0001) {
+                  energyShape.setVisible(false);
+                } else {
+                  energyShape.setVisible(shipShowEnergys[x]);
+                  energyShape.setScale(energy);
+                }
+                var shipDotGroup = ship.getChildren()[4];
+                shipDotGroup.setRotation(shipDotGroup.getRotation()
+                    + (BerryBots.SHIP_ROTATION * BerryBots.shipOrbits[x]));
+                ship.getChildren()[1].setVisible(shipShowNames[x]);
+              } else {
+                ship.hide();
+              }
+            }
+  
+            // Stage texts.
+            for (var x = 0; x < stageTextShapes.length; x++) {
+              var stageTextShape = stageTextShapes[x];
+              if (stageTextShape.textData.endTime <= gameTime) {
+                stageTextShapes.splice(x--, 1);
+                BerryBots.endText(stageTextShape);
+              }
+            }
+  
+            var stageTexts = BerryBots.stageTexts;
+            var numStageTexts = stageTexts.length;
+            while (nextStageText < numStageTexts
+                   && stageTexts[nextStageText].startTime <= gameTime) {
+              var stageText = stageTexts[nextStageText++];
+              var stageTextShape = BerryBots.makeText();
+              stageTextShape.setPosition(stageText.x, stageText.y);
+              stageTextShape.setText(stageText.text);
+              stageTextShape.setFontSize(stageText.size);
+              stageTextShape.setFill(stageText.color);
+  
+              stageTextShape.textData = stageText;
+              stageTextShapes.push(stageTextShape);
+              BerryBots.mainLayer.add(stageTextShape);
+            }
+  
+            // Log entries.
+            var logEntries = BerryBots.logEntries;
+            var numLogEntries = logEntries.length;
+            while (nextLogEntry < numLogEntries
+                   && logEntries[nextLogEntry].time <= gameTime) {
+              var logEntry = logEntries[nextLogEntry++];
+              var console = BerryBots.getConsole(logEntry.teamIndex);
+  
+              console.logMessages.push(logEntry.message);
+              if (console.div != null) {
+                console.outputDiv.innerHTML +=
+                    '<br>' + BerryBots.escapeHtml(logEntry.message);
+                BerryBots.scrollToBottom(console.outputDiv);
+              }
+            }
+  
+            BerryBots.gameTime++;
+            if (BerryBots.gameTime < BerryBots.skipTime) {
+              BerryBots.nextDrawTime = BerryBots.gameTime;
+              if (BerryBots.spinnerShip == null) {
+                var ship = BerryBots.spinnerShip = BerryBots.shipProto.clone();
+                var shipParts = ship.getChildren();
+                shipParts[0].setVisible(false);
+                shipParts[1].setVisible(false);
+                shipParts[2].setVisible(false);
+                shipParts[3].setStroke('#f00');
+                var dots = shipParts[4].getChildren();
+                dots[0].setFill('#f00');
+                dots[1].setFill('#f00');
+                dots[2].setFill('#f00');
+                ship.setX(93);
+                ship.setY(BerryBots.canvasHeight - 93);
+                ship.setScale(3);
+                BerryBots.stageLayer.add(ship);
+                BerryBots.mainLayer.setOpacity(0.4);
+              } else if (BerryBots.gameTime % 80 == 0) {
+                var ship = BerryBots.spinnerShip;
+                var dots = ship.getChildren()[4];
+                dots.setRotation(dots.getRotation() + BerryBots.SPINNER_ROTATION);
+                break;
+              }
             } else {
-              ship.hide();
+              if (nextShipState >= BerryBots.shipStates.length 
+                  || BerryBots.gameTime >= BerryBots.nextDrawTime) {
+                break;
+              }
+            }
+          } while (true);
+          BerryBots.nextDrawTime += BerryBots.playbackSpeed;
+          if (BerryBots.skipTime != -1) {
+            BerryBots.desktopPing();
+            if (BerryBots.gameTime >= BerryBots.skipTime) {
+              BerryBots.stopSkipping();
             }
           }
-
-          // Stage texts.
-          for (var x = 0; x < stageTextShapes.length; x++) {
-            var stageTextShape = stageTextShapes[x];
-            if (stageTextShape.textData.endTime <= gameTime) {
-              stageTextShapes.splice(x--, 1);
-              BerryBots.endText(stageTextShape);
-            }
-          }
-
-          var stageTexts = BerryBots.stageTexts;
-          var numStageTexts = stageTexts.length;
-          while (nextStageText < numStageTexts
-                 && stageTexts[nextStageText].startTime <= gameTime) {
-            var stageText = stageTexts[nextStageText++];
-            var stageTextShape = BerryBots.makeText();
-            stageTextShape.setPosition(stageText.x, stageText.y);
-            stageTextShape.setText(stageText.text);
-            stageTextShape.setFontSize(stageText.size);
-            stageTextShape.setFill(stageText.color);
-
-            stageTextShape.textData = stageText;
-            stageTextShapes.push(stageTextShape);
-            BerryBots.mainLayer.add(stageTextShape);
-          }
-
-          // Log entries.
-          var logEntries = BerryBots.logEntries;
-          var numLogEntries = logEntries.length;
-          while (nextLogEntry < numLogEntries
-                 && logEntries[nextLogEntry].time <= gameTime) {
-            var logEntry = logEntries[nextLogEntry++];
-            var console = BerryBots.getConsole(logEntry.teamIndex);
-
-            console.logMessages.push(logEntry.message);
-            if (console.div != null) {
-              console.outputDiv.innerHTML +=
-                  '<br>' + BerryBots.escapeHtml(logEntry.message);
-              BerryBots.scrollToBottom(console.outputDiv);
-            }
-          }
-
-          BerryBots.gameTime++;
-          if (BerryBots.gameTime < BerryBots.skipTime) {
-            if (BerryBots.spinnerShip == null) {
-              var ship = BerryBots.spinnerShip = BerryBots.shipProto.clone();
-              var shipParts = ship.getChildren();
-              shipParts[0].setVisible(false);
-              shipParts[1].setVisible(false);
-              shipParts[2].setVisible(false);
-              shipParts[3].setStroke('#f00');
-              var dots = shipParts[4].getChildren();
-              dots[0].setFill('#f00');
-              dots[1].setFill('#f00');
-              dots[2].setFill('#f00');
-              ship.setX(93);
-              ship.setY(BerryBots.canvasHeight - 93);
-              ship.setScale(3);
-              BerryBots.stageLayer.add(ship);
-              BerryBots.mainLayer.setOpacity(0.4);
-            } else if (BerryBots.gameTime % 80 == 0) {
-              var ship = BerryBots.spinnerShip;
-              var dots = ship.getChildren()[4];
-              dots.setRotation(dots.getRotation() + BerryBots.SPINNER_ROTATION);
-              break;
-            }
-          } else {
-            break;
-          }
-        } while (true);
-        if (BerryBots.skipTime != -1) {
-          BerryBots.desktopPing();
-          if (BerryBots.gameTime >= BerryBots.skipTime) {
-            BerryBots.stopSkipping();
-          }
+        } else if (!BerryBots.showedResults) {
+          BerryBots.showResults();
+          BerryBots.showedResults = true;
         }
-      } else if (!BerryBots.showedResults) {
-        BerryBots.showResults();
-        BerryBots.showedResults = true;
       }
     }
 
