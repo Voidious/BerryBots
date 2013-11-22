@@ -120,7 +120,9 @@ var BerryBots = {
   DESTROY_FRAME_LENGTH: 2,
   DESTROY_TIME: 32 /* 16 * 2 */,
   replayData: BerryBots.replayData,
-  interactive: BerryBots.interactive
+  interactive: BerryBots.interactive,
+  oversizedControls: false,
+  initialized: false
 };
 
 BerryBots.style = {};
@@ -154,26 +156,8 @@ BerryBots.style.controls =
     + '    cursor: pointer;'
     + '    border-color: #fff;'
     + '  }'
-    + '  .play {'
-    + '    display: block;'
-    + '    height: 0;'
-    + '    width: 0;'
-    + '    border-left: 80px solid #fff;'
-    + '    border-bottom: 80px solid transparent;'
-    + '    border-top: 80px solid transparent;'
-    + '    transform: scale(2,1);'
-    + '    -ms-transform: scale(2,1);'
-    + '    -webkit-transform: scale(2,1);'
-    + '  }'
     + '  .play:hover {'
     + '    border-left-color: #0f0;'
-    + '  }'
-    + '  .pause-wedge {'
-    + '    background-color: #fff;'
-    + '    display: inline-block;'
-    + '    height: 165px;'
-    + '    width: 40px;'
-    + '    margin: 0 20px;'
     + '  }'
     + '  .pause:hover .pause-wedge {'
     + '    background-color: #0f0;'
@@ -185,6 +169,50 @@ BerryBots.style.controls =
     + '  }'
     + '  .speed > div:hover {'
     + '    cursor: pointer;'
+    + '  }'
+    + '</style>';
+
+  BerryBots.style.playPause =
+      '<style type="text/css">'
+    + '  .play {'
+    + '    display: block;'
+    + '    height: 0;'
+    + '    width: 0;'
+    + '    border-left: 60px solid #fff;'
+    + '    border-bottom: 60px solid transparent;'
+    + '    border-top: 60px solid transparent;'
+    + '    transform: scale(2,1);'
+    + '    -ms-transform: scale(2,1);'
+    + '    -webkit-transform: scale(2,1);'
+    + '  }'
+    + '  .pause-wedge {'
+    + '    background-color: #fff;'
+    + '    display: inline-block;'
+    + '    height: 115px;'
+    + '    width: 30px;'
+    + '    margin: 0 15px;'
+    + '  }'
+    + '</style>';
+
+  BerryBots.style.oversizedPlayPause =
+      '<style type="text/css">'
+    + '  .play {'
+    + '    display: block;'
+    + '    height: 0;'
+    + '    width: 0;'
+    + '    border-left: 80px solid #fff;'
+    + '    border-bottom: 80px solid transparent;'
+    + '    border-top: 80px solid transparent;'
+    + '    transform: scale(2,1);'
+    + '    -ms-transform: scale(2,1);'
+    + '    -webkit-transform: scale(2,1);'
+    + '  }'
+    + '  .pause-wedge {'
+    + '    background-color: #fff;'
+    + '    display: inline-block;'
+    + '    height: 165px;'
+    + '    width: 40px;'
+    + '    margin: 0 20px;'
     + '  }'
     + '</style>';
 
@@ -221,12 +249,20 @@ BerryBots.style.timeDisplay = function(timerWidth, timerLeft, top) {
 };
 
 BerryBots.desktopPing = function() {
+  if (!(BerryBots.initializedControls)) {
+    BerryBots.oversizedControls = false;
+    BerryBots.initializedControls = true;
+  }
   var d = new Date();
   BerryBots.hideOverlayTime =
-      Math.max(BerryBots.hideOverlayTime, d.getTime() + 850);
+      Math.max(BerryBots.hideOverlayTime, d.getTime() + 600);
 }
 
 BerryBots.touchPing = function() {
+  if (!(BerryBots.initializedControls)) {
+    BerryBots.oversizedControls = true;
+    BerryBots.initializedControls = true;
+  }
   var d = new Date();
   BerryBots.hideOverlayTime =
       Math.max(BerryBots.hideOverlayTime, d.getTime() + 2000);
@@ -881,24 +917,43 @@ BerryBots.showPlayPause = function() {
     var ludicDiv = document.getElementById('ludicrous');
     speedStyle.position = normalDiv.style.position = bouncyDiv.style.position =
         ludicDiv.style.position = d.style.position = 'absolute';
+    var bottomMargin = 300 + Math.max(0, (Math.min(400, top - 400) / 20))
     if (BerryBots.paused) {
-      d.style.left = Math.max(0, center - 30) + 'px';
-      d.style.top = (top - 355) + 'px';
+      if (BerryBots.oversizedControls) {
+        d.style.left = Math.max(0, center - 30) + 'px';
+        d.style.top = (top - 355) + 'px';
+        normalDiv.style.top = bouncyDiv.style.top = ludicDiv.style.top = '-140px';
+        normalDiv.style.left = '-112px';
+        bouncyDiv.style.left = '-7px';
+        ludicDiv.style.left = '93px';
+      } else {
+        d.style.left = Math.max(0, center - 22) + 'px';
+        d.style.top = (top - bottomMargin) + 'px';
+        normalDiv.style.top = bouncyDiv.style.top =
+            ludicDiv.style.top = '-90px';
+        normalDiv.style.left = '-120px';
+        bouncyDiv.style.left = '-15px';
+        ludicDiv.style.left = '85px';
+      }
       pauseStyle.visibility = 'hidden';
       playStyle.visibility = 'visible';
-      normalDiv.style.top = bouncyDiv.style.top = ludicDiv.style.top = '-140px';
-      normalDiv.style.left = '-112px';
-      bouncyDiv.style.left = '-7px';
-      ludicDiv.style.left = '93px';
     } else {
-      d.style.left = Math.max(0, center - 87) + 'px';
-      d.style.top = (top - 520) + 'px';
+      if (BerryBots.oversizedControls) {
+        d.style.left = Math.max(0, center - 87) + 'px';
+        d.style.top = (top - 520) + 'px';
+        normalDiv.style.left = '-55px';
+        bouncyDiv.style.left = '50px';
+        ludicDiv.style.left = '150px';
+      } else {
+        d.style.left = Math.max(0, center - 66) + 'px';
+        d.style.top = (top - bottomMargin - 115) + 'px';
+        normalDiv.style.left = '-76px';
+        bouncyDiv.style.left = '29px';
+        ludicDiv.style.left = '129px';
+      }
+      normalDiv.style.top = bouncyDiv.style.top = ludicDiv.style.top = '25px';
       playStyle.visibility = 'hidden';
       pauseStyle.visibility = 'visible';
-      normalDiv.style.top = bouncyDiv.style.top = ludicDiv.style.top = '25px';
-      normalDiv.style.left = '-55px';
-      bouncyDiv.style.left = '50px';
-      ludicDiv.style.left = '150px';
     }
 
     BerryBots.setPlaybackLabelColors();
@@ -966,6 +1021,8 @@ BerryBots.showConsoleTabs = function() {
 
 BerryBots.showControls = function() {
   var s = BerryBots.style.controls
+      + (BerryBots.oversizedControls
+          ? BerryBots.style.oversizedPlayPause : BerryBots.style.playPause)
       + '<div class="controls">'
       + '  <div id="play" class="play" onclick="BerryBots.playPause()"></div>'
       + '  <div id="pause" class="pause" onclick="BerryBots.playPause()">'
@@ -995,7 +1052,7 @@ BerryBots.showControls = function() {
 BerryBots.showTimeDisplay = function() {
   var stage = BerryBots.stage;
   var stageWidth = (stage.getScaleX() * stage.getWidth());
-  var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 112);
+  var top = Math.max(0, (stage.getScaleY() * stage.getHeight()) - 90);
   var timerWidth = (stageWidth / 2);
   var timerLeft = (stageWidth / 4);
   var s = BerryBots.style.timeDisplay(timerWidth, timerLeft, top)
