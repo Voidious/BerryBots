@@ -21,6 +21,11 @@
       border: 1px solid #333;
     }
 
+    .editorArea {
+      font-family: Ubuntu Mono, Consolas, monospace;
+      font-size: 14px;
+    }
+
     #playerDiv {
       position: relative;
     }
@@ -218,6 +223,29 @@
 
 <script type="text/javascript">
 
+// Thanks: http://www.abeautifulsite.net/blog/2011/11/detecting-mobile-devices-with-javascript/
+var isMobile = {
+  Android: function() {
+    return navigator.userAgent.match(/Android/i);
+  },
+  BlackBerry: function() {
+    return navigator.userAgent.match(/BlackBerry/i);
+  },
+  iOS: function() {
+    return navigator.userAgent.match(/iPhone|iPad|iPod/i);
+  },
+  Opera: function() {
+    return navigator.userAgent.match(/Opera Mini/i);
+  },
+  Windows: function() {
+    return navigator.userAgent.match(/IEMobile/i);
+  },
+  any: function() {
+    return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS()
+            || isMobile.Opera() || isMobile.Windows());
+  }
+};
+
 function encodeQuery(s) {
   return encodeURI(s).replace(/\+/g, '%2B').replace(/;/g, '%3B');
 }
@@ -239,8 +267,9 @@ function processMatch() {
   var stage = document.getElementById('Stage').value;
   var opponent = document.getElementById('Opponent').value;
   var params = 'stage=' + stage + '&opponent=' + opponent
-      + '&code=' + encodeQuery(editor.getValue());
-  _gaq.push(['_trackEvent', 'run match', stage, opponent, editor.getValue().length]);
+      + '&code=' + encodeQuery(getEditorText());
+  _gaq.push(['_trackEvent', 'run match', stage, opponent,
+      getEditorText().length]);
   x.open('POST', '/cgi-bin/runmatch.pl', true);
   x.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
   var startTime = new Date().getTime();
@@ -383,20 +412,41 @@ function delayedScroll(startY, endY, deltaY, delayMs) {
   }, delayMs);
 }
 
-function loadBot(filename) {
+function doLoadBot(filename) {
   var x = new XMLHttpRequest();
   x.open('GET', '/bots/' + filename, false);
   x.setRequestHeader('Content-Type', 'text/plain');
-  _gaq.push(['_trackEvent', 'start from', filename]);
   x.onreadystatechange = function () {
     if (x.readyState == 4) {
-      editor.setValue(x.responseText);
-      editor.clearSelection();
-      editor.scrollToLine(0);
-      editor.moveCursorTo(0, 0);
+      setEditorText(x.responseText);
     }
   };
   x.send();
+}
+
+function loadBot(filename) {
+  _gaq.push(['_trackEvent', 'start from', filename]);
+  doLoadBot(filename);
+}
+
+function setEditorText(text) {
+  if (isMobile.any()) {
+    document.getElementById('editorArea').value = text;
+    // TODO: adjust cursor position if possible
+  } else {
+    editor.setValue(text);
+    editor.clearSelection();
+    editor.scrollToLine(0);
+    editor.moveCursorTo(0, 0);
+  }
+}
+
+function getEditorText() {
+  if (isMobile.any()) {
+    return document.getElementById('editorArea').value;
+  } else {
+    return editor.getValue();
+  }
 }
 
 function onStageSelect() {
@@ -577,41 +627,14 @@ window.addEventListener('load', function() {
       hideFeedbackForm();
     }
   };
+  doLoadBot('player.lua');
 });
 
 </script>
 
 <a name="editor"></a>
 <div>
-  <div id="editor">-- A ship control program.
-
-ship = nil
-world = nil
-heading = nil
-force = nil
-
-function init(shipArg, worldArg)
-  ship = shipArg
-  world = worldArg
-
-  ship:setName("Player")
-  ship:setLaserColor(255, 255, 0)
-  heading = 0
-  force = world:constants().MAX_THRUSTER_FORCE / 4
-end
-
-function run(enemyShips, sensors)
-  ship:fireThruster(heading, force)
-end
-
-function roundOver()
-
-end
-
-function gameOver()
-
-end
-</div>
+  <div id="editor"></div>
 
   <div style="position: absolute; left: 690px;">
     <form>
@@ -684,12 +707,21 @@ end
 
 <script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
-  var editor = ace.edit("editor");
-  editor.getSession().setMode("ace/mode/lua");
-  editor.setTheme("ace/theme/textmate");
-  editor.getSession().setTabSize(2);
-  editor.getSession().setUseSoftTabs(true);
-  editor.setHighlightActiveLine(false);
+  if (isMobile.any()) {
+    var editorArea = document.createElement('textarea');
+    editorArea.id = 'editorArea';
+    editorArea.className = 'editorArea';
+    editorArea.style.width = '100%';
+    editorArea.style.height = '100%';
+    document.getElementById('editor').appendChild(editorArea);
+  } else {
+    var editor = ace.edit("editor");
+    editor.getSession().setMode("ace/mode/lua");
+    editor.setTheme("ace/theme/textmate");
+    editor.getSession().setTabSize(2);
+    editor.getSession().setUseSoftTabs(true);
+    editor.setHighlightActiveLine(false);
+  }
 </script>
 
 </body>
