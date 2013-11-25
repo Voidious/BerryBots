@@ -62,12 +62,6 @@
       text-decoration: none;
     }
 
-    .helpLink {
-      float: left;
-      vertical-align: middle;
-      margin-top: 2px;
-    }
-
     .errorLink {
       vertical-align: middle;
       margin-left: 0.5em;
@@ -133,6 +127,15 @@
       color: #000;
     }
 
+    .closeCrashCourse {
+      font-size: 36px;
+      position: absolute;
+      left: 5px;
+      top: -6px;
+      text-decoration: none;
+      color: #000;
+    }
+
     .errorTitle {
       font-size: 18px;
       left: 285px;
@@ -149,7 +152,7 @@
       top: -160px;
       width: 350px;
       position: absolute;
-      z-index: 100;
+      z-index: 200;
     }
 
     .feedbackArea {
@@ -199,6 +202,130 @@
       width: 24px;
       margin: 0 0 0 5px;
       vertical-align: middle;
+    }
+
+    .crashDiv {
+      margin: auto;
+      overflow: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      right: 0;
+      width: 660px;
+      height: 480px;
+      background-color: #fff;
+      z-index: 100;
+      border: 1px solid #bbb;
+      box-shadow: 0 0 5px 2px #bbb;
+      -moz-box-shadow: 0 0 5px 2px #bbb;
+      -webkit-box-shadow: 0 0 5px 2px #bbb;
+    }
+
+    .crashMenu {
+      float: left;
+      width: 115px;
+      border-right: 1px solid #888;
+      height: 100%;
+    }
+
+    .crashMenuContent {
+      margin-top: 90px;
+    }
+
+    .crashMenuItem {
+      margin: 1.0em 0 0.5em 0.5em;
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    .crashMenuItem a {
+      text-decoration: none;
+    }
+
+    .crashMenuItemSelected a {
+      color: #000;
+    }
+
+    .crashContent {
+      position: absolute;
+      display: inline-block;
+      width: 530px;
+      padding: 20px 0 20px 10px;
+      font-size: 1.1em;
+      margin-top: 5px;
+    }
+
+    .crashContent a {
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .crashContent li {
+      margin-bottom: 5px;
+    }
+
+    .crashImg {
+      display: block;
+      position: relative;
+      margin: 15px 130px;
+    }
+
+    .crashInitRunInfo {
+      border-top: 1px solid #bbb;
+      margin-top: 15px;
+      padding-top: 15px;
+      font-size: 0.9em;
+      line-height: 1.3em;
+    }
+
+    .crashInitRunInfo ul, .crashCode {
+      margin: 0.5em 0;
+    }
+
+    .play {
+      display: block;
+      height: 0;
+      width: 0 !important;
+      border-left: 40px solid #fff;
+      border-left-color: #0f0;
+      border-bottom: 40px solid transparent;
+      border-top: 40px solid transparent;
+      transform: scale(2,1);
+      -ms-transform: scale(2,1);
+      -webkit-transform: scale(2,1);
+    }
+
+    .replay {
+      color: #0f0;
+      position: absolute;
+      visibility: hidden;
+      width: 100%;
+      left: 110px;
+    }
+
+    .replay_maze {
+      top: 25px;
+    }
+
+    .replay_battle {
+      top: 45px;
+    }
+
+    .crashImg:hover .replay {
+      visibility: visible;
+    }
+
+    .prevLink {
+      position: absolute;
+      left: 20px;
+      top: 433px;
+    }
+
+    .nextLink {
+      position: absolute;
+      left: 450px;
+      top: 433px;
     }
 </style>
 <head>
@@ -399,15 +526,15 @@ function processMatch() {
 }
 
 function smoothScrollTo(z) {
-  delayedScroll(self.pageYOffset, z, 25, 17);
+  delayedScroll(self.pageYOffset, z, 25, 17, (self.pageYOffset < z));
 }
 
-function delayedScroll(startY, endY, deltaY, delayMs) {
+function delayedScroll(startY, endY, deltaY, delayMs, scrollingDown) {
   setTimeout(function() {
-    var y = startY + deltaY;
+    var y = startY + ((scrollingDown ? 1 : -1) * deltaY);
     window.scrollTo(0, Math.min(y, endY));
-    if (y < endY) {
-      delayedScroll(y, endY, deltaY, delayMs);
+    if (scrollingDown == (y < endY)) {
+      delayedScroll(y, endY, deltaY, delayMs, scrollingDown);
     }
   }, delayMs);
 }
@@ -474,12 +601,6 @@ function selectBot(filename) {
       return;
     }
   }
-}
-
-function openHelp() {
-  _gaq.push(['_trackEvent', 'help', 'open']);
-  window.open('help.html', 'help', 'titlebar=no,scrollbars=no,width=530,'
-      + 'height=245,top=' + window.screenY + ',left=' + (window.screenX + 500));
 }
 
 function viewErrors(errorLog) {
@@ -620,11 +741,195 @@ function hideSpinner(prefix) {
   }
 }
 
+function showCrashCourse() {
+  _gaq.push(['_trackEvent', 'crash course', 'open']);
+  smoothScrollTo(0);
+  var d = document.createElement('div');
+  d.id = 'crash';
+  d.className = 'crashDiv';
+
+  d.innerHTML = 
+      '<div class="crashMenu">'
+    + '  <div class="crashMenuContent">'
+    + '    <div id="crashIntro" class="crashMenuItem crashMenuItemSelected">'
+        + '<a href="javascript:void(0)" '
+        + 'onclick="selectCrashMenuItem(\'crashIntro\')">Intro</div>'
+    + '    <div id="crashInit" class="crashMenuItem">'
+        + '<a href="javascript:void(0)" '
+        + 'onclick="selectCrashMenuItem(\'crashInit\')">init()</div>'
+    + '    <div id="crashRun" class="crashMenuItem">'
+        + '<a href="javascript:void(0)" '
+        + 'onclick="selectCrashMenuItem(\'crashRun\')">run()</div>'
+    + '    <div id="crashWinning" class="crashMenuItem">'
+        + '<a href="javascript:void(0)" '
+        + 'onclick="selectCrashMenuItem(\'crashWinning\')">Winning</div>'
+    + '    <div id="crashMoreInfo" class="crashMenuItem">'
+        + '<a href="javascript:void(0)" '
+        + 'onclick="selectCrashMenuItem(\'crashMoreInfo\')">More info</div>'
+    + '  </div>'
+    + '</div>'
+    + '<div id="crashContent" class="crashContent"></div>'
+    + '<a href="javascript:void(0)" onclick="hideCrashCourse()" '
+        + 'class="closeCrashCourse">&times;</a>';
+
+  document.body.appendChild(d);
+
+  selectCrashMenuItem('crashIntro');
+}
+
+function hideCrashCourse() {
+  var d = document.getElementById('crash');
+  if (d != null) {
+    document.body.removeChild(d);
+  }
+}
+
+function selectCrashMenuItem(id) {
+  _gaq.push(['_trackEvent', 'crash course', 'item', id]);
+  var d = document.getElementById('crashContent');
+  if (id == 'crashIntro') {
+    d.innerHTML = getCrashIntroHtml();
+  } else if (id == 'crashInit') {
+    d.innerHTML = getCrashInitHtml();
+  } else if (id == 'crashRun') {
+    d.innerHTML = getCrashRunHtml();
+  } else if (id == 'crashWinning') {
+    d.innerHTML = getCrashWinningHtml();
+  } else if (id == 'crashMoreInfo') {
+    d.innerHTML = getCrashMoreInfoHtml();
+  }
+  highlightCrashMenuItem(id);
+}
+
+function highlightCrashMenuItem(id) {
+  var items = ['crashIntro', 'crashInit', 'crashRun', 'crashWinning',
+               'crashMoreInfo'];
+  for (var x = 0; x < items.length; x++) {
+    var d = document.getElementById(items[x]);
+    d.className =
+        'crashMenuItem' + (items[x] == id ? ' crashMenuItemSelected' : '');
+  }
+}
+
+function getCrashIntroHtml() {
+  return '<p>In BerryBots, you program a ship in '
+      + '<a href="http://lua.org" target="_blank">Lua</a> to move around and '
+      + 'complete challenges or compete against other ships.</p>'
+      + '<p>This is a crash course to help get you started.</p>'
+      + '<p>For specific advice, please <a href="javascript:void(0)" '
+      + 'onclick="showFeedbackForm()">send feedback</a> or post your question '
+      + 'in the <a href="http://berrybots.com/forum" target="_blank">forums</a>.'
+      + getCrashNextLink('crashInit');
+}
+
+function getCrashInitHtml() {
+  return '<img src="crash_init.png" width="530" height="204" alt="init sample">'
+      + '<div class="crashInitRunInfo">'
+      + '  There are 3 primary commands you can send to your ship:'
+      + '  <ul>'
+      + '    <li><a href="http://berrybots.com/apidoc/modules/Ship.html#fireThruster" target="_blank">fireThruster(angle, force)</a></li>'
+      + '    <li><a href="http://berrybots.com/apidoc/modules/Ship.html#fireLaser" target="_blank">fireLaser(heading)</a></li>'
+      + '    <li><a href="http://berrybots.com/apidoc/modules/Ship.html#fireTorpedo" target="_blank">fireTorpedo(heading, distance)</a></li>'
+      + '  </ul>'
+      + '  You can also set your ship\'s name and colors, fetch its speed, '
+      + '  location and heading, and much more. See the full API documentation for '
+      + '  <a href="http://berrybots.com/apidoc/modules/Ship.html" target="_blank">Ship</a> '
+      + '  and <a href="http://berrybots.com/apidoc/modules/World.html" target="_blank">World</a>'
+      + '  modules.'
+      + '</div>'
+      + getCrashPrevLink('crashIntro')
+      + getCrashNextLink('crashRun');
+}
+
+function getCrashRunHtml() {
+  return '<img src="crash_run.png" width="530" height="115" alt="run sample">'
+      + '<div class="crashInitRunInfo">'
+      + '  The <tt>enemyShips</tt> parameter is a table, like an array. Each '
+      + '  entry has data about an enemy ship. Some of the fields are:'
+      + '  <ul>'
+      + '    <li><strong>x</strong> and <strong>y</strong> coorinates</li>'
+      + '    <li><strong>speed</strong> and <strong>energy</strong></li>'
+      + '    <li><strong>heading</strong>, in radians (0 is east, pi / 2 is north)</li>'
+      + '  </ul>'
+      + '  To fire at the first ship you see, you could start with:<br>'
+      + '  <div class="crashCode">'
+      + '    <tt>&nbsp;&nbsp;ship:fireLaser(math.atan2(<br>'
+          + '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;enemyShips[1].y - ship:y(), enemyShips[1].x - ship:x()))</tt><br>'
+      + '  </div>'
+      + '  See the full API documentation for '
+      + '  <a href="http://berrybots.com/apidoc/modules/ShipControl.html#EnemyShip" target="_blank">EnemyShip</a> '
+      + '  and <a href="http://berrybots.com/apidoc/modules/Sensors.html" target="_blank">Sensors</a>'
+      + '  modules.'
+      + '</div>'
+      + getCrashPrevLink('crashInit')
+      + getCrashNextLink('crashWinning');
+}
+
+function getCrashWinningHtml() {
+  return 'The gameplay on every stage is different, but many have common '
+      + 'goals. Some have you navigate to a specific location.'
+      + '<div class="crashImg">'
+      + '  <a href="http://berrybots.com/replays/maze2-2013.10.05-17.07.19.html" target="_blank">'
+      + '  <img src="crash_stages_move.png" width="250" height="130" alt="Maze">'
+      + '  <div class="play replay replay_maze"></div></a>'
+      + '</div>'
+      + 'On others, you try to destroy all the enemy ships.'
+      + '<div class="crashImg">'
+      + '  <a href="http://berrybots.com/replays/battle1-2013.10.05-17.03.29.html" target="_blank">'
+      + '  <img src="crash_stages_destroy.png" width="250" height="170" alt="Battle">'
+      + '  <div class="play replay replay_battle"></div></a>'
+      + '</div>'
+      + getCrashPrevLink('crashRun')
+      + getCrashNextLink('crashMoreInfo');
+}
+
+function getCrashMoreInfoHtml() {
+  return 'How to win on...'
+      + '<ul>'
+      + '  <li><a href="http://berrybots.com/wiki/Joust">Joust</a> - Ram or '
+      + '  lure your opponent off the battle strip before they do the same to you.</li>'
+      + '  <li><a href="http://berrybots.com/wiki/Battle1">Battle</a> - Last '
+      + '  ship alive each round wins. Best of 9.</li>'
+      + '  <li><a href="http://berrybots.com/wiki/Maze2">Maze</a> - Navigate '
+      + '  to the zone without touching any walls.</li>'
+      + '  <li><a href="http://berrybots.com/wiki/LaserGallery">LaserGallery</a>'
+      + '  - Destroy five ships, one at a time, as quickly as possible with only your '
+      + '  laser gun. Your torpedo gun and thruster are disabled.</li>'
+      + '</ul>'
+      + 'BerryBots and Lua programming resources:'
+      + '<ul>'
+      + '  <li><a href="http://berrybots.com/specs.html" target="_blank">BerryBots Specs</a>'
+          + ' - Basic game rules and physics.</li>'
+      + '  <li><a href="http://berrybots.com/apidoc" target="_blank">BerryBots API docs</a></li>'
+      + '  <li><a href="http://lua-users.org/wiki/MathLibraryTutorial" target="_blank">Lua math library</a></li>'
+      + '  <li><a href="http://berrybots.com/wiki/Category:Samples" target="_blank">BerryBots sample programs</a>'
+          + ' - Learn by example, plus lots of code snippets to get you started.</li>'
+      + '</ul>'
+      + getCrashPrevLink('crashWinning')
+      +  '<div class="nextLink"><a href="javascript:void(0)" '
+      + 'onclick="hideCrashCourse()">[ Close ]</a></div>';
+
+}
+
+function getCrashPrevLink(prevId) {
+  return getCrashLink(prevId, '&lt; Back', 'prevLink');
+}
+
+function getCrashNextLink(nextId) {
+  return getCrashLink(nextId, 'Next &gt;', 'nextLink');
+}
+
+function getCrashLink(id, label, className) {
+  return '<div class="' + className + '"><a href="javascript:void(0)" '
+      + 'onclick="selectCrashMenuItem(\'' + id + '\')">' + label + '</a></div>';
+}
+
 window.addEventListener('load', function() {
   document.body.onkeydown = function(e) {
     if (e.which == 27) { // escape
       hideErrors();
       hideFeedbackForm();
+      hideCrashCourse();
     }
   };
   doLoadBot('player.lua');
@@ -665,13 +970,14 @@ window.addEventListener('load', function() {
           </div>
         </div>
         <div>
-          <a href="javascript:void(0)" class="uiLink helpLink" onclick="openHelp()">[ Help ]</a>
           <input type="button" id="run" class="runMatch" value="Run Match" onclick="runMatch()">
           <div id="runSpinner" class="runSpinner"></div>
         </div>
       </div>
       <br><br><br>
-      Start with code from:
+      Learn the basics with a <a href="javascript:void(0)" class="uiLink" onclick="showCrashCourse()">crash course</a>!
+      <br><br>
+      Or start with code from:
       <ul class="botLinkList">
         <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('player.lua')">Default code</a></li>
         <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('jouster.lua')">Jouster</a></li>
