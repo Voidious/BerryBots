@@ -34,6 +34,16 @@
       position: relative;
     }
 
+    .rightMenu {
+      display: block;
+      margin-top: 20px;
+    }
+
+    .poweredMenu {
+      display: block;
+      margin-top: 6px;
+    }
+
     .formLabel {
       display: inline-block;
       width: 5em;
@@ -943,7 +953,7 @@ window.addEventListener('load', function() {
 
   <div style="position: absolute; left: 690px;">
     <form>
-      <div style="width: 15em">
+      <div style="width: 15em; display: block;">
         <div style="margin-bottom: 0.5em;">
           <div class="formLabel">Stage:</div>
           <div class="di">
@@ -969,39 +979,44 @@ window.addEventListener('load', function() {
             </select>
           </div>
         </div>
-        <div>
+        <div style="overflow: auto">
           <input type="button" id="run" class="runMatch" value="Run Match" onclick="runMatch()">
           <div id="runSpinner" class="runSpinner"></div>
         </div>
       </div>
-      <br><br><br>
-      Learn the basics with a <a href="javascript:void(0)" class="uiLink" onclick="showCrashCourse()">crash course</a>!
-      <br><br>
-      Or start with code from:
-      <ul class="botLinkList">
-        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('player.lua')">Default code</a></li>
-        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('jouster.lua')">Jouster</a></li>
-        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('chaser.lua')">Chaser</a></li>
-        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('randombot.lua')">RandomBot</a></li>
-        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('wallhugger.lua')">WallHugger</a></li>
-        <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('basicbattler.lua')">BasicBattler</a></li>
-      </ul>
-      <br>
-      BerryBots Lua API docs:
-      <br>
-      &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://berrybots.com/apidoc/modules/ShipControl.html" target="_blank">ShipControl</a>
-      &bull; <a href="http://berrybots.com/apidoc/modules/Ship.html" target="_blank">Ship</a>
-      &bull; <a href="http://berrybots.com/apidoc/modules/World.html" target="_blank">World</a>
-      &bull; <a href="http://berrybots.com/apidoc" target="_blank">all docs</a>
-      <br><br>
-      Powered by:
-      <br>
-      &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://berrybots.com">BerryBots</a>
-      &bull; <a href="http://ace.c9.io">Ace</a>
-      &bull; <a href="http://kineticjs.com">KineticJS</a>
-      <br><br>
-      <div id="sendFeedbackDiv">
-        <a href="javascript:void(0)" class="uiLink" onclick="showFeedbackForm()">[ Send feedback ]</a>
+      <div class="rightMenu">
+        Learn the basics with a <a href="javascript:void(0)" class="uiLink" onclick="showCrashCourse()">crash course</a>!
+      </div>
+      <div class="rightMenu">
+        Or start with code from:
+        <ul class="botLinkList">
+          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('player.lua')">Default code</a></li>
+          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('jouster.lua')">Jouster</a></li>
+          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('chaser.lua')">Chaser</a></li>
+          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('randombot.lua')">RandomBot</a></li>
+          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('wallhugger.lua')">WallHugger</a></li>
+          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('basicbattler.lua')">BasicBattler</a></li>
+        </ul>
+      </div>
+      <div class="rightMenu">
+        BerryBots Lua API docs:
+        <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://berrybots.com/apidoc/modules/ShipControl.html" target="_blank">ShipControl</a>
+        &bull; <a href="http://berrybots.com/apidoc/modules/Ship.html" target="_blank">Ship</a>
+        &bull; <a href="http://berrybots.com/apidoc/modules/World.html" target="_blank">World</a>
+        &bull; <a href="http://berrybots.com/apidoc" target="_blank">all docs</a>
+      </div>
+      <div class="poweredMenu">
+        Powered by:
+        <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<a href="http://berrybots.com">BerryBots</a>
+        &bull; <a href="http://ace.c9.io">Ace</a>
+        &bull; <a href="http://kineticjs.com">KineticJS</a>
+      </div>
+      <div class="rightMenu">
+        <div id="sendFeedbackDiv">
+          <a href="javascript:void(0)" class="uiLink" onclick="showFeedbackForm()">[ Send feedback ]</a>
+        </div>
       </div>
     </form>
   </div>
