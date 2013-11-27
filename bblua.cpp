@@ -1966,6 +1966,17 @@ int RunnerForm_addCheckbox(lua_State *L) {
   return 1;
 }
 
+int RunnerForm_addDropdown(lua_State *L) {
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
+  const char *name = luaL_checkstring(L, 2);
+  int numOptions;
+  char** options;
+  getStringArgs(L, 3, options, numOptions);
+  form->gameRunner->addDropdown(name, options, numOptions);
+  delete options;
+  return 1;
+}
+
 int RunnerForm_default(lua_State *L) {
   LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *name = luaL_checkstring(L, 2);
@@ -2023,7 +2034,8 @@ int RunnerForm_get(lua_State *L) {
     lua_pushnumber(L, gameRunner->getIntegerValue(name));
   } else if (type == TYPE_CHECKBOX) {
     lua_pushboolean(L, gameRunner->getBooleanValue(name));
-  } else if (type == TYPE_STAGE_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
+  } else if (type == TYPE_STAGE_SELECT || type == TYPE_SINGLE_SHIP_SELECT
+             || type == TYPE_DROPDOWN) {
     char **stringValues = gameRunner->getStringValues(name);
     int numStringValues = gameRunner->getNumStringValues(name);
     if (numStringValues == 0) {
@@ -2043,6 +2055,7 @@ const luaL_Reg RunnerForm_methods[] = {
   {"addMultiShipSelect",   RunnerForm_addMultiShipSelect},
   {"addIntegerText",       RunnerForm_addIntegerText},
   {"addCheckbox",          RunnerForm_addCheckbox},
+  {"addDropdown",          RunnerForm_addDropdown},
   {"default",              RunnerForm_default},
   {"reset",                RunnerForm_reset},
   {"ok",                   RunnerForm_ok},
