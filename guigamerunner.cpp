@@ -73,6 +73,7 @@ GuiGameRunner::~GuiGameRunner() {
   if (replayTemplateDir_ != 0) {
     delete replayTemplateDir_;
   }
+  delete runnerFormListener_;
 }
 
 void GuiGameRunner::addStageSelect(const char *name) {
@@ -130,6 +131,13 @@ void GuiGameRunner::setDefault(const char *name, bool value) {
   if (element->getType() == TYPE_CHECKBOX) {
     element->setBooleanValue(value);
   }
+}
+
+void GuiGameRunner::reset() {
+  for (int x = 0; x < numFormElements_; x++) {
+    delete formElements_[x];
+  }
+  numFormElements_ = 0;
 }
 
 bool GuiGameRunner::ok(const char *message) {

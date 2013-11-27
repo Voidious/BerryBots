@@ -42,6 +42,7 @@ class GameRunner {
     virtual void setDefault(const char *name, const char *value) = 0;
     virtual void setDefault(const char *name, int value) = 0;
     virtual void setDefault(const char *name, bool value) = 0;
+    virtual void reset() = 0;
     virtual bool ok(const char *message) = 0;
     virtual int getElementType(const char *name) = 0;
     virtual char** getStringValues(const char *name) = 0;

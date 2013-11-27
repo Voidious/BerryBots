@@ -61,6 +61,7 @@ class GuiGameRunner : public GameRunner {
     virtual void setDefault(const char *name, const char *value);
     virtual void setDefault(const char *name, int value);
     virtual void setDefault(const char *name, bool value);
+    virtual void reset();
     virtual bool ok(const char *message);
     virtual int getElementType(const char *name);
     virtual char** getStringValues(const char *name);

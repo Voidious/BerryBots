@@ -1989,6 +1989,12 @@ int RunnerForm_default(lua_State *L) {
   return 1;
 }
 
+int RunnerForm_reset(lua_State *L) {
+  LuaRunnerForm *form = checkRunnerForm(L, 1);
+  form->gameRunner->reset();
+  return 1;
+}
+
 int RunnerForm_ok(lua_State *L) {
   LuaRunnerForm *form = checkRunnerForm(L, 1);
   const char *message = 0;
@@ -2038,6 +2044,7 @@ const luaL_Reg RunnerForm_methods[] = {
   {"addIntegerText",       RunnerForm_addIntegerText},
   {"addCheckbox",          RunnerForm_addCheckbox},
   {"default",              RunnerForm_default},
+  {"reset",                RunnerForm_reset},
   {"ok",                   RunnerForm_ok},
   {"get",                  RunnerForm_get},
   {0, 0}

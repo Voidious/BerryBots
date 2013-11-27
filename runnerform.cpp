@@ -109,7 +109,6 @@ RunnerForm::~RunnerForm() {
   if (message_ != 0) {
     delete message_;
   }
-  delete listener_;
 }
 
 wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
