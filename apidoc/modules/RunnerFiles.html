@@ -114,7 +114,7 @@
 
 <h1>Module <code>RunnerFiles</code></h1>
 
-<p>A file access object used by a Game Runner program to read and write files to disk. It's only allowed to access files under the <code>runners</code> subdirectory.</p>
+<p>A file access object used by a Game Runner program to read and write data files or programs to disk. It's only allowed to access files under the <code>runners</code>, <code>bots/runners</code>, and <code>stages/runners</code> subdirectories.</p>
 
 
 
@@ -124,18 +124,48 @@
 <table class="function_list">
 
 	<tr>
+	<td class="name" nowrap><a href="#botExists">botExists</a>&nbsp;(filename)</td>
+	<td class="summary">Checks if a bot file exists.</td>
+	</tr>
+
+	<tr>
 	<td class="name" nowrap><a href="#exists">exists</a>&nbsp;(filename)</td>
-	<td class="summary">Checks if a file exists.</td>
+	<td class="summary">Checks if a data file exists.</td>
 	</tr>
 
 	<tr>
 	<td class="name" nowrap><a href="#read">read</a>&nbsp;(filename)</td>
-	<td class="summary">Reads the contents of a file.</td>
+	<td class="summary">Reads the contents of a data file.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#readBot">readBot</a>&nbsp;(filename)</td>
+	<td class="summary">Reads the contents of a bot file.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#readStage">readStage</a>&nbsp;(filename)</td>
+	<td class="summary">Reads the contents of a stage file.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#stageExists">stageExists</a>&nbsp;(filename)</td>
+	<td class="summary">Checks if a stage file exists.</td>
 	</tr>
 
 	<tr>
 	<td class="name" nowrap><a href="#write">write</a>&nbsp;(filename, contents)</td>
-	<td class="summary">Writes a file to disk.</td>
+	<td class="summary">Writes a data file to disk.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#writeBot">writeBot</a>&nbsp;(filename, contents)</td>
+	<td class="summary">Writes a bot file to disk.</td>
+	</tr>
+
+	<tr>
+	<td class="name" nowrap><a href="#writeStage">writeStage</a>&nbsp;(filename, contents)</td>
+	<td class="summary">Writes a stage file to disk.</td>
 	</tr>
 
 </table>
@@ -155,10 +185,40 @@
 
 
 
+<dt><a name="botExists"></a><strong>botExists</strong>&nbsp;(filename)</dt>
+<br/>
+<dd>
+Checks if a bot file exists.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  filename: The name of the file under the <code>bots/runners</code> subdirectory.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the file exists, <code>false</code> otherwise.
+
+
+
+</dd>
+
+
+
+
 <dt><a name="exists"></a><strong>exists</strong>&nbsp;(filename)</dt>
 <br/>
 <dd>
-Checks if a file exists.
+Checks if a data file exists.
 
 
 <h3>Parameters</h3>
@@ -188,7 +248,7 @@ Checks if a file exists.
 <dt><a name="read"></a><strong>read</strong>&nbsp;(filename)</dt>
 <br/>
 <dd>
-Reads the contents of a file.
+Reads the contents of a data file.
 
 
 <h3>Parameters</h3>
@@ -215,10 +275,100 @@ The contents of the file as a string, or <code>nil</code> if the file doesn't ex
 
 
 
+<dt><a name="readBot"></a><strong>readBot</strong>&nbsp;(filename)</dt>
+<br/>
+<dd>
+Reads the contents of a bot file.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  filename: The name of the file under the <code>bots/runners</code> subdirectory.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+The contents of the file as a string, or <code>nil</code> if the file doesn't exist.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="readStage"></a><strong>readStage</strong>&nbsp;(filename)</dt>
+<br/>
+<dd>
+Reads the contents of a stage file.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  filename: The name of the file under the <code>stages/runners</code> subdirectory.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+The contents of the file as a string, or <code>nil</code> if the file doesn't exist.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="stageExists"></a><strong>stageExists</strong>&nbsp;(filename)</dt>
+<br/>
+<dd>
+Checks if a stage file exists.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  filename: The name of the file under the <code>stages/runners</code> subdirectory.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+<h3>Return value:</h3>
+<code>true</code> if the file exists, <code>false</code> otherwise.
+
+
+
+</dd>
+
+
+
+
 <dt><a name="write"></a><strong>write</strong>&nbsp;(filename, contents)</dt>
 <br/>
 <dd>
-Writes a file to disk.
+Writes a data file to disk.
 
 
 <h3>Parameters</h3>
@@ -226,6 +376,68 @@ Writes a file to disk.
 	
 	<li>
 	  filename: The name of the file under the <code>runners</code> subdirectory.
+	</li>
+	
+	<li>
+	  contents: The contents of the file as a string.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="writeBot"></a><strong>writeBot</strong>&nbsp;(filename, contents)</dt>
+<br/>
+<dd>
+Writes a bot file to disk.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  filename: The name of the file under the <code>bots/runners</code> subdirectory.
+	</li>
+	
+	<li>
+	  contents: The contents of the file as a string.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="writeStage"></a><strong>writeStage</strong>&nbsp;(filename, contents)</dt>
+<br/>
+<dd>
+Writes a stage file to disk.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  filename: The name of the file under the <code>stages/runners</code> subdirectory.
 	</li>
 	
 	<li>

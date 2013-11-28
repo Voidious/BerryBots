@@ -1,23 +1,62 @@
---- A file access object used by a Game Runner program to read and write files
--- to disk. It's only allowed to access files under the <code>runners</code>
--- subdirectory.
+--- A file access object used by a Game Runner program to read and write data
+-- files or programs to disk. It's only allowed to access files under the
+-- <code>runners</code>, <code>bots/runners</code>, and
+-- <code>stages/runners</code> subdirectories.
 module "RunnerFiles"
 
---- Checks if a file exists.
+--- Checks if a bot file exists.
+-- @param filename The name of the file under the <code>bots/runners</code>
+--     subdirectory.
+-- @return <code>true</code> if the file exists, <code>false</code> otherwise.
+function botExists(filename)
+
+--- Checks if a data file exists.
 -- @param filename The name of the file under the <code>runners</code>
 --     subdirectory.
 -- @return <code>true</code> if the file exists, <code>false</code> otherwise.
 function exists(filename)
 
---- Reads the contents of a file.
+--- Reads the contents of a data file.
 -- @param filename The name of the file under the <code>runners</code>
 --     subdirectory.
 -- @return The contents of the file as a string, or <code>nil</code> if the file
 --     doesn't exist.
 function read(filename)
 
---- Writes a file to disk.
+--- Reads the contents of a bot file.
+-- @param filename The name of the file under the <code>bots/runners</code>
+--     subdirectory.
+-- @return The contents of the file as a string, or <code>nil</code> if the file
+--     doesn't exist.
+function readBot(filename)
+
+--- Reads the contents of a stage file.
+-- @param filename The name of the file under the <code>stages/runners</code>
+--     subdirectory.
+-- @return The contents of the file as a string, or <code>nil</code> if the file
+--     doesn't exist.
+function readStage(filename)
+
+--- Checks if a stage file exists.
+-- @param filename The name of the file under the <code>stages/runners</code>
+--     subdirectory.
+-- @return <code>true</code> if the file exists, <code>false</code> otherwise.
+function stageExists(filename)
+
+--- Writes a data file to disk.
 -- @param filename The name of the file under the <code>runners</code>
 --     subdirectory.
 -- @param contents The contents of the file as a string.
 function write(filename, contents)
+
+--- Writes a bot file to disk.
+-- @param filename The name of the file under the <code>bots/runners</code>
+--     subdirectory.
+-- @param contents The contents of the file as a string.
+function writeBot(filename, contents)
+
+--- Writes a stage file to disk.
+-- @param filename The name of the file under the <code>stages/runners</code>
+--     subdirectory.
+-- @param contents The contents of the file as a string.
+function writeStage(filename, contents)

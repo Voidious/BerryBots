@@ -2258,7 +2258,7 @@ RunnerFiles* pushRunnerFiles(lua_State *L, GameRunner *gameRunner) {
   return files;
 }
 
-char* checkFilename(lua_State *L, int index) {
+char* checkFilename(lua_State *L, int index, const char *dir) {
   const char *rawFilename = luaL_checkstring(L, index);
   char *filename = new char[strlen(rawFilename) + 1];
   strcpy(filename, rawFilename);
@@ -2270,15 +2270,12 @@ char* checkFilename(lua_State *L, int index) {
     luaL_error(L, "Can't read from absolute paths.");
     return 0;
   } else {
-    char *runnersDir = new char[getRunnersDir().size() + 1];
-    strcpy(runnersDir, getRunnersDir().c_str());
-    char *absFilename = fileManager->getFilePath(runnersDir, filename);
+    char *absFilename = fileManager->getFilePath(dir, filename);
     bool error = false;
-    if (strncmp(runnersDir, absFilename, strlen(runnersDir))) {
+    if (strncmp(dir, absFilename, strlen(dir))) {
       error = true;
     }
     delete filename;
-    delete runnersDir;
     if (error) {
       delete absFilename;
       delete fileManager;
@@ -2291,18 +2288,32 @@ char* checkFilename(lua_State *L, int index) {
   }
 }
 
-int RunnerFiles_exists(lua_State *L) {
-  checkRunnerFiles(L, 1);
-  char *filename = checkFilename(L, 2);
+char* checkFilename(lua_State *L, int index) {
+  return checkFilename(L, index, getRunnersDir().c_str());
+}
+
+char* checkBotFilename(lua_State *L, int index) {
+  std::string runnerBotsDir(getShipsDir());
+  runnerBotsDir.append(BB_DIRSEP);
+  runnerBotsDir.append("runners");
+  return checkFilename(L, index, runnerBotsDir.c_str());
+}
+
+char* checkStageFilename(lua_State *L, int index) {
+  std::string runnerStagesDir(getStagesDir());
+  runnerStagesDir.append(BB_DIRSEP);
+  runnerStagesDir.append("runners");
+  return checkFilename(L, index, runnerStagesDir.c_str());
+}
+
+void fileExists(lua_State *L, const char *filename) {
   FileManager *fileManager = new FileManager();
   lua_pushboolean(L, fileManager->fileExists(filename));
   delete filename;
   delete fileManager;
-  return 1;
 }
 
-int RunnerFiles_read(lua_State *L) {
-  char *filename = checkFilename(L, 2);
+void readFile(lua_State *L, const char *filename) {
   FileManager *fileManager = new FileManager();
   if (fileManager->fileExists(filename)) {
     try {
@@ -2318,11 +2329,9 @@ int RunnerFiles_read(lua_State *L) {
   }
   delete filename;
   delete fileManager;
-  return 1;
 }
 
-int RunnerFiles_write(lua_State *L) {
-  char *filename = checkFilename(L, 2);
+void writeFile(lua_State *L, const char *filename) {
   if (lua_isstring(L, 3)) {
     FileManager *fileManager = new FileManager();
     fileManager->writeFile(filename, lua_tostring(L, 3));
@@ -2332,13 +2341,66 @@ int RunnerFiles_write(lua_State *L) {
     delete filename;
     luaL_error(L, "No file contents.");
   }
+}
+
+int RunnerFiles_exists(lua_State *L) {
+  checkRunnerFiles(L, 1);
+  fileExists(L, checkFilename(L, 2));
+  return 1;
+}
+
+int RunnerFiles_read(lua_State *L) {
+  readFile(L, checkFilename(L, 2));
+  return 1;
+}
+
+int RunnerFiles_write(lua_State *L) {
+  writeFile(L, checkFilename(L, 2));
+  return 1;
+}
+
+int RunnerFiles_botExists(lua_State *L) {
+  checkRunnerFiles(L, 1);
+  fileExists(L, checkBotFilename(L, 2));
+  return 1;
+}
+
+int RunnerFiles_readBot(lua_State *L) {
+  readFile(L, checkBotFilename(L, 2));
+  return 1;
+}
+
+int RunnerFiles_writeBot(lua_State *L) {
+  writeFile(L, checkBotFilename(L, 2));
+  return 1;
+}
+
+int RunnerFiles_stageExists(lua_State *L) {
+  checkRunnerFiles(L, 1);
+  fileExists(L, checkStageFilename(L, 2));
+  return 1;
+}
+
+int RunnerFiles_readStage(lua_State *L) {
+  readFile(L, checkStageFilename(L, 2));
+  return 1;
+}
+
+int RunnerFiles_writeStage(lua_State *L) {
+  writeFile(L, checkStageFilename(L, 2));
   return 1;
 }
 
 const luaL_Reg RunnerFiles_methods[] = {
-  {"exists",  RunnerFiles_exists},
-  {"read",    RunnerFiles_read},
-  {"write",   RunnerFiles_write},
+  {"exists",       RunnerFiles_exists},
+  {"read",         RunnerFiles_read},
+  {"write",        RunnerFiles_write},
+  {"botExists",    RunnerFiles_botExists},
+  {"readBot",      RunnerFiles_readBot},
+  {"writeBot",     RunnerFiles_writeBot},
+  {"stageExists",  RunnerFiles_stageExists},
+  {"readStage",    RunnerFiles_readStage},
+  {"writeStage",   RunnerFiles_writeStage},
   {0, 0}
 };
 
