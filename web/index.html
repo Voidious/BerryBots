@@ -589,7 +589,8 @@ function getEditorText() {
 function onStageSelect() {
   var stage = document.getElementById('Stage').value;
   var opponent = document.getElementById('Opponent').value;
-  if (stage == 'maze2.lua' || stage == 'lasergallery.lua') {
+  if (stage == 'maze2.lua' || stage == 'lasergallery.lua'
+      || stage == 'vortex.lua') {
     selectBot('<none>');
   } else if (stage == 'joust.lua') {
     if (!(opponent == 'jouster.lua' || opponent == 'chaser.lua'
@@ -896,15 +897,15 @@ function getCrashWinningHtml() {
 function getCrashMoreInfoHtml() {
   return 'How to win on...'
       + '<ul>'
-      + '  <li><a href="http://berrybots.com/wiki/Joust">Joust</a> - Ram or '
-      + '  lure your opponent off the battle strip before they do the same to you.</li>'
+      + '  <li><a href="http://berrybots.com/wiki/Vortex">Vortex</a> - Reach '
+          + 'the zones in the corners to score. Avoid getting sucked into the '
+          + 'vortex and watch out for the meteors!</li>'
       + '  <li><a href="http://berrybots.com/wiki/Battle1">Battle</a> - Last '
       + '  ship alive each round wins. Best of 9.</li>'
       + '  <li><a href="http://berrybots.com/wiki/Maze2">Maze</a> - Navigate '
       + '  to the zone without touching any walls.</li>'
-      + '  <li><a href="http://berrybots.com/wiki/LaserGallery">LaserGallery</a>'
-      + '  - Destroy five ships, one at a time, as quickly as possible with only your '
-      + '  laser gun. Your torpedo gun and thruster are disabled.</li>'
+      + '  <li><a href="http://berrybots.com/wiki/Joust">Joust</a> - Ram or '
+      + '  lure your opponent off the battle strip before they do the same to you.</li>'
       + '</ul>'
       + 'BerryBots and Lua programming resources:'
       + '<ul>'
@@ -958,24 +959,23 @@ window.addEventListener('load', function() {
           <div class="formLabel">Stage:</div>
           <div class="di">
             <select id="Stage" size="4" onchange="onStageSelect()" class="fileList">
-              <option SELECTED value="joust.lua">Joust</option>
+              <option SELECTED value="vortex.lua">Vortex</option>
               <option value="battle1.lua">Battle</option>
               <option value="maze2.lua">Maze</option>
-              <option value="lasergallery.lua">LaserGallery</option>
+              <option value="joust.lua">Joust</option>
             </select>
           </div>
         </div>
         <div style="margin-bottom: 0.5em;">
           <div class="formLabel">Opponent:</div>
           <div class="di">
-            <select id="Opponent" size="7" class="fileList">
-              <option SELECTED value="jouster.lua">Jouster</option>
+            <select id="Opponent" size="6" class="fileList">
               <option value="floatingduck.lua">FloatingDuck</option>
               <option value="chaser.lua">Chaser</option>
               <option value="randombot.lua">RandomBot</option>
-              <option value="wallhugger.lua">WallHugger</option>
               <option value="basicbattler.lua">BasicBattler</option>
-              <option>&lt;none&gt;</option>
+              <option value="jouster.lua">Jouster</option>
+              <option SELECTED>&lt;none&gt;</option>
             </select>
           </div>
         </div>
@@ -991,10 +991,10 @@ window.addEventListener('load', function() {
         Or start with code from:
         <ul class="botLinkList">
           <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('player.lua')">Default code</a></li>
-          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('jouster.lua')">Jouster</a></li>
+          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('vortexer.lua')">Vortexer</a></li>
           <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('chaser.lua')">Chaser</a></li>
           <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('randombot.lua')">RandomBot</a></li>
-          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('wallhugger.lua')">WallHugger</a></li>
+          <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('jouster.lua')">Jouster</a></li>
           <li><a href="javascript:void(0)" class="uiLink" onclick="loadBot('basicbattler.lua')">BasicBattler</a></li>
         </ul>
       </div>

@@ -12,7 +12,7 @@ function init(shipArg, worldArg)
   ship:setName("Player")
   ship:setLaserColor(255, 255, 0)
   heading = 0
-  force = world:constants().MAX_THRUSTER_FORCE / 4
+  force = world:constants().MAX_THRUSTER_FORCE
 end
 
 function run(enemyShips, sensors)
