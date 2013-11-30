@@ -237,22 +237,21 @@ CLEAN_LIBARCHIVE=cd libarchive-3.1.2; make clean; cd ..
 
 rpi:
 	$(MAKE_LUAJIT)
-	$(CC) ${RPI_SOURCES} ${RPI_CFLAGS} ${RPI_LDFLAGS} -o bbmain
-	cp scripts/bb_rpi.sh berrybots
-	chmod 755 berrybots
+	$(CC) ${RPI_SOURCES} ${RPI_CFLAGS} ${RPI_LDFLAGS} -o berrybots
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"
 
 osx:
 	$(MAKE_LUAJIT)
 ifeq ($(SFML_HEADER_PATH), )
-	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o berrybots
+	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
+	cp scripts/bb_gui.sh berrybots
 else
 	./scripts/osx_copy_fix_dylib_paths.sh "${SFML_LIB_PATH}" "sfml-lib"
 	$(CC) ${SOURCES} ${OSX_EXTRA_SOURCES} ${OSX_CFLAGS} ${OSX_LDFLAGS} -o bbgui
-	cp scripts/bb_gui_osx.sh berrybots
-	chmod 755 berrybots
+	cp scripts/bb_gui_ldpath.sh berrybots
 endif
+	chmod 755 berrybots
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
 	@echo "==== Launch BerryBots with: ./berrybots"
 
@@ -272,7 +271,8 @@ endif
 linux:
 	$(MAKE_LUAJIT)
 ifeq ($(SFML_HEADER_PATH), )
-	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o berrybots
+	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
+	cp scripts/bb_gui.sh berrybots
 else
   ifeq ($(LOCAL_SFML), 1)
 	$(MAKE_SFML)
@@ -284,10 +284,9 @@ else
 	$(MAKE_LIBARCHIVE)
   endif
 	$(CC) ${SOURCES} ${LINUX_EXTRA_SOURCES} ${LINUX_CFLAGS} ${LINUX_LDFLAGS} -o bbgui
-	cp scripts/bb_gui_linux.sh berrybots
+	cp scripts/bb_gui_ldpath.sh berrybots
 	rm -rf sfml-lib
 	cp -r ${SFML_LIB_PATH} sfml-lib
-	chmod 755 bbgui
 endif
 	chmod 755 berrybots
 	@echo "==== Successfully built BerryBots $(VERSION) ===="
@@ -328,11 +327,13 @@ endif
 	cp -r stages $(DESTDIR)$(datadir)/berrybots
 	cp -r runners $(DESTDIR)$(datadir)/berrybots
 	cp -r apidoc $(DESTDIR)$(datadir)/berrybots
+ifneq ($(SFML_HEADER_PATH), )
 	mkdir -p $(DESTDIR)$(libdir)
 	rm -rf $(DESTDIR)$(libdir)/berrybots
 	cp -r sfml-lib $(DESTDIR)$(libdir)/berrybots
-ifeq ($(.DEFAULT_GOAL), osx)
+  ifeq ($(.DEFAULT_GOAL), osx)
 	./scripts/osx_fix_dylib_paths.sh $(DESTDIR)$(bindir)/berrybots $(DESTDIR)$(libdir)/berrybots
+  endif
 endif
 	mkdir -p $(DESTDIR)$(datarootdir)/pixmaps
 	cp $(DESTDIR)$(datadir)/berrybots/resources/icon.iconset/icon_128x128.png $(DESTDIR)/$(datarootdir)/pixmaps/berrybots.png
