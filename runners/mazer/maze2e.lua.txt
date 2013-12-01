@@ -1,0 +1,283 @@
+-- A reasonably complex single player maze. Ship starts in middle left and needs
+-- to get to top right corner without hitting any walls.
+--
+-- Sample ships that can solve this maze: WallHugger and Snail.
+
+require "samplestage"
+
+function configure(stageBuilder)
+  stageBuilder:setSize(1200, 600)
+  stageBuilder:addStart(25, 300)
+  stageBuilder:addWall(75, 350, 4, 250)
+  stageBuilder:addWall(75, 0, 4, 250)
+  stageBuilder:addWall(75, 350, 450, 4)
+  stageBuilder:addWall(625, 350, 4, 150)
+  stageBuilder:addWall(200, 500, 925, 4)
+  stageBuilder:addWall(300, 450, 4, 50)
+  stageBuilder:addWall(450, 350, 4, 75)
+  stageBuilder:addWall(1025, 350, 4, 100)
+  stageBuilder:addWall(1125, 500, 4, 100)
+  stageBuilder:addWall(625, 350, 500, 4)
+  stageBuilder:addWall(1125, 250, 4, 104)
+  stageBuilder:addWall(750, 350, 4, 100)
+  stageBuilder:addWall(900, 400, 4, 100)
+  stageBuilder:addWall(75, 250, 150, 4)
+  stageBuilder:addWall(300, 250, 825, 4)
+  stageBuilder:addWall(200, 175, 604, 4)
+  stageBuilder:addWall(800, 100, 4, 75)
+  stageBuilder:addWall(875, 100, 4, 150)
+  stageBuilder:addWall(800, 96, 175, 4)
+  stageBuilder:addWall(200, 100, 4, 75)
+  stageBuilder:addWall(200, 96, 225, 4)
+  stageBuilder:addWall(550, 0, 4, 75)
+  stageBuilder:addWall(675, 75, 4, 100)
+  stageBuilder:addWall(1050, 100, 150, 4)
+  stageBuilder:addWall(1050, 175, 4, 75)
+  stageBuilder:addWall(875, 175, 175, 4)
+  stageBuilder:addZone(1150, 550, 50, 50)
+end
+
+world = nil
+ships = nil
+admin = nil
+wallLines = nil
+visibilityGrid = nil
+visibilityZones = nil
+visitingGrid = nil
+
+function init(shipsArg, worldArg, adminArg)
+  ships = shipsArg
+  world = worldArg
+  admin = adminArg
+  visibilityGrid = makeVisibilityGrid(world:width(), world:height(), 50)
+  visibilityZones = makeVisibilityZones(world:zones())
+  visitingGrid = makeVisitingGrid(world:width(), world:height(), 30)
+  wallLines = initWalls(world:walls())
+end
+
+function run()
+  samplestage.checkSinglePlayer(ships, admin)
+
+  for i, ship in pairs(ships) do
+    updateVisibility(visibilityGrid, wallLines, ship:x(), ship:y())
+    updateVisibility(visibilityZones, wallLines, ship:x(), ship:y())
+    updateVisited(visitingGrid, ship:x(), ship:y())
+    if (ship:alive() and world:touchedAnyZone(ship)) then
+      admin:setWinner(ship)
+      admin:setStatistic(ship, "Time", world:time())
+      admin:setStatistic(ship, "Grid Visible", seenCount(visibilityGrid))
+      admin:setStatistic(ship, "Zone Visible", seenCount(visibilityZones))
+      admin:setStatistic(ship, "Grid Visited", visitedCount(visitingGrid))
+      admin:gameOver()
+      local timeLine = "Time: " .. world:time()
+      print(timeLine)
+    elseif (ship:hitWall() or world:time() > 10000) then
+      admin:setStatistic(ship, "Time", world:time())
+      admin:setStatistic(ship, "Grid Visible", seenCount(visibilityGrid))
+      admin:setStatistic(ship, "Zone Visible", seenCount(visibilityZones))
+      admin:setStatistic(ship, "Grid Visited", visitedCount(visitingGrid))
+      admin:gameOver()
+    end
+  end
+end
+
+function makeVisibilityGrid(width, height, interval)
+  local grid = {}
+  local x = interval
+  while (x < width) do
+    local y = interval
+    while (y < height) do
+      local vertex = {x = x, y = y, seen = false}
+      table.insert(grid, vertex)
+      y = y + interval
+    end
+    x = x + interval
+  end
+  return grid
+end
+
+function makeVisibilityZones(zones)
+  local zonePoints = {}
+  for i, zone in ipairs(zones) do
+    local vertex = {x = zone.left + (zone.width / 2),
+        y = zone.bottom + (zone.height / 2), seen = false, visited = false}
+    table.insert(zonePoints, vertex)
+  end
+  return zonePoints
+end
+
+function makeVisitingGrid(width, height, interval)
+  local grid = {}
+  local x = interval
+  while (x < width) do
+    local y = interval
+    while (y < height) do
+      local vertex = {x = x, y = y, visited = false}
+      table.insert(grid, vertex)
+      y = y + interval
+    end
+    x = x + interval
+  end
+  return grid
+end
+
+function updateVisibility(points, wallLines, x, y)
+  for i, vertex in ipairs(points) do
+    if (not vertex.seen) then
+      if (isVisible(wallLines, x, y, vertex.x, vertex.y)) then
+        vertex.seen = true
+      end
+    end
+  end
+end
+
+function updateVisited(points, x, y)
+  for i, vertex in ipairs(points) do
+    if (not vertex.visited) then
+      if (math.abs(vertex.x - x) < 15 and math.abs(vertex.y - y) < 15) then
+        vertex.visited = true
+      end
+    end
+  end
+end
+
+function seenCount(points)
+  local seen = 0
+  for i, vertex in ipairs(points) do
+    if (vertex.seen) then
+      seen = seen + 1
+    end
+  end
+  return (seen / (# points))
+end
+
+function visitedCount(points)
+  local visited = 0
+  for i, vertex in ipairs(points) do
+    if (vertex.visited) then
+      visited = visited + 1
+    end
+  end
+  return (visited / (# points))
+end
+
+function newLine(x1, y1, x2, y2)
+  local wallLine = { }
+  if (x1 == x2) then
+    wallLine.m = math.huge
+    wallLine.b = math.huge
+    wallLine.xMin, wallLine.xMax = x1, x1
+  else
+    wallLine.m = (y2 - y1) / (x2 - x1)
+    wallLine.b = y1 - (wallLine.m * x1)
+    wallLine.xMin = math.min(x1, x2)
+    wallLine.xMax = math.max(x1, x2)
+  end
+  wallLine.yMin = math.min(y1, y2)
+  wallLine.yMax = math.max(y1, y2)
+  wallLine.x1, wallLine.y1, wallLine.x2, wallLine.y2 = x1, y1, x2, y2
+
+  return wallLine
+end
+
+function initWalls(walls)
+  local wallLines = { }
+  for i, wall in pairs(walls) do
+    local x1, y1 = wall.left, wall.bottom
+    local x2, y2 = wall.left + wall.width, wall.bottom
+    local x3, y3 = wall.left + wall.width, wall.bottom + wall.height
+    local x4, y4 = wall.left, wall.bottom + wall.height
+    table.insert(wallLines, newLine(x1, y1, x2, y2))
+    table.insert(wallLines, newLine(x2, y2, x3, y3))
+    table.insert(wallLines, newLine(x3, y3, x4, y4))
+    table.insert(wallLines, newLine(x4, y4, x1, y1))
+  end
+  return wallLines
+end
+
+function isVisible(wallLines, x1, y1, x2, y2)
+  local visionLine = newLine(x1, y1, x2, y2)
+  for i, wallLine in pairs(wallLines) do
+    if (intersects(wallLine, visionLine)) then
+      return false
+    end
+  end
+  return true
+end
+
+function intersects(line1, line2, buffer)
+  if (buffer == nil) then
+    buffer = 0
+  end
+  local m1 = line1.m
+  local m2 = line2.m
+  if (m1 == m2) then
+    return false
+  elseif (m1 == math.huge or m2 == math.huge) then
+    if (m1 == math.huge and m2 == 0) then
+      return (line1.xMin >= line2.xMin - buffer
+          and line1.xMax <= line2.xMax + buffer
+          and line1.yMin <= line2.yMin + buffer
+          and line1.yMax >= line2.yMax - buffer)
+    else
+      return intersects(inverse(line1), inverse(line2), buffer)
+    end
+  end
+  
+  local x = (line2.b - line1.b) / (line1.m - line2.m)
+  local y = line1.m * x + line1.b
+  return (x >= line1.xMin - buffer and x <= line1.xMax + buffer
+      and x >= line2.xMin - buffer and x <= line2.xMax + buffer
+      and y >= line1.yMin - buffer and y <= line1.yMax + buffer
+      and y >= line2.yMin - buffer and y <= line2.yMax + buffer)
+end
+
+function inverse(line)
+  return newLine(line.y1, line.x1, line.y2, line.x2)
+end
+
+function sign(x)
+  if (x > 0) then
+    return 1
+  elseif (x < 0) then
+    return -1
+  else
+    return 0
+  end
+end
+
+function distance(x1, y1, x2, y2)
+  return math.sqrt(distanceSq(x1, y1, x2, y2))
+end
+
+function distanceSq(x1, y1, x2, y2)
+  return square(x1 - x2) + square(y1 - y2)
+end
+
+function square(x)
+  return x * x
+end
+
+function normalRelativeAngle(x)
+  while (x >= math.pi) do
+    x = x - (2 * math.pi)
+  end
+  while (x < -math.pi) do
+    x = x + (2 * math.pi)
+  end
+  return x
+end
+
+function normalAbsoluteAngle(x)
+  while (x >= 2 * math.pi) do
+    x = x - (2 * math.pi)
+  end
+  while (x < 0) do
+    x = x + (2 * math.pi)
+  end
+  return x
+end
+
+function absoluteBearing(x1, y1, x2, y2)
+  return math.atan2(y2 - y1, x2 - x1)
+end
