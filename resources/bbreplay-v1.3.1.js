@@ -849,6 +849,17 @@ BerryBots.toggleConsole = function(teamIndex) {
   BerryBots.scrollToBottom(console.outputDiv);
 };
 
+BerryBots.clearConsoles = function() {
+  var numTeams = BerryBots.teams.length;
+  for (var x = -1; x < numTeams; x++) {
+    var console = BerryBots.getConsole(x);
+    console.logMessages.splice(0, console.logMessages.length);
+    if (console.div != null) {
+      console.outputDiv.innerHTML = '';
+    }
+  }
+};
+
 BerryBots.toggleResults = function() {
   if (BerryBots.resultsDiv == null) {
     BerryBots.showResults();
@@ -872,6 +883,7 @@ BerryBots.playPause = function() {
 
 BerryBots.restartMatch = function() {
   BerryBots.hideResults();
+  BerryBots.clearConsoles();
   BerryBots.initReplayState(BerryBots.replayState);
   BerryBots.showPlayPause();
 };
@@ -2081,8 +2093,10 @@ BerryBots.replay = function() {
   
               console.logMessages.push(logEntry.message);
               if (console.div != null) {
-                console.outputDiv.innerHTML +=
-                    '<br>' + BerryBots.escapeHtml(logEntry.message);
+                var outputDiv = console.outputDiv;
+                outputDiv.innerHTML +=
+                    ((outputDiv.innerHTML == '') ? '' : '<br>')
+                    + BerryBots.escapeHtml(logEntry.message);
                 BerryBots.scrollToBottom(console.outputDiv);
               }
             }
