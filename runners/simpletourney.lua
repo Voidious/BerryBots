@@ -11,6 +11,7 @@ function run(runner, form, files, network)
   form:addStageSelect("Stage")
   form:addMultiShipSelect("Ships")
   form:addIntegerText("Best of...")
+  form:addDropdown("Seeds", {"Random", "Round-robin"})
   form:addIntegerText("Threads")
   form:addCheckbox("Save replays")
   defaultSettings(form, files)
@@ -18,6 +19,7 @@ function run(runner, form, files, network)
   local stage = nil
   local ships = nil
   local matches = nil
+  local seeds = nil
   local threadCount = nil
   local saveReplays = false
 
@@ -30,6 +32,7 @@ function run(runner, form, files, network)
       stage = form:get("Stage")
       ships = form:get("Ships")
       matches = form:get("Best of...")
+      seeds = form:get("Seeds")
       threadCount = form:get("Threads")
       saveReplays = form:get("Save replays")
       if (# ships >= 2) then
@@ -46,24 +49,18 @@ function run(runner, form, files, network)
     return
   end
 
-  saveSettings(files, stage, ships, matches, threadCount, saveReplays)
-
-  -- TODO: Add option for pool play to determine seeds instead of random seeds.
+  saveSettings(files, stage, ships, matches, seeds, threadCount, saveReplays)
 
   print("Stage: " .. stage)
   for i, ship in pairs(ships) do
     print("Ship: " .. ship)
   end
   print("Best of: " .. matches)
+  print("Seeds: " .. seeds)
 
   runner:setThreadCount(threadCount)
-  for i, ship in pairs(ships) do
-    table.insert(shipData, {name=ship, seedValue = math.random(), seed = 0})
-  end
-  shipData = getSortedShips(shipData)
-  for i, shipDatum in ipairs(shipData) do
-    shipDatum.seed = i
-  end
+
+  processSeeds(runner, stage, ships, matches, seeds, threadCount, saveReplays)
 
   local rounds = 1
   local slots = 2
@@ -169,12 +166,14 @@ function defaultSettings(form, files)
     local stage, matches, threads, t
     t, t, stage = string.find(settingsFile, "Stage=([^\n]*)\n")
     t, t, matches = string.find(settingsFile, "Matches=([^\n]*)\n")
+    t, t, seeds = string.find(settingsFile, "Seeds=([^\n]*)\n")
     t, t, threads = string.find(settingsFile, "Threads=([^\n]*)\n")
     t, t, saveReplays = string.find(settingsFile, "Replays=([^\n]*)\n")
     saveReplays = (saveReplays == "true")
 
     if (stage ~= nil) then form:default("Stage", stage) end
     if (matches ~= nil) then form:default("Best of...", matches) end
+    if (seeds ~= nil) then form:default("Seeds", seeds) end
     if (threads ~= nil) then form:default("Threads", threads) end
     if (saveReplays ~= nil) then form:default("Save replays", saveReplays) end
     for ship in string.gmatch(settingsFile, "Ship=([^\n]*)\n") do
@@ -187,7 +186,8 @@ function defaultSettings(form, files)
   end
 end
 
-function saveSettings(files, stage, ships, matches, threadCount, saveReplays)
+function saveSettings(files, stage, ships, matches, seeds, threadCount,
+                      saveReplays)
   local settings = "Stage=" .. stage .. "\n"
   for i, ship in ipairs(ships) do
     settings = settings .. "Ship=" .. ship .. "\n"
@@ -195,6 +195,7 @@ function saveSettings(files, stage, ships, matches, threadCount, saveReplays)
   settings = settings .. "Matches=" .. matches .. "\n"
       .. "Threads=" .. threadCount .. "\n"
       .. "Replays=" .. tostring(saveReplays) .. "\n"
+      .. "Seeds=" .. seeds .. "\n"
   files:write(SETTINGS_FILE, settings)
 end
 
@@ -208,11 +209,7 @@ function getSortedShips(ships)
 end
 
 function shipSorter(ship1, ship2)
-  if (ship1.seedValue < ship2.seedValue
-      or (ship1.seedValue > 0 and ship2.seedValue == 0)) then
-    return true
-  end
-  return false
+  return (ship1.seedValue > ship2.seedValue)
 end
 
 function printSavedReplay(result, replayName)
@@ -228,4 +225,72 @@ function printSavedReplay(result, replayName)
   print("    " .. result.winner .. " wins!")
   print("    Replay saved to: " .. replayName)
   print()
+end
+
+function processSeeds(runner, stage, ships, matches, seeds, threadCount,
+    saveReplays)
+  if (seeds == "Random") then
+    for i, ship in pairs(ships) do
+      table.insert(shipData, {name=ship, seedValue=math.random(), seed=0})
+    end
+  elseif (seeds == "Round-robin") then
+    print()
+    print("Processing round-robin...")
+    for i, ship1 in ipairs(ships) do
+      for j, ship2 in ipairs(ships) do
+        if (i < j) then
+          for k = 1, matches do
+            runner:queueMatch(stage, {ship1, ship2})
+          end
+        end
+      end
+    end
+
+    local shipWins = {}   
+    while (not runner:empty()) do
+      local result = runner:nextResult()
+      local printed = false
+      if (saveReplays) then
+        printSavedReplay(result, runner:saveReplay())
+        printed = true
+      end
+
+      local winner = result.winner
+
+      if (winner ~= nil) then
+        local loser = nil
+        for i, team in pairs(result.teams) do
+          if (team.name ~= winner) then
+            loser = team.name
+          end
+        end
+        if (not printed) then
+          print("  " .. winner .. " defeats " .. loser)
+        end
+        local entry = shipWins[winner]
+        if (entry == nil) then
+          entry = {wins = 0}
+          shipWins[winner] = entry
+        end
+        entry.wins = entry.wins + 1
+      end
+    end
+
+    print()
+    print("Round-robin results:")
+    for i, ship in pairs(ships) do
+      local entry = shipWins[ship]
+      local seedValue = 0
+      if (entry ~= nil) then
+        seedValue = entry.wins
+      end
+      table.insert(shipData, {name=ship, seedValue=seedValue, seed=0})
+      print("  " .. ship .. ": " .. seedValue .. " wins")
+    end 
+  end
+
+  shipData = getSortedShips(shipData)
+  for i, shipDatum in ipairs(shipData) do
+    shipDatum.seed = i
+  end
 end

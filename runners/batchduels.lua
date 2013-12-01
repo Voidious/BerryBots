@@ -137,6 +137,11 @@ function processNextResult(runner, saveReplay)
       end
       if (team.name == challenger) then
         saveShipScore(referenceShip, "Rank", team.rank)
+        local win = 0
+        if (team.name == result.winner) then
+          win = 100
+        end
+        saveShipScore(referenceShip, "Win %", win)
         if (team.score ~= nil) then
           saveShipScore(referenceShip, "Score", team.score)
         end

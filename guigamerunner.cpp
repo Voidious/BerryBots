@@ -73,34 +73,40 @@ GuiGameRunner::~GuiGameRunner() {
   if (replayTemplateDir_ != 0) {
     delete replayTemplateDir_;
   }
+  delete runnerFormListener_;
 }
 
 void GuiGameRunner::addStageSelect(const char *name) {
-  addFormElement(name, TYPE_STAGE_SELECT, numStages_);
+  addFormElement(name, TYPE_STAGE_SELECT, numStages_, 0);
 }
 
 void GuiGameRunner::addSingleShipSelect(const char *name) {
-  addFormElement(name, TYPE_SINGLE_SHIP_SELECT, numTeams_);
+  addFormElement(name, TYPE_SINGLE_SHIP_SELECT, numTeams_, 0);
 }
 
 void GuiGameRunner::addMultiShipSelect(const char *name) {
-  addFormElement(name, TYPE_MULTI_SHIP_SELECT, numTeams_);
+  addFormElement(name, TYPE_MULTI_SHIP_SELECT, numTeams_, 0);
 }
 
 void GuiGameRunner::addIntegerText(const char *name) {
-  addFormElement(name, TYPE_INTEGER_TEXT, 0);
+  addFormElement(name, TYPE_INTEGER_TEXT, 0, 0);
 }
 
 void GuiGameRunner::addCheckbox(const char *name) {
-  addFormElement(name, TYPE_CHECKBOX, 0);
+  addFormElement(name, TYPE_CHECKBOX, 0, 0);
+}
+
+void GuiGameRunner::addDropdown(const char *name, char **options,
+                                int numOptions) {
+  addFormElement(name, TYPE_DROPDOWN, numOptions, options);
 }
 
 // TODO: Document limit and gracefully handle adding too many form elements.
 void GuiGameRunner::addFormElement(const char *name, int type,
-                                   int maxStringValues) {
+                                   int maxStringValues, char **options) {
   if (numFormElements_ < MAX_FORM_ELEMENTS) {
     formElements_[numFormElements_++] =
-        new RunnerFormElement(name, type, maxStringValues);
+        new RunnerFormElement(name, type, maxStringValues, options);
   }
 }
 
@@ -110,7 +116,8 @@ void GuiGameRunner::setDefault(const char *name, const char *value) {
   int type = element->getType();
   if (type == TYPE_MULTI_SHIP_SELECT) {
     element->addStringValue(value);
-  } else if (type == TYPE_STAGE_SELECT || type == TYPE_SINGLE_SHIP_SELECT) {
+  } else if (type == TYPE_STAGE_SELECT || type == TYPE_SINGLE_SHIP_SELECT
+             || type == TYPE_DROPDOWN) {
     element->clearValues();
     element->addStringValue(value);
   }
@@ -130,6 +137,13 @@ void GuiGameRunner::setDefault(const char *name, bool value) {
   if (element->getType() == TYPE_CHECKBOX) {
     element->setBooleanValue(value);
   }
+}
+
+void GuiGameRunner::reset() {
+  for (int x = 0; x < numFormElements_; x++) {
+    delete formElements_[x];
+  }
+  numFormElements_ = 0;
 }
 
 bool GuiGameRunner::ok(const char *message) {
@@ -157,6 +171,9 @@ bool GuiGameRunner::ok(const char *message) {
         element->setIntegerValue((int) value);
       } else if (element->getType() == TYPE_CHECKBOX) {
         element->setBooleanValue(((wxCheckBox *) control)->GetValue());
+      } else if (element->getType() == TYPE_DROPDOWN) {
+        wxChoice *dropdown = ((wxChoice *) element->getControl());
+        element->addStringValue(dropdown->GetString(dropdown->GetSelection()));
       } else {
         wxListBox *listBox = ((wxListBox *) element->getControl());
         wxArrayInt selectedItems;

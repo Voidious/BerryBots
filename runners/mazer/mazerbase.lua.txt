@@ -1,0 +1,36 @@
+ACCEL_TIME = 6
+
+ship = nil
+world = nil
+
+heading = nil
+moveTimer = 0
+moving = false
+moveIndex = 1
+
+moves = {0, 0, 0}
+
+function init(shipArg, worldArg)
+  ship = shipArg
+  world = worldArg
+end
+
+function run()
+  if (ship:speed() < 0.0001) then
+    moving = false
+  end
+
+  if (not moving and moveTimer == 0 and moveIndex <= (# moves)) then
+    heading = moves[moveIndex]
+    moveIndex = moveIndex + 1
+    moveTimer = moveTimer + ACCEL_TIME
+    moving = true
+  end
+
+  if (moving and moveTimer > 0) then
+    ship:fireThruster(heading, 1)
+    moveTimer = moveTimer - 1
+  else
+    ship:fireThruster(ship:heading() + math.pi, ship:speed())
+  end
+end

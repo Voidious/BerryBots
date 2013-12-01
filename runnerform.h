@@ -28,6 +28,7 @@
 #define OK_CANCEL_HEIGHT    2
 #define MAX_COLUMN_HEIGHT  10
 #define CHECKBOX_HEIGHT     1
+#define DROPDOWN_HEIGHT     1
 
 class RunnerFormElement;
 class RunnerFormListener;
@@ -65,12 +66,15 @@ class RunnerForm : public wxFrame {
   private:
     wxControl* addFormElement(int &colHeight, int &numCols,
         wxBoxSizer *topSizer, wxBoxSizer *&colSizer, const char *name, int type,
-        char **stageNames, int numStages, char **shipNames, int numShips);
+        char **stageNames, int numStages, char **shipNames, int numShips,
+        char **options, int numOptions);
     wxControl* addSelectElement(const char *name, int type,
         char **stageNames, int numStages, char **shipNames, int numShips,
         wxSizer *colSizer);
     wxControl* addTextElement(const char *name, wxSizer *colSizer);
     wxControl* addCheckboxElement(const char *name, wxSizer *colSizer);
+    wxControl* addDropdownElement(const char *name, char **options,
+                                  int numOptions, wxSizer *colSizer);
     void addOkCancelElement(wxSizer *colSizer);
     wxStaticText* getNameLabel(const char *name);
     int getHeight(int type);
@@ -85,10 +89,13 @@ class RunnerFormElement {
   int maxStringValues_;
   int intValue_;
   bool booleanValue_;
+  char** options_;
+  int numOptions_;
   wxControl *control_;
 
   public:
-    RunnerFormElement(const char *name, int type, int maxStringValues);
+    RunnerFormElement(const char *name, int type, int maxStringValues,
+                      char **options);
     ~RunnerFormElement();
     const char *getName();
     int getType();
@@ -99,6 +106,8 @@ class RunnerFormElement {
     int getIntegerValue();
     void setBooleanValue(bool value);
     int getBooleanValue();
+    char** getOptions();
+    int getNumOptions();
     void clearValues();
     void setControl(wxControl *control);
     wxControl* getControl();

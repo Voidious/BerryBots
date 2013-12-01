@@ -129,6 +129,11 @@
 	</tr>
 
 	<tr>
+	<td class="name" nowrap><a href="#addDropdown">addDropdown</a>&nbsp;(name, options)</td>
+	<td class="summary">Adds a dropdown to the form.</td>
+	</tr>
+
+	<tr>
 	<td class="name" nowrap><a href="#addIntegerText">addIntegerText</a>&nbsp;(name)</td>
 	<td class="summary">Adds a text control to the form.</td>
 	</tr>
@@ -163,6 +168,11 @@
 	<td class="summary">Prompts the user for input based on the fields configured in this object.</td>
 	</tr>
 
+	<tr>
+	<td class="name" nowrap><a href="#reset">reset</a>&nbsp;()</td>
+	<td class="summary">Removes all fields and values from the form.</td>
+	</tr>
+
 </table>
 
 
@@ -191,6 +201,37 @@ Adds a checkbox to the form. It produces a boolean value.
 	
 	<li>
 	  name: The name of the field. This is displayed on the form and used to fetch the result after the form is submitted.
+	</li>
+	
+</ul>
+
+
+
+
+
+
+
+
+</dd>
+
+
+
+
+<dt><a name="addDropdown"></a><strong>addDropdown</strong>&nbsp;(name, options)</dt>
+<br/>
+<dd>
+Adds a dropdown to the form. It produces a string value.
+
+
+<h3>Parameters</h3>
+<ul>
+	
+	<li>
+	  name: The name of the field. This is displayed on the form and used to fetch the result after the form is submitted.
+	</li>
+	
+	<li>
+	  options: A table of values to be listed as options in the dropdown.
 	</li>
 	
 </ul>
@@ -398,6 +439,24 @@ Prompts the user for input based on the fields configured in this object. <br><b
 
 <h3>Return value:</h3>
 <code>true</code> if the user completed the form and hit OK, <code>false</code> if the user canceled the operation.
+
+
+
+</dd>
+
+
+
+
+<dt><a name="reset"></a><strong>reset</strong>&nbsp;()</dt>
+<br/>
+<dd>
+Removes all fields and values from the form.
+
+
+
+
+
+
 
 
 

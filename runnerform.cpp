@@ -68,12 +68,12 @@ RunnerForm::RunnerForm(const char *runnerName, RunnerFormElement **formElements,
     RunnerFormElement *element = formElements_[x];
     wxControl *control = addFormElement(colHeight, numCols, topSizer, colSizer,
         element->getName(), element->getType(), stageNames, numStages,
-        shipNames, numShips);
+        shipNames, numShips, element->getOptions(), element->getNumOptions());
     setFormValues(control, element);
     element->setControl(control);
   }
   addFormElement(colHeight, numCols, topSizer, colSizer, "",
-      TYPE_OK_CANCEL, stageNames, numStages, shipNames, numShips);
+      TYPE_OK_CANCEL, stageNames, numStages, shipNames, numShips, 0, 0);
   if (numCols++ > 0) {
     topSizer->AddSpacer(8);
   }
@@ -109,12 +109,12 @@ RunnerForm::~RunnerForm() {
   if (message_ != 0) {
     delete message_;
   }
-  delete listener_;
 }
 
 wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
     wxBoxSizer *topSizer, wxBoxSizer *&colSizer, const char *name, int type,
-    char **stageNames, int numStages, char **shipNames, int numShips) {
+    char **stageNames, int numStages, char **shipNames, int numShips,
+    char **options, int numOptions) {
   if (colHeight > 0) {
     colSizer->AddSpacer(8);
   }
@@ -139,6 +139,8 @@ wxControl* RunnerForm::addFormElement(int &colHeight, int &numCols,
       return addTextElement(name, colSizer);
     case TYPE_CHECKBOX:
       return addCheckboxElement(name, colSizer);
+    case TYPE_DROPDOWN:
+      return addDropdownElement(name, options, numOptions, colSizer);
     case TYPE_OK_CANCEL:
       addOkCancelElement(colSizer);
       return 0;
@@ -206,6 +208,25 @@ wxControl* RunnerForm::addCheckboxElement(const char *name, wxSizer *colSizer) {
   return checkbox;
 }
 
+wxControl* RunnerForm::addDropdownElement(const char *name, char **options,
+                                          int numOptions, wxSizer *colSizer) {
+  wxArrayString choices;
+  for (int x = 0; x < numOptions; x++) {
+    choices.Add(options[x]);
+  }
+  wxChoice *dropdown = new wxChoice(mainPanel_, wxID_ANY, wxDefaultPosition,
+                                    wxDefaultSize, choices);
+
+  wxBoxSizer *textSizer = new wxBoxSizer(wxHORIZONTAL);
+  textSizer->Add(getNameLabel(name), 0, wxALIGN_CENTER);
+  textSizer->AddSpacer(5);
+  textSizer->Add(dropdown, 0, wxALIGN_CENTER);
+  colSizer->Add(textSizer);
+  Connect(dropdown->GetId(), wxEVT_UPDATE_UI,
+          wxUpdateUIEventHandler(RunnerForm::onFormChange));
+  return dropdown;
+}
+
 void RunnerForm::addOkCancelElement(wxSizer *colSizer) {
   wxBoxSizer *buttonSizer = new wxBoxSizer(wxHORIZONTAL);
   buttonSizer->AddStretchSpacer(1);
@@ -239,6 +260,8 @@ int RunnerForm::getHeight(int type) {
       return TEXT_HEIGHT;
     case TYPE_CHECKBOX:
       return CHECKBOX_HEIGHT;
+    case TYPE_DROPDOWN:
+      return DROPDOWN_HEIGHT;
     default:
       return 0;
   }
@@ -251,6 +274,19 @@ void RunnerForm::setFormValues(wxControl *control,
         wxString::Format(wxT("%i"), element->getIntegerValue()));
   } else if (element->getType() == TYPE_CHECKBOX) {
     ((wxCheckBox *) control)->SetValue(element->getBooleanValue());
+  } else if (element->getType() == TYPE_DROPDOWN) {
+    wxChoice *dropdown = (wxChoice *) control;
+    int numStringValues = element->getNumStringValues();
+    char** stringValues = element->getStringValues();
+    for (int x = 0; x < numStringValues; x++) {
+      int numSelectStrings = dropdown->GetCount();
+      for (int y = 0; y < numSelectStrings; y++) {
+        wxString itemName = dropdown->GetString(y);
+        if (strcmp(itemName.c_str(), stringValues[x]) == 0) {
+          dropdown->Select(y);
+        }
+      }
+    }
   } else {
     wxListBox *listBox = (wxListBox *) control;
     int numStringValues = element->getNumStringValues();
@@ -347,13 +383,23 @@ void RunnerForm::setMnemonicLabels(bool modifierDown) {
 }
 
 RunnerFormElement::RunnerFormElement(const char *name, int type,
-                                     int maxStringValues) {
+                                     int maxStringValues, char **options) {
   name_ = new char[strlen(name) + 1];
   strcpy(name_, name);
   type_ = type;
   numStringValues_ = 0;
   maxStringValues_ = maxStringValues;
   stringValues_ = new char*[maxStringValues_];
+  options_ = 0;
+  numOptions_ = 0;
+  if (options != 0) {
+    options_ = new char*[maxStringValues];
+    for (int x = 0; x < maxStringValues; x++) {
+      options_[x] = new char[strlen(options[x]) + 1];
+      strcpy(options_[x], options[x]);
+    }
+    numOptions_ = maxStringValues;
+  }
   intValue_ = 0;
   booleanValue_ = false;
   control_ = 0;
@@ -365,6 +411,12 @@ RunnerFormElement::~RunnerFormElement() {
     delete stringValues_[x];
   }
   delete stringValues_;
+  if (options_ != 0) {
+    for (int x = 0; x < maxStringValues_; x++) {
+      delete options_[x];
+    }
+    delete options_;
+  }
 }
 
 const char* RunnerFormElement::getName() {
@@ -407,6 +459,14 @@ int RunnerFormElement::getBooleanValue() {
   return booleanValue_;
 }
 
+char** RunnerFormElement::getOptions() {
+  return options_;
+}
+
+int RunnerFormElement::getNumOptions() {
+  return numOptions_;
+}
+                                
 void RunnerFormElement::clearValues() {
   for (int x = 0; x < numStringValues_; x++) {
     delete stringValues_[x];
