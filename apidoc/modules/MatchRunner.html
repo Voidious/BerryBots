@@ -166,11 +166,6 @@
 	<td class="summary">Specifies the rank, score, and statistics for a ship or team.</td>
 	</tr>
 
-	<tr>
-	<td class="name" nowrap><a href="#TeamStatistic">TeamStatistic</a></td>
-	<td class="summary">Specifies a statistic for a ship or team.</td>
-	</tr>
-
 </table>
 
 
@@ -376,29 +371,7 @@ Sets the number of threads. This is the maximum number of BerryBots matches that
 	</li>
 	
 	<li>
-	  stats: A table of <code>TeamStatistic</code> tables for this team, or <code>nil</code> if no statistics were set.
-	</li>
-	
-</ul>
-
-
-</dd>
-
-
-<dt><a name="TeamStatistic"></a><strong>TeamStatistic</strong></dt>
-<br/>
-<dd>Specifies a statistic for a ship or team.
-
-
-<h3>Fields:</h3>
-<ul>
-	
-	<li>
-	  key: A string describing the statistic.
-	</li>
-	
-	<li>
-	  value: A numeric value.
+	  stats: A table with key/value pairs of statistics for this team, or <code>nil</code> if no statistics were set.
 	</li>
 	
 </ul>

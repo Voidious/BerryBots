@@ -29,14 +29,8 @@ function empty()
 --     stage, ranks are set according to highest scores.
 -- @field score The score of the team, or <code>nil</code> if no score was
 --     set for any team in the match.
--- @field stats A table of <code>TeamStatistic</code> tables for this team, or
---     <code>nil</code> if no statistics were set.
-
---- Specifies a statistic for a ship or team.
--- @class table
--- @name TeamStatistic
--- @field key A string describing the statistic.
--- @field value A numeric value.
+-- @field stats A table with key/value pairs of statistics for this team,
+--     or <code>nil</code> if no statistics were set.
 
 --- Returns the next available match result.
 -- This is a blocking call - it waits until the next match result is available.
