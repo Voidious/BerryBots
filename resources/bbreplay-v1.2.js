@@ -18,6 +18,9 @@
   3. This notice may not be removed or altered from any source distribution.
 */
 
+// Replay JS version is separate from the app version. The major version is the
+// replay data format (aka BerryBots.PLAYER_VERSION). Any replay JS for the same
+// data format is cross-compatible, so you can e.g. overwrite v1.3 with v1.9.
 
 // Replay format:
 //
