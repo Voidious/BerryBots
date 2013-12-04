@@ -838,7 +838,7 @@ void FileManager::writeFile(const char *filename, const char *contents) {
   createDirectoryIfNecessary(dir);
   delete dir;
 
-  FILE *f = fopen(filename, "w");
+  FILE *f = fopen(filename, "wb");
   fputs(contents, f);
   fclose(f);
 }
