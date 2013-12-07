@@ -1,7 +1,7 @@
 -- A Game Runner for a bracket tournament of duels (or 2-team matches). Takes as
 -- input a stage, 2 or more ship control programs, and number of matches per
--- pairing. Runs a single-elimination tournament bracket with random seeds and
--- prints the results.
+-- pairing. Runs a single-elimination tournament bracket with choice of random
+-- seeds or a round-robin phase to determine seeding.
 
 SETTINGS_FILE = "settings/simpletourney.properties"
 
