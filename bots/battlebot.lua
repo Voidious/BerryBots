@@ -64,7 +64,7 @@ function intersects(line1, line2, buffer)
       return intersects(inverse(line1), inverse(line2), buffer)
     end
   end
-  
+
   local x = (line2.b - line1.b) / (line1.m - line2.m)
   local y = line1.m * x + line1.b
   return (x >= line1.xMin - buffer and x <= line1.xMax + buffer

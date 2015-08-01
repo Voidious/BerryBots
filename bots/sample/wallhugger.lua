@@ -72,7 +72,7 @@ function moveAlongWalls(ship)
           (state.heading + (turn * (math.pi / 2))) % (2 * math.pi)
       state.wasAgainstWall = false
     end
-  
+
     local accelDistance = minDistanceForSpeed(ship:speed() + 1)
     local coastDistance = minDistanceForSpeed(ship:speed())
     local decelDistance = minDistanceForSpeed(math.max(0, ship:speed() - 1))

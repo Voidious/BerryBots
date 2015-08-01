@@ -122,7 +122,7 @@ function moveInSafestDirection()
       end
     end
   end
-  
+
   ship:fireThruster(bestAngle, 1)
 end
 

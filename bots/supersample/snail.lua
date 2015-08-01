@@ -156,7 +156,7 @@ function nextPointOnPath(p)
   if (source == nil) then
     return nil
   end
-  
+
   done = false
   source.distance = 0
   source.visited = false
