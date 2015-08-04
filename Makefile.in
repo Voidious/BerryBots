@@ -109,7 +109,7 @@ else
 endif
 
 OSX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
-OSX_LDFLAGS += -ldl -pagezero_size 10000 -image_base 100000000 -std=c99
+OSX_LDFLAGS += -ldl -pagezero_size 10000 -image_base 100000000 -stdlib=libc++
 ##############################################################################
 
 
@@ -137,7 +137,7 @@ ifneq ($(SFML_HEADER_PATH), )
 endif
 
 OSXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -ldl
-OSXCLI_LDFLAGS += -pagezero_size 10000 -image_base 100000000
+OSXCLI_LDFLAGS += -pagezero_size 10000 -image_base 100000000 -stdlib=libc++
 ##############################################################################
 
 

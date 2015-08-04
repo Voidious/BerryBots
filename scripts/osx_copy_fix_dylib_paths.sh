@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SFML_LIBNAMES="libsfml-graphics libsfml-system libsfml-window"
-SFML_VERSION="2.0"
+SFML_VERSION="2.3"
 
 rm -rf $2
 if [ ! -e $2 ]

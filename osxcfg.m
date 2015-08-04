@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -145,8 +145,6 @@ bool fileExists(const char *filename) {
 
 - (bool) loadPlist {
   if (self) {
-    NSString *errorDesc = nil;
-    NSPropertyListFormat format;
     NSString *plistPath;
     NSString *rootPath = [[NSSearchPathForDirectoriesInDomains(
         NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0]
@@ -156,15 +154,16 @@ bool fileExists(const char *filename) {
     NSFileManager *fileManager = [NSFileManager defaultManager];
     if ([fileManager fileExistsAtPath:plistPath]) {
       NSData *plistXML = [fileManager contentsAtPath:plistPath];
+      NSError *plistError;
+      NSPropertyListFormat plistFormat;
       NSDictionary *temp =
           (NSDictionary *)[NSPropertyListSerialization
-                           propertyListFromData:plistXML
-                           mutabilityOption:
-                           NSPropertyListMutableContainersAndLeaves
-                           format:&format
-                           errorDescription:&errorDesc];
+                           propertyListWithData:plistXML
+                           options:NSPropertyListImmutable
+                           format:&plistFormat
+                           error:&plistError];
       if (!temp) {
-        NSLog(@"Error reading plist: %@, format: %ld", errorDesc, format);
+        NSLog(@"Error reading plist: %@, format: %ld", plistError, plistFormat);
       }
       self.stagesDir = [temp objectForKey:@"Stage dir"];
       self.shipsDir = [temp objectForKey:@"Ships dir"];
@@ -271,7 +270,7 @@ bool fileExists(const char *filename) {
   [openDlg setCanCreateDirectories:YES];
   [openDlg setAllowsMultipleSelection:NO];
   [openDlg setTitle:@"Select a BerryBots base directory"];
-  if ([openDlg runModal] == NSOKButton) {
+  if ([openDlg runModal] == NSModalResponseOK) {
     NSArray *files = [openDlg URLs];
     for( int i = 0; i < [files count]; i++ ) {
       NSLog(@"File path: %@", [[files objectAtIndex:i] path]);
@@ -284,7 +283,7 @@ bool fileExists(const char *filename) {
 }
 
 - (void) save {
-  NSString *error;
+  NSError *plistError;
   NSString *rootPath = [[NSSearchPathForDirectoriesInDomains(
       NSApplicationSupportDirectory, NSUserDomainMask, YES) objectAtIndex:0]
           stringByAppendingPathComponent:@"BerryBots"];
@@ -306,14 +305,14 @@ bool fileExists(const char *filename) {
                      @"Tmp dir", @"Replays dir", @"Apidoc Path",
                      @"Samples Version", @"Disable Anti-aliasing", nil]];
   NSData *plistData =
-      [NSPropertyListSerialization dataFromPropertyList:plistDict
+      [NSPropertyListSerialization dataWithPropertyList:plistDict
           format:NSPropertyListXMLFormat_v1_0
-          errorDescription:&error];
+          options:NSPropertyListImmutable
+          error:&plistError];
   if(plistData) {
     [plistData writeToFile:plistPath atomically:YES];
   } else {
-    NSLog(@"Error saving plist: %@", error);
-    [error release];
+    NSLog(@"Error saving plist: %@", plistError);
   }
 }
 

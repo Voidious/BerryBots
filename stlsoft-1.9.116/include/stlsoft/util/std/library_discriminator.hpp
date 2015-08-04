@@ -250,7 +250,12 @@ namespace stlsoft
 # define STLSOFT_CF_STD_LIBRARY_IS_WATCOM_NONE
 # define STLSOFT_CF_STD_LIBRARY_NAME_STRING             "<no standard library with Open Watcom>"
 #else /* ? */
-# error Standard library implementation not recognised
+ /* @Voidious: This started breaking on OS X 10.10, so I'm just hacking it... */
+# ifdef STLSOFT_COMPILE_VERBOSE
+#  pragma message("Standard library not recognised, defaulting to MSL")
+# endif /* STLSOFT_COMPILE_VERBOSE */
+# define STLSOFT_CF_STD_LIBRARY_IS_MSL
+# define STLSOFT_CF_STD_LIBRARY_NAME_STRING             "MSL"
 #endif /* various "unique" macros */
 
 /* Detecting presence of Dinkumware is easy (as shown above). The fun is in
