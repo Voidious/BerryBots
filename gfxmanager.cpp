@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -33,7 +33,7 @@
 #include "dockfader.h"
 #include "gfxmanager.h"
 
-GfxManager::GfxManager(bool showDock) {
+GfxManager::GfxManager(std::string resourcePath, bool showDock) {
   showDock_ = showDock;
   newMatchButton_ = 0;
   packageShipButton_ = 0;
@@ -54,35 +54,63 @@ GfxManager::GfxManager(bool showDock) {
   dockTeamsViewHeight_ = 0;
 
   shipShape_.setRadius(DRAW_SHIP_RADIUS);
+  shipShape_.setOutlineThickness(SHIP_OUTLINE_THICKNESS);
+  shipShape_.setFillColor(sf::Color::Black);
   shipDotShape_.setRadius(SHIP_DOT_RADIUS);
+  shipDotShape_.setOutlineThickness(0);
   shipDotPoint_ = sf::Vector2f(SHIP_DOT_POSITION, 0);
   destroyedShape_.setRadius(SHIP_DEATH_RADIUS);
+  destroyedShape_.setOutlineThickness(2);
+  destroyedShape_.setFillColor(sf::Color::Transparent);
+
   laserSparkShape_.setSize(sf::Vector2f(LASER_SPARK_LENGTH,
                                         LASER_SPARK_THICKNESS));
+  laserSparkShape_.setOutlineThickness(0);
   laserSparkPoint_ = sf::Vector2f(DRAW_SHIP_RADIUS, -LASER_SPARK_THICKNESS / 2);
   laserShape_.setSize(sf::Vector2f(LASER_SPEED, LASER_THICKNESS));
+  laserShape_.setOutlineThickness(0);
   laserPoint_ = sf::Vector2f(0, LASER_THICKNESS / 2);
+
   torpedoSparkShape_.setRadius(TORPEDO_SPARK_RADIUS);
   torpedoSparkPoint_ = sf::Vector2f(DRAW_SHIP_RADIUS, -TORPEDO_SPARK_RADIUS);
   torpedoCircleShape_.setRadius(TORPEDO_RADIUS);
+  torpedoCircleShape_.setOutlineColor(TORPEDO_COLOR);
+  torpedoCircleShape_.setFillColor(TORPEDO_COLOR);
   torpedoRay_.setSize(sf::Vector2f(TORPEDO_SIZE * 2, 1));
+  torpedoRay_.setOutlineColor(TORPEDO_COLOR);
+  torpedoRay_.setFillColor(TORPEDO_COLOR);
   torpedoRayPoint_ = sf::Vector2f(TORPEDO_SIZE, .5);
   torpedoBlastShape_.setRadius(TORPEDO_BLAST_RADIUS);
   torpedoBlastShape_.setPointCount(100);
+  torpedoBlastShape_.setOutlineColor(BLAST_COLOR);
+  torpedoBlastShape_.setOutlineThickness(2.5);
+  torpedoBlastShape_.setFillColor(sf::Color::Transparent);
+
   thrusterShape_.setSize(
       sf::Vector2f(DRAW_SHIP_RADIUS + THRUSTER_LENGTH, THRUSTER_THICKNESS));
+  thrusterShape_.setOutlineThickness(0);
   thrusterPoint_ = sf::Vector2f(0, THRUSTER_THICKNESS / 2);
-  energyShape_.setSize(sf::Vector2f(ENERGY_LENGTH, ENERGY_THICKNESS));
-  dockEnergyShape_.setSize(sf::Vector2f(DOCK_ENERGY_LENGTH, ENERGY_THICKNESS));
-  // TODO: move these out to their own view
-  dockLineShape_.setSize(sf::Vector2f(1, 8192));
-  dockMarginShape_.setSize(sf::Vector2f(8, 8192));
 
-  torpedoColor_ = TORPEDO_COLOR;
-  blastColor_ = BLAST_COLOR;
-  energyColor_ = ENERGY_COLOR;
-  zoneColor_ = ZONE_COLOR;
-  dockLineColor_ = DOCK_LINE_COLOR;
+  energyShape_.setSize(sf::Vector2f(ENERGY_LENGTH, ENERGY_THICKNESS));
+  energyShape_.setOutlineColor(ENERGY_COLOR);
+  energyShape_.setFillColor(ENERGY_COLOR);
+
+  // TODO: move these out to their own view
+  dockEnergyShape_.setSize(sf::Vector2f(DOCK_ENERGY_LENGTH, ENERGY_THICKNESS));
+  dockEnergyShape_.setOutlineColor(ENERGY_COLOR);
+  dockEnergyShape_.setFillColor(ENERGY_COLOR);
+  dockLineShape_.setSize(sf::Vector2f(1, 8192));
+  dockLineShape_.setOutlineThickness(0);
+  dockLineShape_.setFillColor(DOCK_LINE_COLOR);
+  dockLineShape_.setPosition(DOCK_SIZE - 1, 0);
+  dockMarginShape_.setSize(sf::Vector2f(8, 8192));
+  dockMarginShape_.setOutlineThickness(0);
+  dockMarginShape_.setFillColor(sf::Color::Black);
+  dockMarginShape_.setPosition(DOCK_SIZE - 9, 0);
+
+  if (!font_.loadFromFile(resourcePath + FONT_NAME)) {
+    exit(EXIT_FAILURE);
+  }
 }
 
 GfxManager::~GfxManager() {
@@ -90,8 +118,7 @@ GfxManager::~GfxManager() {
 }
 
 void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
-    Stage *stage, Team **teams, int numTeams, Ship **ships, int numShips,
-    std::string resourcePath) {
+    Stage *stage, Team **teams, int numTeams, Ship **ships, int numShips) {
   if (initialized_) {
     destroyBbGfx();
   }
@@ -104,15 +131,14 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
   numShips_ = numShips;
   stage_ = stage;
   
-  if (!font_.loadFromFile(resourcePath + FONT_NAME)) {
-    exit(EXIT_FAILURE);
-  }
-
   initDockItems(window);
+
   shipColors_ = new sf::Color[numShips];
   shipDeathColors_ = new sf::Color[numShips];
   laserColors_ = new sf::Color[numShips];
   thrusterColors_ = new sf::Color[numShips];
+  shipDotOffsets_ = new int[numShips];
+  shipDotDirections_ = new bool[numShips];
   for (int x = 0; x < numShips; x++) {
     Ship *ship = ships[x];
     shipColors_[x].r = ship->properties->shipR;
@@ -127,43 +153,11 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
     thrusterColors_[x].r = ship->properties->thrusterR;
     thrusterColors_[x].g = ship->properties->thrusterG;
     thrusterColors_[x].b = ship->properties->thrusterB;
-    shipColors_[x].a = thrusterColors_[x].a = 255;
-  }
-  shipDotOffsets_ = new int[numShips];
-  shipDotDirections_ = new bool[numShips];
-  for (int x = 0; x < numShips; x++) {
+
     shipDotOffsets_[x] = rand() % SHIP_DOT_FRAMES;
     shipDotDirections_[x] = (rand() % 10 < 5) ? true : false;
+    shipColors_[x].a = laserColors_[x].a = thrusterColors_[x].a = 255;
   }
-  
-  shipShape_.setOutlineThickness(SHIP_OUTLINE_THICKNESS);
-  shipShape_.setFillColor(sf::Color::Black);
-  shipDotShape_.setOutlineThickness(0);
-  destroyedShape_.setOutlineThickness(2);
-  destroyedShape_.setFillColor(sf::Color::Transparent);
-  
-  laserSparkShape_.setOutlineThickness(0);
-  laserShape_.setOutlineThickness(0);
-  
-  torpedoCircleShape_.setOutlineColor(torpedoColor_);
-  torpedoCircleShape_.setFillColor(torpedoColor_);
-  torpedoRay_.setOutlineColor(torpedoColor_);
-  torpedoRay_.setFillColor(torpedoColor_);
-  torpedoBlastShape_.setOutlineColor(blastColor_);
-  torpedoBlastShape_.setOutlineThickness(2.5);
-  torpedoBlastShape_.setFillColor(sf::Color::Transparent);
-  
-  thrusterShape_.setOutlineThickness(0);
-  energyShape_.setOutlineColor(energyColor_);
-  energyShape_.setFillColor(energyColor_);
-  dockEnergyShape_.setOutlineColor(energyColor_);
-  dockEnergyShape_.setFillColor(energyColor_);
-  dockLineShape_.setOutlineThickness(0);
-  dockLineShape_.setFillColor(dockLineColor_);
-  dockLineShape_.setPosition(DOCK_SIZE - 1, 0);
-  dockMarginShape_.setOutlineThickness(0);
-  dockMarginShape_.setFillColor(sf::Color::Black);
-  dockMarginShape_.setPosition(DOCK_SIZE - 9, 0);
   
   numWalls_ = stage->getWallCount();
   wallShapes_ = new sf::RectangleShape*[numWalls_];
@@ -186,8 +180,8 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
     sf::RectangleShape *zoneShape = new sf::RectangleShape(                                                           sf::Vector2f(zone->getWidth(), zone->getHeight()));
     zoneShape->setPosition(adjustX(zone->getLeft()),
                            adjustY(zone->getBottom(), zone->getHeight()));
-    zoneShape->setOutlineColor(zoneColor_);
-    zoneShape->setFillColor(zoneColor_);
+    zoneShape->setOutlineColor(ZONE_COLOR);
+    zoneShape->setFillColor(ZONE_COLOR);
     zoneShapes_[x] = zoneShape;
   }
   
@@ -195,17 +189,18 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
 }
 
 void GfxManager::initDockItems(sf::RenderWindow *window) {
-  sf::Shape** newShapes = new sf::Shape*[2];
-  newShapes[0] = new sf::RectangleShape(sf::Vector2f(18, 22));
-  newShapes[0]->move(-12, -10);
-  newShapes[0]->setOutlineThickness(2);
-  newShapes[0]->setFillColor(sf::Color::Black);
-  newShapes[1] = new sf::RectangleShape(sf::Vector2f(18, 22));
-  newShapes[1]->move(-6, -16);
-  newShapes[1]->setOutlineThickness(2);
-  newShapes[1]->setFillColor(sf::Color::Black);
-  newMatchButton_ = new DockShape(newShapes, 2, 10, 10, 40, 40, "New Match",
-      &font_, DOCK_BUTTON_FONT_SIZE, 26, 50, "N", DOCK_SHORTCUT_FONT_SIZE);
+  sf::Shape** newMatchShapes = new sf::Shape*[2];
+  newMatchShapes[0] = new sf::RectangleShape(sf::Vector2f(18, 22));
+  newMatchShapes[0]->move(-12, -10);
+  newMatchShapes[0]->setOutlineThickness(2);
+  newMatchShapes[0]->setFillColor(sf::Color::Black);
+  newMatchShapes[1] = new sf::RectangleShape(sf::Vector2f(18, 22));
+  newMatchShapes[1]->move(-6, -16);
+  newMatchShapes[1]->setOutlineThickness(2);
+  newMatchShapes[1]->setFillColor(sf::Color::Black);
+  newMatchButton_ = new DockShape(newMatchShapes, 2, 10, 10, 40, 40,
+      "New Match", &font_, DOCK_BUTTON_FONT_SIZE, 26, 50, "N",
+      DOCK_SHORTCUT_FONT_SIZE);
 
   sf::Shape** packageShipShapes = new sf::Shape*[4];
   packageShipShapes[0] = new sf::CircleShape(SHIP_RADIUS);
@@ -297,9 +292,10 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   restartTriangle2->setOutlineThickness(0);
   restartTriangle2->move(5, 3);
   restartShapes[3] = restartTriangle2;
-  restartButton_ = new DockShape(restartShapes, 4, 85, window->getSize().y - 100,
-      50, 50, "Restart", &font_, DOCK_BUTTON_FONT_SIZE, 69,
-      window->getSize().y - 55, "Back", DOCK_SHORTCUT_FONT_SIZE);
+  restartButton_ = new DockShape(restartShapes, 4, 85,
+      window->getSize().y - 100, 50, 50, "Restart", &font_,
+      DOCK_BUTTON_FONT_SIZE, 69, window->getSize().y - 55, "Back",
+      DOCK_SHORTCUT_FONT_SIZE);
 
   tpsFader_ = new DockFader(15, window->getSize().y - 140, DOCK_SIZE - 30, 40,
       "Speed", &font_, DOCK_BUTTON_FONT_SIZE, 49, window->getSize().y - 165);

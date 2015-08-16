@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -145,11 +145,6 @@ class GfxManager {
   sf::Color* shipDeathColors_;
   sf::Color* laserColors_;
   sf::Color* thrusterColors_;
-  sf::Color torpedoColor_;
-  sf::Color blastColor_;
-  sf::Color energyColor_;
-  sf::Color zoneColor_;
-  sf::Color dockLineColor_;
 
   sf::View dockTopView_;
   sf::View dockTeamsView_;
@@ -158,11 +153,11 @@ class GfxManager {
   sf::Font font_;
 
   public:
-    GfxManager(bool showDock);
+    GfxManager(std::string resourcePath, bool showDock);
     ~GfxManager();
     void initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
                    Stage *stage, Team **teams, int numTeams, Ship **ships,
-                   int numShips, std::string resourcePath);
+                   int numShips);
     void destroyBbGfx();
     void setListener(GfxViewListener *listener);
     void drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,

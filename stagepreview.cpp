@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -34,14 +34,15 @@
 #include "gfxmanager.h"
 #include "stagepreview.h"
 
-StagePreview::StagePreview(const char *stagesBaseDir,MenuBarMaker *menuBarMaker)
+StagePreview::StagePreview(const char *stagesBaseDir,
+                           MenuBarMaker *menuBarMaker)
     : wxFrame(NULL, wxID_ANY, "Preview", wxDefaultPosition, wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   menuBarMaker_ = menuBarMaker;
   menusInitialized_ = false;
   fileManager_ = new FileManager();
   listener_ = 0;
-  previewGfxManager_ = new GfxManager(false);
+  previewGfxManager_ = new GfxManager(resourcePath(), false);
   stagesBaseDir_ = new char[strlen(stagesBaseDir) + 1];
   strcpy(stagesBaseDir_, stagesBaseDir);
   stageName_ = 0;
@@ -253,7 +254,8 @@ void StagePreview::addInfo(wxSizer *sizer, const char *name, int i) {
 }
 
 char* StagePreview::savePreviewImage(sf::RenderWindow *window,
-    BerryBotsEngine *engine, unsigned int &targetWidth, unsigned int &targetHeight) {
+    BerryBotsEngine *engine, unsigned int &targetWidth,
+    unsigned int &targetHeight) {
   Stage *stage = engine->getStage();
   unsigned int viewWidth = stage->getWidth() + (2 * STAGE_MARGIN);
   unsigned int viewHeight = stage->getHeight() + (2 * STAGE_MARGIN);
@@ -303,8 +305,7 @@ char* StagePreview::savePreviewImage(sf::RenderWindow *window,
   teams[0]->numTexts = 0;
   stage->setTeamsAndShips(teams, 1, ships, 1);
 
-  previewGfxManager_->initBbGfx(window, viewHeight, stage, teams, 1, ships, 1,
-                                resourcePath());
+  previewGfxManager_->initBbGfx(window, viewHeight, stage, teams, 1, ships, 1);
   previewGfxManager_->initViews(window, viewWidth, viewHeight);
 
   GfxEventHandler *gfxHandler = new GfxEventHandler();

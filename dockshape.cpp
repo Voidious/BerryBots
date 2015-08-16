@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -40,17 +40,18 @@ DockShape::DockShape(sf::Shape **shapes, int numShapes, int left, int top,
   hoverText_ = new sf::Text(hoverText, *font, fontSize);
   hoverText_->setPosition(textLeft, textTop);
   hoverText_->setColor(HIGHLIGHTED_COLOR);
-  shortcutText_ = new sf::Text(shortcut, *font, shortcutFontSize);
-  sf::FloatRect shortcutRect = shortcutText_->getLocalBounds();
-  shortcutText_->setPosition(newOrigin.x - (shortcutRect.width / 2),
-                             top + height);
-  shortcutText_->setColor(SHORTCUT_COLOR);
-    
+
   highlightedDrawables_ = new sf::Drawable*[numDrawables_ + 1];
   for (int x = 0; x < numDrawables_; x++) {
     highlightedDrawables_[x] = drawables_[x];
   }
   highlightedDrawables_[numDrawables_] = hoverText_;
+
+  shortcutText_ = new sf::Text(shortcut, *font, shortcutFontSize);
+  sf::FloatRect shortcutRect = shortcutText_->getLocalBounds();
+  shortcutText_->setPosition(newOrigin.x - (shortcutRect.width / 2),
+                             top + height);
+  shortcutText_->setColor(SHORTCUT_COLOR);
 
   shortcutDrawables_ = new sf::Drawable*[numDrawables_ + 1];
   for (int x = 0; x < numDrawables_; x++) {
@@ -60,7 +61,7 @@ DockShape::DockShape(sf::Shape **shapes, int numShapes, int left, int top,
 }
 
 DockShape::~DockShape() {
-
+  // Superclass destructor deletes everything.
 }
 
 void DockShape::setTop(int top, int textTop) {

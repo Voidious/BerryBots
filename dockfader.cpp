@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -60,7 +60,7 @@ DockFader::DockFader(int left, int top, int width, int height,
 }
 
 DockFader::~DockFader() {
-
+  // Superclass destructor deletes everything.
 }
 
 void DockFader::setKnob(int x) {

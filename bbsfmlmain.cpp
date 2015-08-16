@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -214,13 +214,12 @@ int main(int argc, char *argv[]) {
     unsigned int targetWidth = round(windowScale * viewWidth);
     unsigned int targetHeight = round(windowScale * viewHeight);
 
-    gfxManager = new GfxManager(false);
+    gfxManager = new GfxManager(resourcePath(), false);
     window = new sf::RenderWindow(sf::VideoMode(targetWidth, targetHeight),
         "BerryBots", sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
     gfxManager->initViews(window, viewWidth, viewHeight);
     gfxManager->initBbGfx(window, viewHeight, stage, engine->getTeams(),
-        engine->getNumTeams(), engine->getShips(), engine->getNumShips(),
-        resourcePath());
+        engine->getNumTeams(), engine->getShips(), engine->getNumShips());
     window->clear();
     gfxManager->drawGame(window, stage, engine->getShips(),
         engine->getNumShips(), engine->getGameTime(), gfxHandler, false, false,

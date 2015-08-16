@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -28,10 +28,10 @@ DockItem::DockItem(int left, int top, int width, int height)
   top_ = bottom_; // SFML draws from top to bottom, unlike BerryBots coordinates
   highlighted_ = false;
   showShortcut_ = false;
-  hoverText_ = 0;
-  shortcutText_ = 0;
   highlightedDrawables_ = 0;
   shortcutDrawables_ = 0;
+  hoverText_ = 0;
+  shortcutText_ = 0;
   numDrawables_ = numAltDrawables_ = 0;
 }
 
@@ -45,14 +45,14 @@ DockItem::~DockItem() {
   if (highlightedDrawables_ != 0) {
     delete highlightedDrawables_;
   }
+  if (shortcutDrawables_ != 0) {
+    delete shortcutDrawables_;
+  }
   if (hoverText_ != 0) {
     delete hoverText_;
   }
-  if (shortcutDrawables_ != 0) {
-    delete shortcutDrawables_;
-    if (shortcutText_ != 0) {
-      delete shortcutText_;
-    }
+  if (shortcutText_ != 0) {
+    delete shortcutText_;
   }
 }
 

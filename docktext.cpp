@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -41,7 +41,7 @@ DockText::DockText(const char *text, sf::Font *font, int fontSize, int left,
 }
 
 DockText::~DockText() {
-
+  // Superclass destructor deletes everything.
 }
 
 void DockText::setDisabled(bool disabled) {

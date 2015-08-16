@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -172,7 +172,6 @@ class GuiManager {
     sf::RenderWindow* initMainWindow(unsigned int width, unsigned int height);
     sf::RenderWindow* initPreviewWindow(unsigned int width,
                                         unsigned int height);
-    sf::RenderWindow* getMainWindow();
     void runCurrentMatch();
     void drawFrame(sf::RenderWindow *window);
     void showResults(ReplayBuilder *replayBuilder);

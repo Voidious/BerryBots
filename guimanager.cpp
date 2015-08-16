@@ -95,7 +95,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   teamConsoles_ = 0;
   stagePreview_ = new StagePreview(stagesBaseDir_, menuBarMaker_);
   stagePreview_->setListener(new PreviewInputListener(this));
-  gfxManager_ = new GfxManager(true);
+  gfxManager_ = new GfxManager(resourcePath(), true);
   viewListener_ = new ViewListener(this);
   gfxManager_->setListener(viewListener_);
   packageReporter_ = new PackageReporter(packagingConsole_);
@@ -517,10 +517,6 @@ sf::RenderWindow* GuiManager::initPreviewWindow(unsigned int width,
   return previewWindow_;
 }
 
-sf::RenderWindow* GuiManager::getMainWindow() {
-  return window_;
-}
-
 void GuiManager::startMatch(const char *stageName, char **teamNames,
                             int numUserTeams) {
   stagePreview_->Hide();
@@ -552,11 +548,19 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   }
   
 #ifdef __WXOSX__
-  // On Mac OS X, we need to initialize before the wxWidgets stuff below or we
+  // On Mac OS X, we need to init SFML before the wxWidgets stuff below or we
   // hit some unexplainable crashes when we delete an SFML window. I don't know
   // why, I've merely devised a work-around. Judging from some SFML forum
   // threads, it sounds likely to be an issue with nightmare-ish video drivers.
-  window = initMainWindow(1200, 800);
+  //
+  // Also on Mac OS X, we reuse the SFML window and adjust its size. It's a much
+  // better experience and avoids lots of SFML / wxWidgets weirdness. It does
+  // create some memory leaks from SFML, but not much, so it's worth it for now.
+  if (window_ == 0) {
+    window = initMainWindow(1200, 800);
+  } else {
+    window = window_;
+  }
 #endif
 
   if (!restarting_) {
@@ -597,11 +601,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
     engine_->initShips(shipsBaseDir_, teamNames, numUserTeams, cacheDir);
     teamConsoles_ = guiPrintHandler_->getTeamConsoles();
   } catch (EngineException *e) {
-#ifdef __WXOSX__
-    // Since we initialized the window early.
-    delete window_;
-    window_ = 0;
-#endif
     errorConsole_->print(stageName);
     errorConsole_->print(": ");
     errorConsole_->println(e->what());
@@ -634,19 +633,15 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   unsigned int targetHeight = round(windowScale * viewHeight_);
 #ifdef __WXOSX__
   window->setSize(sf::Vector2u(targetWidth, targetHeight));
-  sf::Vector2i pos = window->getPosition();
-  int x = limit(0, pos.x, (int) round(screenWidth - targetWidth));
-  int y = limit(0, pos.y, (int) round(screenHeight - targetHeight));
-  window->setPosition(sf::Vector2i(x, y));
 #else
   window = initMainWindow(targetWidth, targetHeight);
-#endif
 
   if (maintainWindowProperties) {
     int left = limit(0, prevPosition.x, screenWidth - targetWidth);
     int top = limit(0, prevPosition.y, screenHeight - targetHeight);
     window_->setPosition(sf::Vector2i(left, top));
   }
+#endif
 
   interrupted_ = false;
   paused_ = false;
@@ -667,7 +662,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
 
   gfxManager_->initBbGfx(window, viewHeight_, stage, engine_->getTeams(),
                          engine_->getNumTeams(), engine_->getShips(),
-                         engine_->getNumShips(), resourcePath());
+                         engine_->getNumShips());
   gfxManager_->initViews(window, viewWidth_, viewHeight_);
   window->setVisible(true);
   drawFrame(window);
@@ -681,7 +676,7 @@ void GuiManager::runCurrentMatch() {
   restarting_ = false;
   runnerConsole_->Hide();
   destroyResultsDialog();
-  sf::RenderWindow *window = getMainWindow();
+  sf::RenderWindow *window = window_;
   try {
     while (window->isOpen() && !interrupted_ && !restarting_ && !quitting_) {
       while (!paused_ && !restarting_ && !engine_->isGameOver()
@@ -1234,7 +1229,7 @@ void GuiManager::setTpsFactor(double tpsFactor) {
   int newTps = (int) (tpsFactor_ * 72);
   paused_ = (newTps == 0);
 
-  sf::RenderWindow *window = getMainWindow();
+  sf::RenderWindow *window = window_;
   bool defaultTps = (abs(tpsFactor_ - 1) < 0.01);
   if (defaultTps) {
     window->setVerticalSyncEnabled(true);
