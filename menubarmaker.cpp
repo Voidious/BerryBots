@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -72,6 +72,22 @@ wxMenuBar* MenuBarMaker::getNewMenuBar() {
   wxMenuBar *menuBar = new wxMenuBar();
   menuBar->Insert(0, fileMenu, "&File");
   menuBar->Insert(1, browseMenu, "&Browse");
+
+#ifdef __WXOSX__
+  // For some reason, the Apple menu (left-most menu, "BerryBots") has the wrong
+  // capitalization - e.g., "Quit Berrybots". Can't figure out how to fix it in
+  // Xcode nor wxWidgets, so just fix it manually.
+  wxMenuItemList appleMenuItems = menuBar->OSXGetAppleMenu()->GetMenuItems();
+  wxMenuItemList::iterator iter;
+  for (iter = appleMenuItems.begin(); iter != appleMenuItems.end(); ++iter) {
+    wxMenuItem *menuItem = *iter;
+    wxString menuLabel = menuItem->GetItemLabel();
+    if (menuLabel.Contains("Berrybots")) {
+      menuLabel.Replace("Berrybots", "BerryBots");
+      menuItem->SetItemLabel(menuLabel);
+    }
+  }
+#endif
 
   return menuBar;
 }
