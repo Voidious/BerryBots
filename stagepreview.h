@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -42,14 +42,13 @@ class StagePreview : public wxFrame {
   MenuBarMaker *menuBarMaker_;
   bool menusInitialized_;
   FileManager *fileManager_;
-  char *stagesBaseDir_;
   char *stageName_;
   std::string lastPreviewUrl_;
   StagePreviewListener *listener_;
   wxEventFilter *eventFilter_;
 
   public:
-    StagePreview(const char *stagesBaseDir, MenuBarMaker *menuBarMaker);
+    StagePreview(MenuBarMaker *menuBarMaker);
     ~StagePreview();
     void onActivate(wxActivateEvent &event);
     void onClose(wxCommandEvent &event);

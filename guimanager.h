@@ -89,9 +89,6 @@ class GuiManager {
   RunnerDialogListener *runnerLauncher_;
   PackagingListener *packageReporter_;
   BerryBotsEngine *engine_;
-  char *stagesBaseDir_;
-  char *shipsBaseDir_;
-  char *runnersBaseDir_;
   char *currentStagePath_;
   char **currentTeamPaths_;
   int currentNumTeams_;
@@ -120,8 +117,6 @@ class GuiManager {
   public:
     GuiManager(GuiListener *listener);
     ~GuiManager();
-    void setBaseDirs(const char *stagesBaseDir, const char *shipsBaseDir,
-                     const char *runnersBaseDir);
     void reloadBaseDirs();
     void loadStages();
     bool isValidStageFile(const char *srcFilename, BerryBotsEngine *engine);
@@ -184,8 +179,6 @@ class GuiManager {
     void saveCurrentMatchSettings(
         const char *stageName, char **teamNames, int numTeams);
     void deleteCurrentMatchSettings();
-    void loadStagesFromDir(const char *loadDir);
-    void loadShipsFromDir(const char *loadDir);
     int loadItemsFromDir(const char *baseDir, const char *loadDir,
         int itemType, void *itemDialog, BerryBotsEngine *engine);
     void logErrorMessage(lua_State *L, const char *formatString);
@@ -193,12 +186,9 @@ class GuiManager {
 
 class MatchStarter : public NewMatchListener {
   GuiManager *guiManager_;
-  char *stagesDir_;
-  char *shipsDir_;
 
   public:
-    MatchStarter(GuiManager *guiManager, char *stagesDir, char *shipsDir);
-    ~MatchStarter();
+    MatchStarter(GuiManager *guiManager);
     virtual void startMatch(const char *stageName, char **teamNames,
                             int numTeams);
     virtual void previewStage(const char *stagePath);
@@ -213,12 +203,10 @@ class ShipPackager : public PackageDialogListener {
   GuiManager *guiManager_;
   FileManager *fileManager_;
   OutputConsole *packagingConsole_;
-  char *shipsDir_;
 
   public:
     ShipPackager(GuiManager *guiManager, FileManager *fileManager,
-                 OutputConsole *packagingConsole, char *shipsDir);
-    ~ShipPackager();
+                 OutputConsole *packagingConsole);
     virtual void package(const char *shipName, const char *version,
                          bool obfuscate);
     virtual void refreshFiles();
@@ -231,13 +219,10 @@ class StagePackager : public PackageDialogListener {
   GuiManager *guiManager_;
   FileManager *fileManager_;
   OutputConsole *packagingConsole_;
-  char *stagesDir_;
-  char *shipsDir_;
 
   public:
     StagePackager(GuiManager *guiManager, FileManager *fileManager,
-        OutputConsole *packagingConsole, char *stagesDir, char *shipsDir);
-    ~StagePackager();
+        OutputConsole *packagingConsole);
     virtual void package(const char *stageName, const char *version,
                          bool obfuscate);
     virtual void refreshFiles();
@@ -250,12 +235,10 @@ class RunnerLauncher : public RunnerDialogListener {
   GuiManager *guiManager_;
   FileManager *fileManager_;
   OutputConsole *runnerConsole_;
-  char *runnersDir_;
   
 public:
   RunnerLauncher(GuiManager *guiManager, FileManager *fileManager,
-                 OutputConsole *runnerConsole, char *runnersDir);
-  ~RunnerLauncher();
+                 OutputConsole *runnerConsole);
   virtual void launch(const char *runnerName);
   virtual void refreshFiles();
   virtual void onClose();

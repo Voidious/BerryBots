@@ -34,8 +34,7 @@
 #include "gfxmanager.h"
 #include "stagepreview.h"
 
-StagePreview::StagePreview(const char *stagesBaseDir,
-                           MenuBarMaker *menuBarMaker)
+StagePreview::StagePreview(MenuBarMaker *menuBarMaker)
     : wxFrame(NULL, wxID_ANY, "Preview", wxDefaultPosition, wxDefaultSize,
               wxDEFAULT_FRAME_STYLE & ~ (wxRESIZE_BORDER | wxMAXIMIZE_BOX)) {
   menuBarMaker_ = menuBarMaker;
@@ -43,8 +42,6 @@ StagePreview::StagePreview(const char *stagesBaseDir,
   fileManager_ = new FileManager();
   listener_ = 0;
   previewGfxManager_ = new GfxManager(resourcePath(), false);
-  stagesBaseDir_ = new char[strlen(stagesBaseDir) + 1];
-  strcpy(stagesBaseDir_, stagesBaseDir);
   stageName_ = 0;
 
 #ifdef __WINDOWS__
@@ -100,7 +97,6 @@ StagePreview::~StagePreview() {
   }
   delete eventFilter_;
   delete fileManager_;
-  delete stagesBaseDir_;
   if (stageName_ != 0) {
     delete stageName_;
   }
@@ -158,7 +154,7 @@ void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
   BerryBotsEngine *engine = new BerryBotsEngine(0, fileManager_, 0);
   Stage *stage = engine->getStage();
   try {
-    engine->initStage(stagesBaseDir_, stageName, getCacheDir().c_str());
+    engine->initStage(getStagesDir().c_str(), stageName, getCacheDir().c_str());
   } catch (EngineException *e) {
     wxMessageDialog errorMessage(NULL, e->what(), "Preview failure",
                                  wxOK | wxICON_EXCLAMATION);
@@ -216,7 +212,7 @@ void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
   infoSizer_->Add(infoGrid);
 
   char *description = fileManager_->getStageDescription(
-      stagesBaseDir_, stageName, getCacheDir().c_str());
+      getStagesDir().c_str(), stageName, getCacheDir().c_str());
   if (description == 0) {
     std::string descstr("<No description>");
     description = new char[descstr.length() + 1];
