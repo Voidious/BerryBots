@@ -495,13 +495,20 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   bool maintainWindowProperties = false;
   sf::Vector2i prevPosition;
   double prevScale = 1.0;
+  double backingScale = getBackingScaleFactor();
+  int screenWidth =
+      backingScale * sf::VideoMode::getDesktopMode().width;
+  int screenHeight =
+      backingScale * sf::VideoMode::getDesktopMode().height;
+  int dockSize = backingScale * DOCK_SIZE;
+
   if (window_ != 0) {
 #ifndef __WXGTK__
     // sf::Window::getPosition just doesn't work on Linux/GTK, so don't try,
     // which at least lets the window manager position it to be fully on screen.
     prevPosition = window_->getPosition();
     if (restarting_) {
-      prevScale = ((double) (window_->getSize().x - DOCK_SIZE)) / viewWidth_;
+      prevScale = ((double) (window_->getSize().x - dockSize)) / viewWidth_;
     }
     maintainWindowProperties = true;
 #endif
@@ -517,7 +524,8 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   // better experience and avoids lots of SFML / wxWidgets weirdness. It does
   // create some memory leaks from SFML, but not much, so it's worth it for now.
   if (window_ == 0) {
-    window = initMainWindow(1200, 800);
+    window = initMainWindow(backingScale * screenWidth,
+                            backingScale * (screenHeight - 75));
   } else {
     window = window_;
   }
@@ -578,18 +586,18 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
 
   viewWidth_ = stage->getWidth() + (STAGE_MARGIN * 2);
   viewHeight_ = stage->getHeight() + (STAGE_MARGIN * 2);
-  unsigned int screenWidth = sf::VideoMode::getDesktopMode().width;
-  unsigned int screenHeight = sf::VideoMode::getDesktopMode().height;
   double windowScale;
   if (restarting_ && maintainWindowProperties) {
     windowScale = prevScale;
   } else {
     windowScale =
-        std::min(1.0, std::min(((double) screenWidth - DOCK_SIZE) / viewWidth_,
-                               ((double) screenHeight) / viewHeight_));
+        std::min(backingScale, std::min(
+            ((double) screenWidth - dockSize) / viewWidth_,
+            ((double) screenHeight) / viewHeight_));
   }
-  unsigned int targetWidth = round(windowScale * viewWidth_) + DOCK_SIZE;
+  unsigned int targetWidth = round(windowScale * viewWidth_) + dockSize;
   unsigned int targetHeight = round(windowScale * viewHeight_);
+
 #ifdef __WXOSX__
   window->setSize(sf::Vector2u(targetWidth, targetHeight));
 #else
@@ -619,12 +627,22 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   //       having to move the window occasionally if you switch to a bigger
   //       stage that goes off-screen.
 
-  gfxManager_->initBbGfx(window, viewHeight_, stage, engine_->getTeams(),
-                         engine_->getNumTeams(), engine_->getShips(),
-                         engine_->getNumShips());
+  gfxManager_->initBbGfx(window, backingScale, viewHeight_, stage,
+                         engine_->getTeams(), engine_->getNumTeams(),
+                         engine_->getShips(), engine_->getNumShips());
   gfxManager_->initViews(window, viewWidth_, viewHeight_);
   window->setVisible(true);
   drawFrame(window);
+
+#ifdef __WXOSX__
+  // SFML 2.1+ has a weird scaling issue. Some of it is documented here:
+  // https://github.com/SFML/SFML/issues/474
+  // Basically, OS X caps the window height, but SFML reports the requested
+  // height instead of the actual height. My work-around is to manually trigger
+  // a resize after drawing one frame.
+  processMainWindowEvents(window, gfxManager_, viewWidth_, viewHeight_);
+  gfxManager_->onResize(window, viewWidth_, viewHeight_);
+#endif
 
   runCurrentMatch();
 }

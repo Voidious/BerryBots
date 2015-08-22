@@ -108,7 +108,8 @@ class GfxManager {
   Stage *stage_;
   bool initialized_;
   bool adjustingTps_;
-  int windowHeight_;
+  int viewHeight_;
+  double backingScale_;
   int dockTeamsViewHeight_;
   int dockTeamsScrollPosition_;
   int dockTeamsScrollBottom_;
@@ -155,9 +156,9 @@ class GfxManager {
   public:
     GfxManager(std::string resourcePath, bool showDock);
     ~GfxManager();
-    void initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
-                   Stage *stage, Team **teams, int numTeams, Ship **ships,
-                   int numShips);
+    void initBbGfx(sf::RenderWindow *window, double backingScale,
+                   unsigned int viewHeight, Stage *stage, Team **teams,
+                   int numTeams, Ship **ships, int numShips);
     void destroyBbGfx();
     void setListener(GfxViewListener *listener);
     void drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,

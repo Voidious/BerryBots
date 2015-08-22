@@ -166,8 +166,8 @@ void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
   SetTitle(wxString::Format(wxT("%s"), stage->getName()));
   unsigned int targetWidth;
   unsigned int targetHeight;
-  char *previewFilename = savePreviewImage(window, engine, targetWidth,
-                                           targetHeight);
+  char *previewFilename =
+      savePreviewImage(window, engine, targetWidth, targetHeight);
   wxImage previewImage;
   previewImage.LoadFile(previewFilename);
   visualPreview_->SetMinSize(wxSize(targetWidth, targetHeight));
@@ -301,7 +301,8 @@ char* StagePreview::savePreviewImage(sf::RenderWindow *window,
   teams[0]->numTexts = 0;
   stage->setTeamsAndShips(teams, 1, ships, 1);
 
-  previewGfxManager_->initBbGfx(window, viewHeight, stage, teams, 1, ships, 1);
+  previewGfxManager_->initBbGfx(
+      window, 1, viewHeight, stage, teams, 1, ships, 1);
   previewGfxManager_->initViews(window, viewWidth, viewHeight);
 
   GfxEventHandler *gfxHandler = new GfxEventHandler();

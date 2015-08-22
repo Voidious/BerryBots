@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -34,5 +34,6 @@ extern std::string getApidocPath(void);
 extern void setRootDir(std::string newRootDir);
 extern void chooseNewRootDir();
 extern bool isAaDisabled();
+extern double getBackingScaleFactor();
 
 #endif

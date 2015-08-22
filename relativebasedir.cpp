@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -74,4 +74,8 @@ void chooseNewRootDir() {
 
 bool isAaDisabled() {
   return false;
+}
+
+double getBackingScaleFactor() {
+  return 1;
 }

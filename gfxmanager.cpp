@@ -95,7 +95,6 @@ GfxManager::GfxManager(std::string resourcePath, bool showDock) {
   energyShape_.setOutlineColor(ENERGY_COLOR);
   energyShape_.setFillColor(ENERGY_COLOR);
 
-  // TODO: move these out to their own view
   dockEnergyShape_.setSize(sf::Vector2f(DOCK_ENERGY_LENGTH, ENERGY_THICKNESS));
   dockEnergyShape_.setOutlineColor(ENERGY_COLOR);
   dockEnergyShape_.setFillColor(ENERGY_COLOR);
@@ -117,14 +116,16 @@ GfxManager::~GfxManager() {
 
 }
 
-void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
-    Stage *stage, Team **teams, int numTeams, Ship **ships, int numShips) {
+void GfxManager::initBbGfx(sf::RenderWindow *window, double backingScale,
+    unsigned int viewHeight, Stage *stage, Team **teams, int numTeams,
+    Ship **ships, int numShips) {
   if (initialized_) {
     destroyBbGfx();
   }
   
   window->setVerticalSyncEnabled(true);
-  windowHeight_ = viewHeight;
+  viewHeight_ = viewHeight;
+  backingScale_ = backingScale;
   teams_ = teams;
   numTeams_ = numTeams;
   ships_ = ships;
@@ -184,7 +185,7 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, unsigned int viewHeight,
     zoneShape->setFillColor(ZONE_COLOR);
     zoneShapes_[x] = zoneShape;
   }
-  
+
   initialized_ = true;
 }
 
@@ -250,6 +251,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
                                       teamTop + 30 - DOCK_TOP_HEIGHT);
   }
 
+  int adjustedWindowHeight = (window->getSize().y / backingScale_);
   sf::Shape** pauseShapes = new sf::Shape*[2];
   pauseShapes[0] = new sf::RectangleShape(sf::Vector2f(5, 20));
   pauseShapes[0]->move(-10, -10);
@@ -257,9 +259,9 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   pauseShapes[1] = new sf::RectangleShape(sf::Vector2f(5, 20));
   pauseShapes[1]->move(5, -10);
   pauseShapes[1]->setOutlineThickness(0);
-  pauseButton_ = new DockShape(pauseShapes, 2, 25, window->getSize().y - 100,
+  pauseButton_ = new DockShape(pauseShapes, 2, 25, adjustedWindowHeight - 100,
       50, 50, "Pause", &font_, DOCK_BUTTON_FONT_SIZE, 21,
-      window->getSize().y - 55, "Space", DOCK_SHORTCUT_FONT_SIZE);
+      adjustedWindowHeight - 55, "Space", DOCK_SHORTCUT_FONT_SIZE);
 
   sf::Shape** playShapes = new sf::Shape*[1];
   sf::ConvexShape *playShape = new sf::ConvexShape(3);
@@ -269,9 +271,9 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   playShape->setOutlineThickness(0);
   playShape->move(-7, -10);
   playShapes[0] = playShape;
-  playButton_ = new DockShape(playShapes, 1, 25, window->getSize().y - 100, 50,
-      50, "Resume", &font_, DOCK_BUTTON_FONT_SIZE, 13, window->getSize().y - 55,
-      "Space", DOCK_SHORTCUT_FONT_SIZE);
+  playButton_ = new DockShape(playShapes, 1, 25, adjustedWindowHeight - 100, 50,
+      50, "Resume", &font_, DOCK_BUTTON_FONT_SIZE, 13,
+      adjustedWindowHeight - 55, "Space", DOCK_SHORTCUT_FONT_SIZE);
 
   sf::Shape** restartShapes = new sf::Shape*[4];
   restartShapes[0] = new sf::RectangleShape(sf::Vector2f(15, 2));
@@ -293,12 +295,12 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
   restartTriangle2->move(5, 3);
   restartShapes[3] = restartTriangle2;
   restartButton_ = new DockShape(restartShapes, 4, 85,
-      window->getSize().y - 100, 50, 50, "Restart", &font_,
-      DOCK_BUTTON_FONT_SIZE, 69, window->getSize().y - 55, "Back",
+      adjustedWindowHeight - 100, 50, 50, "Restart", &font_,
+      DOCK_BUTTON_FONT_SIZE, 69, adjustedWindowHeight - 55, "Back",
       DOCK_SHORTCUT_FONT_SIZE);
 
-  tpsFader_ = new DockFader(15, window->getSize().y - 140, DOCK_SIZE - 30, 40,
-      "Speed", &font_, DOCK_BUTTON_FONT_SIZE, 49, window->getSize().y - 165);
+  tpsFader_ = new DockFader(15, adjustedWindowHeight - 140, DOCK_SIZE - 30, 40,
+      "Speed", &font_, DOCK_BUTTON_FONT_SIZE, 49, adjustedWindowHeight - 165);
 }
 
 void GfxManager::destroyBbGfx() {
@@ -431,8 +433,9 @@ void GfxManager::adjustWindowScale(sf::RenderWindow *window, int viewWidth,
   updateViews(window, viewWidth, viewHeight, windowWidth, windowHeight);
 }
 
+// TODO: merge this into initBbGfx
 void GfxManager::initViews(sf::RenderWindow *window, unsigned int viewWidth,
-                          unsigned int viewHeight) {
+                           unsigned int viewHeight) {
   resizeViews(window, viewWidth, viewHeight, true);
 }
 
@@ -445,7 +448,7 @@ void GfxManager::resizeViews(sf::RenderWindow *window, unsigned int viewWidth,
                              unsigned int viewHeight, bool forceUpdate) {
   unsigned int oldWindowWidth = window->getSize().x;
   unsigned int oldWindowHeight = window->getSize().y;
-  unsigned int dockSize = (showDock_ ? DOCK_SIZE : 0);
+  unsigned int dockSize = (showDock_ ? (backingScale_ * DOCK_SIZE) : 0);
 
   double widthScale = ((double) oldWindowWidth - dockSize) / viewWidth;
   double heightScale = ((double) oldWindowHeight) / viewHeight;
@@ -461,28 +464,30 @@ void GfxManager::resizeViews(sf::RenderWindow *window, unsigned int viewWidth,
 // TODO: don't let user resize to smaller than dock top + dock bottom + some min
 //       dock ships size
 void GfxManager::updateViews(sf::RenderWindow *window, unsigned int viewWidth,
-    unsigned int viewHeight, unsigned int windowWidth,
-    unsigned int windowHeight) {
+                             unsigned int viewHeight, unsigned int windowWidth,
+                             unsigned int windowHeight) {
   window->setSize(sf::Vector2u(windowWidth, windowHeight));
-
-  unsigned int dockSize = (showDock_ ? DOCK_SIZE : 0);
   if (showDock_) {
-    unsigned int dockTeamsHeight =
-        windowHeight - DOCK_TOP_HEIGHT - DOCK_BOTTOM_HEIGHT;
-    dockTopView_.reset(sf::FloatRect(0, 0, dockSize, DOCK_TOP_HEIGHT));
+    int dockTeamsHeight =
+        (windowHeight - backingScale_ * (DOCK_TOP_HEIGHT + DOCK_BOTTOM_HEIGHT))
+            / backingScale_;
+    dockTopView_.reset(sf::FloatRect(0, 0, DOCK_SIZE, DOCK_TOP_HEIGHT));
     // TODO: preserve scroll position on resize
     dockTeamsScrollPosition_ = 0;
-    dockTeamsView_.reset(sf::FloatRect(0, DOCK_TOP_HEIGHT,
-                                       dockSize, dockTeamsHeight));
-    dockBottomView_.reset(sf::FloatRect(0, windowHeight - DOCK_BOTTOM_HEIGHT,
-                                     dockSize, DOCK_BOTTOM_HEIGHT));
+    dockTeamsView_.reset(
+        sf::FloatRect(0, DOCK_TOP_HEIGHT, DOCK_SIZE, dockTeamsHeight));
+    dockBottomView_.reset(sf::FloatRect(
+        0, (windowHeight / backingScale_) - DOCK_BOTTOM_HEIGHT,
+        DOCK_SIZE, DOCK_BOTTOM_HEIGHT));
     stageView_.reset(sf::FloatRect(0, 0, viewWidth, viewHeight));
 
-    double dockViewportWidth = (((double) dockSize) / windowWidth);
+    double dockViewportWidth = (backingScale_ * DOCK_SIZE) / windowWidth;
     double stageViewportWidth = 1 - dockViewportWidth;
-    double topViewportHeight = (((double) DOCK_TOP_HEIGHT) / windowHeight);
-    double teamsViewportHeight = (((double) dockTeamsHeight) / windowHeight);
-    double bottomViewportHeight = 1.0f - topViewportHeight - teamsViewportHeight;
+    double topViewportHeight = (backingScale_ * DOCK_TOP_HEIGHT) / windowHeight;
+    double teamsViewportHeight =
+        (backingScale_ *  dockTeamsHeight) / windowHeight;
+    double bottomViewportHeight =
+        1.0f - topViewportHeight - teamsViewportHeight;
     dockTopView_.setViewport(
         sf::FloatRect(0.f, 0.f, dockViewportWidth, topViewportHeight));
     dockTeamsView_.setViewport(sf::FloatRect(
@@ -501,6 +506,8 @@ void GfxManager::updateViews(sf::RenderWindow *window, unsigned int viewWidth,
 }
 
 void GfxManager::processMouseDown(int x, int y) {
+  x = x / backingScale_;
+  y = y / backingScale_;
   if (tpsFader_->contains(x, y)) {
     adjustingTps_ = true;
     tpsFader_->setKnob(x);
@@ -534,10 +541,12 @@ void GfxManager::processMouseDown(int x, int y) {
 
 void GfxManager::processMouseUp(int x, int y) {
   adjustingTps_ = false;
-  tpsFader_->setHighlights(x, y);
+  tpsFader_->setHighlights(x / backingScale_, y / backingScale_);
 }
 
 void GfxManager::processMouseMoved(int x, int y) {
+  x = x / backingScale_;
+  y = y / backingScale_;
   if (adjustingTps_) {
     tpsFader_->setKnob(x);
     listener_->onTpsChange(tpsFader_->getVolume());
@@ -1033,10 +1042,11 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
   window->draw(dockMarginShape_);
 
   window->setView(dockBottomView_);
-  pauseButton_->setTop(window->getSize().y - 85, window->getSize().y - 40);
-  playButton_->setTop(window->getSize().y - 85, window->getSize().y - 40);
-  restartButton_->setTop(window->getSize().y - 85, window->getSize().y - 40);
-  tpsFader_->setTop(window->getSize().y - 125, window->getSize().y - 150);
+  int adjustedWindowHeight = (window->getSize().y / backingScale_);
+  pauseButton_->setTop(adjustedWindowHeight - 85, adjustedWindowHeight - 40);
+  playButton_->setTop(adjustedWindowHeight - 85, adjustedWindowHeight - 40);
+  restartButton_->setTop(adjustedWindowHeight - 85, adjustedWindowHeight - 40);
+  tpsFader_->setTop(adjustedWindowHeight - 125, adjustedWindowHeight - 150);
   drawDockItem(window, paused ? playButton_ : pauseButton_);
   drawDockItem(window, restartButton_);
   drawDockItem(window, tpsFader_);
@@ -1046,6 +1056,7 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
   window->setView(dockTeamsView_);
   int dockIndex = 0;
   dockTeamsScrollBottom_ = 0;
+  int dockTopHeight = backingScale_ * DOCK_TOP_HEIGHT;
   for (int x = 0; x < numTeams_; x++) {
     int teamTop = getShipDockTop(x);
     Team *team = teams_[x];
@@ -1067,11 +1078,12 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
       teamButtons_[x]->setTop(getShipDockTop(dockIndex++));
       if (team->shipsAlive > 0 && teamEnergyTotal > 0) {
         dockEnergyShape_.setPosition(10, teamButtons_[x]->getTop() + 20);
-        dockEnergyShape_.setScale(std::max(0., teamEnergy) / teamEnergyTotal, 1);
+        dockEnergyShape_.setScale(
+            std::max(0., teamEnergy) / teamEnergyTotal, 1);
         window->draw(dockEnergyShape_);
       }
       dockTeamsScrollBottom_ = std::max(dockTeamsScrollBottom_,
-                                        teamTop + 30 - DOCK_TOP_HEIGHT);
+                                        teamTop + 30 - dockTopHeight);
       drawDockItem(window, teamButtons_[x]);
     }
   }
@@ -1080,7 +1092,7 @@ void GfxManager::drawDock(sf::RenderWindow *window, Stage *stage, bool paused) {
         / (dockTeamsScrollBottom_ - dockTeamsViewHeight_);
     sf::CircleShape dockScrollCircle(3);
     dockScrollCircle.setPosition(DOCK_SIZE - 20,
-        (scrollPercentage * (dockTeamsViewHeight_ - 20)) + DOCK_TOP_HEIGHT + 10
+        (scrollPercentage * (dockTeamsViewHeight_ - 20)) + dockTopHeight + 10
             + dockTeamsScrollPosition_);
     dockScrollCircle.setOutlineThickness(0);
     dockScrollCircle.setFillColor(sf::Color::Green);
@@ -1106,9 +1118,9 @@ double GfxManager::adjustX(double x) {
 }
 
 double GfxManager::adjustY(double y, double height) {
-  return windowHeight_ - STAGE_MARGIN - y - height;
+  return viewHeight_ - STAGE_MARGIN - y - height;
 }
 
 double GfxManager::adjustY(double y) {
-  return windowHeight_ - STAGE_MARGIN - y;
+  return viewHeight_ - STAGE_MARGIN - y;
 }

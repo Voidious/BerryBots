@@ -28,6 +28,7 @@
 #include <math.h>
 #include <SFML/Graphics.hpp>
 #include <SFML/System/Vector2.hpp>
+#include "basedir.h"
 #include "bbutil.h"
 #include "stage.h"
 #include "bbengine.h"
@@ -218,8 +219,9 @@ int main(int argc, char *argv[]) {
     window = new sf::RenderWindow(sf::VideoMode(targetWidth, targetHeight),
         "BerryBots", sf::Style::Default, sf::ContextSettings(0, 0, 16, 2, 0));
     gfxManager->initViews(window, viewWidth, viewHeight);
-    gfxManager->initBbGfx(window, viewHeight, stage, engine->getTeams(),
-        engine->getNumTeams(), engine->getShips(), engine->getNumShips());
+    gfxManager->initBbGfx(window, getBackingScaleFactor(), viewHeight, stage,
+                          engine->getTeams(), engine->getNumTeams(),
+                          engine->getShips(), engine->getNumShips());
     window->clear();
     gfxManager->drawGame(window, stage, engine->getShips(),
         engine->getNumShips(), engine->getGameTime(), gfxHandler, false, false,
