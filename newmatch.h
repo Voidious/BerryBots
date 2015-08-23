@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -56,11 +56,11 @@ class NewMatchDialog : public wxFrame {
   wxButton *browseStagesButton_;
   wxButton *browseShipsButton_;
   wxButton *browseApidocsButton_;
-  wxStaticText *stagesBaseDirLabel_;
-  wxStaticText *stagesBaseDirValueLabel_;
-  wxStaticText *shipsBaseDirLabel_;
-  wxStaticText *shipsBaseDirValueLabel_;
+  wxStaticText *stagesDirLabel_;
+  wxStaticText *shipsDirLabel_;
   wxStaticText *keyboardLabel_;
+  wxBitmap helpBitmap_;
+  wxBitmap folderHomeBitmap_;
   int numStages_;
   int numShips_;
   int numLoadedShips_;
@@ -72,6 +72,7 @@ class NewMatchDialog : public wxFrame {
   public:
     NewMatchDialog(NewMatchListener *listener, MenuBarMaker *menuBarMaker);
     ~NewMatchDialog();
+    wxBitmap loadBitmapIcon(std::string path, int size);
     void clearStages();
     void addStage(char *stage);
     void clearShips();

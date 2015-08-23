@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -46,6 +46,10 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   SetIcon(wxIcon(resourcePath() + BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
+  helpBitmap_ = loadBitmapIcon(HELP_ICON_128, 24);
+  folderHomeBitmap_ = loadBitmapIcon(FOLDER_HOME_128, 24);
+  wxBitmap folderOpenBitmap = loadBitmapIcon(FOLDER_OPEN_128, 24);
+
   mainPanel_ = new wxPanel(this);
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
   mainSizer_->Add(mainPanel_);
@@ -66,69 +70,55 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   gridSizer->Add(stageSizer, 0, wxALIGN_LEFT);
 
   wxBoxSizer *dirsSizer = new wxStaticBoxSizer(wxVERTICAL, mainPanel_);
-  wxBoxSizer *stagesBaseDirSizer = new wxBoxSizer(wxHORIZONTAL);
-  stagesBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Stages:");
-  stagesBaseDirValueLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
-                                              wxEmptyString);
-  stagesBaseDirValueLabel_->SetFont(GetFont().Smaller());
-  stagesBaseDirSizer->Add(stagesBaseDirLabel_);
-  stagesBaseDirSizer->AddSpacer(5);
-  stagesBaseDirSizer->Add(stagesBaseDirValueLabel_, 0 ,wxALIGN_BOTTOM);
-  wxBoxSizer *shipsBaseDirSizer = new wxBoxSizer(wxHORIZONTAL);
-  shipsBaseDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Ships:");
-  shipsBaseDirValueLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
-                                             wxEmptyString);
-  shipsBaseDirValueLabel_->SetFont(GetFont().Smaller());
-  shipsBaseDirSizer->Add(shipsBaseDirLabel_);
-  shipsBaseDirSizer->AddSpacer(5);
-  shipsBaseDirSizer->Add(shipsBaseDirValueLabel_, 0 ,wxALIGN_BOTTOM);
-  onSetBaseDirs();
-  dirsSizer->Add(stagesBaseDirSizer);
-#if defined(__WXOSX__) || defined(__WXGTK__) || defined(__WINDOWS__)
-  browseStagesButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
+  browseShipsButton_ = new wxButton(mainPanel_, wxID_ANY, "Ships",
+                                    wxDefaultPosition, wxSize(105, 36));
 #ifndef __WINDOWS__
   // Bizarrely, it's impossible to add any padding between the bitmap and the
   // edge of the button on Windows. It's ugly enough to just not set a bitmap.
-  browseStagesButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
+  browseShipsButton_->SetBitmap(folderOpenBitmap);
 #endif
-  dirsSizer->AddSpacer(3);
-  dirsSizer->Add(browseStagesButton_);
-#endif
-
-  dirsSizer->AddSpacer(12);
-  dirsSizer->Add(shipsBaseDirSizer);
-#if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
-  browseShipsButton_ = new wxButton(mainPanel_, wxID_ANY, "Browse");
-#ifndef __WINDOWS__
-  // Don't set impossible to align bitmap on Windows.
-  browseShipsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
-#endif
-  dirsSizer->AddSpacer(3);
   dirsSizer->Add(browseShipsButton_);
-#endif
-
-  dirsSizer->AddStretchSpacer(1);
-  wxBoxSizer *moreButtonsSizer = new wxBoxSizer(wxHORIZONTAL);
-  browseApidocsButton_ = new wxButton(mainPanel_, wxID_ANY, "&API Docs");
+  shipsDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
+                                             wxEmptyString);
+  shipsDirLabel_->SetFont(GetFont().Smaller());
+  dirsSizer->AddSpacer(3);
+  dirsSizer->Add(shipsDirLabel_, 0 ,wxALIGN_BOTTOM);
+  dirsSizer->AddStretchSpacer(2);
+  browseStagesButton_ = new wxButton(mainPanel_, wxID_ANY, "Stages",
+                                     wxDefaultPosition, wxSize(105, 36));
 #ifndef __WINDOWS__
   // Don't set impossible to align bitmap on Windows.
-  browseApidocsButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FILE_OPEN));
+  browseStagesButton_->SetBitmap(wxBitmap(folderOpenBitmap));
 #endif
-  moreButtonsSizer->Add(browseApidocsButton_);
+  dirsSizer->Add(browseStagesButton_);
+
+  stagesDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
+                                              wxEmptyString);
+  stagesDirLabel_->SetFont(GetFont().Smaller());
+  dirsSizer->AddSpacer(3);
+  dirsSizer->Add(stagesDirLabel_, 0 ,wxALIGN_BOTTOM);
+  onSetBaseDirs();
+
+  dirsSizer->AddStretchSpacer(3);
+  browseApidocsButton_ = new wxButton(mainPanel_, wxID_ANY, "&API Docs",
+                                      wxDefaultPosition, wxSize(145, 36));
+#ifndef __WINDOWS__
+  // Don't set impossible to align bitmap on Windows.
+  browseApidocsButton_->SetBitmap(helpBitmap_);
+#endif
+  dirsSizer->Add(browseApidocsButton_);
 
 #ifndef __WINDOWS__
   // Still using cwd as base dir on Windows, for now.
-  folderButton_ = new wxButton(mainPanel_, wxID_ANY, "&Base Dir ");
-  folderButton_->SetBitmap(wxArtProvider::GetBitmap(wxART_FOLDER_OPEN));
-  moreButtonsSizer->AddSpacer(12);
-  moreButtonsSizer->Add(folderButton_);
+  folderButton_ = new wxButton(mainPanel_, wxID_ANY, "&Base Directory",
+                               wxDefaultPosition, wxSize(145, 36));
+  folderButton_->SetBitmap(folderHomeBitmap_);
+  dirsSizer->AddStretchSpacer(3);
+  dirsSizer->Add(folderButton_);
   Connect(folderButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onChangeBaseDir));
 #endif
 
-  dirsSizer->AddStretchSpacer(1);
-  dirsSizer->Add(moreButtonsSizer, 0, wxALIGN_BOTTOM);
-  dirsSizer->AddSpacer(4);
   gridSizer->Add(dirsSizer, 0, wxEXPAND | wxLEFT, 8);
 
   shipsLabel_ = new wxStaticText(mainPanel_, wxID_ANY, "Ships:");
@@ -250,6 +240,20 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 
   eventFilter_ = new NewMatchEventFilter(this);
   this->GetEventHandler()->AddFilter(eventFilter_);
+}
+
+wxBitmap NewMatchDialog::loadBitmapIcon(std::string path, int size) {
+  double backingScale = getBackingScaleFactor();
+  wxImage img;
+  img.LoadFile(std::string(resourcePath() + path).c_str());
+  img.Rescale(backingScale * size, backingScale * size, wxIMAGE_QUALITY_HIGH);
+  wxBitmap bitmap;
+  bitmap.CreateScaled(size, size, wxBITMAP_SCREEN_DEPTH, backingScale);
+  wxMemoryDC dc(bitmap);
+  double logicalScale = (backingScale > 1) ? (1.0 / backingScale) : 1;
+  dc.SetLogicalScale(logicalScale, logicalScale);
+  dc.DrawBitmap(wxBitmap(img), 0, 0);
+  return bitmap;
 }
 
 NewMatchDialog::~NewMatchDialog() {
@@ -454,16 +458,16 @@ void NewMatchDialog::onUpdateUi(wxUpdateUIEvent &event) {
 }
 
 void NewMatchDialog::onSetBaseDirs() {
-  stagesBaseDirValueLabel_->SetLabelText(condenseIfNecessary(getStagesDir()));
-  shipsBaseDirValueLabel_->SetLabelText(condenseIfNecessary(getShipsDir()));
+  stagesDirLabel_->SetLabelText(condenseIfNecessary(getStagesDir()));
+  shipsDirLabel_->SetLabelText(condenseIfNecessary(getShipsDir()));
 }
 
 std::string NewMatchDialog::condenseIfNecessary(std::string s) {
-  if (s.size() > 45) {
+  if (s.size() > 55) {
     std::string cs;
-    cs.append(s.substr(0, 10));
+    cs.append(s.substr(0, 15));
     cs.append("...");
-    cs.append(s.substr(s.size() - 32, 32));
+    cs.append(s.substr(s.size() - 37, 37));
     return cs;
   } else {
     return s;
@@ -565,20 +569,28 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
     clearButton_->SetLabel("C&lear \u2318L");
     refreshButton_->SetLabel("&Refresh \u2318R");
     startButton_->SetLabel("Start Match \u2318M");
+    browseApidocsButton_->SetLabel("&API Docs  \u2318A");
+    folderButton_->SetLabel("&Base Dir   \u2318B");
 #else
     clearButton_->SetLabel("C&lear  alt-L");
     refreshButton_->SetLabel("&Refresh  alt-R");
     startButton_->SetLabel("Start &Match!  alt-M");
+    browseApidocsButton_->SetLabel("&API Docs  alt-A");
+    folderButton_->SetLabel("&Base Dir  alt-B");
 #endif
   } else {
     clearButton_->SetLabel("C&lear");
     refreshButton_->SetLabel("    &Refresh    ");
+    browseApidocsButton_->SetLabel("&API Docs");
+    folderButton_->SetLabel("&Base Directory");
 #ifdef __WXOSX__
     startButton_->SetLabel("    Start &Match!    ");
 #else
     startButton_->SetLabel("    Start Match!    ");
 #endif
   }
+  browseApidocsButton_->SetBitmap(helpBitmap_);
+  folderButton_->SetBitmap(folderHomeBitmap_);
 }
 
 void NewMatchDialog::focusStageSelect() {

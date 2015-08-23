@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -35,8 +35,11 @@
 #define BROWSE_REPLAYS_MENU_ID   12
 #define BROWSE_API_DOCS_MENU_ID  13
 
-#define BERRYBOTS_ICO  "resources/berrybots.ico"
-#define BBICON_32      "resources/icon.iconset/icon_32x32.png"
-#define BBICON_128     "resources/icon.iconset/icon_128x128.png"
+#define BERRYBOTS_ICO    "resources/berrybots.ico"
+#define BBICON_32        "resources/icon.iconset/icon_32x32.png"
+#define BBICON_128       "resources/icon.iconset/icon_128x128.png"
+#define FOLDER_HOME_128  "resources/folder-home_128.png"
+#define FOLDER_OPEN_128  "resources/folder-open_128.png"
+#define HELP_ICON_128    "resources/help-icon_128.png"
 
 #endif
