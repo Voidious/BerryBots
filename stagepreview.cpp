@@ -164,15 +164,21 @@ void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
     return;
   }
   SetTitle(wxString::Format(wxT("%s"), stage->getName()));
+
   unsigned int targetWidth;
   unsigned int targetHeight;
   char *previewFilename =
       savePreviewImage(window, engine, targetWidth, targetHeight);
-  wxImage previewImage;
-  previewImage.LoadFile(previewFilename);
+  wxImage previewImage(previewFilename);
+  delete previewFilename;
+
+  double backingScale = getBackingScaleFactor();
+  if (backingScale > 1) {
+    targetWidth /= backingScale;
+    targetHeight /= backingScale;
+  }
   visualPreview_->SetMinSize(wxSize(targetWidth, targetHeight));
   visualPreview_->SetMaxSize(wxSize(targetWidth, targetHeight));
-  delete previewFilename;
 
 #ifdef __WXOSX__
   int padding = 4;
@@ -227,9 +233,17 @@ void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
   Fit();
   mainPanel_->SetFocus();
 
-  // On Windows, if we set the bitmap before the Layout/Fit stuff on Windows, we
-  // get visual artifacts when paging through the stages with up/down keys.
-  visualPreview_->SetBitmap(wxBitmap(previewImage));
+  // On Windows, if we set the bitmap before the Layout/Fit stuff, we get visual
+  // artifacts when paging through the stages with up/down keys.
+  wxBitmap bitmap;
+  bitmap.CreateScaled(targetWidth, targetHeight, wxBITMAP_SCREEN_DEPTH,
+                      backingScale);
+  wxMemoryDC dc(bitmap);
+  double logicalScale = (backingScale > 1) ? (1.0 / backingScale) : 1;
+  dc.SetLogicalScale(logicalScale, logicalScale);
+  dc.DrawBitmap(wxBitmap(previewImage), 0, 0);
+  visualPreview_->SetBitmap(bitmap);
+
   delete engine;
 }
 
@@ -253,13 +267,14 @@ char* StagePreview::savePreviewImage(sf::RenderWindow *window,
     BerryBotsEngine *engine, unsigned int &targetWidth,
     unsigned int &targetHeight) {
   Stage *stage = engine->getStage();
+  double backingScale = getBackingScaleFactor();
   unsigned int viewWidth = stage->getWidth() + (2 * STAGE_MARGIN);
   unsigned int viewHeight = stage->getHeight() + (2 * STAGE_MARGIN);
-  unsigned int screenWidth = MAX_PREVIEW_WIDTH;
-  unsigned int screenHeight = MAX_PREVIEW_HEIGHT;
+  unsigned int screenWidth = backingScale * MAX_PREVIEW_WIDTH;
+  unsigned int screenHeight = backingScale * MAX_PREVIEW_HEIGHT;
   double windowScale =
-      std::min(1.0, std::min(((double) screenWidth) / viewWidth,
-                             ((double) screenHeight) / viewHeight));
+      std::min(backingScale, std::min(((double) screenWidth) / viewWidth,
+                                      ((double) screenHeight) / viewHeight));
   targetWidth = round(windowScale * viewWidth);
   targetHeight = round(windowScale * viewHeight);
 
@@ -301,8 +316,8 @@ char* StagePreview::savePreviewImage(sf::RenderWindow *window,
   teams[0]->numTexts = 0;
   stage->setTeamsAndShips(teams, 1, ships, 1);
 
-  previewGfxManager_->initBbGfx(
-      window, 1, viewHeight, stage, teams, 1, ships, 1);
+  previewGfxManager_->initBbGfx(window, backingScale, viewHeight, stage, teams,
+                                1, ships, 1);
   previewGfxManager_->initViews(window, viewWidth, viewHeight);
 
   GfxEventHandler *gfxHandler = new GfxEventHandler();
