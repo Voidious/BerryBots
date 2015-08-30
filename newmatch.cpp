@@ -584,9 +584,9 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
     browseApidocsButton_->SetLabel("&API Docs");
     folderButton_->SetLabel("&Base Directory");
 #ifdef __WXOSX__
-    startButton_->SetLabel("    Start &Match!    ");
-#else
     startButton_->SetLabel("    Start Match!    ");
+#else
+    startButton_->SetLabel("    Start &Match!    ");
 #endif
   }
   browseApidocsButton_->SetBitmap(helpBitmap_);
