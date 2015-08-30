@@ -172,7 +172,7 @@ else
   LINUX_LDFLAGS += @WX_LIBS@
 endif
 
-LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
+LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl -lpthread
 ##############################################################################
 
 
@@ -199,6 +199,7 @@ ifneq ($(SFML_HEADER_PATH), )
 endif
 
 LINUXCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl
+LINUXCLI_LDFLAGS += -lpthread
 ##############################################################################
 
 
