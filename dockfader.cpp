@@ -29,19 +29,24 @@ DockFader::DockFader(int left, int top, int width, int height,
     const char *hoverText, sf::Font *font, int fontSize, int textLeft,
     int textTop) : DockItem(left, top, width, height) {
   faderSlot_ = new sf::RectangleShape(sf::Vector2f(width, 2));
-  faderSlot_->setPosition(left_, top_ + (height_ / 2) - 1);
-  faderCenter_ = new sf::RectangleShape(sf::Vector2f(2, (height / 2)));
-  faderCenter_->setPosition(left_ + (width_ / 2) - 1, top_ + (height_ / 4));
+  faderCenter_ = new sf::RectangleShape(sf::Vector2f(2, height / 2));
   faderCenter_->setFillColor(sf::Color(125, 125, 125));
   faderCenter_->setOutlineThickness(0);
-  faderKnob_ = new sf::RectangleShape(sf::Vector2f(4, (height / 2)));
-  faderKnob_->setPosition(left_ + (width_ / 2) - 2, top_ + (height_ / 4));
+  faderLow_ = new sf::RectangleShape(sf::Vector2f(2, (height / 2) - 6));
+  faderLow_->setFillColor(sf::Color(125, 125, 125));
+  faderLow_->setOutlineThickness(0);
+  faderHigh_ = new sf::RectangleShape(sf::Vector2f(2, (height / 2) - 6));
+  faderHigh_->setFillColor(sf::Color(125, 125, 125));
+  faderHigh_->setOutlineThickness(0);
+  faderKnob_ = new sf::RectangleShape(sf::Vector2f(4, height / 2));
 
-  drawables_ = new sf::Drawable*[3];
+  drawables_ = new sf::Drawable*[5];
   drawables_[0] = faderCenter_;
   drawables_[1] = faderSlot_;
-  drawables_[2] = faderKnob_;
-  numDrawables_ = 3;
+  drawables_[2] = faderLow_;
+  drawables_[3] = faderHigh_;
+  drawables_[4] = faderKnob_;
+  numDrawables_ = 5;
 
   hoverText_ = new sf::Text(hoverText, *font, fontSize);
   hoverText_->setPosition(textLeft, textTop);
@@ -55,8 +60,16 @@ DockFader::DockFader(int left, int top, int width, int height,
   numAltDrawables_ = numDrawables_ + 1;
 
   xMin_ = left_;
-  xMax_ = left_ + width_ - 2;
-  xZero_ = faderKnob_->getPosition().x;
+  xMax_ = left_ + width_ - 4;
+  xZero_ = (xMin_ + xMax_) / 2;
+  int highLowOffset = (xZero_ - xMin_) * HIGH_LOW_FACTOR;
+  xLow_ = xZero_ - highLowOffset;
+  xHigh_ = xZero_ + highLowOffset;
+  faderKnob_->setPosition(xZero_, top_ + (height_ / 4));
+  volumeBase_ = pow(
+      2, 1.0 / pow(((double) highLowOffset) / (xZero_ - xMin_), VOLUME_EXP));
+
+  setTop(top_, textTop);
 }
 
 DockFader::~DockFader() {
@@ -64,7 +77,11 @@ DockFader::~DockFader() {
 }
 
 void DockFader::setKnob(int x) {
-  int xNew = (abs(x - 2 - xZero_) < 4) ? xZero_ : limit(xMin_, x - 2, xMax_);
+  int xLeft = x - 2;
+  int xNew = (abs(xLeft - xZero_) < 4) ? xZero_
+      : (abs(xLeft - xLow_) < 3) ? xLow_
+      : (abs(xLeft - xHigh_) < 3) ? xHigh_
+      : limit(xMin_, xLeft, xMax_);
   faderKnob_->setPosition(xNew, top_ + (height_ / 4));
 }
 
@@ -73,9 +90,9 @@ double DockFader::getVolume() {
   if (xKnob == xMin_) {
     return 0;
   } else {
-    double linearVolume =
-        MAX_VOLUME_EXP * (((double) (xKnob - xZero_)) / (xMax_ - xZero_));
-    double volume = pow(VOLUME_BASE, linearVolume);
+    double linearVolume = ((double) (xKnob - xZero_)) / (xMax_ - xZero_);
+    double volume = pow(
+        volumeBase_, pow(abs(linearVolume), VOLUME_EXP) * signum(linearVolume));
     return volume;
   }
 }
@@ -84,7 +101,9 @@ void DockFader::setTop(int top, int textTop) {
   if (top != top_) {
     top_ = top;
     faderSlot_->setPosition(left_, top_ + (height_ / 2) - 1);
-    faderCenter_->setPosition(left_ + (width_ / 2) - 1, top_ + (height_ / 4));
+    faderCenter_->setPosition(xZero_ + 1, top_ + (height_ / 4));
+    faderLow_->setPosition(xLow_ + 1, top_ + (height_ / 4) + 3);
+    faderHigh_->setPosition(xHigh_ + 1, top_ + (height_ / 4) + 3);
     faderKnob_->setPosition(faderKnob_->getPosition().x, top_ + (height_ / 4));
   }
   hoverText_->setPosition(hoverText_->getPosition().x, textTop);
@@ -93,7 +112,7 @@ void DockFader::setTop(int top, int textTop) {
 void DockFader::setHighlighted(bool highlighted) {
   for (int x = 0; x < numDrawables_; x++) {
     sf::RectangleShape *shape = (sf::RectangleShape*) drawables_[x];
-    if (shape != faderCenter_) {
+    if (shape != faderCenter_ && shape != faderLow_ && shape != faderHigh_) {
       shape->setFillColor(highlighted ? HIGHLIGHTED_COLOR : DEFAULT_COLOR);
       shape->setOutlineColor(highlighted ? HIGHLIGHTED_COLOR : DEFAULT_COLOR);
     }

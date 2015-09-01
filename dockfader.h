@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -21,8 +21,8 @@
 #ifndef DOCK_FADER_H
 #define DOCK_FADER_H
 
-#define VOLUME_BASE     2
-#define MAX_VOLUME_EXP  5
+#define HIGH_LOW_FACTOR  0.46
+#define VOLUME_EXP       2.5
 
 #include <SFML/Graphics.hpp>
 #include "dockitem.h"
@@ -30,10 +30,15 @@
 class DockFader : public DockItem {
   sf::RectangleShape *faderSlot_;
   sf::RectangleShape *faderCenter_;
+  sf::RectangleShape *faderLow_;
+  sf::RectangleShape *faderHigh_;
   sf::RectangleShape *faderKnob_;
   int xMin_;
   int xMax_;
   int xZero_;
+  int xLow_;
+  int xHigh_;
+  double volumeBase_;
 
   public:
     DockFader(int left, int top, int width, int height, const char *hoverText,

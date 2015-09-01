@@ -110,7 +110,7 @@ GuiManager::GuiManager(GuiListener *listener) {
   showedResults_ = false;
   runnerRunning_ = false;
   nextWindow_ = 0;
-  tpsFactor_ = 1;
+  tpsFactor_ = 0.5;
   nextDrawTime_ = 1;
   numStages_ = numShips_ = numRunners_ = 0;
 
@@ -487,7 +487,7 @@ void GuiManager::startMatch(const char *stageName, char **teamNames,
 
 void GuiManager::runNewMatch(const char *stageName, char **teamNames,
                              int numUserTeams) {
-  tpsFactor_ = 1;
+  tpsFactor_ = 0.5;
   nextDrawTime_ = 1;
   showedResults_ = false;
 
@@ -889,20 +889,13 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
     // smoother if we use vsync instead of a fixed frame rate, so do that when
     // we have focus.
     // TODO: Determine if this is necessary/preferable on Linux/Windows.
-    // TODO: Might be better to restrict this to the Space case specifically,
+    // TODO: Might be better to restrict this to the Spaces case specifically,
     //       or when window isn't visible to user.
-    bool defaultTps = (abs(tpsFactor_ - 1) < 0.001);
     if (event.type == sf::Event::LostFocus) {
       window->setVerticalSyncEnabled(false);
       window->setFramerateLimit(paused_ ? 5 : 60);
     } else if (event.type == sf::Event::GainedFocus) {
-      if (defaultTps) {
-        window->setVerticalSyncEnabled(true);
-        window->setFramerateLimit(0);
-      } else {
-        window->setVerticalSyncEnabled(false);
-        window->setFramerateLimit(60);
-      }
+      setTpsFactor(tpsFactor_);
     }
   }
 
@@ -1203,9 +1196,8 @@ void GuiManager::restartMatch() {
 }
 
 void GuiManager::setTpsFactor(double tpsFactor) {
-  tpsFactor_ = tpsFactor;
-  int newTps = (int) (tpsFactor_ * 72);
-  paused_ = (newTps == 0);
+  tpsFactor_ = round(tpsFactor, 3);
+  paused_ = (tpsFactor_ < 0.005);
 
   sf::RenderWindow *window = window_;
   bool defaultTps = (abs(tpsFactor_ - 1) < 0.01);

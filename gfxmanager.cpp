@@ -299,7 +299,7 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
       DOCK_BUTTON_FONT_SIZE, 69, adjustedWindowHeight - 55, "Back",
       DOCK_SHORTCUT_FONT_SIZE);
 
-  tpsFader_ = new DockFader(15, adjustedWindowHeight - 140, DOCK_SIZE - 30, 40,
+  tpsFader_ = new DockFader(15, adjustedWindowHeight - 140, DOCK_SIZE - 31, 40,
       "Speed", &font_, DOCK_BUTTON_FONT_SIZE, 49, adjustedWindowHeight - 165);
 }
 
@@ -527,7 +527,7 @@ void GfxManager::processMouseDown(int x, int y) {
     } else if (restartButton_->contains(x, y)) {
       listener_->onRestart();
     } else if (tpsFader_->contains(x, y)) {
-      listener_->onTpsChange(tpsFader_->getVolume());
+      listener_->onTpsChange(tpsFader_->getVolume() / 2);
     } else {
       for (int z = 0; z < numTeams_; z++) {
         if (!teamButtons_[z]->hidden()
@@ -549,7 +549,7 @@ void GfxManager::processMouseMoved(int x, int y) {
   y = y / backingScale_;
   if (adjustingTps_) {
     tpsFader_->setKnob(x);
-    listener_->onTpsChange(tpsFader_->getVolume());
+    listener_->onTpsChange(tpsFader_->getVolume() / 2);
   } else {
     stageButton_->setHighlights(x, y);
     for (int z = 0; z < numTeams_; z++) {
