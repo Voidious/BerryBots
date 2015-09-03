@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -139,12 +139,24 @@ int registerClass(
   return 1;
 }
 
+// Adapted from base Lua's luaB_print.
 const char *getPrintStr(lua_State *L) {
-  if (lua_isboolean(L, 1)) {
-    return lua_toboolean(L, 1) ? "true" : "false";
-  } else {
-    return luaL_optstring(L, 1, "");
+  int top = lua_gettop(L);
+  std::string s = "";
+  lua_getglobal(L, "tostring");
+  for (int x = 0; x < top; x++) {
+    if (x > 0) {
+      s.append("\t");
+    }
+    lua_pushvalue(L, -1);
+    lua_pushvalue(L, x + 1);
+    lua_call(L, 1, 1);
+    s.append(lua_tostring(L, -1));
+    lua_pop(L, 1);
   }
+  lua_pop(L, 1);
+  lua_pushstring(L, s.c_str());
+  return lua_tostring(L, top + 1);
 }
 
 Ship* checkShip(lua_State *L, int index) {
@@ -1902,7 +1914,7 @@ void getStringArgs(lua_State *L, int index, char** &strings, int &numStrings) {
       x++;
     }
   } else {
-    numStrings = top - 2;
+    numStrings = top - index + 1;
     strings = new char*[numStrings];
     for (int x = 0; x < numStrings; x++) {
       const char *name = luaL_checkstring(L, x + index);
