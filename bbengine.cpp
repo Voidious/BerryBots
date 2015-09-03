@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2012-2013 - Voidious
+  Copyright (C) 2012-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -402,7 +402,7 @@ Team* BerryBotsEngine::getTeam(int teamIndex) {
 }
 
 Team* BerryBotsEngine::getTeam(lua_State *L) {
-  for (int x = 0; x < numTeams_; x++) {
+  for (int x = 0; x < numInitializedTeams_; x++) {
     Team *team = teams_[x];
     if (team->state == L) {
       return team;
