@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -27,12 +27,13 @@
 #include "eventhandler.h"
 
 #define REPLAY_VERSION            1
-#define REPLAY_TEMPLATE           "resources/replay_template.html"
-#define KINETIC_JS                "resources/kinetic-v4.7.2.min.js"
-#define BBREPLAY_JS               "resources/bbreplay-v1.2.js"
+#define REPLAY_TEMPLATE           "replay_template.html"
+#define KINETIC_JS                "kinetic-v5.1.0.min.js"
+#define BBREPLAY_JS               "bbreplay-v1.3.js"
 #define REPLAY_TITLE_PLACEHOLDER  "{$replayTitle}"
 #define REPLAY_DATA_PLACEHOLDER   "{$replayData}"
-#define EXTRA_JS_PLACEHOLDER      "{$extraJavascript}"
+#define KINETIC_JS_PLACEHOLDER    "{$kineticJs}"
+#define BBREPLAY_JS_PLACEHOLDER   "{$bbreplayJs}"
 
 #define CHUNK_SIZE            (1024 * 32 / 4)  // 32 kb of ints
 #define MAX_SHIP_TICK_CHUNKS  640              // 20 megs
@@ -71,7 +72,6 @@ class ReplayBuilder {
   int numShips_;
   int numTeamsAdded_;
   char *stageName_;
-  char *extraJavascript_;
   ReplayData *stagePropertiesData_;
   ReplayData *wallsData_;
   ReplayData *zonesData_;
@@ -126,7 +126,6 @@ class ReplayBuilder {
     void setResults(Team **rankedTeams, int numTeams);
     const char* getStageName();
     void setTimestamp(const char *timestamp);
-    void setExtraJavascript(const char *extraJavascript);
     void saveReplay(const char *filename);
     void saveReplay(const char *dir, const char *filename);
   private:

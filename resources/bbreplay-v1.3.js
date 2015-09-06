@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -93,17 +93,14 @@
 // | num log entries | <log entries>
 // | num results | <results>
 
-Kinetic.pixelRatio = 1;
-
 var BerryBots = {
   PLAYER_VERSION: 1,
   STAGE_MARGIN: 25,
   LASER_SPEED: 25,
   TORPEDO_SPEED: 12,
-  SHIP_ROTATION: Math.PI * 2 / 240,
-  SPINNER_ROTATION: Math.PI / 16,
+  SHIP_ROTATION: 360 / 240,
+  SPINNER_ROTATION: 360 / 32,
   THRUSTER_ZERO: 8.3 / 19.3,
-  TWO_PI: 2 * Math.PI,
   ZONE_COLOR: '#644444',
   TORPEDO_COLOR: '#ff5926',
   SPARK_LENGTH: 8,
@@ -319,11 +316,11 @@ BerryBots.getShipProto = function() {
   var shipThruster = new Kinetic.Rect({
     x: 0,
     y: 0,
-    width: 12,
+    width: 10,
     height: 6,
     fill: '#ff0000',
     strokeWidth: 0,
-    offset: [-8.5, 3]
+    offset: {x: -8.5, y: 3}
   });
 
   var shipEnergy = new Kinetic.Rect({
@@ -376,7 +373,7 @@ BerryBots.getLaserProto = function() {
     height: 2,
     fill: '#00ff00',
     strokeWidth: 0,
-    offset: [0, 1]
+    offset: {x: 0, y: 1}
   });
 };
 
@@ -388,7 +385,7 @@ BerryBots.getLaserSparkProto = function() {
     height: BerryBots.SPARK_THICKNESS,
     fill: '#00ff00',
     strokeWidth: 0,
-    offset: [0, BerryBots.SPARK_THICKNESS / 2]
+    offset: {x: 0, y: BerryBots.SPARK_THICKNESS / 2}
   });
 };
 
@@ -407,15 +404,15 @@ BerryBots.getTorpedoProto = function() {
     width: BerryBots.TORPEDO_RADIUS * 4,
     height: 1,
     fill: BerryBots.TORPEDO_COLOR,
-    offset: [BerryBots.TORPEDO_RADIUS * 2, 0.5]
+    offset: {x: BerryBots.TORPEDO_RADIUS * 2, y: 0.5}
   });
 
   var torpedoProto = new Kinetic.Group({x: 0, y: 0});
   torpedoProto.add(torpedoCircle);
   var ray1 = torpedoRay.clone();
-  ray1.setRotation(Math.PI / 4);
+  ray1.setRotation(45);
   var ray2 = torpedoRay.clone();
-  ray2.setRotation(-Math.PI / 4);
+  ray2.setRotation(-45);
   torpedoProto.add(ray1);
   torpedoProto.add(ray2);
 
@@ -1784,7 +1781,7 @@ BerryBots.replay = function() {
               laser.setX(laserStart.srcX);
               laser.setY(laserStart.srcY);
               laser.setFill(ships[laserStart.shipIndex].laserColor);
-              laser.setRotation(BerryBots.TWO_PI - laserStart.heading);
+              laser.setRotation((180 / Math.PI) * -laserStart.heading);
               laser.laserData = {dx: dx, dy: dy, id: laserStart.id};
               rs.lasers.push(laser);
               BerryBots.mainLayer.add(laser);
@@ -1821,7 +1818,8 @@ BerryBots.replay = function() {
                 sparkRect.setOffset(
                     {x: sparkOffset.x + BerryBots.scale(BerryBots.SPARK_SPEED),
                      y: sparkOffset.y});
-                sparkRect.move(sparkRect.sparkData.dx, -sparkRect.sparkData.dy);
+                sparkRect.move({x: sparkRect.sparkData.dx,
+                                y: -sparkRect.sparkData.dy});
               }
             }
 
@@ -1835,7 +1833,7 @@ BerryBots.replay = function() {
                 sparkRect.setX(laserSpark.x);
                 sparkRect.setY(laserSpark.y);
                 sparkRect.setFill(ships[laserSpark.shipIndex].laserColor);
-                sparkRect.setRotation(Math.random() * BerryBots.TWO_PI);
+                sparkRect.setRotation(Math.random() * 360);
                 sparkRect.setOffset(
                     {x: BerryBots.scale(BerryBots.SPARK_INITIAL_OFFSET),
                      y: BerryBots.scale(BerryBots.SPARK_THICKNESS / 2)});
@@ -1921,8 +1919,8 @@ BerryBots.replay = function() {
               } else {
                 debrisCircle.setOffset({x: debrisCircle.getOffset().x
                                             + debrisCircle.debrisData.speed});
-                debrisCircle.move(debrisCircle.debrisData.dx,
-                                  -debrisCircle.debrisData.dy);
+                debrisCircle.move({x: debrisCircle.debrisData.dx,
+                                  y: -debrisCircle.debrisData.dy});
               }
             }
 
@@ -1936,7 +1934,7 @@ BerryBots.replay = function() {
                 debrisCircle.setX(debrisData.x);
                 debrisCircle.setY(debrisData.y);
                 debrisCircle.setFill(ships[debrisData.shipIndex].shipColor);
-                debrisCircle.setRotation(Math.random() * BerryBots.TWO_PI);
+                debrisCircle.setRotation(Math.random() * 360);
                 debrisCircle.setOffset(
                     {x: BerryBots.scale(BerryBots.DEBRIS_INITIAL_OFFSET)}
                 );
@@ -2013,7 +2011,7 @@ BerryBots.replay = function() {
                        <= gameTime) {
               var shipIndex = shipAddShowEnergys[rs.nextShipShowEnergy++].index;
               rs.shipShowEnergys[shipIndex] = true;
-              ships[shipIndex].getChildren()[1].setPosition(0, 24);
+              ships[shipIndex].getChildren()[1].setPosition({x: 0, y: 20});
             }
 
             var shipAddHideEnergys = BerryBots.shipAddHideEnergys;
@@ -2022,7 +2020,7 @@ BerryBots.replay = function() {
                    && shipAddHideEnergys[rs.nextShipHideEnergy].time <= gameTime) {
               var shipIndex = shipAddHideEnergys[rs.nextShipHideEnergy++].index;
               rs.shipShowEnergys[shipIndex] = false;
-              ships[shipIndex].getChildren()[1].setPosition(0, 16);
+              ships[shipIndex].getChildren()[1].setPosition({x: 0, y: 16});
             }
 
             for (var x = 0; x < numShips; x++) {
@@ -2034,7 +2032,7 @@ BerryBots.replay = function() {
                 ship.setY(shipState.y);
                 var thruster = ship.getChildren()[0];
                 thruster.setRotation(
-                    Math.PI + (BerryBots.TWO_PI - shipState.thrusterAngle));
+                    (180 / Math.PI) * (Math.PI - shipState.thrusterAngle));
                 var forceFactor = shipState.thrusterForce;
                 if (forceFactor < 0.0001) {
                   thruster.setVisible(false);
@@ -2076,7 +2074,7 @@ BerryBots.replay = function() {
                    && stageTexts[rs.nextStageText].startTime <= gameTime) {
               var stageText = stageTexts[rs.nextStageText++];
               var stageTextShape = BerryBots.makeText();
-              stageTextShape.setPosition(stageText.x, stageText.y);
+              stageTextShape.setPosition({x: stageText.x, y: stageText.y});
               stageTextShape.setText(stageText.text);
               stageTextShape.setFontSize(stageText.size);
               stageTextShape.setFill(stageText.color);
@@ -2120,7 +2118,7 @@ BerryBots.replay = function() {
                 dots[2].setFill('#f00');
                 ship.setX(93);
                 ship.setY(BerryBots.canvasHeight - 93);
-                ship.setScale(3);
+                ship.setScale({x: 3, y: 3});
                 BerryBots.stageLayer.add(ship);
                 BerryBots.mainLayer.setOpacity(0.4);
               } else if (BerryBots.gameTime % 80 == 0) {

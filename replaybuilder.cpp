@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -59,7 +59,6 @@ ReplayBuilder::ReplayBuilder(const char *templateDir) {
   numLogEntries_ = 0;
   resultsData_ = new ReplayData(MAX_MISC_CHUNKS);
   stageName_ = 0;
-  extraJavascript_ = 0;
   timestamp_ = 0;
   if (templateDir == 0) {
     templateDir_ = 0;
@@ -111,9 +110,6 @@ ReplayBuilder::~ReplayBuilder() {
   delete resultsData_;
   if (timestamp_ != 0) {
     delete timestamp_;
-  }
-  if (extraJavascript_ != 0) {
-    delete extraJavascript_;
   }
   if (stageName_ != 0) {
     delete stageName_;
@@ -461,14 +457,6 @@ void ReplayBuilder::setTimestamp(const char *timestamp) {
   }
 }
 
-void ReplayBuilder::setExtraJavascript(const char *extraJavascript) {
-  if (extraJavascript_ != 0) {
-    delete extraJavascript_;
-  }
-  extraJavascript_ = new char[strlen(extraJavascript) + 1];
-  strcpy(extraJavascript_, extraJavascript);
-}
-
 void ReplayBuilder::saveReplay(const char *filename) {
   saveReplay(getReplaysDir().c_str(), filename);
 }
@@ -501,8 +489,9 @@ void ReplayBuilder::saveReplay(const char *dir, const char *filename) {
   // TODO: throw exceptions for failing to save replay, don't silently fail
 
   FileManager fileManager;
+  std::string templateSubPath = std::string("resources/") + REPLAY_TEMPLATE;
+  char *templatePath = getResourcePath(templateSubPath.c_str());
   char *replayTemplate = 0;
-  char *templatePath = getResourcePath(REPLAY_TEMPLATE);
   if (templatePath != 0) {
     try {
       replayTemplate = fileManager.readFile(templatePath);
@@ -519,22 +508,25 @@ void ReplayBuilder::saveReplay(const char *dir, const char *filename) {
     std::string replayHtml(replayTemplate);
     std::string title = htmlTitle();
     size_t i;
-    size_t len = strlen(REPLAY_TITLE_PLACEHOLDER);
     i = replayHtml.find(REPLAY_TITLE_PLACEHOLDER, 0);
     if (i != std::string::npos) {
-      replayHtml.replace(i, len, htmlTitle());
+      replayHtml.replace(i, strlen(REPLAY_TITLE_PLACEHOLDER), htmlTitle());
     }
 
-    len = strlen(REPLAY_DATA_PLACEHOLDER);
     i = replayHtml.find(REPLAY_DATA_PLACEHOLDER, 0);
     if (i != std::string::npos) {
-      replayHtml.replace(i, len, buildReplayDataString());
+      replayHtml.replace(i, strlen(REPLAY_DATA_PLACEHOLDER),
+                         buildReplayDataString());
     }
 
-    len = strlen(EXTRA_JS_PLACEHOLDER);
-    i = replayHtml.find(EXTRA_JS_PLACEHOLDER, 0);
+    i = replayHtml.find(KINETIC_JS_PLACEHOLDER, 0);
     if (i != std::string::npos) {
-      replayHtml.replace(i, len, extraJavascript_ == 0 ? "" : extraJavascript_);
+      replayHtml.replace(i, strlen(KINETIC_JS_PLACEHOLDER), KINETIC_JS);
+    }
+
+    i = replayHtml.find(BBREPLAY_JS_PLACEHOLDER, 0);
+    if (i != std::string::npos) {
+      replayHtml.replace(i, strlen(BBREPLAY_JS_PLACEHOLDER), BBREPLAY_JS);
     }
 
     char *filePath = fileManager.getFilePath(dir, filename);
@@ -549,16 +541,11 @@ void ReplayBuilder::saveReplay(const char *dir, const char *filename) {
 void ReplayBuilder::copyReplayResource(const char *resource,
                                        const char *targetDir) {
   FileManager fileManager;
-  char *localResource = new char[strlen(resource) + 1];
-  strcpy(localResource, resource);
-  fileManager.fixSlashes(localResource);
-  char *filename = fileManager.parseFilename(localResource);
-  delete localResource;
-  char *targetPath = fileManager.getFilePath(targetDir, filename);
-  delete filename;
+  char *targetPath = fileManager.getFilePath(targetDir, resource);
 
   if (!fileManager.fileExists(targetPath)) {
-    char *resourcePath = getResourcePath(resource);
+    std::string resourceSubPath = std::string("resources/") + resource;
+    char *resourcePath = getResourcePath(resourceSubPath.c_str());
     if (resourcePath != 0) {
       char *s = 0;
       try {
