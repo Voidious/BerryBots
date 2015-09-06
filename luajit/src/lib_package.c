@@ -1,6 +1,6 @@
 /*
 ** Package library.
-** Copyright (C) 2005-2013 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2015 Mike Pall. See Copyright Notice in luajit.h
 **
 ** Major portions taken verbatim or adapted from the Lua interpreter.
 ** Copyright (C) 1994-2012 Lua.org, PUC-Rio. See Copyright Notice in lua.h
@@ -68,9 +68,6 @@ static const char *ll_bcsym(void *lib, const char *sym)
 #elif LJ_TARGET_WINDOWS
 
 #define WIN32_LEAN_AND_MEAN
-#ifndef WINVER
-#define WINVER 0x0500
-#endif
 #include <windows.h>
 
 #ifndef GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS
@@ -239,20 +236,20 @@ static int ll_loadfunc(lua_State *L, const char *path, const char *name, int r)
 }
 
 // @Voidious: Disable package.loadlib for BerryBots security.
-//static int lj_cf_package_loadlib(lua_State *L)
-//{
-//  const char *path = luaL_checkstring(L, 1);
-//  const char *init = luaL_checkstring(L, 2);
-//  int st = ll_loadfunc(L, path, init, 1);
-//  if (st == 0) {  /* no errors? */
-//    return 1;  /* return the loaded function */
-//  } else {  /* error; error message is on stack top */
-//    lua_pushnil(L);
-//    lua_insert(L, -2);
-//    lua_pushstring(L, (st == PACKAGE_ERR_LIB) ?  PACKAGE_LIB_FAIL : "init");
-//    return 3;  /* return nil, error message, and where */
-//  }
-//}
+// static int lj_cf_package_loadlib(lua_State *L)
+// {
+//   const char *path = luaL_checkstring(L, 1);
+//   const char *init = luaL_checkstring(L, 2);
+//   int st = ll_loadfunc(L, path, init, 1);
+//   if (st == 0) {  /* no errors? */
+//     return 1;  /* return the loaded function */
+//   } else {  /* error; error message is on stack top */
+//     lua_pushnil(L);
+//     lua_insert(L, -2);
+//     lua_pushstring(L, (st == PACKAGE_ERR_LIB) ?  PACKAGE_LIB_FAIL : "init");
+//     return 3;  /* return nil, error message, and where */
+//   }
+// }
 
 static int lj_cf_package_unloadlib(lua_State *L)
 {
@@ -562,7 +559,7 @@ static void setpath(lua_State *L, const char *fieldname, const char *envname,
 
 static const luaL_Reg package_lib[] = {
   // @Voidious: Disable package.loadlib for BerryBots security.
-  //{ "loadlib",	lj_cf_package_loadlib },
+  // { "loadlib",	lj_cf_package_loadlib },
   { "searchpath",  lj_cf_package_searchpath },
   { "seeall",	lj_cf_package_seeall },
   { NULL, NULL }

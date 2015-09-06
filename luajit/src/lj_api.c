@@ -1,6 +1,6 @@
 /*
 ** Public Lua/C API.
-** Copyright (C) 2005-2013 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2015 Mike Pall. See Copyright Notice in luajit.h
 **
 ** Major portions taken verbatim or adapted from the Lua interpreter.
 ** Copyright (C) 1994-2008 Lua.org, PUC-Rio. See Copyright Notice in lua.h
@@ -126,7 +126,7 @@ LUA_API const char *lua_getcwd (lua_State *L)
   return g->cwd;
 }
 
-// @Voidious: Set a printer so BerryBots can pipe each Lua state's output to
+// @Voidious: Set a printer so BerryBots can redirect each Lua state's output to
 //            the right place.
 LUA_API void lua_setprinter (lua_State *L, void *printer)
 {
@@ -1194,7 +1194,7 @@ LUA_API int lua_gc(lua_State *L, int what, int data)
     MSize a = (MSize)data << 10;
     g->gc.threshold = (a <= g->gc.total) ? (g->gc.total - a) : 0;
     while (g->gc.total >= g->gc.threshold)
-      if (lj_gc_step(L)) {
+      if (lj_gc_step(L) > 0) {
 	res = 1;
 	break;
       }

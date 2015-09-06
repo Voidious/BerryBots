@@ -1,6 +1,6 @@
 /*
 ** LuaJIT VM tags, values and objects.
-** Copyright (C) 2005-2013 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2015 Mike Pall. See Copyright Notice in luajit.h
 **
 ** Portions taken verbatim or adapted from the Lua interpreter.
 ** Copyright (C) 1994-2008 Lua.org, PUC-Rio. See Copyright Notice in lua.h
@@ -493,7 +493,7 @@ typedef struct GCState {
   MSize threshold;	/* Memory threshold. */
   uint8_t currentwhite;	/* Current white color. */
   uint8_t state;	/* GC state. */
-  uint8_t unused1;
+  uint8_t nocdatafin;	/* No cdata finalizer called. */
   uint8_t unused2;
   MSize sweepstr;	/* Sweep position in string table. */
   GCRef root;		/* List of all collectable objects. */
@@ -539,9 +539,9 @@ typedef struct global_State {
   MRef jit_base;	/* Current JIT code L->base. */
   MRef ctype_state;	/* Pointer to C type state. */
   GCRef gcroot[GCROOT_MAX];  /* GC roots. */
-  const char *cwd; /* @Voidious: working directory for BerryBots security checks */
-  void *printer; /* @Voidious: BerryBots overrides print. This lets it pipe each
-                               Lua state's output to the right place. */
+  const char *cwd; /* @Voidious: Working directory, for BerryBots security. */
+  void *printer; /* @Voidious: BerryBots overrides print so it can redirect
+                               each Lua state's output to the right place. */
 } global_State;
 
 #define mainthread(g)	(&gcref(g->mainthref)->th)

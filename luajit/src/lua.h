@@ -243,7 +243,7 @@ LUA_API void  (lua_concat) (lua_State *L, int n);
 LUA_API lua_Alloc (lua_getallocf) (lua_State *L, void **ud);
 LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
 
-// @Voidious: Added for BerryBots security checks.
+// @Voidious: For BerryBots security checks and redirecting output.
 LUA_API void        (lua_setcwd) (lua_State *L, const char *cwd);
 LUA_API const char *(lua_getcwd) (lua_State *L);
 LUA_API void        (lua_setprinter) (lua_State *L, void *printer);

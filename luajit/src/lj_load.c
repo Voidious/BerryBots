@@ -1,6 +1,6 @@
 /*
 ** Load and dump code.
-** Copyright (C) 2005-2013 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2015 Mike Pall. See Copyright Notice in luajit.h
 */
 
 #include <errno.h>
@@ -199,9 +199,9 @@ int allowFilename(lua_State *L, const char *luaCwd, const char *absFilename) {
 }
 
 LUALIB_API int luaL_loadfilex(lua_State *L, const char *filename,
-			      const char *mode)
+            const char *mode)
 {
-   // @Voidious: BerryBots programs can only read from below current directory.
+   // @Voidious: BerryBots programs can only read from below working directory.
   if (filename == NULL) {
     return luaL_error(L, "not allowed to read from stdin");
   }
