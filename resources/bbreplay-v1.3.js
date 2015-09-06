@@ -832,6 +832,8 @@ BerryBots.toggleConsole = function(teamIndex) {
     d.innerHTML = s;
     d.margin = '0';
     d.padding = '0';
+    d.style.zIndex = 95;
+    d.style.opacity = 0.92;
     document.getElementById('container').appendChild(d);
     console.div = d;
     console.outputDiv = document.getElementById(consoleId);
@@ -1267,6 +1269,8 @@ BerryBots.showResults = function() {
   d.innerHTML = s;
   d.margin = '0';
   d.padding = '0';
+  d.style.zIndex = 100;
+  d.style.opacity = 0.96;
   document.getElementById('container').appendChild(d);
 
   var resultsDialog = document.getElementById('resultsDialog');
