@@ -52,6 +52,7 @@ GfxManager::GfxManager(std::string resourcePath, bool showDock) {
   initialized_ = false;
   adjustingTps_ = false;
   dockTeamsViewHeight_ = 0;
+  tpsFaderSetting_ = 0;
 
   shipShape_.setRadius(DRAW_SHIP_RADIUS);
   shipShape_.setOutlineThickness(SHIP_OUTLINE_THICKNESS);
@@ -301,6 +302,10 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
 
   tpsFader_ = new DockFader(15, adjustedWindowHeight - 140, DOCK_SIZE - 31, 40,
       "Speed", &font_, DOCK_BUTTON_FONT_SIZE, 49, adjustedWindowHeight - 165);
+  if (tpsFaderSetting_ != 0) {
+    tpsFader_->setKnob(tpsFaderSetting_);
+    updateTps();
+  }
 }
 
 void GfxManager::destroyBbGfx() {
@@ -361,6 +366,7 @@ void GfxManager::destroyDockItems() {
     restartButton_ = 0;
   }
   if (tpsFader_ != 0) {
+    tpsFaderSetting_ = tpsFader_->getKnobSetting();
     delete tpsFader_;
     tpsFader_ = 0;
   }
@@ -527,7 +533,7 @@ void GfxManager::processMouseDown(int x, int y) {
     } else if (restartButton_->contains(x, y)) {
       listener_->onRestart();
     } else if (tpsFader_->contains(x, y)) {
-      listener_->onTpsChange(tpsFader_->getVolume() / 2);
+      updateTps();
     } else {
       for (int z = 0; z < numTeams_; z++) {
         if (!teamButtons_[z]->hidden()
@@ -549,7 +555,7 @@ void GfxManager::processMouseMoved(int x, int y) {
   y = y / backingScale_;
   if (adjustingTps_) {
     tpsFader_->setKnob(x);
-    listener_->onTpsChange(tpsFader_->getVolume() / 2);
+    updateTps();
   } else {
     stageButton_->setHighlights(x, y);
     for (int z = 0; z < numTeams_; z++) {
@@ -1111,6 +1117,12 @@ void GfxManager::drawDockItem(sf::RenderWindow *window, DockItem *dockItem) {
 
 int GfxManager::getShipDockTop(int index) {
   return DOCK_TOP_HEIGHT + 10 + (index * 35);
+}
+
+void GfxManager::updateTps() {
+  if (listener_ != 0) {
+    listener_->onTpsChange(tpsFader_->getVolume() / 2);
+  }
 }
 
 double GfxManager::adjustX(double x) {

@@ -85,6 +85,10 @@ void DockFader::setKnob(int x) {
   faderKnob_->setPosition(xNew, top_ + (height_ / 4));
 }
 
+int DockFader::getKnobSetting() {
+  return round(faderKnob_->getPosition().x + 2);
+}
+
 double DockFader::getVolume() {
   int xKnob = faderKnob_->getPosition().x;
   if (xKnob == xMin_) {

@@ -113,6 +113,7 @@ class GfxManager {
   int dockTeamsViewHeight_;
   int dockTeamsScrollPosition_;
   int dockTeamsScrollBottom_;
+  int tpsFaderSetting_;
 
   sf::CircleShape shipShape_;
   sf::CircleShape shipDotShape_;
@@ -234,6 +235,7 @@ class GfxManager {
     void drawGameOver(sf::RenderWindow *window, Stage *stage,
                       const char *winnerName);
     int getShipDockTop(int index);
+    void updateTps();
     double adjustX(double x);
     double adjustY(double x, double height);
     double adjustY(double x);

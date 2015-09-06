@@ -45,6 +45,7 @@ class DockFader : public DockItem {
               sf::Font *font, int fontSize, int textLeft, int textTop);
     ~DockFader();
     void setKnob(int x);
+    int getKnobSetting();
     double getVolume();
     void setTop(int top, int textTop);
     virtual void setHighlighted(bool highlighted);
