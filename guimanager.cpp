@@ -770,19 +770,18 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
   sf::Event event;
   bool resized = false;
   while (window->pollEvent(event)) {
+    bool modifierDown = (event.key.system || event.key.control);
+
 #ifdef __WXOSX__
     // For some reason, the dash key (between 0 and =) generates no KeyPressed
-    // event on Mac OS X, but does generate a TextEntered event - at least on my
-    // MacBook Pro, with built-in or external keyboard. The same external
-    // keyboard does generate proper KeyPressed events on Windows and Linux.
-    if (event.type == sf::Event::TextEntered
-        && (sf::Keyboard::isKeyPressed(sf::Keyboard::RControl)
-            || sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)
-            || sf::Keyboard::isKeyPressed(sf::Keyboard::RSystem)
-            || sf::Keyboard::isKeyPressed(sf::Keyboard::LSystem))
-        && event.text.unicode == 45) {
+    // event on Mac OS X, but it does generate a TextEntered event. Also, as of
+    // Yosemite + SFML 2.3, we no longer receive the dash key at all when cmd or
+    // ctrl is pressed. So on OS X, just look for +, -, and 0 keys with no
+    // modifier, to be consistent.
+    if (event.type == sf::Event::TextEntered && event.text.unicode == 45) {
       gfxManager->decreaseWindowSize(window, viewWidth, viewHeight);
     }
+    modifierDown = true;
 #endif
 
     if (event.type == sf::Event::Closed) {
@@ -847,18 +846,18 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
           break;
         case sf::Keyboard::Equal:
         case sf::Keyboard::Add:
-          if (event.key.system || event.key.control) {
+          if (modifierDown) {
             gfxManager->increaseWindowSize(window, viewWidth, viewHeight);
           }
           break;
         case sf::Keyboard::Dash:
         case sf::Keyboard::Subtract:
-          if (event.key.system || event.key.control) {
+          if (modifierDown) {
             gfxManager->decreaseWindowSize(window, viewWidth, viewHeight);
           }
           break;
         case sf::Keyboard::Num0:
-          if (event.key.system || event.key.control) {
+          if (modifierDown) {
             gfxManager->defaultWindowSize(window, viewWidth, viewHeight);
           }
         default:

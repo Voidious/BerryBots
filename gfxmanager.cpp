@@ -422,16 +422,17 @@ void GfxManager::decreaseWindowSize(sf::RenderWindow *window, int viewWidth,
 void GfxManager::defaultWindowSize(sf::RenderWindow *window, int viewWidth,
                                     int viewHeight) {
   unsigned int windowWidth = window->getSize().x;
-  unsigned int dockSize = (showDock_ ? DOCK_SIZE : 0);
+  unsigned int dockSize = (showDock_ ? backingScale_ * DOCK_SIZE : 0);
   double currentScale = ((double) windowWidth - dockSize) / viewWidth;
-  adjustWindowScale(window, viewWidth, viewHeight, 1.0 - currentScale);
+  adjustWindowScale(window, viewWidth, viewHeight,
+                    backingScale_ - currentScale);
 }
 
 void GfxManager::adjustWindowScale(sf::RenderWindow *window, int viewWidth,
                                    int viewHeight, double scaleDelta) {
   unsigned int windowWidth = window->getSize().x;
   unsigned int windowHeight = window->getSize().y;
-  unsigned int dockSize = (showDock_ ? DOCK_SIZE : 0);
+  unsigned int dockSize = (showDock_ ? backingScale_ * DOCK_SIZE : 0);
   double currentScale = ((double) windowWidth - dockSize) / viewWidth;
   double newScale = currentScale + scaleDelta;
   windowWidth = (viewWidth * newScale) + dockSize;
