@@ -52,7 +52,7 @@ class NewMatchDialog : public wxFrame {
   wxListBox *loadedShipsSelect_;
   wxButton *startButton_;
   wxButton *refreshButton_;
-  wxButton *folderButton_;
+  wxButton *basedirButton_;
   wxButton *browseStagesButton_;
   wxButton *browseShipsButton_;
   wxButton *browseApidocsButton_;

@@ -95,8 +95,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 #endif
   dirsSizer->Add(browseStagesButton_);
 
-  stagesDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY,
-                                              wxEmptyString);
+  stagesDirLabel_ = new wxStaticText(mainPanel_, wxID_ANY, wxEmptyString);
   stagesDirLabel_->SetFont(GetFont().Smaller());
   dirsSizer->AddSpacer(3);
   dirsSizer->Add(stagesDirLabel_, 0 ,wxALIGN_BOTTOM);
@@ -113,12 +112,12 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 
 #ifndef __WINDOWS__
   // Still using cwd as base dir on Windows, for now.
-  folderButton_ = new wxButton(mainPanel_, wxID_ANY, "&Base Directory",
+  basedirButton_ = new wxButton(mainPanel_, wxID_ANY, "&Base Directory",
                                wxDefaultPosition, wxSize(145, 36));
-  folderButton_->SetBitmap(folderHomeBitmap_);
+  basedirButton_->SetBitmap(folderHomeBitmap_);
   dirsSizer->AddStretchSpacer(3);
-  dirsSizer->Add(folderButton_);
-  Connect(folderButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
+  dirsSizer->Add(basedirButton_);
+  Connect(basedirButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onChangeBaseDir));
 #endif
 
@@ -182,7 +181,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   startButton_ = new wxButton(mainPanel_, wxID_ANY, "    Start &Match!    ",
                               wxDefaultPosition, wxDefaultSize);
 #endif
-  browseApidocsButton_->MoveAfterInTabOrder(browseShipsButton_);
+  browseApidocsButton_->MoveAfterInTabOrder(browseStagesButton_);
   gridSizer->Add(startButton_, 0, wxALIGN_RIGHT);
   borderSizer_->Add(gridSizer, 0, wxALL, 12);
   mainPanel_->SetSizerAndFit(borderSizer_);
@@ -227,9 +226,9 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 #endif
   
 #if defined(__WXOSX__) || defined(__LINUX__) || defined(__WINDOWS__)
-  browseStagesButton_->MoveAfterInTabOrder(startButton_);
-  browseShipsButton_->MoveAfterInTabOrder(browseStagesButton_);
-  browseApidocsButton_->MoveAfterInTabOrder(browseShipsButton_);
+  browseShipsButton_->MoveAfterInTabOrder(startButton_);
+  browseStagesButton_->MoveAfterInTabOrder(browseShipsButton_);
+  browseApidocsButton_->MoveAfterInTabOrder(browseStagesButton_);
   Connect(browseStagesButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
           wxCommandEventHandler(NewMatchDialog::onBrowseStages));
   Connect(browseShipsButton_->GetId(), wxEVT_COMMAND_BUTTON_CLICKED,
@@ -237,8 +236,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
 #endif
 
 #ifdef __WXOSX__
-  folderButton_->MoveAfterInTabOrder(browseShipsButton_);
-  browseApidocsButton_->MoveAfterInTabOrder(folderButton_);
+  basedirButton_->MoveAfterInTabOrder(browseApidocsButton_);
 #endif
 
   eventFilter_ = new NewMatchEventFilter(this);
@@ -573,14 +571,14 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
     refreshButton_->SetLabel("&Refresh \u2318R");
     startButton_->SetLabel("Start Match \u2318M");
     browseApidocsButton_->SetLabel("&API Docs  \u2318A");
-    folderButton_->SetLabel("&Base Dir   \u2318B");
+    basedirButton_->SetLabel("&Base Dir   \u2318B");
 #else
     clearButton_->SetLabel("C&lear  alt-L");
     refreshButton_->SetLabel("&Refresh  alt-R");
     startButton_->SetLabel("Start &Match!  alt-M");
     browseApidocsButton_->SetLabel("&API Docs  alt-A");
 #ifndef __WINDOWS__
-    folderButton_->SetLabel("&Base Dir  alt-B");
+    basedirButton_->SetLabel("&Base Dir  alt-B");
 #endif
 #endif
   } else {
@@ -588,7 +586,7 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
     refreshButton_->SetLabel("    &Refresh    ");
     browseApidocsButton_->SetLabel("&API Docs");
 #ifndef __WINDOWS__
-    folderButton_->SetLabel("&Base Directory");
+    basedirButton_->SetLabel("&Base Directory");
 #endif
 #ifdef __WXOSX__
     startButton_->SetLabel("    Start Match!    ");
@@ -598,7 +596,7 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
   }
 #ifndef __WINDOWS__
   browseApidocsButton_->SetBitmap(helpBitmap_);
-  folderButton_->SetBitmap(folderHomeBitmap_);
+  basedirButton_->SetBitmap(folderHomeBitmap_);
 #endif
 }
 
