@@ -46,9 +46,13 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   SetIcon(wxIcon(resourcePath() + BBICON_128, wxBITMAP_TYPE_PNG));
 #endif
 
+#ifndef __WINDOWS__
+  // Bizarrely, it's impossible to add any padding between the bitmap and the
+  // edge of the button on Windows. It's ugly enough to just not set a bitmap.
   helpBitmap_ = loadBitmapIcon(HELP_ICON_128, 24);
   folderHomeBitmap_ = loadBitmapIcon(FOLDER_HOME_128, 24);
   wxBitmap folderOpenBitmap = loadBitmapIcon(FOLDER_OPEN_128, 24);
+#endif
 
   mainPanel_ = new wxPanel(this);
   mainSizer_ = new wxBoxSizer(wxHORIZONTAL);
@@ -73,8 +77,7 @@ NewMatchDialog::NewMatchDialog(NewMatchListener *listener,
   browseShipsButton_ = new wxButton(mainPanel_, wxID_ANY, "Ships",
                                     wxDefaultPosition, wxSize(105, 36));
 #ifndef __WINDOWS__
-  // Bizarrely, it's impossible to add any padding between the bitmap and the
-  // edge of the button on Windows. It's ugly enough to just not set a bitmap.
+  // Don't set impossible to align bitmap on Windows.
   browseShipsButton_->SetBitmap(folderOpenBitmap);
 #endif
   dirsSizer->Add(browseShipsButton_);
@@ -576,21 +579,27 @@ void NewMatchDialog::setMnemonicLabels(bool modifierDown) {
     refreshButton_->SetLabel("&Refresh  alt-R");
     startButton_->SetLabel("Start &Match!  alt-M");
     browseApidocsButton_->SetLabel("&API Docs  alt-A");
+#ifndef __WINDOWS__
     folderButton_->SetLabel("&Base Dir  alt-B");
+#endif
 #endif
   } else {
     clearButton_->SetLabel("C&lear");
     refreshButton_->SetLabel("    &Refresh    ");
     browseApidocsButton_->SetLabel("&API Docs");
+#ifndef __WINDOWS__
     folderButton_->SetLabel("&Base Directory");
+#endif
 #ifdef __WXOSX__
     startButton_->SetLabel("    Start Match!    ");
 #else
     startButton_->SetLabel("    Start &Match!    ");
 #endif
   }
+#ifndef __WINDOWS__
   browseApidocsButton_->SetBitmap(helpBitmap_);
   folderButton_->SetBitmap(folderHomeBitmap_);
+#endif
 }
 
 void NewMatchDialog::focusStageSelect() {

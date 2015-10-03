@@ -185,6 +185,7 @@ void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
 #else
   int padding = 8;
 #endif
+
   wxSizer *infoGrid = new wxFlexGridSizer(2, 0, padding);
   addInfo(infoGrid, "Name:", stage->getName());
   addInfo(infoGrid, "Size:",
@@ -233,15 +234,20 @@ void StagePreview::showPreview(sf::RenderWindow *window, const char *stageName,
   Fit();
   mainPanel_->SetFocus();
 
-  // On Windows, if we set the bitmap before the Layout/Fit stuff, we get visual
-  // artifacts when paging through the stages with up/down keys.
   wxBitmap bitmap;
+#ifdef __WINDOWS__
+  bitmap = wxBitmap(previewImage);
+#else
   bitmap.CreateScaled(targetWidth, targetHeight, wxBITMAP_SCREEN_DEPTH,
                       backingScale);
   wxMemoryDC dc(bitmap);
   double logicalScale = (backingScale > 1) ? (1.0 / backingScale) : 1;
   dc.SetLogicalScale(logicalScale, logicalScale);
   dc.DrawBitmap(wxBitmap(previewImage), 0, 0);
+#endif
+
+  // On Windows, if we set the bitmap before the Layout/Fit stuff, we get visual
+  // artifacts when paging through the stages with up/down keys.
   visualPreview_->SetBitmap(bitmap);
 
   delete engine;

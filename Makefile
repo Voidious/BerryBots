@@ -6,10 +6,10 @@
 # Configure build parameters.
 CC = g++
 
-SFML_PATH = C:\SFML-master
-WXWIDGETS_PATH = C:\wxWidgets-2.9.5
+SFML_PATH = C:\SFML-2.3.2
+WXWIDGETS_PATH = C:\wxWidgets-3.0.2
 LIBARCHIVE_PATH = C:\libarchive-3.1.2
-WIN_ZLIB_PATH = C:\zlib127-dll
+WIN_ZLIB_PATH = C:\zlib128-dll
 
 # Modify this if you built SFML somewhere else.
 WIN_SFML_BUILD_PATH = ${SFML_PATH}\build
@@ -54,13 +54,14 @@ WIN_CFLAGS =  -I.\luajit\src -I.\stlsoft-1.9.116\include
 WIN_CFLAGS += -I${LIBARCHIVE_PATH}\libarchive -I${SFML_PATH}\include 
 WIN_CFLAGS += -mthreads -DHAVE_W32API_H -D__WXMSW__ -DUNICODE
 WIN_CFLAGS += -I${WXWIDGETS_PATH}\lib\gcc_lib\mswu -I${WXWIDGETS_PATH}\include
-WIN_CFLAGS += -Wno-ctor-dtor-privacy -pipe -fmessage-length=0
+WIN_CFLAGS += -Wno-ctor-dtor-privacy -Wno-deprecated-declarations -pipe
+WIN_CFLAGS += -fmessage-length=0 -std=gnu++11
 
 WIN_LDFLAGS =  -L${WIN_SFML_BUILD_PATH}\lib -lpthread
 WIN_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
 WIN_LDFLAGS += -mwindows -mthreads -L${WXWIDGETS_PATH}\lib\gcc_lib
-WIN_LDFLAGS += -lwxmsw29u_html -lwxmsw29u_adv -lwxmsw29u_core -lwxbase29u_xml
-WIN_LDFLAGS += -lwxbase29u_net -lwxbase29u -lwxtiff -lwxjpeg -lwxpng -lwxzlib
+WIN_LDFLAGS += -lwxmsw30u_html -lwxmsw30u_adv -lwxmsw30u_core -lwxbase30u_xml
+WIN_LDFLAGS += -lwxbase30u_net -lwxbase30u -lwxtiff -lwxjpeg -lwxpng -lwxzlib
 WIN_LDFLAGS += -lwxregexu -lwxexpat -lkernel32 -luser32 -lgdi32 -lcomdlg32
 WIN_LDFLAGS += -lwinspool -lwinmm -lshell32 -lcomctl32 -lole32 -loleaut32
 WIN_LDFLAGS += -luuid -lrpcrt4 -ladvapi32 -lwsock32
@@ -71,6 +72,7 @@ WINCLI_EXTRA_SOURCES += ${LIBARCHIVE_PATH}\build\libarchive\libarchive_static.a
 
 WINCLI_CFLAGS =  -I.\luajit\src -I.\stlsoft-1.9.116\include
 WINCLI_CFLAGS += -I${LIBARCHIVE_PATH}\libarchive -I${SFML_PATH}\include 
+WINCLI_CFLAGS += -Wno-deprecated-declarations -std=gnu++11
 
 WINCLI_LDFLAGS =  -L${WIN_SFML_BUILD_PATH}\lib -lpthread
 WINCLI_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system
