@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -197,12 +197,24 @@ wxControl* RunnerForm::addTextElement(const char *name, wxSizer *colSizer) {
 }
 
 wxControl* RunnerForm::addCheckboxElement(const char *name, wxSizer *colSizer) {
+#ifdef __WXGTK__
+  // Ubuntu/GTK displays a weird empty label next to checked checkbox if we do
+  // it the other way. Meanwhile, OS X fails to obey wxALIGN_RIGHT.
+  std::string nameString(name);
+  nameString.append(":");
+  wxCheckBox *checkbox = new wxCheckBox(
+      mainPanel_, wxID_ANY, nameString, wxDefaultPosition, wxDefaultSize,
+      wxALIGN_RIGHT);
+  colSizer->Add(checkbox);
+#else
   wxCheckBox *checkbox = new wxCheckBox(mainPanel_, wxID_ANY, "");
   wxBoxSizer *textSizer = new wxBoxSizer(wxHORIZONTAL);
   textSizer->Add(getNameLabel(name), 0, wxALIGN_CENTER);
   textSizer->AddSpacer(5);
   textSizer->Add(checkbox, 0, wxALIGN_CENTER);
   colSizer->Add(textSizer);
+#endif
+
   Connect(checkbox->GetId(), wxEVT_UPDATE_UI,
           wxUpdateUIEventHandler(RunnerForm::onFormChange));
   return checkbox;
