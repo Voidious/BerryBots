@@ -293,10 +293,10 @@ int Ship_setName(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   const char *shipName = luaL_checkstring(L, 2);
   BerryBotsEngine *engine = ship->properties->engine;
-  if (!engine->isShipInitComplete()) {
+  Team *team = engine->getTeam(ship->teamIndex);
+  if (!engine->isShipInitComplete() || team->gfxEnabled) {
     strncpy(ship->properties->name, shipName, MAX_NAME_LENGTH);
     ship->properties->name[MAX_NAME_LENGTH] = '\0';
-    Team *team = engine->getTeam(ship->teamIndex);
     if (team->numShips == 1) {
       setTeamName(team, shipName);
     }
@@ -318,8 +318,8 @@ int Ship_setTeamName(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   const char *teamName = luaL_checkstring(L, 2);
   BerryBotsEngine *engine = ship->properties->engine;
-  if (!engine->isShipInitComplete()) {
-    Team *team = engine->getTeam(ship->teamIndex);
+  Team *team = engine->getTeam(ship->teamIndex);
+  if (!engine->isShipInitComplete() || team->gfxEnabled) {
     setTeamName(team, teamName);
 
     std::stringstream ss;
@@ -333,14 +333,15 @@ int Ship_setTeamName(lua_State *L) {
 int Ship_setShipColor(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   BerryBotsEngine *engine = ship->properties->engine;
-  if (!engine->isShipInitComplete()) {
+  Team *team = engine->getTeam(ship->teamIndex);
+  if (!engine->isShipInitComplete() || team->gfxEnabled) {
     int r = limit(0, luaL_checkint(L, 2), 255);
     int g = limit(0, luaL_checkint(L, 3), 255);
     int b = limit(0, luaL_checkint(L, 4), 255);
     ship->properties->shipR = r;
     ship->properties->shipG = g;
     ship->properties->shipB = b;
-    Team *team = ship->properties->engine->getTeam(ship->teamIndex);
+    ship->newColors = true;
 
     std::stringstream ss;
     if (team->numShips == 1) {
@@ -358,14 +359,15 @@ int Ship_setShipColor(lua_State *L) {
 int Ship_setLaserColor(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   BerryBotsEngine *engine = ship->properties->engine;
-  if (!engine->isShipInitComplete()) {
+  Team *team = engine->getTeam(ship->teamIndex);
+  if (!engine->isShipInitComplete() || team->gfxEnabled) {
     int r = limit(0, luaL_checkint(L, 2), 255);
     int g = limit(0, luaL_checkint(L, 3), 255);
     int b = limit(0, luaL_checkint(L, 4), 255);
     ship->properties->laserR = r;
     ship->properties->laserG = g;
     ship->properties->laserB = b;
-    Team *team = ship->properties->engine->getTeam(ship->teamIndex);
+    ship->newColors = true;
 
     std::stringstream ss;
     if (team->numShips == 1) {
@@ -383,14 +385,15 @@ int Ship_setLaserColor(lua_State *L) {
 int Ship_setThrusterColor(lua_State *L) {
   Ship *ship = checkShip(L, 1);
   BerryBotsEngine *engine = ship->properties->engine;
-  if (!engine->isShipInitComplete()) {
+  Team *team = engine->getTeam(ship->teamIndex);
+  if (!engine->isShipInitComplete() || team->gfxEnabled) {
     int r = limit(0, luaL_checkint(L, 2), 255);
     int g = limit(0, luaL_checkint(L, 3), 255);
     int b = limit(0, luaL_checkint(L, 4), 255);
     ship->properties->thrusterR = r;
     ship->properties->thrusterG = g;
     ship->properties->thrusterB = b;
-    Team *team = ship->properties->engine->getTeam(ship->teamIndex);
+    ship->newColors = true;
 
     std::stringstream ss;
     if (team->numShips == 1) {

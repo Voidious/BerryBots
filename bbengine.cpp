@@ -763,6 +763,7 @@ void BerryBotsEngine::initShips(const char *shipsBaseDir, char **teamNames,
       ship->showName = true;
       ship->kills = ship->damage = 0;
       ship->friendlyKills = ship->friendlyDamage = 0;
+      ship->newColors = true;
       properties->stageShip = stageShip;
       properties->shipR = properties->shipG = properties->shipB = 255;
       properties->laserR = properties->laserB = 0;

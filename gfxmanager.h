@@ -182,6 +182,7 @@ class GfxManager {
     void showKeyboardShortcuts();
     void hideKeyboardShortcuts();
   private:
+    void copyShipColors(int shipIndex);
     void initDockItems(sf::RenderWindow *window);
     void destroyDockItems();
     void adjustWindowScale(sf::RenderWindow *window, int viewWidth,
@@ -191,6 +192,7 @@ class GfxManager {
     void updateViews(sf::RenderWindow *window, unsigned int viewWidth,
                      unsigned int viewHeight, unsigned int windowWidth,
                      unsigned int windowHeight);
+    void updateShipColors();
     void drawWalls(sf::RenderWindow *window);
     void drawZones(sf::RenderWindow *window);
     void adjustTorpedoRayPoint(sf::RectangleShape *rayShape, double angle);

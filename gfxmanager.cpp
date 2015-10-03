@@ -142,20 +142,7 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, double backingScale,
   shipDotOffsets_ = new int[numShips];
   shipDotDirections_ = new bool[numShips];
   for (int x = 0; x < numShips; x++) {
-    Ship *ship = ships[x];
-    shipColors_[x].r = ship->properties->shipR;
-    shipColors_[x].g = ship->properties->shipG;
-    shipColors_[x].b = ship->properties->shipB;
-    shipDeathColors_[x].r = ship->properties->shipR * 3 / 4;
-    shipDeathColors_[x].g = ship->properties->shipG * 3 / 4;
-    shipDeathColors_[x].b = ship->properties->shipB * 3 / 4;
-    laserColors_[x].r = ship->properties->laserR;
-    laserColors_[x].g = ship->properties->laserG;
-    laserColors_[x].b = ship->properties->laserB;
-    thrusterColors_[x].r = ship->properties->thrusterR;
-    thrusterColors_[x].g = ship->properties->thrusterG;
-    thrusterColors_[x].b = ship->properties->thrusterB;
-
+    copyShipColors(x);
     shipDotOffsets_[x] = rand() % SHIP_DOT_FRAMES;
     shipDotDirections_[x] = (rand() % 10 < 5) ? true : false;
     shipColors_[x].a = laserColors_[x].a = thrusterColors_[x].a = 255;
@@ -188,6 +175,23 @@ void GfxManager::initBbGfx(sf::RenderWindow *window, double backingScale,
   }
 
   initialized_ = true;
+}
+
+void GfxManager::copyShipColors(int shipIndex) {
+  Ship *ship = ships_[shipIndex];
+  shipColors_[shipIndex].r = ship->properties->shipR;
+  shipColors_[shipIndex].g = ship->properties->shipG;
+  shipColors_[shipIndex].b = ship->properties->shipB;
+  shipDeathColors_[shipIndex].r = ship->properties->shipR * 3 / 4;
+  shipDeathColors_[shipIndex].g = ship->properties->shipG * 3 / 4;
+  shipDeathColors_[shipIndex].b = ship->properties->shipB * 3 / 4;
+  laserColors_[shipIndex].r = ship->properties->laserR;
+  laserColors_[shipIndex].g = ship->properties->laserG;
+  laserColors_[shipIndex].b = ship->properties->laserB;
+  thrusterColors_[shipIndex].r = ship->properties->thrusterR;
+  thrusterColors_[shipIndex].g = ship->properties->thrusterG;
+  thrusterColors_[shipIndex].b = ship->properties->thrusterB;
+  ship->newColors = false;
 }
 
 void GfxManager::initDockItems(sf::RenderWindow *window) {
@@ -390,7 +394,8 @@ void GfxManager::drawGame(sf::RenderWindow *window, Stage *stage, Ship **ships,
   gfxHandler->removeLaserHits(time - LASER_SPARK_TIME);
   gfxHandler->removeTorpedoHits(time - TORPEDO_SPARK_TIME);
   gfxHandler->removeTorpedoBlasts(time - TORPEDO_BLAST_TIME);
-  
+
+  updateShipColors();
   drawZones(window);
   drawTorpedos(window, stage);
   drawTorpedoBlasts(window, time, gfxHandler);
@@ -610,6 +615,13 @@ void GfxManager::hideKeyboardShortcuts() {
   }
 }
 
+void GfxManager::updateShipColors() {
+  for (int x = 0; x < numShips_; x++) {
+    if (ships_[x]->newColors) {
+      copyShipColors(x);
+    }
+  }
+}
 void GfxManager::drawWalls(sf::RenderWindow *window) {
   for (int x = 0; x < numWalls_; x++) {
     window->draw(*(wallShapes_[x]));

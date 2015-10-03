@@ -8,7 +8,7 @@
 -- <br><br>
 -- Graphical debugging is only supported in the GUI version of BerryBots on Mac,
 -- Linux, and Windows. For now, there is no graphical debugging on the Raspberry
--- Pi.
+-- Pi or in replays.
 module "DebugGfx"
 
 --- Defines a color in RGBA format to be passed to graphical debugging

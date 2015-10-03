@@ -97,28 +97,31 @@ function alive()
 function isStageShip()
 
 --- Sets the name of the ship. This function can only be called during
--- <code>init</code>.
+-- <code>init</code> or when debugging graphics are enabled.
 -- @param name The name of the ship.
 function setName(name)
 
 --- Sets the name of the ship's team. This function can only be called during
--- <code>init</code>.
+-- <code>init</code> or when debugging graphics are enabled.
 -- @param teamName The name of the team this ship is part of.
 function setTeamName(teamName)
 
---- Sets the color of the ship's hull, in RGB (0-255).
+--- Sets the color of the ship's hull, in RGB (0-255). This function can only
+-- be called during <code>init</code> or when debugging graphics are enabled.
 -- @param r The amount of red, from 0 to 255.
 -- @param g The amount of green, from 0 to 255.
 -- @param b The amount of blue, from 0 to 255.
 function setShipColor(r, g, b)
 
---- Sets the color of the ship's lasers, in RGB (0-255).
+--- Sets the color of the ship's lasers, in RGB (0-255). This function can only
+-- be called during <code>init</code> or when debugging graphics are enabled.
 -- @param r The amount of red, from 0 to 255.
 -- @param g The amount of green, from 0 to 255.
 -- @param b The amount of blue, from 0 to 255.
 function setLaserColor(r, g, b)
 
---- Sets the color of the ship's thruster, in RGB (0-255).
+--- Sets the color of the ship's thruster, in RGB (0-255). This function can only
+-- be called during <code>init</code> or when debugging graphics are enabled.
 -- @param r The amount of red, from 0 to 255.
 -- @param g The amount of green, from 0 to 255.
 -- @param b The amount of blue, from 0 to 255.

@@ -225,6 +225,7 @@ typedef struct {
   bool thrusterEnabled;
   bool energyEnabled;
   bool showName;
+  bool newColors;
   double kills;
   double friendlyKills;
   double damage;
