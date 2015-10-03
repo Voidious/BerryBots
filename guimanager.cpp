@@ -492,7 +492,8 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   showedResults_ = false;
 
   sf::RenderWindow *window;
-  bool maintainWindowProperties = false;
+  bool maintainWindowPosition = false;
+  bool maintainWindowScale = false;
   sf::Vector2i prevPosition;
   double prevScale = 1.0;
   double backingScale = getBackingScaleFactor();
@@ -503,14 +504,16 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   int dockSize = backingScale * DOCK_SIZE;
 
   if (window_ != 0) {
-#ifndef __WXGTK__
-    // sf::Window::getPosition just doesn't work on Linux/GTK, so don't try,
-    // which at least lets the window manager position it to be fully on screen.
-    prevPosition = window_->getPosition();
     if (restarting_) {
       prevScale = ((double) (window_->getSize().x - dockSize)) / viewWidth_;
+      maintainWindowScale = true;
     }
-    maintainWindowProperties = true;
+#ifdef __WINDOWS__
+    // sf::Window::getPosition just doesn't work on Linux/GTK, so don't try,
+    // which at least lets the window manager position it to be fully on screen.
+    // On Mac OS X, we reuse the same window.
+    prevPosition = window_->getPosition();
+    maintainWindowPosition = true;
 #endif
   }
   
@@ -587,7 +590,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   viewWidth_ = stage->getWidth() + (STAGE_MARGIN * 2);
   viewHeight_ = stage->getHeight() + (STAGE_MARGIN * 2);
   double windowScale;
-  if (restarting_ && maintainWindowProperties) {
+  if (restarting_ && maintainWindowScale) {
     windowScale = prevScale;
   } else {
     windowScale =
@@ -603,7 +606,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
 #else
   window = initMainWindow(targetWidth, targetHeight);
 
-  if (maintainWindowProperties) {
+  if (maintainWindowPosition) {
     int left = limit(0, prevPosition.x, screenWidth - targetWidth);
     int top = limit(0, prevPosition.y, screenHeight - targetHeight);
     window_->setPosition(sf::Vector2i(left, top));
