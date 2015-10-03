@@ -897,7 +897,7 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
       window->setVerticalSyncEnabled(false);
       window->setFramerateLimit(paused_ ? 5 : 60);
     } else if (event.type == sf::Event::GainedFocus) {
-      setTpsFactor(tpsFactor_);
+      updateFramerate();
     }
   }
 
@@ -1200,7 +1200,10 @@ void GuiManager::restartMatch() {
 void GuiManager::setTpsFactor(double tpsFactor) {
   tpsFactor_ = round(tpsFactor, 3);
   paused_ = (tpsFactor_ < 0.005);
+  updateFramerate();
+}
 
+void GuiManager::updateFramerate() {
   sf::RenderWindow *window = window_;
   bool defaultTps = (abs(tpsFactor_ - 1) < 0.01);
   if (defaultTps) {

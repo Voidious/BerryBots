@@ -181,6 +181,7 @@ class GuiManager {
     void deleteCurrentMatchSettings();
     int loadItemsFromDir(const char *baseDir, const char *loadDir,
         int itemType, void *itemDialog, BerryBotsEngine *engine);
+    void updateFramerate();
     void logErrorMessage(lua_State *L, const char *formatString);
 };
 
