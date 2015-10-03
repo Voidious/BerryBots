@@ -721,7 +721,7 @@ void GuiManager::showResults(ReplayBuilder *replayBuilder) {
   int xCenter = windowPosition.x + (windowSize.x / 2);
   int yCenter = windowPosition.y + (windowSize.y / 2);
 
-  // SFML 2.3.1 is returning wrong/negative values for y coordinate on Mac OS X.
+  // SFML 2.3 is returning wrong/negative values for y coordinate on Mac OS X.
   // If results dialog will end up off-screen, use center of screen instead.
   unsigned int screenWidth = sf::VideoMode::getDesktopMode().width;
   unsigned int screenHeight = sf::VideoMode::getDesktopMode().height;
