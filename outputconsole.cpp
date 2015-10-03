@@ -31,7 +31,7 @@ OutputConsole::OutputConsole(const char *title, int style,
   menuBarMaker_ = menuBarMaker;
   outerSizer_ = new wxBoxSizer(wxVERTICAL);
   output_ = new wxTextCtrl(this, wxID_ANY, "", wxPoint(0, 0),
-      wxSize(650, 450), wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP,
+      wxSize(825, 550), wxTE_MULTILINE | wxTE_READONLY | wxTE_DONTWRAP,
       wxDefaultValidator);
   outerSizer_->Add(output_, 1, wxEXPAND);
   style_ = style;
