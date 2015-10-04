@@ -27,7 +27,8 @@
 
 DockFader::DockFader(int left, int top, int width, int height,
     const char *hoverText, sf::Font *font, int fontSize, int textLeft,
-    int textTop) : DockItem(left, top, width, height) {
+    int textTop, int shortcutFontSize)
+        : DockItem(left, top, width, height) {
   faderSlot_ = new sf::RectangleShape(sf::Vector2f(width, 2));
   faderCenter_ = new sf::RectangleShape(sf::Vector2f(2, height / 2));
   faderCenter_->setFillColor(sf::Color(125, 125, 125));
@@ -52,12 +53,12 @@ DockFader::DockFader(int left, int top, int width, int height,
   hoverText_->setPosition(textLeft, textTop);
   hoverText_->setColor(HIGHLIGHTED_COLOR);
 
-  highlightedDrawables_ = new sf::Drawable*[numDrawables_ + 1];
+  numHighlightedDrawables_ = numDrawables_ + 1;
+  highlightedDrawables_ = new sf::Drawable*[numHighlightedDrawables_];
   for (int x = 0; x < numDrawables_; x++) {
     highlightedDrawables_[x] = drawables_[x];
   }
   highlightedDrawables_[numDrawables_] = hoverText_;
-  numAltDrawables_ = numDrawables_ + 1;
 
   xMin_ = left_;
   xMax_ = left_ + width_ - 4;
@@ -69,11 +70,25 @@ DockFader::DockFader(int left, int top, int width, int height,
   volumeBase_ = pow(
       2, 1.0 / pow(((double) highLowOffset) / (xZero_ - xMin_), VOLUME_EXP));
 
+  shortcutLeft_ = new sf::Text("[", *font, shortcutFontSize);
+  shortcutLeft_->setColor(SHORTCUT_COLOR);
+  shortcutRight_ = new sf::Text("]", *font, shortcutFontSize);
+  shortcutRight_->setColor(SHORTCUT_COLOR);
+
+  numShortcutDrawables_ = numDrawables_ + 2;
+  shortcutDrawables_ = new sf::Drawable*[numShortcutDrawables_];
+  for (int x = 0; x < numDrawables_; x++) {
+    shortcutDrawables_[x] = drawables_[x];
+  }
+  shortcutDrawables_[numDrawables_] = shortcutLeft_;
+  shortcutDrawables_[numDrawables_ + 1] = shortcutRight_;
+
   setTop(top_, textTop);
 }
 
 DockFader::~DockFader() {
-  // Superclass destructor deletes everything.
+  delete shortcutLeft_;
+  delete shortcutRight_;
 }
 
 void DockFader::setKnob(int x) {
@@ -101,6 +116,14 @@ double DockFader::getVolume() {
   }
 }
 
+void DockFader::increaseVolume() {
+  setKnob(getKnobSetting() + 6);
+}
+
+void DockFader::decreaseVolume() {
+  setKnob(getKnobSetting() - 6);
+}
+
 void DockFader::setTop(int top, int textTop) {
   if (top != top_) {
     top_ = top;
@@ -109,6 +132,11 @@ void DockFader::setTop(int top, int textTop) {
     faderLow_->setPosition(xLow_ + 1, top_ + (height_ / 4) + 3);
     faderHigh_->setPosition(xHigh_ + 1, top_ + (height_ / 4) + 3);
     faderKnob_->setPosition(faderKnob_->getPosition().x, top_ + (height_ / 4));
+    sf::FloatRect leftRect = shortcutLeft_->getLocalBounds();
+    int shortcutTop =
+        faderSlot_->getPosition().y + 1 - (leftRect.height * 5 / 6);
+    shortcutLeft_->setPosition(xMin_ - leftRect.width - 2, shortcutTop);
+    shortcutRight_->setPosition(xMax_ + 4 + 2, shortcutTop);
   }
   hoverText_->setPosition(hoverText_->getPosition().x, textTop);
 }

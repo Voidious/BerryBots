@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -26,6 +26,7 @@
 
 class DockShape : public DockItem {
   sf::Shape **drawableShapes_;
+  sf::Text *shortcutText_;
 
   public:
     DockShape(sf::Shape **shapes, int numShapes, int left, int top, int width,

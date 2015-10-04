@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2013 - Voidious
+  Copyright (C) 2013-2015 - Voidious
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -37,9 +37,9 @@ class DockItem : public Rectangle {
     sf::Drawable **highlightedDrawables_;
     sf::Drawable **shortcutDrawables_;
     sf::Text *hoverText_;
-    sf::Text *shortcutText_;
     int numDrawables_;
-    int numAltDrawables_;
+    int numHighlightedDrawables_;
+    int numShortcutDrawables_;
 
     DockItem(int left, int top, int width, int height);
 
@@ -47,8 +47,8 @@ class DockItem : public Rectangle {
     virtual ~DockItem();
     virtual void setHighlighted(bool highlighted) = 0;
     void setHighlights(int mouseX, int mouseY);
-    void showShortcut();
-    void hideShortcut();
+    void showShortcuts();
+    void hideShortcuts();
     sf::Drawable** getDrawables();
     int getNumDrawables();
     bool contains(int x, int y);

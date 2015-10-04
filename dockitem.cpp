@@ -31,8 +31,7 @@ DockItem::DockItem(int left, int top, int width, int height)
   highlightedDrawables_ = 0;
   shortcutDrawables_ = 0;
   hoverText_ = 0;
-  shortcutText_ = 0;
-  numDrawables_ = numAltDrawables_ = 0;
+  numDrawables_ = numHighlightedDrawables_ = numShortcutDrawables_ = 0;
 }
 
 DockItem::~DockItem() {
@@ -51,9 +50,6 @@ DockItem::~DockItem() {
   if (hoverText_ != 0) {
     delete hoverText_;
   }
-  if (shortcutText_ != 0) {
-    delete shortcutText_;
-  }
 }
 
 void DockItem::setHighlights(int mouseX, int mouseY) {
@@ -64,13 +60,13 @@ void DockItem::setHighlights(int mouseX, int mouseY) {
   highlighted_ = highlighted;
 }
 
-void DockItem::showShortcut() {
-  if (shortcutText_ != 0) {
+void DockItem::showShortcuts() {
+  if (shortcutDrawables_ != 0) {
     showShortcut_ = true;
   }
 }
 
-void DockItem::hideShortcut() {
+void DockItem::hideShortcuts() {
   showShortcut_ = false;
 }
 
@@ -80,7 +76,8 @@ sf::Drawable** DockItem::getDrawables() {
 }
 
 int DockItem::getNumDrawables() {
-  return (highlighted_ || showShortcut_) ? numAltDrawables_ : numDrawables_;
+  return (showShortcut_ ? numShortcutDrawables_
+          : highlighted_ ? numHighlightedDrawables_ : numDrawables_);
 }
 
 bool DockItem::contains(int x, int y) {

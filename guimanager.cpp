@@ -492,8 +492,10 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   showedResults_ = false;
 
   sf::RenderWindow *window;
-  bool maintainWindowPosition = false;
   bool maintainWindowScale = false;
+#ifndef __WXOSX__
+  bool maintainWindowPosition = false;
+#endif
   sf::Vector2i prevPosition;
   double prevScale = 1.0;
   double backingScale = getBackingScaleFactor();
@@ -863,6 +865,13 @@ void GuiManager::processMainWindowEvents(sf::RenderWindow *window,
           if (modifierDown) {
             gfxManager->defaultWindowSize(window, viewWidth, viewHeight);
           }
+          break;
+        case sf::Keyboard::LBracket:
+          gfxManager->decreaseGameSpeed();
+          break;
+        case sf::Keyboard::RBracket:
+          gfxManager->increaseGameSpeed();
+          break;
         default:
           break;
       }

@@ -30,7 +30,6 @@ DockShape::DockShape(sf::Shape **shapes, int numShapes, int left, int top,
   drawableShapes_ = shapes;
   drawables_ = (sf::Drawable**) shapes;
   numDrawables_ = numShapes;
-  numAltDrawables_ = numDrawables_ + 1;
   sf::Vector2f newOrigin(left_ + (width_ / 2), top_ + (height_ / 2));
   for (int x = 0; x < numDrawables_; x++) {
     sf::Shape *shape = drawableShapes_[x];
@@ -41,7 +40,8 @@ DockShape::DockShape(sf::Shape **shapes, int numShapes, int left, int top,
   hoverText_->setPosition(textLeft, textTop);
   hoverText_->setColor(HIGHLIGHTED_COLOR);
 
-  highlightedDrawables_ = new sf::Drawable*[numDrawables_ + 1];
+  numHighlightedDrawables_ = numDrawables_ + 1;
+  highlightedDrawables_ = new sf::Drawable*[numHighlightedDrawables_];
   for (int x = 0; x < numDrawables_; x++) {
     highlightedDrawables_[x] = drawables_[x];
   }
@@ -53,7 +53,8 @@ DockShape::DockShape(sf::Shape **shapes, int numShapes, int left, int top,
                              top + height);
   shortcutText_->setColor(SHORTCUT_COLOR);
 
-  shortcutDrawables_ = new sf::Drawable*[numDrawables_ + 1];
+  numShortcutDrawables_ = numDrawables_ + 1;
+  shortcutDrawables_ = new sf::Drawable*[numShortcutDrawables_];
   for (int x = 0; x < numDrawables_; x++) {
     shortcutDrawables_[x] = drawables_[x];
   }
@@ -61,7 +62,7 @@ DockShape::DockShape(sf::Shape **shapes, int numShapes, int left, int top,
 }
 
 DockShape::~DockShape() {
-  // Superclass destructor deletes everything.
+  delete shortcutText_;
 }
 
 void DockShape::setTop(int top, int textTop) {

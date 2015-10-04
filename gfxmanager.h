@@ -67,7 +67,7 @@
 
 #define DOCK_ENERGY_LENGTH        (DOCK_SIZE - 40)
 #define DOCK_BUTTON_FONT_SIZE     20
-#define DOCK_SHORTCUT_FONT_SIZE   16
+#define DOCK_SHORTCUT_FONT_SIZE   18
 #define SHIP_STAGE_FONT_SIZE      16
 
 #define TORPEDO_COLOR             sf::Color(255, 89, 38, 255)
@@ -171,6 +171,8 @@ class GfxManager {
                             int viewHeight);
     void defaultWindowSize(sf::RenderWindow *window, int viewWidth,
                            int viewHeight);
+    void increaseGameSpeed();
+    void decreaseGameSpeed();
     void initViews(sf::RenderWindow *window, unsigned int viewWidth,
                    unsigned int viewHeight);
     void onResize(sf::RenderWindow *window, unsigned int viewWidth,

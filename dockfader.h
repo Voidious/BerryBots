@@ -33,6 +33,8 @@ class DockFader : public DockItem {
   sf::RectangleShape *faderLow_;
   sf::RectangleShape *faderHigh_;
   sf::RectangleShape *faderKnob_;
+  sf::Text *shortcutLeft_;
+  sf::Text *shortcutRight_;
   int xMin_;
   int xMax_;
   int xZero_;
@@ -42,11 +44,14 @@ class DockFader : public DockItem {
 
   public:
     DockFader(int left, int top, int width, int height, const char *hoverText,
-              sf::Font *font, int fontSize, int textLeft, int textTop);
+              sf::Font *font, int fontSize, int textLeft, int textTop,
+              int shortcutFontSize);
     ~DockFader();
     void setKnob(int x);
     int getKnobSetting();
     double getVolume();
+    void increaseVolume();
+    void decreaseVolume();
     void setTop(int top, int textTop);
     virtual void setHighlighted(bool highlighted);
 };

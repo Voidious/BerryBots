@@ -27,12 +27,10 @@ DockText::DockText(const char *text, sf::Font *font, int fontSize, int left,
     int top, int width, int height) : DockItem(left, top, width, height) {
   drawableText_ = new sf::Text(text, *font, fontSize);
   drawableText_->setColor(DEFAULT_COLOR);
-  drawables_ = new sf::Drawable*[1];
-  drawables_[0] = drawableText_;
-  numDrawables_ = numAltDrawables_ = 1;
-  highlightedDrawables_ = new sf::Drawable*[1];
-  shortcutDrawables_ = new sf::Drawable*[1];
-  shortcutDrawables_[0] = highlightedDrawables_[0] = drawableText_;
+  numDrawables_ = numHighlightedDrawables_ = 1;
+  drawables_ = new sf::Drawable*[numDrawables_];
+  highlightedDrawables_ = new sf::Drawable*[numHighlightedDrawables_];
+  drawables_[0] = highlightedDrawables_[0] = drawableText_;
   disabled_ = false;
   errored_ = false;
   hidden_ = false;
@@ -70,7 +68,7 @@ void DockText::setHidden(bool hidden) {
 void DockText::setHighlighted(bool highlighted) {
   drawableText_->setColor(highlighted ? HIGHLIGHTED_COLOR
                           : disabled_ ? DISABLED_COLOR
-                              : errored_ ? ERRORED_COLOR : DEFAULT_COLOR);
+                          : errored_ ? ERRORED_COLOR : DEFAULT_COLOR);
 }
 
 void DockText::setTop(int top) {

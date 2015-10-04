@@ -305,7 +305,8 @@ void GfxManager::initDockItems(sf::RenderWindow *window) {
       DOCK_SHORTCUT_FONT_SIZE);
 
   tpsFader_ = new DockFader(15, adjustedWindowHeight - 140, DOCK_SIZE - 31, 40,
-      "Speed", &font_, DOCK_BUTTON_FONT_SIZE, 49, adjustedWindowHeight - 165);
+      "Speed", &font_, DOCK_BUTTON_FONT_SIZE, 49, adjustedWindowHeight - 165,
+      DOCK_BUTTON_FONT_SIZE);
   if (tpsFaderSetting_ != 0) {
     tpsFader_->setKnob(tpsFaderSetting_);
     updateTps();
@@ -443,6 +444,16 @@ void GfxManager::adjustWindowScale(sf::RenderWindow *window, int viewWidth,
   windowWidth = (viewWidth * newScale) + dockSize;
   windowHeight = viewHeight * newScale;
   updateViews(window, viewWidth, viewHeight, windowWidth, windowHeight);
+}
+
+void GfxManager::increaseGameSpeed() {
+  tpsFader_->increaseVolume();
+  updateTps();
+}
+
+void GfxManager::decreaseGameSpeed() {
+  tpsFader_->decreaseVolume();
+  updateTps();
 }
 
 // TODO: merge this into initBbGfx
@@ -588,30 +599,32 @@ void GfxManager::processMouseWheel(int x, int y, int delta) {
 }
 
 void GfxManager::showKeyboardShortcuts() {
-  newMatchButton_->showShortcut();
-  packageShipButton_->showShortcut();
-  packageStageButton_->showShortcut();
-  stageButton_->showShortcut();
-  pauseButton_->showShortcut();
-  playButton_->showShortcut();
-  restartButton_->showShortcut();
+  newMatchButton_->showShortcuts();
+  packageShipButton_->showShortcuts();
+  packageStageButton_->showShortcuts();
+  stageButton_->showShortcuts();
+  pauseButton_->showShortcuts();
+  playButton_->showShortcuts();
+  restartButton_->showShortcuts();
+  tpsFader_->showShortcuts();
   for (int z = 0; z < numTeams_; z++) {
     if (!teamButtons_[z]->hidden()) {
-      teamButtons_[z]->showShortcut();
+      teamButtons_[z]->showShortcuts();
     }
   }
 }
 
 void GfxManager::hideKeyboardShortcuts() {
-  newMatchButton_->hideShortcut();
-  packageShipButton_->hideShortcut();
-  packageStageButton_->hideShortcut();
-  stageButton_->hideShortcut();
-  pauseButton_->hideShortcut();
-  playButton_->hideShortcut();
-  restartButton_->hideShortcut();
+  newMatchButton_->hideShortcuts();
+  packageShipButton_->hideShortcuts();
+  packageStageButton_->hideShortcuts();
+  stageButton_->hideShortcuts();
+  pauseButton_->hideShortcuts();
+  playButton_->hideShortcuts();
+  restartButton_->hideShortcuts();
+  tpsFader_->hideShortcuts();
   for (int z = 0; z < numTeams_; z++) {
-    teamButtons_[z]->hideShortcut();
+    teamButtons_[z]->hideShortcuts();
   }
 }
 
