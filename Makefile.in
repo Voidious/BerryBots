@@ -150,6 +150,7 @@ ifneq ($(LIBARCHIVE_PATH), )
 endif
 
 LINUX_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
+LINUX_CFLAGS += -Wno-deprecated-declarations
 LINUX_LDFLAGS =
 
 ifneq ($(LIBARCHIVE_PATH), )
@@ -180,7 +181,8 @@ LINUX_LDFLAGS += -lsfml-graphics -lsfml-window -lsfml-system -lz -ldl -lpthread
 # linuxcli: Sources and flags for building CLI on Linux / GTK
 LINUXCLI_EXTRA_SOURCES = relativebasedir.cpp relativerespath.cpp
 LINUXCLI_EXTRA_SOURCES += ./luajit/src/libluajit.a
-LINUXCLI_CFLAGS = -I./luajit/src -I./stlsoft-1.9.116/include
+LINUXCLI_CFLAGS =  -I./luajit/src -I./stlsoft-1.9.116/include
+LINUXCLI_CFLAGS += -Wno-deprecated-declarations
 LINUXCLI_LDFLAGS =
 
 ifneq ($(LIBARCHIVE_PATH), )
