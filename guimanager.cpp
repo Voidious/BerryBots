@@ -493,10 +493,6 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
 
   sf::RenderWindow *window;
   bool maintainWindowScale = false;
-#ifndef __WXOSX__
-  bool maintainWindowPosition = false;
-#endif
-  sf::Vector2i prevPosition;
   double prevScale = 1.0;
   double backingScale = getBackingScaleFactor();
   int screenWidth =
@@ -510,31 +506,18 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
       prevScale = ((double) (window_->getSize().x - dockSize)) / viewWidth_;
       maintainWindowScale = true;
     }
-#ifdef __WINDOWS__
-    // sf::Window::getPosition just doesn't work on Linux/GTK, so don't try,
-    // which at least lets the window manager position it to be fully on screen.
-    // On Mac OS X, we reuse the same window.
-    prevPosition = window_->getPosition();
-    maintainWindowPosition = true;
-#endif
   }
   
-#ifdef __WXOSX__
   // On Mac OS X, we need to init SFML before the wxWidgets stuff below or we
   // hit some unexplainable crashes when we delete an SFML window. I don't know
   // why, I've merely devised a work-around. Judging from some SFML forum
   // threads, it sounds likely to be an issue with nightmare-ish video drivers.
-  //
-  // Also on Mac OS X, we reuse the SFML window and adjust its size. It's a much
-  // better experience and avoids lots of SFML / wxWidgets weirdness. It does
-  // create some memory leaks from SFML, but not much, so it's worth it for now.
   if (window_ == 0) {
     window = initMainWindow(backingScale * screenWidth,
                             backingScale * (screenHeight - 75));
   } else {
     window = window_;
   }
-#endif
 
   if (!restarting_) {
     saveCurrentMatchSettings(stageName, teamNames, numUserTeams);
@@ -603,17 +586,7 @@ void GuiManager::runNewMatch(const char *stageName, char **teamNames,
   unsigned int targetWidth = round(windowScale * viewWidth_) + dockSize;
   unsigned int targetHeight = round(windowScale * viewHeight_);
 
-#ifdef __WXOSX__
   window->setSize(sf::Vector2u(targetWidth, targetHeight));
-#else
-  window = initMainWindow(targetWidth, targetHeight);
-
-  if (maintainWindowPosition) {
-    int left = limit(0, prevPosition.x, screenWidth - targetWidth);
-    int top = limit(0, prevPosition.y, screenHeight - targetHeight);
-    window_->setPosition(sf::Vector2i(left, top));
-  }
-#endif
 
   interrupted_ = false;
   paused_ = false;
