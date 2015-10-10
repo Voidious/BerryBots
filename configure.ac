@@ -1,4 +1,4 @@
-AC_INIT([BerryBots], [1.3.2], [voidious@berrybots.com], [berrybots], [http://berrybots.com])
+AC_INIT([BerryBots], [1.3.3], [voidious@berrybots.com], [berrybots], [http://berrybots.com])
 m4_include(scripts/wxwin.m4)
 AC_PROG_CXX
 AC_LANG([C++])
