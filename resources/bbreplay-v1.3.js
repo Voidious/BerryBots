@@ -690,23 +690,23 @@ BerryBots.initGfx = function() {
 
   var scale = BerryBots.canvasScale;
   BerryBots.shipProto = BerryBots.getShipProto();
-  BerryBots.shipProto.setScale(scale, scale);
+  BerryBots.shipProto.setScale({x: scale, y: scale});
   BerryBots.shipDestroyProto = BerryBots.getShipDestroyProto();
-  BerryBots.shipDestroyProto.setScale(scale, scale);
+  BerryBots.shipDestroyProto.setScale({x: scale, y: scale});
   BerryBots.laserProto = BerryBots.getLaserProto();
-  BerryBots.laserProto.setScale(scale, scale);
+  BerryBots.laserProto.setScale({x: scale, y: scale});
   BerryBots.laserPool = [];
   BerryBots.laserSparkProto = BerryBots.getLaserSparkProto();
-  BerryBots.laserSparkProto.setScale(scale, scale);
+  BerryBots.laserSparkProto.setScale({x: scale, y: scale});
   BerryBots.laserSparkPool = [];
   BerryBots.torpedoBlastProto = BerryBots.getTorpedoBlastProto();
-  BerryBots.torpedoBlastProto.setScale(scale, scale);
+  BerryBots.torpedoBlastProto.setScale({x: scale, y: scale});
   BerryBots.torpedoBlastPool = [];
   BerryBots.torpedoProto = BerryBots.getTorpedoProto();
-  BerryBots.torpedoProto.setScale(scale, scale);
+  BerryBots.torpedoProto.setScale({x: scale, y: scale});
   BerryBots.torpedoPool = [];
   BerryBots.torpedoDebrisProto = BerryBots.getTorpedoDebrisProto();
-  BerryBots.torpedoDebrisProto.setScale(scale, scale);
+  BerryBots.torpedoDebrisProto.setScale({x: scale, y: scale});
   BerryBots.torpedoDebrisPool = [];
   BerryBots.textPool = [];
   BerryBots.playbackSpeed = 0.5; // ~30 fps
@@ -2042,8 +2042,9 @@ BerryBots.replay = function() {
                   thruster.setVisible(false);
                 } else {
                   thruster.setVisible(true);
-                  thruster.setScale(BerryBots.THRUSTER_ZERO
-                      + (forceFactor * (1 - BerryBots.THRUSTER_ZERO)));
+                  scale = BerryBots.THRUSTER_ZERO
+                      + (forceFactor * (1 - BerryBots.THRUSTER_ZERO));
+                  thruster.setScale({x: scale, y: scale});
                 }
 
                 var energy = shipState.energy / 100;
@@ -2052,7 +2053,7 @@ BerryBots.replay = function() {
                   energyShape.setVisible(false);
                 } else {
                   energyShape.setVisible(rs.shipShowEnergys[x]);
-                  energyShape.setScale(energy);
+                  energyShape.setScale({x: energy, y: energy});
                 }
                 var shipDotGroup = ship.getChildren()[4];
                 shipDotGroup.setRotation(shipDotGroup.getRotation()
@@ -2155,7 +2156,7 @@ BerryBots.replay = function() {
     var stage = BerryBots.stage;
     var scale = Math.min(1, Math.min(window.innerWidth / stage.getWidth(),
                          window.innerHeight / stage.getHeight()));
-    stage.setScale(scale, scale);
+    stage.setScale({x: scale, y: scale});
   }, BerryBots.layers);
 
   anim.start();
