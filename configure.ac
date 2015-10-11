@@ -62,7 +62,7 @@ if test "$withNodeps" != 1; then
   withLocalLa=0
   AC_ARG_WITH([sfml-src],
               AS_HELP_STRING([--with-sfml-src],
-                [Path to SFML after compiling from source, e.g., /home/voidious/SFML-2.1. Libs in SFML/build/lib, headers in SFML/include.]),
+                [Path to SFML after compiling from source, e.g., /home/voidious/SFML-2.3.2. Libs in SFML/build/lib, headers in SFML/include.]),
               [
               AC_SUBST([sfml_header], "${withval}/include")
               AC_SUBST([sfml_lib], "${withval}/build/lib")
@@ -70,7 +70,7 @@ if test "$withNodeps" != 1; then
               ], [])
   AC_ARG_WITH([sfml-dl],
               AS_HELP_STRING([--with-sfml-dl],
-                [Path to SFML binaries downloaded from web (probably sfml-dev.org), e.g., /home/voidious/SFML-2.1. Libs in SFML/lib, headers in SFML/include.]),
+                [Path to SFML binaries downloaded from web (probably sfml-dev.org), e.g., /home/voidious/SFML-2.3.2. Libs in SFML/lib, headers in SFML/include.]),
               [
               AC_SUBST([sfml_header], "${withval}/include")
               AC_SUBST([sfml_lib], "${withval}/lib")
@@ -85,23 +85,23 @@ if test "$withNodeps" != 1; then
               ], [])
   AC_ARG_WITH([localsfml],
               AS_HELP_STRING([--with-localsfml],
-                [Build with local SFML, for Linux packaging; expects SFML source in ./SFML-2.1 and compiles it inline.]),
+                [Build with local SFML, for Linux packaging; expects SFML source in ./SFML-2.3.2 and compiles it inline.]),
               [
               withSfml=1
               withLocalSfml=1
-              AC_SUBST([sfml_header], [./SFML-2.1/include])
-              AC_SUBST([sfml_lib], [./SFML-2.1/build/lib])
+              AC_SUBST([sfml_header], [./SFML-2.3.2/include])
+              AC_SUBST([sfml_lib], [./SFML-2.3.2/build/lib])
               ],
               [withLocalSfml=0])
   AC_SUBST([localsfml], $withLocalSfml)
 
   AC_ARG_WITH([localwx],
               AS_HELP_STRING([--with-localwx],
-                [Build with local wxWidgets, for Linux packaging; expects wxWidgets source in ./wxWidgets-2.9.5 and compiles it inline.]),
+                [Build with local wxWidgets, for Linux packaging; expects wxWidgets source in ./wxWidgets-3.0.2 and compiles it inline.]),
               [
               withWx=1
               withLocalWx=1
-              AC_SUBST([wx], [./wxWidgets-2.9.5])
+              AC_SUBST([wx], [./wxWidgets-3.0.2])
               ],
               [withLocalWx=0])
   AC_SUBST([localwx], $withLocalWx)

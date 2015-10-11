@@ -231,10 +231,10 @@ none:
 
 MAKE_LUAJIT=cd luajit; $(MAKE); cd ..
 CLEAN_LUAJIT=cd luajit; $(MAKE) clean; cd ..
-MAKE_SFML=cd SFML-2.1; mkdir build; cd build; cmake ..; make; cd ../..
-CLEAN_SFML=rm -rf SFML-2.1/build
-MAKE_WX=cd wxWidgets-2.9.5; ./configure --disable-shared; $(MAKE); cd ..
-CLEAN_WX=cd wxWidgets-2.9.5; make clean; cd ..
+MAKE_SFML=cd SFML-2.3.2; mkdir build; cd build; cmake -DCMAKE_SKIP_RPATH=ON ..; make; cd ../..
+CLEAN_SFML=rm -rf SFML-2.3.2/build
+MAKE_WX=cd wxWidgets-3.0.2; ./configure --disable-shared; $(MAKE); cd ..
+CLEAN_WX=cd wxWidgets-3.0.2; make clean; cd ..
 MAKE_LIBARCHIVE=cd libarchive-3.1.2; ./configure; $(MAKE); cd ..
 CLEAN_LIBARCHIVE=cd libarchive-3.1.2; make clean; cd ..
 

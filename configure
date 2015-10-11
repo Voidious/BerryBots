@@ -1338,17 +1338,17 @@ Optional Packages:
                           or libarchive. The 'webui' binary doesn't need any
                           of them.
   --with-sfml-src         Path to SFML after compiling from source, e.g.,
-                          /home/voidious/SFML-2.1. Libs in SFML/build/lib,
+                          /home/voidious/SFML-2.3.2. Libs in SFML/build/lib,
                           headers in SFML/include.
   --with-sfml-dl          Path to SFML binaries downloaded from web (probably
-                          sfml-dev.org), e.g., /home/voidious/SFML-2.1. Libs
+                          sfml-dev.org), e.g., /home/voidious/SFML-2.3.2. Libs
                           in SFML/lib, headers in SFML/include.
   --with-libarchive       Path to libarchive after compiling from source,
                           e.g., /home/voidious/libarchive-3.1.2
   --with-localsfml        Build with local SFML, for Linux packaging; expects
-                          SFML source in ./SFML-2.1 and compiles it inline.
+                          SFML source in ./SFML-2.3.2 and compiles it inline.
   --with-localwx          Build with local wxWidgets, for Linux packaging;
-                          expects wxWidgets source in ./wxWidgets-2.9.5 and
+                          expects wxWidgets source in ./wxWidgets-3.0.2 and
                           compiles it inline.
   --with-localla          Build with local libarchive, for Linux packaging;
                           expects libarchive source in ./libarchive-3.1.2 and
@@ -2825,9 +2825,9 @@ if test "${with_localsfml+set}" = set; then :
   withval=$with_localsfml;
               withSfml=1
               withLocalSfml=1
-              sfml_header=./SFML-2.1/include
+              sfml_header=./SFML-2.3.2/include
 
-              sfml_lib=./SFML-2.1/build/lib
+              sfml_lib=./SFML-2.3.2/build/lib
 
 
 else
@@ -2843,7 +2843,7 @@ if test "${with_localwx+set}" = set; then :
   withval=$with_localwx;
               withWx=1
               withLocalWx=1
-              wx=./wxWidgets-2.9.5
+              wx=./wxWidgets-3.0.2
 
 
 else

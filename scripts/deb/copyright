@@ -3,9 +3,9 @@ Upstream-Name: berrybots
 Source: http://berrybots.com
 
 Files: *
-Copyright: 2012-2013 Patrick Cupka <pcupka@gmail.com>
+Copyright: 2012-2015 Patrick Cupka <pcupka@gmail.com>
 License: zlib
- Copyright (C) 2012-2013 - Voidious
+ Copyright (C) 2012-2015 - Voidious
  .
  This software is provided 'as-is', without any express or implied
  warranty.  In no event will the authors be held liable for any damages
@@ -23,7 +23,7 @@ License: zlib
     misrepresented as being the original software.
  3. This notice may not be removed or altered from any source distribution.
 
-Files: SFML-2.1/*
+Files: SFML-2.3.2/*
 Copyright: Laurent Gomila
 License: zlib
  This software is provided 'as-is', without any express or implied warranty.
@@ -44,7 +44,7 @@ License: zlib
  .
  3. This notice may not be removed or altered from any source distribution.
 
-Files: wxWidgets-2.9.5/*
+Files: wxWidgets-3.0.2/*
 Copyright: 1998-2005 Julian Smart, Robert Roebling et al
 License: wxWindows Library Licence
                 wxWindows Library Licence, Version 3.1
